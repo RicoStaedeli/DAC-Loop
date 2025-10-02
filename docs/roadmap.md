@@ -16,3 +16,6 @@
 | 02.12. (MI) paper done                     | - paper done                                                  |                                                       |  |
 | 16.12. (MI) final präsi                    | - slides done                                                 |                                                       |  |
 | bis 30.12. finall report                   |                                                               |                                                       |  |
+
+# ResNet18
+- https://medium.com/biased-algorithms/building-resnet18-from-scratch-using-pytorch-64c6619432f2
