@@ -4,11 +4,17 @@ from pydantic import BaseModel, PositiveInt, model_validator, NonNegativeInt
 
 
 # Per-architecture args with defaults
-class ResNet10Args(BaseModel):
+class ResNetArgs(BaseModel):
     classes: int = 10
+    image_channels: int = 10
+
 
 
 # Per-architecture model configs by 'model_version' name)
 class ResNet10Config(BaseModel):
     name: Literal["ResNet10"]
-    args: ResNet10Args = ResNet10Args()
+    args: ResNetArgs = ResNetArgs()
+
+class ResNet18Config(BaseModel):
+    name: Literal["ResNet18"]
+    args: ResNetArgs = ResNetArgs()

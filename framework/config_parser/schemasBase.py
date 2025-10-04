@@ -4,11 +4,11 @@ from typing import Dict, Optional, Union, Annotated, List
 
 from pydantic import BaseModel, Field, PositiveInt, field_validator, model_validator, conint
 
-from .schemasResNet10 import ResNet10Config
+from .schemasResNet import ResNet10Config, ResNet18Config
 
 # TODO: add more model types here (instead of model registry)
 ModelConfig = Annotated[
-    Union[ResNet10Config],
+    Union[ResNet10Config, ResNet18Config],
     Field(discriminator="name")
 ]
 
@@ -46,11 +46,31 @@ class EarlyStoppingConfig(BaseModel):
     min_delta: float = 0.0
     keep_last: int = 1
 
+VALID_INDICES = [
+    "NDVI", "NDWI", "NDMI", "EVI", "SAVI", "NDRE", "GNDVI",
+    "BNDVI", "NBR", "MSI", "NDSI", "NDCI", "ARI", "BUI"
+]
 
+class IndicesConfig(BaseModel):
+    calculated_indices: List[str]
+
+    @field_validator("calculated_indices")
+    @classmethod
+    def validate_indices(cls, v):
+        invalid = [idx for idx in v if idx not in VALID_INDICES]
+        if invalid:
+            raise ValueError(
+                f"Invalid spectral index(es): {invalid}. "
+                f"Valid options are: {', '.join(VALID_INDICES)}"
+            )
+        return v
 
 class TrainingConfig(BaseModel):
     epochs: PositiveInt = 1
     learning_rate: float = 1e-3
+    weight_decay: float = 1e-4
+    scheduler: str = "cosine"  # "cosine", "step", "none"
+    step_size: int = 10
     batch_size: PositiveInt = 1
     log_interval: PositiveInt = 10
     do_not_log_steps: bool = True
@@ -72,6 +92,10 @@ class DataConfig(BaseModel):
     dataset_hf_repo_id: str
     num_used_entries_train:  conint(ge=0)
     num_used_entries_validation:  conint(ge=0)
+    image_size: PositiveInt = 64
+    augment: bool = False
+    normalize: bool = True
+    indices: IndicesConfig = Field(default_factory=IndicesConfig)
 
 
 # top level: validated config aggregated

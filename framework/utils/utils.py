@@ -7,6 +7,7 @@ import tomllib
 from pydantic import ValidationError
 from pathlib import Path
 
+log = logging.getLogger(__name__)
 
 def set_seed(seed: int) -> None:
     """Set random seed for reproducibility across Python, NumPy, and PyTorch."""
@@ -16,6 +17,9 @@ def set_seed(seed: int) -> None:
     torch.use_deterministic_algorithms(True)
     if torch.cuda.is_available():
         torch.cuda.manual_seed_all(seed)
+        torch.backends.cudnn.deterministic = True
+        torch.backends.cudnn.benchmark = False
+
 
 def load_config_toml(path: str | Path) -> AppConfig:
     path = Path(path)
@@ -37,7 +41,6 @@ def log_batch_preview(loader, tok, name: str = "train") -> None:
 
     Only runs if DEBUG logging is enabled.
     """
-    log = logging.getLogger(__name__)
     if not log.isEnabledFor(logging.DEBUG):
         return
 
