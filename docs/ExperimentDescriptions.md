@@ -27,7 +27,7 @@ For each experiment and run, the following information should be recorded:
 
 ## Experiment 1 - baselines
 
-**Goal:** Create a baseline on the **full ATN dataset** (tokens_min = 225 // tokens_max = 511) with minimal GPT-2 implementation (reduced MLP + including MLP) to observe the convergence point and compare future subset approaches against it.
+**Goal:** Train a large teacher model. The training will be done with different combination of spectral bands.
 <details>
 <summary>Experiment 1– extra notes & insights</summary>
 - space for extra comments here
@@ -35,7 +35,7 @@ For each experiment and run, the following information should be recorded:
 
 ### Runs
 
-| Run       | Date       | Author | Config                                   | Model                            | Dataset                                                | Hardware     | Train Time         | Metrics                                                        | Plots                                            | Notes/Issues                                       | Next Steps         |
-|-----------|------------|--------|------------------------------------------|----------------------------------|--------------------------------------------------------|-------------|--------------------|----------------------------------------------------------------|--------------------------------------------------|----------------------------------------------------|--------------------|
-| [1] inval | 2025-09-26 | Lorena | [Config.toml](../configs/exp1_run1.toml) | GPT2 (1 decoder, 1 head)         | HF: /cleaned-atn<br/>(tokens_min = 225 // tokens_max = 511) | DGX-8 Lorena | 16,25 h (58515.3s) | [metrics.json](../Experiments/Experiment_1/Run_1/metrics.json) | [plots](../Experiments/Experiment_1/Run_1/plots) | will be redone inclduing **training loss** as well | TO DELETE, replaced by E1 R3 |
+| Run      | Date       | Author | Config                                            | Model                            | Dataset                  | Hardware   | Train Time         | Metrics                                                        | Plots                                            | Notes/Issues                                      | Next Steps         |
+|----------|------------|--------|---------------------------------------------------|----------------------------------|--------------------------|------------|--------------------|----------------------------------------------------------------|--------------------------------------------------|---------------------------------------------------|--------------------|
+| [1] | 2025-10-05 | Rico   | [Config.toml](../configs/Experiment-1-Run-1.toml) | GPT2 (1 decoder, 1 head)         | Train/Val/Test split of blanchon/EuroSAT_MSI | DGX-7 Rico |  | [metrics.json](../Experiments/Experiment_1/Run_1/metrics.json) | [plots](../Experiments/Experiment_1/Run_1/plots) |  |  |
 
