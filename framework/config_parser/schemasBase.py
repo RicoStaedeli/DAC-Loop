@@ -53,6 +53,7 @@ VALID_INDICES = [
 
 class IndicesConfig(BaseModel):
     calculated_indices: List[str]
+    selected_bands: List[str]
 
     @field_validator("calculated_indices")
     @classmethod

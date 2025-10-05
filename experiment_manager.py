@@ -58,10 +58,11 @@ def main():
             train_ds, val_ds, test_ds = load_eurosat_hf_splits(cfg.data.dataset_hf_repo_id)
             log.info(f"Build loaders")
             train_loader, val_loader, norm_mean, norm_std = build_loaders_from_hf(train_ds, val_ds, cfg.training.batch_size,
-                                                             cfg.data.image_size, cfg.data.indices.calculated_indices, cfg.data.augment, normalize=cfg.data.normalize,stats_samples=0)
+                                                             cfg.data.image_size, cfg.data.indices.calculated_indices, cfg.data.augment, normalize=cfg.data.normalize,stats_samples=0, selected_bands=cfg.data.indices.selected_bands)
 
             extra_channels = len(cfg.data.indices.calculated_indices) if cfg.data.indices.calculated_indices else 0
-            input_channels = cfg.model.args.image_channels + extra_channels
+            input_channels = len(cfg.data.indices.selected_bands) if cfg.data.indices.selected_bands else 0
+            input_channels = input_channels + extra_channels
             log.info(f"Build model {cfg.model.name} with {input_channels} input channels and {cfg.model.args.classes} extra output classes")
             model = ResNet18(input_channels=input_channels, num_classes=cfg.model.args.classes)
 
