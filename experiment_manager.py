@@ -65,7 +65,7 @@ def main():
             log.info(f"Build model {cfg.model.name} with {input_channels} input channels and {cfg.model.args.classes} extra output classes")
             model = ResNet18(input_channels=input_channels, num_classes=cfg.model.args.classes)
 
-            train(cfg, model, device, train_loader, val_loader,experiment_dir)
+            train(cfg, model, device, train_loader, val_loader,experiment_dir, CFG_PATH)
 
         except Exception as e:
             log.error(f"Experiment name: {experiment_name} --> error: {e}")
