@@ -3,13 +3,14 @@ import os
 import shutil
 import time
 from pathlib import Path
-
+import torch
+from torchinfo import summary
 from dotenv import load_dotenv
 
+# Framework Imports
 from framework.dataset.load_for_training import load_eurosat_hf_splits, build_loaders_from_hf
 from framework.models.ResNet18 import ResNet18
 from framework.training.trainer import train
-# Framework Imports
 from framework.utils.logger import setup_logging, log_meta_info
 from framework.utils.utils import set_seed, load_config_toml
 
@@ -46,6 +47,20 @@ def main():
 
         # Start Training
         try:
+            extra_channels = len(cfg.data.indices.calculated_indices) if cfg.data.indices.calculated_indices else 0
+            input_channels = len(cfg.data.indices.selected_bands) if cfg.data.indices.selected_bands else 0
+            input_channels = input_channels + extra_channels
+            log.info(
+                f"Build model {cfg.model.name} with {input_channels} input channels and {cfg.model.args.classes} extra output classes")
+            model = ResNet18(input_channels=input_channels, num_classes=cfg.model.args.classes)
+            batch_size = cfg.training.batch_size
+            image_size = cfg.data.image_size
+            model_info_string = summary(model, input_size=(batch_size, input_channels, image_size,image_size),
+                                        col_names=("input_size", "output_size", "num_params", "trainable"),
+                                        depth=7,
+                                        verbose=0, )
+            log.info("\n" + str(model_info_string))
+
             log.info(f"Starting experiment {experiment_name}")
             log.info(f"Load Dataset")
             train_ds, val_ds, test_ds = load_eurosat_hf_splits(cfg.data.dataset_hf_repo_id)
@@ -61,12 +76,7 @@ def main():
                                                                                   num_workers=cfg.data.num_workers,
                                                                                   pin_memory=cfg.data.pin_memory)
 
-            extra_channels = len(cfg.data.indices.calculated_indices) if cfg.data.indices.calculated_indices else 0
-            input_channels = len(cfg.data.indices.selected_bands) if cfg.data.indices.selected_bands else 0
-            input_channels = input_channels + extra_channels
-            log.info(
-                f"Build model {cfg.model.name} with {input_channels} input channels and {cfg.model.args.classes} extra output classes")
-            model = ResNet18(input_channels=input_channels, num_classes=cfg.model.args.classes)
+
 
             train(cfg, model, train_loader, val_loader, experiment_dir, CFG_PATH)
 
