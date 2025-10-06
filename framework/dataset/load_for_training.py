@@ -249,7 +249,8 @@ def build_loaders_from_hf(train_ds, val_ds, batch_size: int, image_size: int,
             collate_fn=lambda idxs: _collate_hf(
                 train_ds, idxs, image_size, indices, False, None, None, selected_bands
             ),
-            pin_memory=False,
+            num_workers = 4,
+            pin_memory=True,
         )
         norm_mean, norm_std = _calculate_mean_std(tmp_loader)
 
@@ -267,7 +268,8 @@ def build_loaders_from_hf(train_ds, val_ds, batch_size: int, image_size: int,
             norm_std if normalize else None,
             selected_bands,
         ),
-        pin_memory=False,
+        num_workers = 4,
+        pin_memory=True,
     )
 
     val_loader = DataLoader(
@@ -280,7 +282,8 @@ def build_loaders_from_hf(train_ds, val_ds, batch_size: int, image_size: int,
             norm_std if normalize else None,
             selected_bands,
         ),
-        pin_memory=False,
+        num_workers = 4,
+        pin_memory=True,
     ) if val_ds is not None else None
 
     return train_loader, val_loader, norm_mean, norm_std

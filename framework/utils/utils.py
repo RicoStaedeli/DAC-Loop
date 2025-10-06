@@ -6,6 +6,7 @@ from framework.config_parser.schemasBase import AppConfig
 import tomllib
 from pydantic import ValidationError
 from pathlib import Path
+import os
 
 log = logging.getLogger(__name__)
 
@@ -19,6 +20,7 @@ def set_seed(seed: int) -> None:
         torch.cuda.manual_seed_all(seed)
         torch.backends.cudnn.deterministic = True
         torch.backends.cudnn.benchmark = False
+    os.environ["CUBLAS_WORKSPACE_CONFIG"] = ":4096:8" 
 
 
 def load_config_toml(path: str | Path) -> AppConfig:

@@ -18,7 +18,8 @@ load_dotenv()
 
 # TODO: set config paths here to run experiments
 CFG_PATHS = [
-    Path("configs/config.toml")
+    Path("configs/Experiment-1-Run-1.toml"),
+    Path("configs/Experiment-1-Run-2.toml")
     # Path("configs/config_1.toml"),
     # Path("configs/config_2.toml"),
 ]
