@@ -10,6 +10,7 @@ from dotenv import load_dotenv
 # Framework Imports
 from framework.dataset.load_for_training import load_eurosat_hf_splits, build_loaders_from_hf
 from framework.models.ResNet18 import ResNet18
+from framework.models.ResNet10 import ResNet10
 from framework.training.trainer import train
 from framework.utils.logger import setup_logging, log_meta_info
 from framework.utils.utils import set_seed, load_config_toml
@@ -52,7 +53,8 @@ def main():
             input_channels = input_channels + extra_channels
             log.info(
                 f"Build model {cfg.model.name} with {input_channels} input channels and {cfg.model.args.classes} extra output classes")
-            model = ResNet18(input_channels=input_channels, num_classes=cfg.model.args.classes)
+            model = ResNet10(input_channels=input_channels, num_classes=cfg.model.args.classes)
+
             batch_size = cfg.training.batch_size
             image_size = cfg.data.image_size
             model_info_string = summary(model, input_size=(batch_size, input_channels, image_size,image_size),
