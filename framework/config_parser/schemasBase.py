@@ -96,6 +96,8 @@ class DataConfig(BaseModel):
     image_size: PositiveInt = 64
     augment: bool = False
     normalize: bool = True
+    num_workers: int = 4
+    pin_memory: bool = False
     indices: IndicesConfig = Field(default_factory=IndicesConfig)
 
 

@@ -6,8 +6,6 @@ from pydantic import BaseModel, PositiveInt, model_validator, NonNegativeInt
 # Per-architecture args with defaults
 class ResNetArgs(BaseModel):
     classes: int = 10
-    image_channels: int = 10
-
 
 
 # Per-architecture model configs by 'model_version' name)

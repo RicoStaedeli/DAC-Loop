@@ -161,62 +161,6 @@ def _collate_hf(ds, batch_indices, image_size: int,
     return torch.stack(xs, 0), torch.stack(ys, 0)
 
 
-def build_loaders_from_hf(train_ds, val_ds, batch_size: int, image_size: int,
-                          indices: Optional[List[str]],
-                          augment: bool, normalize: bool = False,
-                          norm_mean=None, norm_std=None,
-                          stats_samples: int = 0,
-                          selected_bands: Optional[List[str]] = None):
-    """
-    selected_bands: list of raw bands to include (order respected). If None/empty, keeps all 12.
-    indices: list of spectral index names to append as extra channels (order respected).
-    """
-    if normalize and (norm_mean is None or norm_std is None):
-        log.info("Start normalization.")
-        sample_range = range(len(train_ds) if stats_samples <= 0 else min(stats_samples, len(train_ds)))
-        tmp_loader = DataLoader(
-            sample_range,
-            batch_size=batch_size,
-            shuffle=False,
-            collate_fn=lambda idxs: _collate_hf(
-                train_ds, idxs, image_size, indices, False, None, None, selected_bands
-            ),
-            pin_memory=False,
-        )
-        norm_mean, norm_std = _calculate_mean_std(tmp_loader)
-
-    log.info(f"Build loaders norm_mean: {norm_mean}, norm_std: {norm_std}")
-    train_range = range(len(train_ds))
-    val_range = range(len(val_ds)) if val_ds is not None else range(0)
-
-    train_loader = DataLoader(
-        train_range,
-        batch_size=batch_size,
-        shuffle=True,
-        collate_fn=lambda idxs: _collate_hf(
-            train_ds, idxs, image_size, indices, augment,
-            norm_mean if normalize else None,
-            norm_std if normalize else None,
-            selected_bands,
-        ),
-        pin_memory=False,
-    )
-
-    val_loader = DataLoader(
-        val_range,
-        batch_size=batch_size,
-        shuffle=False,
-        collate_fn=lambda idxs: _collate_hf(
-            val_ds, idxs, image_size, indices, False,
-            norm_mean if normalize else None,
-            norm_std if normalize else None,
-            selected_bands,
-        ),
-        pin_memory=False,
-    ) if val_ds is not None else None
-
-    return train_loader, val_loader, norm_mean, norm_std
-
 
 def _calculate_mean_std(loader):
     channel_sum, channel_sq_sum, num = 0, 0, 0
@@ -234,7 +178,9 @@ def build_loaders_from_hf(train_ds, val_ds, batch_size: int, image_size: int,
                           augment: bool, normalize: bool = False,
                           norm_mean=None, norm_std=None,
                           stats_samples: int = 0,
-                          selected_bands: Optional[List[str]] = None):
+                          selected_bands: Optional[List[str]] = None,
+                          num_workers: int = 4,
+                          pin_memory: bool = False):
     """
     selected_bands: list of raw bands to include (order respected). If None/empty, keeps all 12.
     indices: list of spectral index names to append as extra channels (order respected).
@@ -249,8 +195,8 @@ def build_loaders_from_hf(train_ds, val_ds, batch_size: int, image_size: int,
             collate_fn=lambda idxs: _collate_hf(
                 train_ds, idxs, image_size, indices, False, None, None, selected_bands
             ),
-            num_workers = 4,
-            pin_memory=True,
+            num_workers = num_workers,
+            pin_memory=pin_memory,
         )
         norm_mean, norm_std = _calculate_mean_std(tmp_loader)
 
@@ -268,8 +214,8 @@ def build_loaders_from_hf(train_ds, val_ds, batch_size: int, image_size: int,
             norm_std if normalize else None,
             selected_bands,
         ),
-        num_workers = 4,
-        pin_memory=True,
+        num_workers = num_workers,
+        pin_memory=pin_memory,
     )
 
     val_loader = DataLoader(
@@ -282,8 +228,8 @@ def build_loaders_from_hf(train_ds, val_ds, batch_size: int, image_size: int,
             norm_std if normalize else None,
             selected_bands,
         ),
-        num_workers = 4,
-        pin_memory=True,
+        num_workers = num_workers,
+        pin_memory=pin_memory,
     ) if val_ds is not None else None
 
     return train_loader, val_loader, norm_mean, norm_std
