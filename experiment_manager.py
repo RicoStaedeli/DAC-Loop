@@ -67,7 +67,7 @@ def main():
             log.info(f"Load Dataset")
             train_ds, val_ds, test_ds = load_eurosat_hf_splits(cfg.data.dataset_hf_repo_id)
             log.info(f"Build loaders")
-            train_loader, val_loader, norm_mean, norm_std = build_loaders_from_hf(train_ds, val_ds,
+            train_loader, val_loader= build_loaders_from_hf(train_ds, val_ds,
                                                                                   cfg.training.batch_size,
                                                                                   cfg.data.image_size,
                                                                                   cfg.data.indices.calculated_indices,

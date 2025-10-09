@@ -6,6 +6,7 @@ import torch
 import torchvision.transforms.functional as TF
 from datasets import load_dataset, Dataset
 from torch.utils.data import DataLoader
+from tqdm import tqdm
 
 log = logging.getLogger(__name__)
 
@@ -156,15 +157,14 @@ def _collate_hf(ds, batch_indices, image_size: int,
         x, y = _preprocess_sample(
             ds[int(i)], image_size, indices, augment, mean, std, selected_bands
         )
-        xs.append(x);
+        xs.append(x)
         ys.append(y)
     return torch.stack(xs, 0), torch.stack(ys, 0)
 
 
-
-def _calculate_mean_std(loader):
+def _calculate_mean_std(loader,desc):
     channel_sum, channel_sq_sum, num = 0, 0, 0
-    for images, _ in loader:
+    for images, _ in tqdm(loader, desc=f"Calculating mean and std for {len(loader)} batches for {desc}"):
         channel_sum = channel_sum + images.sum(dim=[0, 2, 3])
         channel_sq_sum = channel_sq_sum + (images ** 2).sum(dim=[0, 2, 3])
         num += images.size(0) * images.size(2) * images.size(3)
@@ -195,12 +195,17 @@ def build_loaders_from_hf(train_ds, val_ds, batch_size: int, image_size: int,
             collate_fn=lambda idxs: _collate_hf(
                 train_ds, idxs, image_size, indices, False, None, None, selected_bands
             ),
-            num_workers = num_workers,
+            num_workers=num_workers,
             pin_memory=pin_memory,
         )
-        norm_mean, norm_std = _calculate_mean_std(tmp_loader)
+        # Calculate the mean and std over the training dataset. This gives a statistical measurement to use for the later normalization when creating the real loaders for train/validation
+        norm_mean, norm_std = _calculate_mean_std(tmp_loader, desc="Training Dataset before Normalization")
+        log.info(
+            f"Before normalization --> "
+            f"norm_mean: {norm_mean.tolist()!r}\n"
+            f"norm_std: {norm_std.tolist()!r}"
+        )
 
-    log.info(f"Build loaders norm_mean: {norm_mean}, norm_std: {norm_std}")
     train_range = range(len(train_ds))
     val_range = range(len(val_ds)) if val_ds is not None else range(0)
 
@@ -214,9 +219,17 @@ def build_loaders_from_hf(train_ds, val_ds, batch_size: int, image_size: int,
             norm_std if normalize else None,
             selected_bands,
         ),
-        num_workers = num_workers,
+        num_workers=num_workers,
         pin_memory=pin_memory,
     )
+
+    # Log after normalization only in DEBUG mode because it is time intensive
+    if logging.getLevelName(log.getEffectiveLevel()) == "DEBUG":
+        mean_after_normalization, std_after_normalization = _calculate_mean_std(train_loader, desc="Training Dataset after Normalization")
+        log.info(f"After normalization (Train) --> "
+                 f"norm_mean: {mean_after_normalization.tolist()!r}\n"
+                 f"norm_std: {std_after_normalization.tolist()!r}"
+                 )
 
     val_loader = DataLoader(
         val_range,
@@ -228,11 +241,20 @@ def build_loaders_from_hf(train_ds, val_ds, batch_size: int, image_size: int,
             norm_std if normalize else None,
             selected_bands,
         ),
-        num_workers = num_workers,
+        num_workers=num_workers,
         pin_memory=pin_memory,
     ) if val_ds is not None else None
 
-    return train_loader, val_loader, norm_mean, norm_std
+    # Log after normalization only in DEBEG mode because it is time intensive
+    if logging.getLevelName(log.getEffectiveLevel()) == "DEBUG":
+        # mean and std of validation dataset are not perfectly normalized scince the used std and mean is only as good as the train dataset generalizes
+        mean_after_normalization, std_after_normalization = _calculate_mean_std(val_loader, desc="Validation Dataset after Normalization")
+        log.info(f"After normalization (Validation) --> "
+                 f"norm_mean: {mean_after_normalization.tolist()!r}\n"
+                 f"norm_std: {std_after_normalization.tolist()!r}"
+                 )
+
+    return train_loader, val_loader
 
 
 def _mixup_data(x, y, alpha: float = 1.0):
