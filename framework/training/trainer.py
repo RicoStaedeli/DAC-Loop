@@ -17,9 +17,11 @@ from framework.utils.logger import log_section
 log = logging.getLogger(__name__)
 
 
-def train(cfg, model, train_loader, val_loader, experiment_dir: Path, config_path) -> None:
+
+def train(cfg, teacher, student, train_loader, val_loader, experiment_dir: Path, config_path) -> None:
     criterion = nn.CrossEntropyLoss()
-    optimizer = _make_optimizer(model, cfg.training.learning_rate, cfg.training.weight_decay)
+    optimizer = _make_optimizer(student if student is not None else teacher, cfg.training.learning_rate, cfg.training.weight_decay)
+
     scheduler = _make_scheduler(optimizer, cfg.training.scheduler, cfg.training.epochs)
 
     best_val_acc = 0.0
@@ -39,7 +41,12 @@ def train(cfg, model, train_loader, val_loader, experiment_dir: Path, config_pat
         device = torch.device("cpu")
 
     log.info(f"Using device: {device} --> move model to device: {device}")
-    model.to(device)
+
+    if student is not None:
+        student.to(device)
+        teacher.to(device)
+    else:
+        teacher.to(device)
 
     if load_from_checkpoint:
         log.info("Loading checkpoint from %s", previous_checkpoint_path)
@@ -51,8 +58,17 @@ def train(cfg, model, train_loader, val_loader, experiment_dir: Path, config_pat
 
     for epoch in range(1, cfg.training.epochs + 1):
         time_t0 = time.time()
-        train_metrics = _train_one_epoch(model, train_loader, device, criterion, optimizer, epoch, cfg.training.epochs)
-        val_metrics = _evaluate(model, val_loader, device, criterion)
+
+        if student is not None:
+            train_metrics = _train_one_epoch_with_kd(teacher,student, train_loader, device, criterion, optimizer, epoch,
+                                             cfg.training.epochs)
+            val_metrics = _evaluate(student, val_loader, device, criterion)
+
+        else:
+            train_metrics = _train_one_epoch(teacher, train_loader, device, criterion, optimizer, epoch,
+                                             cfg.training.epochs)
+
+            val_metrics = _evaluate(teacher, val_loader, device, criterion)
         if scheduler: scheduler.step()
 
         log.info(
@@ -105,6 +121,53 @@ def train(cfg, model, train_loader, val_loader, experiment_dir: Path, config_pat
         shutil.copy2(config_path, experiment_dir / "config.toml")
 
 
+# Tutorial here: https://docs.pytorch.org/tutorials/beginner/knowledge_distillation_tutorial.html
+def _train_one_epoch_with_kd(teacher, student, loader, device, criterion, optimizer, current_epoch, epochs, T=2, soft_target_loss_weight=0.25, ce_loss_weight=0.75) -> Dict[str, float]:
+    teacher.eval()  # Teacher set to evaluation mode
+    student.train()  # Student to train mode
+
+    total_loss, total, top1_sum = 0.0, 0, 0.0
+    num_steps = len(loader)
+    log.info(f"Epoch {current_epoch}/{epochs} — {num_steps} steps total")
+
+    for images, labels in tqdm(loader, desc=f"Epoch {current_epoch}/{epochs}"):
+        images, labels = images.to(device), labels.to(device)
+        optimizer.zero_grad()
+
+        # Forward pass with the teacher model - do not save gradients here as we do not change the teacher's weights
+        with torch.no_grad():
+            teacher_logits = teacher(images)
+
+        # Forward pass with the student model
+        student_logits = student(images)
+
+        # Soften the student logits by applying softmax first and log() second
+        soft_targets = nn.functional.softmax(teacher_logits / T, dim=-1)
+        soft_prob = nn.functional.log_softmax(student_logits / T, dim=-1)
+
+        # Calculate the soft targets loss. Scaled by T**2 as suggested by the authors of the paper "Distilling the knowledge in a neural network"
+        soft_targets_loss = torch.sum(soft_targets * (soft_targets.log() - soft_prob)) / soft_prob.size()[0] * (T ** 2)
+
+        # Calculate the true label loss
+        label_loss = criterion(student_logits, labels)
+
+        # Weighted sum of the two losses
+        loss = soft_target_loss_weight * soft_targets_loss + ce_loss_weight * label_loss
+
+        loss.backward()
+        optimizer.step()
+
+
+        with torch.no_grad():
+            top1, = _accuracy_topk(student_logits, labels, topk=(1,))
+
+        # Each loss.item() returned by criterion(logits, y) is already averaged over the batch (because nn.CrossEntropyLoss by default uses reduction='mean').
+        total_loss += loss.item() * images.size(0)
+
+        # If your batch has shape [B, C, H, W] (batch size, channels, height, width), then x.size(0) is B, the number of samples in this batch.
+        total += images.size(0)
+        top1_sum += top1.item() * images.size(0) / 100.0
+    return {"loss": total_loss / total, "acc": 100.0 * top1_sum / total}
 
 
 def _train_one_epoch(model, loader, device, criterion, optimizer, current_epoch, epochs) -> Dict[str, float]:
