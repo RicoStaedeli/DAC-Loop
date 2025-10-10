@@ -3,14 +3,15 @@ import os
 import shutil
 import time
 from pathlib import Path
-import torch
-from torchinfo import summary
+
 from dotenv import load_dotenv
+from torchinfo import summary
 
 # Framework Imports
 from framework.dataset.load_for_training import load_eurosat_hf_splits, build_loaders_from_hf
-from framework.models.ResNet18 import ResNet18
 from framework.models.ResNet10 import ResNet10
+from framework.models.ResNet18 import ResNet18
+from framework.models.TinyCNN import TinyCNN
 from framework.training.trainer import train
 from framework.utils.logger import setup_logging, log_meta_info
 from framework.utils.utils import set_seed, load_config_toml
@@ -53,34 +54,43 @@ def main():
             input_channels = input_channels + extra_channels
             log.info(
                 f"Build model {cfg.model.name} with {input_channels} input channels and {cfg.model.args.classes} extra output classes")
-            model = ResNet10(input_channels=input_channels, num_classes=cfg.model.args.classes)
+            # model_student = ResNet10(input_channels=input_channels, num_classes=cfg.model.args.classes)
+            model_student = TinyCNN(input_channels=input_channels, num_classes=cfg.model.args.classes)
+            # model_teacher = ResNet18(input_channels=input_channels, num_classes=cfg.model.args.classes)
+            model_teacher = TinyCNN(input_channels=input_channels, num_classes=cfg.model.args.classes)
 
             batch_size = cfg.training.batch_size
             image_size = cfg.data.image_size
-            model_info_string = summary(model, input_size=(batch_size, input_channels, image_size,image_size),
+            model_info_string = summary(model_student, input_size=(batch_size, input_channels, image_size, image_size),
                                         col_names=("input_size", "output_size", "num_params", "trainable"),
                                         depth=7,
                                         verbose=0, )
-            log.info("\n" + str(model_info_string))
+            log.info("Student:\n---------------------------\n" + str(model_info_string))
+
+            model_info_string = summary(model_teacher, input_size=(batch_size, input_channels, image_size, image_size),
+                                        col_names=("input_size", "output_size", "num_params", "trainable"),
+                                        depth=7,
+                                        verbose=0, )
+            log.info("Teacher:\n---------------------------\n" + str(model_info_string))
 
             log.info(f"Starting experiment {experiment_name}")
             log.info(f"Load Dataset")
             train_ds, val_ds, test_ds = load_eurosat_hf_splits(cfg.data.dataset_hf_repo_id)
             log.info(f"Build loaders")
-            train_loader, val_loader= build_loaders_from_hf(train_ds, val_ds,
-                                                                                  cfg.training.batch_size,
-                                                                                  cfg.data.image_size,
-                                                                                  cfg.data.indices.calculated_indices,
-                                                                                  cfg.data.augment,
-                                                                                  normalize=cfg.data.normalize,
-                                                                                  stats_samples=0,
-                                                                                  selected_bands=cfg.data.indices.selected_bands,
-                                                                                  num_workers=cfg.data.num_workers,
-                                                                                  pin_memory=cfg.data.pin_memory)
+            train_loader, val_loader = build_loaders_from_hf(train_ds, val_ds,
+                                                             cfg.training.batch_size,
+                                                             cfg.data.image_size,
+                                                             cfg.data.indices.calculated_indices,
+                                                             cfg.data.augment,
+                                                             normalize=cfg.data.normalize,
+                                                             stats_samples=0,
+                                                             selected_bands=cfg.data.indices.selected_bands,
+                                                             num_workers=cfg.data.num_workers,
+                                                             pin_memory=cfg.data.pin_memory)
 
-
-
-            train(cfg, model, train_loader, val_loader, experiment_dir, CFG_PATH)
+            train(cfg, teacher=model_teacher,
+                  student=model_student if cfg.training.teacher_student.train_student else None,
+                  train_loader=train_loader, val_loader=val_loader, experiment_dir=experiment_dir, config_path=CFG_PATH)
 
         except Exception as e:
             log.error(f"Experiment name: {experiment_name} --> error: {e}")
@@ -93,7 +103,7 @@ def main():
 
 
 def _create_log_directory(cfg) -> Path:
-    experiment_log_dir = Path(f"Experiments/{cfg.experiment.name}/Run_{cfg.experiment.run}")
+    experiment_log_dir = Path(f"experiments/{cfg.experiment.name}/Run_{cfg.experiment.run}")
     if os.path.exists(experiment_log_dir) and cfg.saving.overwrite_run == False:
         raise ValueError("There is already a directory named '%s'. Check if you updated the run ID to a new one. "
                          "If you want to overwrite the current existing directory please set the parameter in the config file.",

@@ -17,12 +17,15 @@ from framework.utils.logger import log_section
 log = logging.getLogger(__name__)
 
 
-
 def train(cfg, teacher, student, train_loader, val_loader, experiment_dir: Path, config_path) -> None:
     criterion = nn.CrossEntropyLoss()
-    optimizer = _make_optimizer(student if student is not None else teacher, cfg.training.learning_rate, cfg.training.weight_decay)
+    optimizer_teacher = _make_optimizer(teacher, cfg.training.learning_rate, cfg.training.weight_decay)
 
-    scheduler = _make_scheduler(optimizer, cfg.training.scheduler, cfg.training.epochs)
+    if student is not None:
+        optimizer_student = _make_optimizer(student, cfg.training.learning_rate, cfg.training.weight_decay)
+        scheduler = _make_scheduler(optimizer_student, cfg.training.scheduler, cfg.training.epochs)
+    else:
+        scheduler = _make_scheduler(optimizer_teacher, cfg.training.scheduler, cfg.training.epochs)
 
     best_val_acc = 0.0
     epochs_no_improve = 0
@@ -32,6 +35,7 @@ def train(cfg, teacher, student, train_loader, val_loader, experiment_dir: Path,
     # load from checkpoint
     load_from_checkpoint = cfg.training.load_from_checkpoint
     previous_checkpoint_path = cfg.training.previous_checkpoint_path
+    teacher_model_path = cfg.training.teacher_student.teacher_model_path
 
     if torch.backends.mps.is_available():
         device = torch.device("mps")
@@ -45,13 +49,17 @@ def train(cfg, teacher, student, train_loader, val_loader, experiment_dir: Path,
     if student is not None:
         student.to(device)
         teacher.to(device)
+        log.info("Loading teacher from checkpoint %s", teacher_model_path)
+        teacher, optimizer = _load_checkpoint(teacher, optimizer_teacher, teacher_model_path,
+                                              device=device)
     else:
         teacher.to(device)
 
     if load_from_checkpoint:
         log.info("Loading checkpoint from %s", previous_checkpoint_path)
-        model, optimizer = _load_checkpoint(model, optimizer, previous_checkpoint_path,
+        teacher, optimizer = _load_checkpoint(teacher, optimizer_teacher, previous_checkpoint_path,
                                                                     device=device)
+
 
     # Log Training start for overview in logfile
     log_section("TRAINING START")
@@ -60,12 +68,12 @@ def train(cfg, teacher, student, train_loader, val_loader, experiment_dir: Path,
         time_t0 = time.time()
 
         if student is not None:
-            train_metrics = _train_one_epoch_with_kd(teacher,student, train_loader, device, criterion, optimizer, epoch,
+            train_metrics = _train_one_epoch_with_kd(teacher,student, train_loader, device, criterion, optimizer_student, epoch,
                                              cfg.training.epochs)
             val_metrics = _evaluate(student, val_loader, device, criterion)
 
         else:
-            train_metrics = _train_one_epoch(teacher, train_loader, device, criterion, optimizer, epoch,
+            train_metrics = _train_one_epoch(teacher, train_loader, device, criterion, optimizer_student, epoch,
                                              cfg.training.epochs)
 
             val_metrics = _evaluate(teacher, val_loader, device, criterion)
@@ -97,7 +105,7 @@ def train(cfg, teacher, student, train_loader, val_loader, experiment_dir: Path,
         # Save every epoch
         _save_checkpoint({
             "epoch": epoch,
-            "model_state": model.state_dict(),
+            "model_state": student.state_dict() if student is not None else teacher.state_dict(),
             "optimizer_state": optimizer.state_dict()
         }, f"{experiment_dir}/epoch_{epoch}.pt")
 
@@ -106,7 +114,7 @@ def train(cfg, teacher, student, train_loader, val_loader, experiment_dir: Path,
             epochs_no_improve = 0
             _save_checkpoint({
                 "epoch": epoch,
-                "model_state": model.state_dict(),
+                "model_state": student.state_dict() if student is not None else teacher.state_dict(),
                 "optimizer_state": optimizer.state_dict(),
                 "best_val_acc": best_val_acc,
             }, f"{experiment_dir}/best.pt")
@@ -220,8 +228,8 @@ def _make_scheduler(optimizer, scheme: str, epochs: int):
 def _load_checkpoint(model, optimizer, filename, device):
     checkpoint = torch.load(filename, map_location=device)
 
-    model.load_state_dict(checkpoint['model_state_dict'])
-    optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+    model.load_state_dict(checkpoint['model_state'])
+    optimizer.load_state_dict(checkpoint['optimizer_state'])
 
     print(f"Loaded checkpoint")
     return model, optimizer

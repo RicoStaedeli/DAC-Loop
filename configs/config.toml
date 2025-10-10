@@ -13,7 +13,7 @@ enabled = false                                                 # (bool) default
 
 [experiment]
 name = "Experiment_XY"                                          # (string) default: Experiment_XY | Identifier for the experiment (used in saving checkpoints and logging).
-run = 2                                                         # (int) default: 1 | Run ID (used in saving checkpoints and logging).
+run = 5                                                         # (int) default: 1 | Run ID (used in saving checkpoints and logging).
 
 [saving]
 overwrite_run = true                                            # (bool) default: false | If true an existing run will be overwritten
@@ -28,8 +28,10 @@ do_not_log_steps = false                                        # (bool) default
 seed = 42                                                       # (int) default: 42 | Random seed for reproducibility.
 load_from_checkpoint = false                                    # (bool) default: False | Resume training from a saved checkpoint if true.
 previous_checkpoint_path = ""                                   # (string) default: None | Path to a checkpoint file for resuming training. Only relevant if load_from_checkpoint = true.
-train_student = true
-teacher_model_path = ""
+
+[training.teacher_student]
+train_student = false                                                # (bool) default: false | Whether a student is trained or not. If false a teacher model is trained.
+teacher_model_path = "experiments/Experiment_1/Run_1/epoch_10.pt"   # (string) default: | Path to trained ResNet18 Model (Teacher)
 
 [training.early_stopping]
 enabled = false                         # (bool) default: False | Whether to use early stopping or not
@@ -39,10 +41,10 @@ keep_last = 0                           # (int) default: 0 | Number of last chec
 
 
 [model]
-name = "ResNet18"                   # (string) default:  | Identifier for the experiment (used in saving checkpoints and logging).
+name = "ResNet18"                       # (string) default:  | Identifier for the experiment (used in saving checkpoints and logging).
 
 [model.args]
-classes = 10                        # (int) default: 10 | How manny classes the dataset has. Used for FC layer in CNN
+classes = 10                            # (int) default: 10 | How manny classes the dataset has. Used for FC layer in CNN
 
 [data]
 dataset_hf_repo_id = "blanchon/EuroSAT_MSI"   # (string) default:  | Huggingface Repo of the dataset
