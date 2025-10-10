@@ -20,6 +20,7 @@ log = logging.getLogger(__name__)
 def train(cfg, teacher, student, train_loader, val_loader, experiment_dir: Path, config_path) -> None:
     criterion = nn.CrossEntropyLoss()
     optimizer_teacher = _make_optimizer(teacher, cfg.training.learning_rate, cfg.training.weight_decay)
+    optimizer_student = None
 
     if student is not None:
         optimizer_student = _make_optimizer(student, cfg.training.learning_rate, cfg.training.weight_decay)
@@ -67,13 +68,13 @@ def train(cfg, teacher, student, train_loader, val_loader, experiment_dir: Path,
     for epoch in range(1, cfg.training.epochs + 1):
         time_t0 = time.time()
 
-        if student is not None:
+        if student is not None and optimizer_student is not None:
             train_metrics = _train_one_epoch_with_kd(teacher,student, train_loader, device, criterion, optimizer_student, epoch,
                                              cfg.training.epochs)
             val_metrics = _evaluate(student, val_loader, device, criterion)
 
         else:
-            train_metrics = _train_one_epoch(teacher, train_loader, device, criterion, optimizer_student, epoch,
+            train_metrics = _train_one_epoch(teacher, train_loader, device, criterion, optimizer_teacher, epoch,
                                              cfg.training.epochs)
 
             val_metrics = _evaluate(teacher, val_loader, device, criterion)
@@ -91,7 +92,6 @@ def train(cfg, teacher, student, train_loader, val_loader, experiment_dir: Path,
             "val_loss": float(val_metrics['loss']),
             "val_accuracy": float(val_metrics['acc']),
             "epoch": epoch,
-            "lr": float(next(iter(optimizer.param_groups))["lr"]),
             "time_per_epoch": time_t1,
         }
 
@@ -106,7 +106,7 @@ def train(cfg, teacher, student, train_loader, val_loader, experiment_dir: Path,
         _save_checkpoint({
             "epoch": epoch,
             "model_state": student.state_dict() if student is not None else teacher.state_dict(),
-            "optimizer_state": optimizer.state_dict()
+            "optimizer_state": optimizer_student.state_dict() if student is not None else optimizer_teacher.state_dict(),
         }, f"{experiment_dir}/epoch_{epoch}.pt")
 
         if val_metrics["acc"] > best_val_acc:
@@ -115,7 +115,7 @@ def train(cfg, teacher, student, train_loader, val_loader, experiment_dir: Path,
             _save_checkpoint({
                 "epoch": epoch,
                 "model_state": student.state_dict() if student is not None else teacher.state_dict(),
-                "optimizer_state": optimizer.state_dict(),
+                "optimizer_state": optimizer_student.state_dict() if student is not None else optimizer_teacher.state_dict(),
                 "best_val_acc": best_val_acc,
             }, f"{experiment_dir}/best.pt")
         else:
