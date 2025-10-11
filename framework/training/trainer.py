@@ -5,6 +5,7 @@ from torch import Tensor
 import torch.nn as nn
 from torch.optim import AdamW
 from torch.optim.lr_scheduler import CosineAnnealingLR
+import torch.nn.functional as F
 import logging
 from tqdm import tqdm
 import time
@@ -81,7 +82,7 @@ def train(cfg, teacher, student, train_loader, val_loader, experiment_dir: Path,
         if scheduler: scheduler.step()
 
         log.info(
-            f"Epoch {epoch:03d} | train_loss {train_metrics['loss']:.4f} train_accuracy {train_metrics['acc']:.2f}% | val_loss {val_metrics['loss']:.4f} val_accuracy {val_metrics['acc']:.2f}%")
+            f"Epoch {epoch:03d} | train_loss {train_metrics['loss']:.4f} train_accuracy {train_metrics['acc']:.2f}% | val_loss {val_metrics['loss']:.4f} val_accuracy {val_metrics['acc']:.2f} val_MSE {val_metrics['mse']:.2f}%")
 
         time_t1 = time.time() - time_t0
         log.info(f"Time taken for epoch {epoch} = {time_t1:.2f} sec")
@@ -91,6 +92,7 @@ def train(cfg, teacher, student, train_loader, val_loader, experiment_dir: Path,
             "train_accuracy": float(train_metrics['acc']),
             "val_loss": float(val_metrics['loss']),
             "val_accuracy": float(val_metrics['acc']),
+            "val_MSE": float(val_metrics['mse']),
             "epoch": epoch,
             "time_per_epoch": time_t1,
         }
@@ -204,17 +206,29 @@ def _train_one_epoch(model, loader, device, criterion, optimizer, current_epoch,
 
 def _evaluate(model, loader, device, criterion) -> Dict[str, float]:
     model.eval()
-    total_loss, total, top1_sum = 0.0, 0, 0.0
+    total_loss, total_mse, total, top1_sum = 0.0, 0.0, 0, 0.0
+
     with torch.no_grad():
         for x, y in loader:
             x, y = x.to(device), y.to(device)
             logits = model(x)
             loss = criterion(logits, y)
+
+            probs = F.softmax(logits, dim=1)
+            y_onehot = F.one_hot(y, num_classes=probs.size(1)).float()
+            mse = F.mse_loss(probs, y_onehot, reduction='mean')
+
             top1, = _accuracy_topk(logits, y, topk=(1,))
             total_loss += loss.item() * x.size(0)
+            total_mse += mse.item() * x.size(0)
             total += x.size(0)
             top1_sum += top1.item() * x.size(0) / 100.0
-    return {"loss": total_loss / total, "acc": 100.0 * top1_sum / total}
+
+    return {
+        "loss": total_loss / total,
+        "mse": total_mse / total,
+        "acc": 100.0 * top1_sum / total
+    }
 
 
 def _make_optimizer(model: nn.Module, lr: float, weight_decay: float):

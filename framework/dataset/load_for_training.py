@@ -40,29 +40,32 @@ _VALID_INDICES = set(SPECTRAL_INDICES.keys())
 
 
 def load_eurosat_hf_splits(dataset_hf_repo_id: str) -> tuple[Dataset | None, Dataset | None, Dataset | None]:
-    log.info(f"Loading Eurosat HF splits... from blanchon/EuroSAT_MSI")
+    """
+    This function loads the EuroSAT HF splits dataset.
+    It returns the train, val and test splits.
+    """
+    log.info(f"Loading Dataset: {dataset_hf_repo_id}")
     ds = load_dataset(dataset_hf_repo_id)
     train_ds = ds.get("train", None)
     val_ds = ds.get("validation", None) or ds.get("val", None)
     test_ds = ds.get("test", None)
-    log.info("Finished loading Eurosat HF splits")
+    log.info("Finished loading EuroSAT HF splits")
     return train_ds, val_ds, test_ds
 
 
 def _pick_image(sample: dict):
+    """
+    This function picks an image from the sample.
+    """
     if "image" in sample:
         return np.array(sample["image"])
-    for v in sample.values():
-        try:
-            arr = np.array(v)
-            if arr.ndim >= 2:
-                return arr
-        except Exception:
-            pass
     raise KeyError("Could not find image array in sample.")
 
 
 def _pick_label(sample: dict):
+    """
+    This function loads the label of the given sample.
+    """
     if "label" in sample:
         return int(sample["label"])
     raise KeyError("Could not find label in sample.")
@@ -90,8 +93,10 @@ def _bands_dict(cube: np.ndarray) -> dict:
     return {b: cube[i] for i, b in enumerate(BAND_ORDER[:cube.shape[0]])}
 
 
-# NEW: select a subset of raw bands (preserves user order)
 def _select_bands(cube: np.ndarray, selected_bands: Optional[List[str]]) -> np.ndarray:
+    """
+    This function selects all bands specified by the selected_bands argument.
+    """
     if not selected_bands:
         return cube  # keep all 12 in BAND_ORDER
     for b in selected_bands:
@@ -102,8 +107,10 @@ def _select_bands(cube: np.ndarray, selected_bands: Optional[List[str]]) -> np.n
     return cube[idxs, :, :].astype(np.float32)
 
 
-# Slightly refactored: compute only the extra channels, don't concat original cube here
 def _compute_indices_only(cube: np.ndarray, indices: List[str]) -> Optional[np.ndarray]:
+    """
+    This function computes indices only for a given set of bands.
+    """
     if not indices:
         return None
     for name in indices:
@@ -114,7 +121,6 @@ def _compute_indices_only(cube: np.ndarray, indices: List[str]) -> Optional[np.n
     return np.stack(idx_maps, axis=0).astype(np.float32)
 
 
-# NEW: single place to produce the final channel stack
 def _assemble_channels(cube: np.ndarray,
                        selected_bands: Optional[List[str]],
                        indices: Optional[List[str]]) -> np.ndarray:
@@ -134,6 +140,9 @@ def _preprocess_sample(sample: dict, image_size: int,
                        indices: Optional[List[str]], augment: bool,
                        mean=None, std=None,
                        selected_bands: Optional[List[str]] = None):
+    """
+    This function preprocesses the given sample. If augment is enabled it will be applied.
+    """
     cube = _ensure_chw(_pick_image(sample))  # full 12 base bands in BAND_ORDER
     cube = _assemble_channels(cube, selected_bands, indices)  # apply selection + indices
     x = torch.from_numpy(cube).float()
@@ -152,6 +161,9 @@ def _preprocess_sample(sample: dict, image_size: int,
 def _collate_hf(ds, batch_indices, image_size: int,
                 indices: Optional[List[str]], augment: bool,
                 mean, std, selected_bands: Optional[List[str]]):
+    """
+    This function collates the dataset into batches and preprocesses the images.
+    """
     xs, ys = [], []
     for i in batch_indices:
         x, y = _preprocess_sample(
@@ -163,6 +175,9 @@ def _collate_hf(ds, batch_indices, image_size: int,
 
 
 def _calculate_mean_std(loader,desc):
+    """
+    Calculates the mean and std of the given dataset.
+    """
     channel_sum, channel_sq_sum, num = 0, 0, 0
     for images, _ in tqdm(loader, desc=f"Calculating mean and std for {len(loader)} batches for {desc}"):
         channel_sum = channel_sum + images.sum(dim=[0, 2, 3])
@@ -245,7 +260,7 @@ def build_loaders_from_hf(train_ds, val_ds, batch_size: int, image_size: int,
         pin_memory=pin_memory,
     ) if val_ds is not None else None
 
-    # Log after normalization only in DEBEG mode because it is time intensive
+    # Log after normalization only in DEBUG mode because it is time intensive
     if logging.getLevelName(log.getEffectiveLevel()) == "DEBUG":
         # mean and std of validation dataset are not perfectly normalized scince the used std and mean is only as good as the train dataset generalizes
         mean_after_normalization, std_after_normalization = _calculate_mean_std(val_loader, desc="Validation Dataset after Normalization")
