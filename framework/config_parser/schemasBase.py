@@ -4,11 +4,11 @@ from typing import Dict, Optional, Union, Annotated, List
 
 from pydantic import BaseModel, Field, PositiveInt, field_validator, model_validator, conint
 
-from .schemasResNet import ResNet10Config, ResNet18Config
+from .schemasCNN import ResNet10Config, ResNet18Config, TinyCNNConfig
 
 # TODO: add more model types here (instead of model registry)
 ModelConfig = Annotated[
-    Union[ResNet10Config, ResNet18Config],
+    Union[ResNet10Config, ResNet18Config, TinyCNNConfig],
     Field(discriminator="name")
 ]
 
@@ -42,6 +42,7 @@ class SavingConfig(BaseModel):
 class TeacherStudentConfig(BaseModel):
     train_student: bool = False
     teacher_model_path: Optional[str] = None
+    teacher_model_name: Optional[str] = None
 
 class EarlyStoppingConfig(BaseModel):
     enabled: bool = False
