@@ -4,7 +4,7 @@ import shutil
 import time
 from pathlib import Path
 from typing import Optional, Tuple
-
+import tomllib
 from dotenv import load_dotenv
 from torchinfo import summary
 
@@ -18,17 +18,18 @@ from framework.utils.utils import set_seed, load_config_toml
 log = logging.getLogger(__name__)
 load_dotenv()
 
-# TODO: set config paths here to run experiments
-CFG_PATHS = [
-    Path("configs/config.toml"),
-    # Path("configs/Experiment-1-Run-2.toml")
-    # Path("configs/config_1.toml"),
-    # Path("configs/config_2.toml"),
-]
+
+def _load_manifest(p: Path) -> list[Path]:
+    """
+    Load the manifest from the given path.
+    """
+    with p.open("rb") as f:
+        cfg = tomllib.load(f)
+    return [Path(x) for x in cfg["experiments"]["paths"]]
 
 
 def main():
-    for CFG_PATH in CFG_PATHS:
+    for CFG_PATH in _load_manifest(Path("configs/Experiment_Orchestrator_Config.toml")):
         t0 = time.time()
         # validate .toml
         cfg = load_config_toml(CFG_PATH)
