@@ -35,7 +35,7 @@ BAND_ORDER = ["B01", "B02", "B03", "B04", "B05", "B06", "B07", "B08", "B8A", "B0
 euroSAT_classes = {"AnnualCrop": 0, "Forest": 1, "HerbaceousVegetation": 2, "Highway": 3, "Industrial": 4, "Pasture": 5,
                    "PermanentCrop": 6, "Residential": 7, "River": 8, "SeaLake": 9}
 
-_VALID_BANDS = set(["B01", "B02", "B03", "B04", "B05", "B06", "B07", "B08", "B8A", "B09", "B11", "B12"])
+_VALID_BANDS = {"B01", "B02", "B03", "B04", "B05", "B06", "B07", "B08", "B8A", "B09", "B11", "B12"}
 _VALID_INDICES = set(SPECTRAL_INDICES.keys())
 
 

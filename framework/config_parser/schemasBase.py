@@ -39,6 +39,9 @@ class ExperimentConfig(BaseModel):
 class SavingConfig(BaseModel):
     overwrite_run: bool = False
 
+class TeacherStudentConfig(BaseModel):
+    train_student: bool = False
+    teacher_model_path: Optional[str] = None
 
 class EarlyStoppingConfig(BaseModel):
     enabled: bool = False
@@ -77,6 +80,7 @@ class TrainingConfig(BaseModel):
     do_not_log_steps: bool = True
     seed: Optional[int] = 42
     early_stopping: EarlyStoppingConfig = EarlyStoppingConfig()
+    teacher_student: TeacherStudentConfig = TeacherStudentConfig()
     load_from_checkpoint: bool = False
     previous_checkpoint_path: Path = None
 
