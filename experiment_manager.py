@@ -116,6 +116,10 @@ def _print_experiment_overview(cfg, input_channels, extra_channels):
     log.info(f"Extra channels: {extra_channels}")
     log.info(f"Dataset: {cfg.data.dataset_hf_repo_id}")
     log.info("=" * 80)
+    log.info(f"Number of Workers: {cfg.data.num_workers}")
+    log.info(f"Pin Memory: {cfg.data.pin_memory}")
+    log.info(f"Batch size: {cfg.training.batch_size}")
+    log.info("=" * 80)
     if cfg.training.teacher_student.train_student:
         log.info("Train with teacher-student knowledge distillation.")
         log.info(f"Teacher Name: {cfg.training.teacher_student.teacher_model_name}")
