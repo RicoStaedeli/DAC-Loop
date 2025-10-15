@@ -15,6 +15,7 @@ from framework.training.trainer import train
 from framework.utils.logger import setup_logging, log_meta_info
 from framework.utils.utils import set_seed, load_config_toml
 from framework.utils.push_to_gitlab import git_commit_and_push
+from framework.utils.plots import  save_training_plots
 
 log = logging.getLogger(__name__)
 load_dotenv()
@@ -82,8 +83,17 @@ def main():
 
             git_commit_and_push(f"Experiment={cfg.experiment.name} Run={cfg.experiment.run}")
 
+            save_training_plots(
+                experiment_dir=experiment_dir,
+                experiment_name=cfg.experiment.name,
+                run_id=cfg.experiment.run,
+                base_dir=Path("."),
+                experiments_root="experiments"
+            )
+
         except Exception as e:
             log.error(f"Experiment name: {experiment_name} --> error: {e}", exc_info=True)
+
         finally:
             log.info(f"Experiment name: {experiment_name} --> end training")
             log.info("\n" + "=" * 88)
