@@ -72,14 +72,60 @@ def _find_log_file(run_dir: Path, experiment_name: str, run_id: int) -> Optional
     return None
 
 
+def _normalize_accuracy_percent(df: pd.DataFrame) -> pd.DataFrame:
+    """Ensure accuracy columns are in percent if they look like [0,1]."""
+    for c in [c for c in df.columns if "accuracy" in c.lower()]:
+        df[c] = pd.to_numeric(df[c], errors="coerce")
+        if df[c].dropna().size > 0 and df[c].dropna().max() is not None and df[c].dropna().max() <= 1.0:
+            df[c] = df[c] * 100.0
+    return df
+
+
+def _role_alias(df: pd.DataFrame, role: str) -> pd.DataFrame:
+    """
+    Map generic columns in df to role-specific names.
+    role ∈ {"teacher","student"}.
+    """
+    df = df.rename(columns={
+        "loss_batch": "val_loss",
+        "token_accuracy": "val_accuracy",
+        "train_loss_epoch": "train_loss",
+        "val_token_acc": "val_accuracy",
+        "token_acc": "val_accuracy",
+    })
+    df = _normalize_accuracy_percent(df)
+
+    if role == "teacher":
+        if "train_loss" in df and "teacher_train_loss" not in df: df["teacher_train_loss"] = df["train_loss"]
+        if "val_loss"   in df and "teacher_val_loss"   not in df: df["teacher_val_loss"]   = df["val_loss"]
+        if "train_accuracy" in df and "teacher_train_accuracy" not in df: df["teacher_train_accuracy"] = df["train_accuracy"]
+        if "val_accuracy"   in df and "teacher_val_accuracy"   not in df: df["teacher_val_accuracy"]   = df["val_accuracy"]
+    else:  # student
+        if "train_loss" in df and "student_train_loss" not in df: df["student_train_loss"] = df["train_loss"]
+        if "val_loss"   in df and "student_val_loss"   not in df: df["student_val_loss"]   = df["val_loss"]
+        if "train_accuracy" in df and "student_train_accuracy" not in df: df["student_train_accuracy"] = df["train_accuracy"]
+        if "val_accuracy"   in df and "student_val_accuracy"   not in df: df["student_val_accuracy"]   = df["val_accuracy"]
+    return df
+
+
+
 def load_experiment(
     base_dir: Path | str = Path("."),
-    experiments_root: str = "Experiments",
+    experiments_root: str = "experiments",  # default to lowercase to match typical trees
     experiment_name: str = "",
     run_id: Optional[int] = None,
 ) -> Dict[str, Any]:
     base_dir = Path(base_dir)
     exp_dir = base_dir / experiments_root / experiment_name
+    if not exp_dir.exists():
+        # case-insensitive fallback: try lower/upper
+        alt = base_dir / experiments_root.lower() / experiment_name
+        if alt.exists():
+            exp_dir = alt
+        else:
+            alt2 = base_dir / experiments_root.upper() / experiment_name
+            if alt2.exists():
+                exp_dir = alt2
     run_dir = _pick_run_dir(exp_dir, run_id)
 
     m = re.fullmatch(r"Run_(\d+)", run_dir.name)
@@ -204,6 +250,130 @@ def parse_step_line(line: str) -> Optional[dict]:
     }
 
 
+# ---------------------------------------------------------------------------------
+# Config-aware role inference & path helpers
+# ---------------------------------------------------------------------------------
+def _iter_kv(d, prefix=""):
+    """Yield (key_path_lower, value) pairs for nested dicts/lists/tuples."""
+    if isinstance(d, dict):
+        for k, v in d.items():
+            kp = f"{prefix}.{k}" if prefix else str(k)
+            yield from _iter_kv(v, kp)
+    elif isinstance(d, (list, tuple)):
+        for i, v in enumerate(d):
+            kp = f"{prefix}[{i}]"
+            yield from _iter_kv(v, kp)
+    else:
+        yield (str(prefix).lower(), d)
+
+
+def infer_run_role(cfg: dict) -> Optional[str]:
+    """
+    Decide if this run is a 'teacher' or 'student'.
+    Priority:
+      1) Explicit distillation.role
+      2) training.teacher_student.train_student flag
+      3) Heuristics (is_teacher / teacher_model_* / student_model_* ...)
+      4) Fallback: None (caller will default to 'student')
+    """
+    # 1) explicit role
+    dist = (cfg.get("distillation") or {})
+    role = str(dist.get("role") or "").lower()
+    if role in ("teacher", "student"):
+        return role
+
+    # 2) template switch
+    ts_cfg = ((cfg.get("training") or {}).get("teacher_student") or {})
+    ts_flag = ts_cfg.get("train_student")
+    if ts_flag in (True, "true", 1, "1"):
+        return "student"
+    if ts_flag in (False, "false", 0, "0"):
+        # If the block exists and train_student is explicitly false, treat as teacher pretrain
+        return "teacher"
+
+    # 3) heuristics
+    teacher_hits, student_hits = 0, 0
+
+    def walk(d, prefix=""):
+        if isinstance(d, dict):
+            for k, v in d.items():
+                yield from walk(v, f"{prefix}.{k}" if prefix else k)
+        elif isinstance(d, (list, tuple)):
+            for i, v in enumerate(d):
+                yield from walk(v, f"{prefix}[{i}]")
+        else:
+            yield (str(prefix).lower(), d)
+
+    for k, v in walk(cfg):
+        k_low = k.lower()
+
+        # boolean-style flags
+        if any(t in k_low for t in ["is_teacher", "teacher_run", "teacher_mode", "use_as_teacher"]):
+            if v in (True, "true", "True", 1, "1"): teacher_hits += 1
+        if any(t in k_low for t in ["is_student", "student_run", "student_mode", "use_as_student"]):
+            if v in (True, "true", "True", 1, "1"): student_hits += 1
+
+        # model references
+        if any(t in k_low for t in ["teacher_model", "teacher_ckpt", "teacher_name"]):
+            teacher_hits += 1
+        if any(t in k_low for t in ["student_model", "student_ckpt", "student_name"]):
+            student_hits += 1
+
+    if teacher_hits > student_hits and teacher_hits > 0:
+        return "teacher"
+    if student_hits > teacher_hits and student_hits > 0:
+        return "student"
+
+    # last resort: model name
+    model_name = str((cfg.get("model") or {}).get("name") or "").lower()
+    if "teacher" in model_name:
+        return "teacher"
+
+    return None
+
+
+def _guess_teacher_metrics_path(cfg: dict, base_dir: Path) -> Optional[Path]:
+    """
+    Find teacher_model_path in cfg (any nesting), then replace the last segment
+    with 'metrics.json' as requested. Resolve relative to base_dir.
+    """
+    teacher_path_str: Optional[str] = None
+    for k, v in _iter_kv(cfg):
+        if isinstance(v, str) and k.endswith("teacher_model_path"):
+            teacher_path_str = v
+            break
+    if not teacher_path_str:
+        return None
+
+    p = Path(teacher_path_str)
+    if not p.is_absolute():
+        p = (base_dir / p).resolve()
+
+    mp = (p.parent / "metrics.json") if p.suffix else (p / "metrics.json")
+    return mp if mp.exists() else None
+
+
+def _guess_baseline_metrics_path(cfg: dict, base_dir: Path) -> Optional[Path]:
+    """
+    Find 'baseline_student' in cfg (any nesting). If it points to a directory,
+    append 'metrics.json'. Resolve relative to base_dir. Return path if exists.
+    """
+    baseline_str: Optional[str] = None
+    for k, v in _iter_kv(cfg):
+        if isinstance(v, str) and k.endswith("baseline_student"):
+            baseline_str = v
+            break
+    if not baseline_str:
+        return None
+
+    p = Path(baseline_str)
+    if not p.is_absolute():
+        p = (base_dir / p).resolve()
+
+    mp = p if p.suffix == ".json" else (p / "metrics.json")
+    return mp if mp.exists() else None
+
+
 def parse_logs(paths: List[Union[str, Path]]) -> Dict[str, Dict[str, object]]:
     out: Dict[str, Dict[str, object]] = {}
     for path in paths:
@@ -286,6 +456,7 @@ RIGHT_NEUTRAL = "#222222"
 # Role-consistent colors
 ROLE_STUDENT_COLOR = "#1f77b4"  # blue
 ROLE_TEACHER_COLOR = "#ff7f0e"  # orange
+BASELINE_STUDENT_COLOR = "#2ca02c"  # green
 
 
 def _colorize_axes(ax_left, ax_right, col_left, col_right):
@@ -301,88 +472,8 @@ def _colorize_axes(ax_left, ax_right, col_left, col_right):
 
 
 # ---------------------------------------------------------------------------------
-# Config-aware role inference
+# Metrics loading & formatting helpers
 # ---------------------------------------------------------------------------------
-def _iter_kv(d, prefix=""):
-    """Yield (key_path_lower, value) pairs for nested dicts/lists/tuples."""
-    if isinstance(d, dict):
-        for k, v in d.items():
-            kp = f"{prefix}.{k}" if prefix else str(k)
-            yield from _iter_kv(v, kp)
-    elif isinstance(d, (list, tuple)):
-        for i, v in enumerate(d):
-            kp = f"{prefix}[{i}]"
-            yield from _iter_kv(v, kp)
-    else:
-        yield (str(prefix).lower(), d)
-
-def infer_run_role(cfg: dict) -> Optional[str]:
-    """
-    Decide if this run is a 'teacher' or 'student'.
-    Priority:
-      1) Explicit distillation.role
-      2) training.teacher_student.train_student flag
-      3) Heuristics (is_teacher / teacher_model_* / student_model_* ...)
-      4) Fallback: None (caller will default to 'student')
-    """
-    # 1) explicit role
-    dist = (cfg.get("distillation") or {})
-    role = str(dist.get("role") or "").lower()
-    if role in ("teacher", "student"):
-        return role
-
-    # 2) template switch
-    ts_cfg = ((cfg.get("training") or {}).get("teacher_student") or {})
-    ts_flag = ts_cfg.get("train_student")
-    if ts_flag in (True, "true", 1, "1"):
-        return "student"
-    if ts_flag in (False, "false", 0, "0"):
-        # If the block exists and train_student is explicitly false, treat as teacher pretrain
-        return "teacher"
-
-    # 3) heuristics
-    teacher_hits, student_hits = 0, 0
-
-    def walk(d, prefix=""):
-        if isinstance(d, dict):
-            for k, v in d.items():
-                yield from walk(v, f"{prefix}.{k}" if prefix else k)
-        elif isinstance(d, (list, tuple)):
-            for i, v in enumerate(d):
-                yield from walk(v, f"{prefix}[{i}]")
-        else:
-            yield (str(prefix).lower(), d)
-
-    for k, v in walk(cfg):
-        k_low = k.lower()
-        v_str = str(v).lower() if isinstance(v, str) else v
-
-        # boolean-style flags
-        if any(t in k_low for t in ["is_teacher", "teacher_run", "teacher_mode", "use_as_teacher"]):
-            if v in (True, "true", "True", 1, "1"): teacher_hits += 1
-        if any(t in k_low for t in ["is_student", "student_run", "student_mode", "use_as_student"]):
-            if v in (True, "true", "True", 1, "1"): student_hits += 1
-
-        # model references
-        if any(t in k_low for t in ["teacher_model", "teacher_ckpt", "teacher_name"]):
-            teacher_hits += 1
-        if any(t in k_low for t in ["student_model", "student_ckpt", "student_name"]):
-            student_hits += 1
-
-    if teacher_hits > student_hits and teacher_hits > 0:
-        return "teacher"
-    if student_hits > teacher_hits and student_hits > 0:
-        return "student"
-
-    # last resort: model name
-    model_name = str((cfg.get("model") or {}).get("name") or "").lower()
-    if "teacher" in model_name:
-        return "teacher"
-
-    return None
-
-
-
 def load_metrics_df(label_or_path):
     """
     Load metrics JSON and normalize columns.
@@ -587,6 +678,16 @@ def plot_losses_teacher_student(label, dfm, cfg, run_id_str, folder):
                   color=ROLE_TEACHER_COLOR, label="Teacher Train Loss")
         plotted_teacher = True
 
+    # Baseline student (if present)
+    if "baseline_student_val_loss" in dfm.columns:
+        twin.plot(dfm["epoch"], dfm["baseline_student_val_loss"],
+                  marker="D", linestyle="-.", alpha=0.9,
+                  color=BASELINE_STUDENT_COLOR, label="Baseline Student Val Loss")
+    if "baseline_student_train_loss" in dfm.columns:
+        twin.plot(dfm["epoch"], dfm["baseline_student_train_loss"],
+                  marker="x", linestyle="--", alpha=0.9,
+                  color=BASELINE_STUDENT_COLOR, label="Baseline Student Train Loss")
+
     # KD components
     for kd_col in ["kd_loss", "distill_loss", "soft_loss", "hard_loss"]:
         if kd_col in dfm.columns and dfm[kd_col].notna().any():
@@ -594,7 +695,11 @@ def plot_losses_teacher_student(label, dfm, cfg, run_id_str, folder):
                       linestyle=":", color=COL_KD, label=kd_col.replace("_", " ").title())
 
     # Axis cosmetics for right y depending on what we plotted
-    if plotted_student and not plotted_teacher:
+    if any(c in dfm.columns for c in [
+        "baseline_student_val_loss", "baseline_student_train_loss"
+    ]):
+        right_col = RIGHT_NEUTRAL
+    elif plotted_student and not plotted_teacher:
         right_col = ROLE_STUDENT_COLOR
     elif plotted_teacher and not plotted_student:
         right_col = ROLE_TEACHER_COLOR
@@ -642,11 +747,6 @@ def _choose_accuracy_role_and_columns(dfm: pd.DataFrame, cfg: dict):
     """
     Decide which single role to plot ('teacher' or 'student') and
     return the column names for (val_acc_col, train_acc_col).
-    Preference order:
-      1) If only teacher_* present -> teacher
-      2) If only student_* present -> student
-      3) If both present -> use infer_run_role(cfg) if available, else teacher
-      4) If neither present -> map generic to inferred role (default student)
     """
     has_t = ("teacher_val_accuracy" in dfm.columns) or ("teacher_train_accuracy" in dfm.columns)
     has_s = ("student_val_accuracy" in dfm.columns) or ("student_train_accuracy" in dfm.columns)
@@ -732,6 +832,21 @@ def plot_accuracy_teacher_student(label, dfm, cfg, folder):
         role = infer_run_role(cfg) or ("teacher" if "teacher_val_accuracy" in dfm.columns or "teacher_train_accuracy" in dfm.columns else "student")
         col, _ = plot_role(role)
         right_col = col
+
+    # Baseline student accuracy
+    baseline_drawn = False
+    if "baseline_student_val_accuracy" in dfm.columns:
+        twin.plot(dfm["epoch"], dfm["baseline_student_val_accuracy"],
+                  marker="D", linestyle="-.", alpha=0.9,
+                  label="Baseline Student Val Acc (%)", color=BASELINE_STUDENT_COLOR)
+        baseline_drawn = True
+    if "baseline_student_train_accuracy" in dfm.columns:
+        twin.plot(dfm["epoch"], dfm["baseline_student_train_accuracy"],
+                  marker="x", linestyle="--", alpha=0.9,
+                  label="Baseline Student Train Acc (%)", color=BASELINE_STUDENT_COLOR)
+        baseline_drawn = True
+    if baseline_drawn:
+        right_col = RIGHT_NEUTRAL
 
     twin.set_ylabel("Accuracy (%)")
     twin.yaxis.grid(True, alpha=0.6, zorder=-1)
@@ -915,17 +1030,24 @@ def save_training_plots(
     run_id: int | None,
     *,
     base_dir: Path | str = Path("."),
-    experiments_root: str = "Experiments",
+    experiments_root: str = "experiments",  # default to lowercase
 ) -> None:
     """
     Generates plots and saves them under:
-        <Experiments>/<experiment_name>/Run_<id>/plots/
+        <experiments>/<experiment_name>/Run_<id>/plots/
     """
     experiment_dir = Path(experiment_dir)
     if experiment_dir.name.startswith("Run_"):
         run_dir = experiment_dir
     else:
-        run_dir = _pick_run_dir(Path(base_dir) / experiments_root / experiment_name, run_id)
+        # Robust path selection with case fallback
+        base_dir = Path(base_dir)
+        exp_root = base_dir / experiments_root / experiment_name
+        if not exp_root.exists():
+            low = base_dir / experiments_root.lower() / experiment_name
+            upp = base_dir / experiments_root.upper() / experiment_name
+            exp_root = low if low.exists() else (upp if upp.exists() else exp_root)
+        run_dir = _pick_run_dir(exp_root, run_id)
 
     m = re.fullmatch(r"Run_(\d+)", run_dir.name)
     resolved_run_id = int(m.group(1)) if m else int(run_id or -1)
@@ -977,6 +1099,64 @@ def save_training_plots(
 
     # Load metrics (pass LABEL so we can read CONFIGS to infer role)
     dfm = load_metrics_df(label).sort_values("epoch")
+
+    # --- Teacher merge: resolve metrics.json from teacher_model_path
+    teacher_metrics_path = _guess_teacher_metrics_path(cfg, Path(base_dir))
+    print(f"[plots] Teacher metrics path: {teacher_metrics_path}")
+    if teacher_metrics_path is not None:
+        try:
+            df_teacher = pd.read_json(teacher_metrics_path)
+            df_teacher = _role_alias(df_teacher, role="teacher")
+
+            # keep epoch and teacher_* fields only (avoid collisions)
+            keep_t = ["epoch"] + [c for c in df_teacher.columns if c.startswith("teacher_")]
+            # optional KD components if they exist in teacher metrics
+            kd_cols = [c for c in ["kd_loss", "distill_loss", "soft_loss", "hard_loss"] if c in df_teacher.columns]
+            keep_t += kd_cols
+
+            df_teacher = df_teacher[sorted(set(keep_t))].copy()
+
+            # ensure student df has role-mapped fields too (in case only generics existed)
+            dfm = _role_alias(dfm, role="student")
+
+            # outer-merge on epoch to align possibly different ranges
+            dfm = pd.merge(dfm, df_teacher, on="epoch", how="outer").sort_values("epoch").reset_index(drop=True)
+
+            # fill KD extras from teacher if student doesn't have them
+            for kc in ["kd_loss", "distill_loss", "soft_loss", "hard_loss"]:
+                if kc in df_teacher.columns and kc not in dfm.columns:
+                    dfm[kc] = df_teacher[kc]
+
+        except Exception as e:
+            print(f"Warning: could not merge teacher metrics from {teacher_metrics_path}: {e}")
+    else:
+        print("Info: teacher_model_path not found in config or teacher metrics.json missing.")
+
+    # --- Baseline student merge: resolve metrics.json from baseline_student
+    baseline_metrics_path = _guess_baseline_metrics_path(cfg, Path(base_dir))
+    print(f"[plots] Baseline student metrics path: {baseline_metrics_path}")
+    if baseline_metrics_path is not None:
+        try:
+            df_base = pd.read_json(baseline_metrics_path)
+            # map generics -> student_* first, then prefix with baseline_*
+            df_base = _role_alias(df_base, role="student")
+
+            # keep epoch + the student_* columns, then rename to baseline_student_*
+            keep_b = ["epoch"] + [c for c in df_base.columns if c.startswith("student_")]
+            df_base = df_base[sorted(set(keep_b))].copy()
+            rename_map = {c: c.replace("student_", "baseline_student_") for c in df_base.columns if c.startswith("student_")}
+            df_base = df_base.rename(columns=rename_map)
+
+            # ensure current dfm has student_* aliases
+            dfm = _role_alias(dfm, role="student")
+
+            # outer merge on epoch to align ranges
+            dfm = pd.merge(dfm, df_base, on="epoch", how="outer").sort_values("epoch").reset_index(drop=True)
+
+        except Exception as e:
+            print(f"Warning: could not merge baseline metrics from {baseline_metrics_path}: {e}")
+    else:
+        print("Info: baseline_student not found in config or metrics.json missing.")
 
     # If logs have epoch summaries, prefer merging any missing fields into dfm
     ep_from_logs = parsed.get(label, {}).get("epochs", pd.DataFrame())
