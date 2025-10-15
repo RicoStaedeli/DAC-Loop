@@ -14,6 +14,7 @@ from framework.models import MODEL_REGISTRY
 from framework.training.trainer import train
 from framework.utils.logger import setup_logging, log_meta_info
 from framework.utils.utils import set_seed, load_config_toml
+from framework.utils.push_to_gitlab import git_commit_and_push
 
 log = logging.getLogger(__name__)
 load_dotenv()
@@ -30,6 +31,7 @@ def _load_manifest(p: Path) -> list[Path]:
 
 def main():
     for CFG_PATH in _load_manifest(Path("configs/Experiment_Orchestrator_Config.toml")):
+
         t0 = time.time()
         # validate .toml
         cfg = load_config_toml(CFG_PATH)
@@ -46,6 +48,8 @@ def main():
         # Logging setup
         setup_logging(cfg.model_dump(), experiment_dir)
         log_meta_info(cfg.model_dump(), experiment_dir, seed)
+
+        log.info(f"Loading experiment {CFG_PATH}")
 
         # Start Training
         try:
@@ -75,6 +79,8 @@ def main():
 
             train(cfg, teacher=model_teacher, student=model_student, train_loader=train_loader, val_loader=val_loader,
                   experiment_dir=experiment_dir, config_path=CFG_PATH)
+
+            git_commit_and_push(f"Experiment={cfg.experiment.name} Run={cfg.experiment.run}")
 
         except Exception as e:
             log.error(f"Experiment name: {experiment_name} --> error: {e}", exc_info=True)
@@ -112,6 +118,10 @@ def _print_experiment_overview(cfg, input_channels, extra_channels):
     log.info(f"Input channels: {input_channels}")
     log.info(f"Extra channels: {extra_channels}")
     log.info(f"Dataset: {cfg.data.dataset_hf_repo_id}")
+    log.info("=" * 80)
+    log.info(f"Number of Workers: {cfg.data.num_workers}")
+    log.info(f"Pin Memory: {cfg.data.pin_memory}")
+    log.info(f"Batch size: {cfg.training.batch_size}")
     log.info("=" * 80)
     if cfg.training.teacher_student.train_student:
         log.info("Train with teacher-student knowledge distillation.")
