@@ -30,7 +30,7 @@ def _load_manifest(p: Path) -> list[Path]:
 
 
 def main():
-    for CFG_PATH in _load_manifest(Path("configs/Experiment_Orchestrator_Config.toml")):
+    for CFG_PATH in _load_manifest(Path("configs/Experiment_2/Experiment_Orchestrator_Config.toml")):
 
         t0 = time.time()
         # validate .toml
