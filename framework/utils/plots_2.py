@@ -23,20 +23,27 @@ def _first_existing(paths: List[str]) -> Optional[str]:
             return p
     return None
 
-def plot_teacher_student_metrics(CFG_PATH):
+def plot_teacher_student_metrics(cfg_path, project_root="."):
     """
     Plot loss and validation accuracy vs. epoch for teacher, student with TS, and student without TS.
     Each plot is saved separately. Legends include best values per series.
+    All paths are resolved relative to the given project_root.
     """
-    cfg = load_config_toml(CFG_PATH)
+    cfg = load_config_toml(cfg_path)
 
-    student_no_ts_path = f"../{cfg.training.teacher_student.baseline_student}"
-    teacher_path = f"../{cfg.training.teacher_student.teacher_model_path}"
-    teacher_dir = os.path.dirname(teacher_path) + "/"
-    teacher_metrics = f"{teacher_dir}/metrics.json"
+    # Always resolve absolute paths
+    project_root = os.path.abspath(project_root)
+    cfg_path = os.path.abspath(cfg_path)
 
-    ts_dir = os.path.dirname(CFG_PATH) + "/"
-    student_ts_path = f"{ts_dir}/metrics.json"
+    # Resolve paths relative to project root
+    student_no_ts_path = os.path.join(project_root, cfg.training.teacher_student.baseline_student)
+    teacher_path = os.path.join(project_root, cfg.training.teacher_student.teacher_model_path)
+    teacher_dir = os.path.dirname(teacher_path)
+    teacher_metrics = os.path.join(teacher_dir, "metrics.json")
+
+    # Assume TS model metrics are in the same folder as the config
+    ts_dir = os.path.dirname(cfg_path)
+    student_ts_path = os.path.join(ts_dir, "metrics.json")
 
     # Load available series
     series = []
