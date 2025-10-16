@@ -43,6 +43,7 @@ class TeacherStudentConfig(BaseModel):
     train_student: bool = False
     teacher_model_path: Optional[str] = None
     teacher_model_name: Optional[str] = None
+    baseline_student: Optional[str] = None
 
 class EarlyStoppingConfig(BaseModel):
     enabled: bool = False
