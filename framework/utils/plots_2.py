@@ -6,8 +6,8 @@ from framework.utils.utils import load_config_toml
 import os
 import logging
 
-
 log = logging.getLogger(__name__)
+
 
 def _load_metrics(path: str) -> pd.DataFrame:
     """Load a metrics JSON file and return a DataFrame with epoch and metrics."""
@@ -37,7 +37,7 @@ def plot_teacher_student_metrics(cfg_path, project_root="."):
     # Always resolve absolute paths
     project_root = os.path.abspath(project_root)
     cfg_path = os.path.abspath(cfg_path)
-
+    dir_config = os.path.dirname(cfg_path)
 
     #Path for teacher model metrics
     teacher_path = os.path.join(project_root, cfg.training.teacher_student.teacher_model_path)
@@ -84,7 +84,7 @@ def plot_teacher_student_metrics(cfg_path, project_root="."):
     plt.legend(frameon=False, fontsize=9)
     plt.tight_layout()
 
-    save_dir = f"{teacher_dir}/plots/"
+    save_dir = f"{dir_config}/plots/"
     os.makedirs(save_dir, exist_ok=True)
 
     plt.savefig(f"{save_dir}loss_per_epoch.png", bbox_inches="tight")
