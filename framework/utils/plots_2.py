@@ -39,10 +39,12 @@ def plot_teacher_student_metrics(cfg_path, project_root="."):
     student_no_ts_path = os.path.join(project_root, cfg.training.teacher_student.baseline_student)
     teacher_path = os.path.join(project_root, cfg.training.teacher_student.teacher_model_path)
     teacher_dir = os.path.dirname(teacher_path)
+    print(f"Plotting teacher student metrics for {teacher_dir}")
     teacher_metrics = os.path.join(teacher_dir, "metrics.json")
 
     # Assume TS model metrics are in the same folder as the config
     ts_dir = os.path.dirname(cfg_path)
+    print(f"Plotting teacher student metrics for {ts_dir}")
     student_ts_path = os.path.join(ts_dir, "metrics.json")
 
     # Load available series
