@@ -4,9 +4,12 @@ import matplotlib.pyplot as plt
 from typing import Optional, List
 from framework.utils.utils import load_config_toml
 import os
+import logging
+
+
+log = logging.getLogger(__name__)
 
 def _load_metrics(path: str) -> pd.DataFrame:
-    print(f"Loading metrics from {path}")
     """Load a metrics JSON file and return a DataFrame with epoch and metrics."""
     with open(path, "r") as f:
         data = json.load(f)
@@ -35,17 +38,21 @@ def plot_teacher_student_metrics(cfg_path, project_root="."):
     project_root = os.path.abspath(project_root)
     cfg_path = os.path.abspath(cfg_path)
 
-    # Resolve paths relative to project root
-    student_no_ts_path = os.path.join(project_root, cfg.training.teacher_student.baseline_student)
+
+    #Path for teacher model metrics
     teacher_path = os.path.join(project_root, cfg.training.teacher_student.teacher_model_path)
     teacher_dir = os.path.dirname(teacher_path)
-    print(f"Plotting teacher student metrics for {teacher_dir}")
     teacher_metrics = os.path.join(teacher_dir, "metrics.json")
+    log.info(f"Loading teacher metrics from {teacher_metrics}")
 
-    # Assume TS model metrics are in the same folder as the config
+    # Path for metrics from baseline students
+    student_no_ts_path = os.path.join(project_root, cfg.training.teacher_student.baseline_student)
+    log.info(f"Loading student Baseline from: {student_no_ts_path}")
+
+    # path to student metrics
     ts_dir = os.path.dirname(cfg_path)
-    print(f"Plotting teacher student metrics for {ts_dir}")
     student_ts_path = os.path.join(ts_dir, "metrics.json")
+    log.info(f"Loading student metrics from {student_ts_path}")
 
     # Load available series
     series = []
@@ -77,7 +84,7 @@ def plot_teacher_student_metrics(cfg_path, project_root="."):
     plt.legend(frameon=False, fontsize=9)
     plt.tight_layout()
 
-    save_dir = f"{ts_dir}/plots/"
+    save_dir = f"{teacher_dir}/plots/"
     os.makedirs(save_dir, exist_ok=True)
 
     plt.savefig(f"{save_dir}loss_per_epoch.png", bbox_inches="tight")
