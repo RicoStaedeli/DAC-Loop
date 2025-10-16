@@ -46,8 +46,8 @@ def plot_teacher_student_metrics(cfg_path, project_root="."):
     log.info(f"Loading teacher metrics from {teacher_metrics}")
 
     # Path for metrics from baseline students
-    student_no_ts_path = os.path.join(project_root, cfg.training.teacher_student.baseline_student)
-    log.info(f"Loading student Baseline from: {student_no_ts_path}")
+    student_baseline_path = os.path.join(project_root, cfg.training.teacher_student.baseline_student)
+    log.info(f"Loading student Baseline from: {student_baseline_path}")
 
     # path to student metrics
     ts_dir = os.path.dirname(cfg_path)
@@ -57,11 +57,14 @@ def plot_teacher_student_metrics(cfg_path, project_root="."):
     # Load available series
     series = []
     if os.path.exists(teacher_metrics):
+        log.info(f"Loading teacher metrics from {teacher_metrics}")
         series.append(("Teacher", _load_metrics(teacher_metrics), dict(marker="o")))
     if os.path.exists(student_ts_path):
+        log.info(f"Loading student metrics from {student_ts_path}")
         series.append(("Student (TS)", _load_metrics(student_ts_path), dict(marker="s")))
-    if os.path.exists(student_no_ts_path):
-        series.append(("Student (no TS)", _load_metrics(student_no_ts_path), dict(marker="^")))
+    if os.path.exists(student_baseline_path):
+        log.info(f"Loading student baseline metrics from {student_baseline_path}")
+        series.append(("Student (no TS)", _load_metrics(student_baseline_path), dict(marker="^")))
 
     if not series:
         raise FileNotFoundError("No metrics files found.")
