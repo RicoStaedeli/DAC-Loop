@@ -61,6 +61,7 @@ def plot_teacher_student_metrics(cfg_path, project_root="."):
     plt.figure(figsize=(7, 4.5), dpi=200)
     for label, df, style in series:
         best_train_loss = pd.to_numeric(df["train_loss"], errors="coerce").dropna().min()
+        print(f"best train loss {best_train_loss}")
         loss_label = f"{label} (best loss={best_train_loss:.3f})"
         plt.plot(
             df["epoch"], df["train_loss"],
