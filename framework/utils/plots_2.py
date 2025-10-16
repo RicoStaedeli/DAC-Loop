@@ -100,4 +100,4 @@ def plot_teacher_student_metrics(cfg_path, project_root="."):
     plt.savefig(f"{save_dir}val_accuracy_per_epoch.png", bbox_inches="tight")
     plt.close()
 
-    print(f"Plots generated")
+    print(f"Plots generated save dir: {save_dir}")
