@@ -83,7 +83,7 @@ def main():
 
             plot_teacher_student_metrics(f"{experiment_dir}/config.toml")
 
-            git_commit_and_push(f"Experiment={cfg.experiment.name} Run={cfg.experiment.run}")
+          # git_commit_and_push(f"Experiment={cfg.experiment.name} Run={cfg.experiment.run}")
 
 
         except Exception as e:

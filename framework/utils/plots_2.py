@@ -72,9 +72,19 @@ def plot_teacher_student_metrics(cfg_path, project_root="."):
     # ----- Plot LOSS (training) -----
     plt.figure(figsize=(7, 4.5), dpi=200)
     for label, df, style in series:
-        best_train_loss = pd.to_numeric(df["train_loss"], errors="coerce").dropna().min()
-        print(f"best train loss {best_train_loss}")
-        loss_label = f"{label} (best loss={best_train_loss:.3f})"
+        # Convert and drop invalid values
+        df["train_loss"] = pd.to_numeric(df["train_loss"], errors="coerce")
+        df = df.dropna(subset=["train_loss", "epoch"])
+
+        # Find best loss and corresponding epoch
+        best_idx = df["train_loss"].idxmin()
+        best_train_loss = df.loc[best_idx, "train_loss"]
+        best_epoch = df.loc[best_idx, "epoch"]
+
+        log.info(f"{label}: best train loss {best_train_loss:.4f} at epoch {best_epoch}")
+
+        # Label with both loss and epoch
+        loss_label = f"{label} (best={best_train_loss:.3f}@{int(best_epoch)})"
         plt.plot(
             df["epoch"], df["train_loss"],
             linewidth=1.8, markersize=3.5,
@@ -97,8 +107,19 @@ def plot_teacher_student_metrics(cfg_path, project_root="."):
     plt.figure(figsize=(7, 4.5), dpi=200)
     for label, df, style in series:
         if "val_accuracy" in df.columns:
-            best_acc = df["val_accuracy"].max()
-            label_with_acc = f"{label} (best={best_acc:.2f}%)"
+            # Convert and clean
+            df["val_accuracy"] = pd.to_numeric(df["val_accuracy"], errors="coerce")
+            df = df.dropna(subset=["val_accuracy", "epoch"])
+
+            # Find best accuracy and corresponding epoch
+            best_idx = df["val_accuracy"].idxmax()
+            best_acc = df.loc[best_idx, "val_accuracy"]
+            best_epoch = df.loc[best_idx, "epoch"]
+
+            log.info(f"{label}: best val accuracy {best_acc:.2f}% at epoch {best_epoch}")
+
+            # Label with both accuracy and epoch
+            label_with_acc = f"{label} (best={best_acc:.2f}%@{int(best_epoch)})"
             plt.plot(df["epoch"], df["val_accuracy"],
                      linewidth=1.8, markersize=3.5,
                      linestyle="--",
@@ -113,4 +134,4 @@ def plot_teacher_student_metrics(cfg_path, project_root="."):
     plt.savefig(f"{save_dir}val_accuracy_per_epoch.png", bbox_inches="tight")
     plt.close()
 
-    print(f"Plots generated save dir: {save_dir}")
+    log.info(f"Plots generated save dir: {save_dir}")
