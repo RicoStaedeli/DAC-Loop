@@ -1,6 +1,6 @@
 import logging
 from typing import List, Optional
-
+from functools import partial
 import numpy as np
 import torch
 import torchvision.transforms.functional as TF
@@ -203,17 +203,27 @@ def build_loaders_from_hf(train_ds, val_ds, batch_size: int, image_size: int,
     if normalize and (norm_mean is None or norm_std is None):
         log.info("Start normalization.")
         sample_range = range(len(train_ds) if stats_samples <= 0 else min(stats_samples, len(train_ds)))
+
+        tmp_collate = partial(
+            _collate_hf,
+            train_ds,
+            image_size=image_size,
+            indices=indices,
+            augment=False,
+            mean=None,
+            std=None,
+            selected_bands=selected_bands,
+        )
+
         tmp_loader = DataLoader(
             sample_range,
             batch_size=batch_size,
             shuffle=False,
-            collate_fn=lambda idxs: _collate_hf(
-                train_ds, idxs, image_size, indices, False, None, None, selected_bands
-            ),
-            num_workers=num_workers,
-            pin_memory=pin_memory,
+            collate_fn=tmp_collate,   # no lambda
+            num_workers=0,            # stats pass single-threaded is fine
+            pin_memory=False,
         )
-        # Calculate the mean and std over the training dataset. This gives a statistical measurement to use for the later normalization when creating the real loaders for train/validation
+
         norm_mean, norm_std = _calculate_mean_std(tmp_loader, desc="Training Dataset before Normalization")
         log.info(
             f"Before normalization --> "
@@ -221,21 +231,28 @@ def build_loaders_from_hf(train_ds, val_ds, batch_size: int, image_size: int,
             f"norm_std: {norm_std.tolist()!r}"
         )
 
-    train_range = range(len(train_ds))
-    val_range = range(len(val_ds)) if val_ds is not None else range(0)
+    nw = max(1, min(num_workers, 4))
+
+    train_collate = partial(
+        _collate_hf,
+        train_ds,
+        image_size=image_size,
+        indices=indices,
+        augment=augment,
+        mean=(norm_mean if normalize else None),
+        std=(norm_std if normalize else None),
+        selected_bands=selected_bands,
+    )
 
     train_loader = DataLoader(
-        train_range,
+        range(len(train_ds)),
         batch_size=batch_size,
         shuffle=True,
-        collate_fn=lambda idxs: _collate_hf(
-            train_ds, idxs, image_size, indices, augment,
-            norm_mean if normalize else None,
-            norm_std if normalize else None,
-            selected_bands,
-        ),
-        num_workers=num_workers,
+        collate_fn=train_collate,
+        num_workers=nw,
         pin_memory=pin_memory,
+        persistent_workers=(nw > 0),
+        prefetch_factor=(2 if nw > 0 else None),
     )
 
     # Log after normalization only in DEBUG mode because it is time intensive
@@ -246,19 +263,28 @@ def build_loaders_from_hf(train_ds, val_ds, batch_size: int, image_size: int,
                  f"norm_std: {std_after_normalization.tolist()!r}"
                  )
 
-    val_loader = DataLoader(
-        val_range,
-        batch_size=batch_size,
-        shuffle=False,
-        collate_fn=lambda idxs: _collate_hf(
-            val_ds, idxs, image_size, indices, False,
-            norm_mean if normalize else None,
-            norm_std if normalize else None,
-            selected_bands,
-        ),
-        num_workers=num_workers,
-        pin_memory=pin_memory,
-    ) if val_ds is not None else None
+    val_loader = None
+    if val_ds is not None:
+        val_collate = partial(
+            _collate_hf,
+            val_ds,
+            image_size=image_size,
+            indices=indices,
+            augment=False,
+            mean=(norm_mean if normalize else None),
+            std=(norm_std if normalize else None),
+            selected_bands=selected_bands,
+        )
+        val_loader = DataLoader(
+            range(len(val_ds)),
+            batch_size=batch_size,
+            shuffle=False,
+            collate_fn=val_collate,
+            num_workers=nw,
+            pin_memory=pin_memory,
+            persistent_workers=(nw > 0),
+            prefetch_factor=(2 if nw > 0 else None),
+        )
 
     # Log after normalization only in DEBUG mode because it is time intensive
     if logging.getLevelName(log.getEffectiveLevel()) == "DEBUG":
