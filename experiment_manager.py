@@ -2,29 +2,30 @@ import logging
 import os
 import shutil
 import time
+import tomllib
 from pathlib import Path
 from typing import Optional, Tuple
-import tomllib
+
+import torch
 from dotenv import load_dotenv
 from torchinfo import summary
-import torch
 
 # Framework Imports
 from framework.dataset.load_for_training import load_eurosat_hf_splits, build_loaders_from_hf
 from framework.models import MODEL_REGISTRY
 from framework.training.trainer import train
 from framework.utils.logger import setup_logging, log_meta_info
-from framework.utils.utils import set_seed, load_config_toml
-from framework.utils.push_to_gitlab import git_commit_and_push
 from framework.utils.plots_2 import plot_teacher_student_metrics
+from framework.utils.push_to_gitlab import git_commit_and_push
+from framework.utils.utils import set_seed, load_config_toml
 
 log = logging.getLogger(__name__)
 load_dotenv()
 
-
 import random
 from concurrent.futures import ProcessPoolExecutor, as_completed
 import multiprocessing as mp
+
 
 def _load_manifest_full(p: Path) -> tuple[list[Path], dict]:
     with p.open("rb") as f:
@@ -42,6 +43,7 @@ def _load_manifest_full(p: Path) -> tuple[list[Path], dict]:
         "filters": list(orch.get("filters", [])),
     }
     return exp_paths, orch_cfg
+
 
 def _already_done(cfg_path: Path) -> bool:
     try:
@@ -96,7 +98,7 @@ def run_one_experiment(CFG_PATH: Path,
             normalize=cfg.data.normalize,
             stats_samples=0,
             selected_bands=cfg.data.indices.selected_bands,
-            num_workers=cfg.data.num_workers,   # consider lowering when parallel
+            num_workers=cfg.data.num_workers,  # consider lowering when parallel
             pin_memory=cfg.data.pin_memory,
         )
 
@@ -118,6 +120,7 @@ def run_one_experiment(CFG_PATH: Path,
             pass
         return str(CFG_PATH), False, repr(e)
 
+
 def main():
     manifest_path = Path("configs/Experiment_3/Experiment_Orchestrator_Config.toml")
 
@@ -138,6 +141,7 @@ def main():
             except Exception:
                 pass
             return any(f in txt for f in orch["filters"])
+
         cfg_paths = [p for p in cfg_paths if keep(p)]
 
     if orch["skip_existing"]:
@@ -147,10 +151,10 @@ def main():
         random.shuffle(cfg_paths)
 
     if not cfg_paths:
-        print("No experiments to run after filtering.")
+        log.info("No experiments to run after filtering.")
         return
 
-    print(f"Scheduling {len(cfg_paths)} experiments with max_parallel={orch['max_parallel']}")
+    log.info(f"Scheduling {len(cfg_paths)} experiments with max_parallel={orch['max_parallel']}")
 
     results = []
     commit_msgs = []
