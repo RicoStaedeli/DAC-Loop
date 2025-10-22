@@ -90,6 +90,7 @@ class TrainingConfig(BaseModel):
     ce_loss_weight: float = 0.75
     soft_target_loss_weight: float = 0.25
     T_param: PositiveInt = 1
+    base_path_ckpts: str = ""
 
     @field_validator("learning_rate")
     @classmethod
