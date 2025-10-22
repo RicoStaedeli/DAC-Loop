@@ -118,7 +118,9 @@ def _create_log_directory(cfg) -> Path:
 
 
 def _print_experiment_overview(cfg, input_channels, extra_channels):
+    log.info("\n" + "=" * 80)
     log.info(f"Experiment name: {cfg.experiment.name}")
+    log.info(f"Run ID: {cfg.experiment.run}")
     log.info("=" * 80)
     log.info(f"Input channels: {input_channels}")
     log.info(f"Extra channels: {extra_channels}")
