@@ -57,7 +57,7 @@ def train(cfg, teacher, student, train_loader, val_loader, experiment_dir: Path,
         student.to(device)
         teacher.to(device)
         log.info("Loading teacher from checkpoint %s", teacher_model_path)
-        teacher, optimizer = _load_checkpoint(teacher, optimizer_teacher, teacher_model_path,
+        teacher, optimizer = _load_checkpoint(teacher, optimizer_teacher, f"{cfg.training.base_path_ckpts}/{teacher_model_path}",
                                               device=device)
     else:
         teacher.to(device)
@@ -129,7 +129,7 @@ def train(cfg, teacher, student, train_loader, val_loader, experiment_dir: Path,
             "epoch": epoch,
             "model_state": student.state_dict() if student is not None else teacher.state_dict(),
             "optimizer_state": optimizer_student.state_dict() if student is not None else optimizer_teacher.state_dict(),
-        }, f"{cfg.taining.base_path_ckpts}{experiment_dir}/epoch_{epoch}.pt")
+        }, f"{cfg.taining.base_path_ckpts}/{experiment_dir}/epoch_{epoch}.pt")
 
         if val_metrics["acc"] > best_val_acc:
             best_val_acc = val_metrics["acc"]
@@ -139,7 +139,7 @@ def train(cfg, teacher, student, train_loader, val_loader, experiment_dir: Path,
                 "model_state": student.state_dict() if student is not None else teacher.state_dict(),
                 "optimizer_state": optimizer_student.state_dict() if student is not None else optimizer_teacher.state_dict(),
                 "best_val_acc": best_val_acc,
-            }, f"{cfg.taining.base_path_ckpts}{experiment_dir}/best.pt")
+            }, f"{cfg.taining.base_path_ckpts}/{experiment_dir}/best.pt")
         else:
             epochs_no_improve += 1
             if epochs_no_improve >= cfg.training.early_stopping.patience:
