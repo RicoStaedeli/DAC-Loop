@@ -124,12 +124,16 @@ def train(cfg, teacher, student, train_loader, val_loader, experiment_dir: Path,
             metrics_path.write_text(json.dumps(metrics_history, indent=2))
             log.debug("Wrote metrics.json with %d entries", len(metrics_history))
 
+        save_dir = Path(cfg.training.base_path_ckpts) / experiment_dir
+
+        # Create the directory if it does not exist
+        save_dir.mkdir(parents=True, exist_ok=True)
         # Save every epoch
         _save_checkpoint({
             "epoch": epoch,
             "model_state": student.state_dict() if student is not None else teacher.state_dict(),
             "optimizer_state": optimizer_student.state_dict() if student is not None else optimizer_teacher.state_dict(),
-        }, f"{cfg.training.base_path_ckpts}/{experiment_dir}/epoch_{epoch}.pt")
+        }, f"{save_dir}/epoch_{epoch}.pt")
 
         if val_metrics["acc"] > best_val_acc:
             best_val_acc = val_metrics["acc"]
@@ -139,7 +143,7 @@ def train(cfg, teacher, student, train_loader, val_loader, experiment_dir: Path,
                 "model_state": student.state_dict() if student is not None else teacher.state_dict(),
                 "optimizer_state": optimizer_student.state_dict() if student is not None else optimizer_teacher.state_dict(),
                 "best_val_acc": best_val_acc,
-            }, f"{cfg.training.base_path_ckpts}/{experiment_dir}/best.pt")
+            }, f"{save_dir}/best.pt")
         else:
             epochs_no_improve += 1
             if epochs_no_improve >= cfg.training.early_stopping.patience:
