@@ -7,6 +7,7 @@ from typing import Optional, Tuple
 import tomllib
 from dotenv import load_dotenv
 from torchinfo import summary
+import torch
 
 # Framework Imports
 from framework.dataset.load_for_training import load_eurosat_hf_splits, build_loaders_from_hf
@@ -21,80 +22,172 @@ log = logging.getLogger(__name__)
 load_dotenv()
 
 
-def _load_manifest(p: Path) -> list[Path]:
-    """
-    Load the manifest from the given path.
-    """
+import random
+from concurrent.futures import ProcessPoolExecutor, as_completed
+import multiprocessing as mp
+
+def _load_manifest_full(p: Path) -> tuple[list[Path], dict]:
     with p.open("rb") as f:
         cfg = tomllib.load(f)
-    return [Path(x) for x in cfg["experiments"]["paths"]]
+    exp_paths = [Path(x) for x in cfg["experiments"]["paths"]]
+    orch = cfg.get("orchestrator", {}) or {}
+    # defaults
+    orch_cfg = {
+        "max_parallel": int(orch.get("max_parallel", 3)),
+        "skip_existing": bool(orch.get("skip_existing", False)),
+        "shuffle": bool(orch.get("shuffle", False)),
+        "cap_mem_frac": float(orch.get("cap_mem_frac", 0.0)),
+        "stagger_start_seconds": float(orch.get("stagger_start_seconds", 0.0)),
+        "defer_git_push": bool(orch.get("defer_git_push", False)),
+        "filters": list(orch.get("filters", [])),
+    }
+    return exp_paths, orch_cfg
+
+def _already_done(cfg_path: Path) -> bool:
+    try:
+        cfg = load_config_toml(cfg_path)
+        exp_dir = Path(f"experiments/{cfg.experiment.name}/Run_{cfg.experiment.run}")
+        return (exp_dir / "metrics.json").exists() or (exp_dir / "DONE").exists()
+    except Exception:
+        return False
 
 
-def main():
-    for CFG_PATH in _load_manifest(Path("configs/Experiment_3/Experiment_Orchestrator_Config.toml")):
-
-        t0 = time.time()
-        # validate .toml
+def run_one_experiment(CFG_PATH: Path,
+                       cap_mem_frac: float = 0.0,
+                       stagger_start_seconds: float = 0.0,
+                       defer_git_push: bool = False) -> tuple[str, bool, str]:
+    try:
+        if stagger_start_seconds > 0:
+            time.sleep(stagger_start_seconds * (0.5 + 0.5 * random.random()))
         cfg = load_config_toml(CFG_PATH)
 
-        # Set all possible seeds for reproduction
+        # optional CUDA cap
+        try:
+            if cap_mem_frac > 0:
+                torch.cuda.set_per_process_memory_fraction(cap_mem_frac, device=0)
+        except Exception:
+            pass
+
         seed = cfg.training.seed
         if seed is not None:
             set_seed(seed)
 
-        # get run_id & seed, check metadata
         experiment_dir = _create_log_directory(cfg)
         experiment_name = cfg.experiment.name
-
-        # Logging setup
         setup_logging(cfg.model_dump(), experiment_dir)
         log_meta_info(cfg.model_dump(), experiment_dir, seed)
 
-        log.info(f"Loading experiment {CFG_PATH}")
+        extra_channels = len(cfg.data.indices.calculated_indices or [])
+        input_channels = len(cfg.data.indices.selected_bands or []) + extra_channels
+        _print_experiment_overview(cfg, input_channels, extra_channels)
 
-        # Start Training
-        try:
-            extra_channels = len(cfg.data.indices.calculated_indices or [])
-            input_channels = len(cfg.data.indices.selected_bands or []) + extra_channels
+        model_teacher, model_student = _load_models(cfg, input_channels)
+        if cfg.training.teacher_student.train_student:
+            _print_model_summary(cfg, model_student, input_channels, "Student", experiment_dir)
+        _print_model_summary(cfg, model_teacher, input_channels, "Teacher", experiment_dir)
 
-            _print_experiment_overview(cfg, input_channels, extra_channels)
+        train_ds, val_ds, test_ds = load_eurosat_hf_splits(cfg.data.dataset_hf_repo_id)
+        train_loader, val_loader = build_loaders_from_hf(
+            train_ds, val_ds,
+            cfg.training.batch_size,
+            cfg.data.image_size,
+            cfg.data.indices.calculated_indices,
+            cfg.data.augment,
+            normalize=cfg.data.normalize,
+            stats_samples=0,
+            selected_bands=cfg.data.indices.selected_bands,
+            num_workers=cfg.data.num_workers,   # consider lowering when parallel
+            pin_memory=cfg.data.pin_memory,
+        )
 
-            model_teacher, model_student = _load_models(cfg, input_channels)
+        t0 = time.time()
+        train(cfg, teacher=model_teacher, student=model_student,
+              train_loader=train_loader, val_loader=val_loader,
+              experiment_dir=experiment_dir, config_path=CFG_PATH)
 
-            _print_model_summary(cfg, model_student, input_channels, "Student",
-                                 experiment_dir) if cfg.training.teacher_student.train_student else None
-            _print_model_summary(cfg, model_teacher, input_channels, "Teacher", experiment_dir)
-
-            train_ds, val_ds, test_ds = load_eurosat_hf_splits(cfg.data.dataset_hf_repo_id)
-
-            train_loader, val_loader = build_loaders_from_hf(train_ds, val_ds,
-                                                             cfg.training.batch_size,
-                                                             cfg.data.image_size,
-                                                             cfg.data.indices.calculated_indices,
-                                                             cfg.data.augment,
-                                                             normalize=cfg.data.normalize,
-                                                             stats_samples=0,
-                                                             selected_bands=cfg.data.indices.selected_bands,
-                                                             num_workers=cfg.data.num_workers,
-                                                             pin_memory=cfg.data.pin_memory)
-
-            train(cfg, teacher=model_teacher, student=model_student, train_loader=train_loader, val_loader=val_loader,
-                  experiment_dir=experiment_dir, config_path=CFG_PATH)
-
-            plot_teacher_student_metrics(f"{experiment_dir}/config.toml")
-
+        plot_teacher_student_metrics(f"{experiment_dir}/config.toml")
+        if not defer_git_push:
             git_commit_and_push(f"Experiment={cfg.experiment.name} Run={cfg.experiment.run}")
 
+        Path(experiment_dir, "DONE").write_text("ok")
+        return experiment_name, True, f"OK in {time.time() - t0:.1f}s"
+    except Exception as e:
+        try:
+            log.error(f"Experiment failed: {CFG_PATH} error: {e}", exc_info=True)
+        except Exception:
+            pass
+        return str(CFG_PATH), False, repr(e)
 
-        except Exception as e:
-            log.error(f"Experiment name: {experiment_name} --> error: {e}", exc_info=True)
+def main():
+    manifest_path = Path("configs/Experiment_3/Experiment_Orchestrator_Config.toml")
 
-        finally:
-            log.info(f"Experiment name: {experiment_name} --> end training")
-            log.info("\n" + "=" * 88)
-            log.info("RUN END    |  Experiment=%s  |  Run ID=%s  |  Duration=%.1fs",
-                     experiment_name, cfg.experiment.run, time.time() - t0)
-            log.info("=" * 88)
+    try:
+        mp.set_start_method("spawn")
+    except RuntimeError:
+        pass
+
+    cfg_paths, orch = _load_manifest_full(manifest_path)
+
+    # filter by substrings on cfg path or experiment name
+    if orch["filters"]:
+        def keep(p: Path) -> bool:
+            txt = str(p)
+            try:
+                c = load_config_toml(p)
+                txt += f"::{c.experiment.name}"
+            except Exception:
+                pass
+            return any(f in txt for f in orch["filters"])
+        cfg_paths = [p for p in cfg_paths if keep(p)]
+
+    if orch["skip_existing"]:
+        cfg_paths = [p for p in cfg_paths if not _already_done(p)]
+
+    if orch["shuffle"]:
+        random.shuffle(cfg_paths)
+
+    if not cfg_paths:
+        print("No experiments to run after filtering.")
+        return
+
+    print(f"Scheduling {len(cfg_paths)} experiments with max_parallel={orch['max_parallel']}")
+
+    results = []
+    commit_msgs = []
+
+    with ProcessPoolExecutor(max_workers=orch["max_parallel"], mp_context=mp.get_context("spawn")) as ex:
+        futs = {
+            ex.submit(
+                run_one_experiment,
+                p,
+                orch["cap_mem_frac"],
+                orch["stagger_start_seconds"],
+                orch["defer_git_push"],
+            ): p
+            for p in cfg_paths
+        }
+        for i, fut in enumerate(as_completed(futs), 1):
+            p = futs[fut]
+            try:
+                name, ok, msg = fut.result()
+                status = "DONE" if ok else "FAIL"
+                print(f"[{i}/{len(cfg_paths)}] [{status}] {name} -> {msg}")
+                results.append((name, ok, msg))
+                if ok and orch["defer_git_push"]:
+                    commit_msgs.append(f"Experiment={name} completed")
+            except Exception as e:
+                print(f"[ERROR] {p}: {e!r}")
+                results.append((str(p), False, repr(e)))
+
+    if orch["defer_git_push"] and commit_msgs:
+        for msg in commit_msgs:
+            try:
+                git_commit_and_push(msg)
+            except Exception as e:
+                print(f"[git] push failed: {e!r}")
+
+    ok_count = sum(1 for _, ok, _ in results if ok)
+    print(f"Finished. Success {ok_count}/{len(results)}.")
 
 
 def _create_log_directory(cfg) -> Path:
