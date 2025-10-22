@@ -77,10 +77,10 @@ def train(cfg, teacher, student, train_loader, val_loader, experiment_dir: Path,
 
         if student is not None and optimizer_student is not None:
             if cfg.training.kd_type == "CrossEntropyLoss":
-                train_metrics = _train_one_epoch_with_kd(teacher=teacher, student=student, loader=train_loader,
-                                                         device=device, ce_loss=ce_loss, optimizer=optimizer_student,
-                                                         current_epoch=epoch,
-                                                         epochs=cfg.training.epochs)
+                train_metrics = _train_one_epoch_with_crossEntropyLoss(teacher=teacher, student=student, loader=train_loader,
+                                                                       device=device, ce_loss=ce_loss, optimizer=optimizer_student,
+                                                                       current_epoch=epoch, epochs=cfg.training.epochs,
+                                                                       T=cfg.training.T_param, soft_target_loss_weight=cfg.training.soft_target_loss_weight, ce_loss_weight=cfg.training.ce_loss_weight)
 
             if cfg.training.kd_type == "CosineEmbeddingLoss":
                 train_metrics = _train_one_epoch_with_cosineEmbeddingLoss(teacher=teacher, student=student,
@@ -88,7 +88,10 @@ def train(cfg, teacher, student, train_loader, val_loader, experiment_dir: Path,
                                                                           ce_loss=ce_loss, cosine_loss=cosine_loss,
                                                                           optimizer=optimizer_student,
                                                                           current_epoch=epoch,
-                                                                          epochs=cfg.training.epochs)
+                                                                          epochs=cfg.training.epochs,
+                                                                          hidden_rep_loss_weight=cfg.training.hidden_rep_loss_weight,
+                                                                          ce_loss_weight=cfg.training.ce_loss_weight)
+
             val_metrics = _evaluate(student, val_loader, device, ce_loss)
 
         else:
@@ -149,8 +152,8 @@ def train(cfg, teacher, student, train_loader, val_loader, experiment_dir: Path,
 
 
 # Tutorial here: https://docs.pytorch.org/tutorials/beginner/knowledge_distillation_tutorial.html
-def _train_one_epoch_with_kd(*, teacher, student, loader, device, ce_loss, optimizer, current_epoch, epochs, T=2,
-                             soft_target_loss_weight=0.25, ce_loss_weight=0.75) -> Dict[str, float]:
+def _train_one_epoch_with_crossEntropyLoss(*, teacher, student, loader, device, ce_loss, optimizer, current_epoch, epochs, T=2,
+                                           soft_target_loss_weight=0.25, ce_loss_weight=0.75) -> Dict[str, float]:
     teacher.eval()  # Teacher set to evaluation mode
     student.train()  # Student to train mode
 

@@ -86,6 +86,10 @@ class TrainingConfig(BaseModel):
     load_from_checkpoint: bool = False
     previous_checkpoint_path: Path = None
     kd_type: str = "CrossEntropyLoss"
+    hidden_rep_loss_weight: float = 0.25
+    ce_loss_weight: float = 0.75
+    soft_target_loss_weight: float = 0.25
+    T_param: PositiveInt = 1
 
     @field_validator("learning_rate")
     @classmethod
