@@ -31,7 +31,7 @@ def _load_manifest(p: Path) -> list[Path]:
 
 
 def main():
-    for CFG_PATH in _load_manifest(Path("configs/Experiment_XY/Experiment_Orchestrator_Config.toml")):
+    for CFG_PATH in _load_manifest(Path("configs/Experiment_3/Experiment_Orchestrator_Config.toml")):
 
         t0 = time.time()
         # validate .toml
@@ -83,7 +83,7 @@ def main():
 
             plot_teacher_student_metrics(f"{experiment_dir}/config.toml")
 
-            git_commit_and_push(f"Experiment={cfg.experiment.name} Run={cfg.experiment.run}")
+          # git_commit_and_push(f"Experiment={cfg.experiment.name} Run={cfg.experiment.run}")
 
 
         except Exception as e:
@@ -132,6 +132,11 @@ def _print_experiment_overview(cfg, input_channels, extra_channels):
         log.info("Train with teacher-student knowledge distillation.")
         log.info(f"Teacher Name: {cfg.training.teacher_student.teacher_model_name}")
         log.info(f"Student Name: {cfg.model.name}")
+        log.info(f"KD Type: {cfg.training.kd_type}")
+        log.info(f"Hidden Rep weight: {cfg.training.hidden_rep_loss_weight}")
+        log.info(f"CE Loss weight: {cfg.training.ce_loss_weight}")
+        log.info(f"Soft Target weight: {cfg.training.soft_target_loss_weight}")
+        log.info(f"T weight: {cfg.training.T_param}")
     else:
         log.info("No teacher knowledge distillation. -> Train teacher itself")
         log.info(f"Teacher Name: {cfg.model.name}")

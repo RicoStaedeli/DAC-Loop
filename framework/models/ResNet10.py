@@ -1,6 +1,36 @@
 import torch.nn as nn
 
 class BasicBlock(nn.Module):
+    """
+    A basic residual block used in ResNet architectures.
+
+    This block applies two 3×3 convolutional layers with batch normalization
+    and ReLU activation, along with an optional shortcut connection to handle
+    changes in input/output dimensions or spatial resolution.
+
+    Structure:
+        Input → Conv3×3 → BN → ReLU → Conv3×3 → BN → (Add Shortcut) → ReLU → Output
+
+    Args:
+        in_channels (int): Number of input feature channels.
+        out_channels (int): Number of output feature channels.
+        stride (int, optional): Stride for the first convolution layer.
+            If stride > 1, downsampling is applied to reduce spatial dimensions.
+            Default: 1.
+
+    Components:
+        conv1: 3×3 convolution with the specified stride, followed by batch normalization and ReLU.
+        conv2: 3×3 convolution with stride 1, followed by batch normalization.
+        shortcut: Identity mapping by default, or a 1×1 convolution (with BN)
+                  to match spatial or channel dimensions when needed.
+
+    Forward pass:
+        1. Apply the first conv–BN–ReLU sequence.
+        2. Apply the second conv–BN sequence.
+        3. Add the input (possibly transformed by the shortcut) to the output (residual connection).
+        4. Apply ReLU activation to the summed output.
+
+    """
     def __init__(self, in_channels, out_channels, stride=1):
         super(BasicBlock, self).__init__()
         self.conv1 = nn.Conv2d(in_channels, out_channels, kernel_size=3, stride=stride, padding=1, bias=False)
@@ -54,7 +84,7 @@ class ResNet10(nn.Module):
             self.in_channels = out_channels
         return nn.Sequential(*layers)
 
-    def forward(self, x):
+    def forward(self, x, return_features=True):
         out = self.conv1(x)
         out = self.bn1(out)
         out = self.relu(out)
@@ -66,6 +96,6 @@ class ResNet10(nn.Module):
         out = self.layer4(out)
 
         out = self.avgpool(out)
-        out = out.view(out.size(0), -1)
-        out = self.fc(out)
-        return out
+        feat = out.view(out.size(0), -1)  # N, 512
+        logits = self.fc(feat)
+        return (logits, feat) if return_features else logits

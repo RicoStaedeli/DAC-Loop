@@ -53,7 +53,7 @@ class ResNet18(nn.Module):
             self.in_channels = out_channels
         return nn.Sequential(*layers)
 
-    def forward(self, x):
+    def forward(self, x, return_features=True):
         out = self.conv1(x)
         out = self.bn1(out)
         out = self.relu(out)
@@ -64,7 +64,7 @@ class ResNet18(nn.Module):
         out = self.layer3(out)
         out = self.layer4(out)
 
-        out = self.avgpool(out)
-        out = out.view(out.size(0), -1)
-        out = self.fc(out)
-        return out
+        out = self.avgpool(out)  # N, 512, 1, 1
+        feat = out.view(out.size(0), -1)  # N, 512
+        logits = self.fc(feat)  # N, num_classe
+        return (logits, feat) if return_features else logits

@@ -85,12 +85,25 @@ class TrainingConfig(BaseModel):
     teacher_student: TeacherStudentConfig = TeacherStudentConfig()
     load_from_checkpoint: bool = False
     previous_checkpoint_path: Path = None
+    kd_type: str = "CrossEntropyLoss"
+    hidden_rep_loss_weight: float = 0.25
+    ce_loss_weight: float = 0.75
+    soft_target_loss_weight: float = 0.25
+    T_param: PositiveInt = 1
 
     @field_validator("learning_rate")
     @classmethod
     def lr_in_range(cls, v: float) -> float:
         if not (0 < v <= 1.0):
             raise ValueError("learning_rate must be in (0, 1.0]")
+        return v
+
+    @field_validator("kd_type")
+    @classmethod
+    def valid_kd_type(cls, v: str) -> str:
+        allowed = ["CrossEntropyLoss", "CosineEmbeddingLoss"]
+        if v not in allowed:
+            raise ValueError(f"kd_type must be one of {allowed}")
         return v
 
 

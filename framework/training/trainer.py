@@ -1,25 +1,27 @@
+import json
+import logging
+import shutil
+import time
 from pathlib import Path
 from typing import Dict, Tuple
+
 import torch
-from torch import Tensor
 import torch.nn as nn
+import torch.nn.functional as F
+from torch import Tensor
 from torch.optim import AdamW
 from torch.optim.lr_scheduler import CosineAnnealingLR
-import torch.nn.functional as F
-import logging
 from tqdm import tqdm
-import time
-import json, shutil
 
 # Framework Imports
 from framework.utils.logger import log_section
-
 
 log = logging.getLogger(__name__)
 
 
 def train(cfg, teacher, student, train_loader, val_loader, experiment_dir: Path, config_path) -> None:
-    criterion = nn.CrossEntropyLoss()
+    ce_loss = nn.CrossEntropyLoss()
+    cosine_loss = nn.CosineEmbeddingLoss()
     optimizer_teacher = _make_optimizer(teacher, cfg.training.learning_rate, cfg.training.weight_decay)
     optimizer_student = None
 
@@ -34,6 +36,9 @@ def train(cfg, teacher, student, train_loader, val_loader, experiment_dir: Path,
     metrics_history = []
     metrics_path = Path(f"{experiment_dir}/metrics.json")
 
+    ###################################################################################################################
+    ################################## Prepare Models                ##################################################
+    ###################################################################################################################
     # load from checkpoint
     load_from_checkpoint = cfg.training.load_from_checkpoint
     previous_checkpoint_path = cfg.training.previous_checkpoint_path
@@ -60,25 +65,40 @@ def train(cfg, teacher, student, train_loader, val_loader, experiment_dir: Path,
     if load_from_checkpoint:
         log.info("Loading checkpoint from %s", previous_checkpoint_path)
         teacher, optimizer = _load_checkpoint(teacher, optimizer_teacher, previous_checkpoint_path,
-                                                                    device=device)
+                                              device=device)
 
-
-    # Log Training start for overview in logfile
+    ###################################################################################################################
+    ################################## Start Training                ##################################################
+    ###################################################################################################################
     log_section("TRAINING START")
 
     for epoch in range(1, cfg.training.epochs + 1):
         time_t0 = time.time()
 
         if student is not None and optimizer_student is not None:
-            train_metrics = _train_one_epoch_with_kd(teacher,student, train_loader, device, criterion, optimizer_student, epoch,
-                                             cfg.training.epochs)
-            val_metrics = _evaluate(student, val_loader, device, criterion)
+            if cfg.training.kd_type == "CrossEntropyLoss":
+                train_metrics = _train_one_epoch_with_crossEntropyLoss(teacher=teacher, student=student, loader=train_loader,
+                                                                       device=device, ce_loss=ce_loss, optimizer=optimizer_student,
+                                                                       current_epoch=epoch, epochs=cfg.training.epochs,
+                                                                       T=cfg.training.T_param, soft_target_loss_weight=cfg.training.soft_target_loss_weight, ce_loss_weight=cfg.training.ce_loss_weight)
+
+            if cfg.training.kd_type == "CosineEmbeddingLoss":
+                train_metrics = _train_one_epoch_with_cosineEmbeddingLoss(teacher=teacher, student=student,
+                                                                          loader=train_loader, device=device,
+                                                                          ce_loss=ce_loss, cosine_loss=cosine_loss,
+                                                                          optimizer=optimizer_student,
+                                                                          current_epoch=epoch,
+                                                                          epochs=cfg.training.epochs,
+                                                                          hidden_rep_loss_weight=cfg.training.hidden_rep_loss_weight,
+                                                                          ce_loss_weight=cfg.training.ce_loss_weight)
+
+            val_metrics = _evaluate(student, val_loader, device, ce_loss)
 
         else:
-            train_metrics = _train_one_epoch(teacher, train_loader, device, criterion, optimizer_teacher, epoch,
+            train_metrics = _train_one_epoch(teacher, train_loader, device, ce_loss, optimizer_teacher, epoch,
                                              cfg.training.epochs)
 
-            val_metrics = _evaluate(teacher, val_loader, device, criterion)
+            val_metrics = _evaluate(teacher, val_loader, device, ce_loss)
         if scheduler: scheduler.step()
 
         log.info(
@@ -132,7 +152,8 @@ def train(cfg, teacher, student, train_loader, val_loader, experiment_dir: Path,
 
 
 # Tutorial here: https://docs.pytorch.org/tutorials/beginner/knowledge_distillation_tutorial.html
-def _train_one_epoch_with_kd(teacher, student, loader, device, criterion, optimizer, current_epoch, epochs, T=2, soft_target_loss_weight=0.25, ce_loss_weight=0.75) -> Dict[str, float]:
+def _train_one_epoch_with_crossEntropyLoss(*, teacher, student, loader, device, ce_loss, optimizer, current_epoch, epochs, T=2,
+                                           soft_target_loss_weight=0.25, ce_loss_weight=0.75) -> Dict[str, float]:
     teacher.eval()  # Teacher set to evaluation mode
     student.train()  # Student to train mode
 
@@ -146,10 +167,10 @@ def _train_one_epoch_with_kd(teacher, student, loader, device, criterion, optimi
 
         # Forward pass with the teacher model - do not save gradients here as we do not change the teacher's weights
         with torch.no_grad():
-            teacher_logits = teacher(images)
+            teacher_logits, _ = teacher(images)
 
         # Forward pass with the student model
-        student_logits = student(images)
+        student_logits, _ = student(images)
 
         # Soften the student logits by applying softmax first and log() second
         soft_targets = nn.functional.softmax(teacher_logits / T, dim=-1)
@@ -159,7 +180,7 @@ def _train_one_epoch_with_kd(teacher, student, loader, device, criterion, optimi
         soft_targets_loss = torch.sum(soft_targets * (soft_targets.log() - soft_prob)) / soft_prob.size()[0] * (T ** 2)
 
         # Calculate the true label loss
-        label_loss = criterion(student_logits, labels)
+        label_loss = ce_loss(student_logits, labels)
 
         # Weighted sum of the two losses
         loss = soft_target_loss_weight * soft_targets_loss + ce_loss_weight * label_loss
@@ -167,6 +188,52 @@ def _train_one_epoch_with_kd(teacher, student, loader, device, criterion, optimi
         loss.backward()
         optimizer.step()
 
+        with torch.no_grad():
+            top1, = _accuracy_topk(student_logits, labels, topk=(1,))
+
+        # Each loss.item() returned by criterion(logits, y) is already averaged over the batch (because nn.CrossEntropyLoss by default uses reduction='mean').
+        total_loss += loss.item() * images.size(0)
+
+        # If your batch has shape [B, C, H, W] (batch size, channels, height, width), then x.size(0) is B, the number of samples in this batch.
+        total += images.size(0)
+        top1_sum += top1.item() * images.size(0) / 100.0
+    return {"loss": total_loss / total, "acc": 100.0 * top1_sum / total}
+
+
+# Tutorial here: https://docs.pytorch.org/tutorials/beginner/knowledge_distillation_tutorial.html
+def _train_one_epoch_with_cosineEmbeddingLoss(*, teacher, student, loader, device, ce_loss, cosine_loss, optimizer,
+                                              current_epoch, epochs, hidden_rep_loss_weight=0.25,
+                                              ce_loss_weight=0.75) -> Dict[str, float]:
+    teacher.eval()  # Teacher set to evaluation mode
+    student.train()  # Student to train mode
+
+    total_loss, total, top1_sum = 0.0, 0, 0.0
+    num_steps = len(loader)
+    log.info(f"Epoch {current_epoch}/{epochs} — {num_steps} steps total")
+
+    for images, labels in tqdm(loader, desc=f"Epoch {current_epoch}/{epochs}"):
+        images, labels = images.to(device), labels.to(device)
+        optimizer.zero_grad()
+
+        # Forward pass with the teacher model - do not save gradients here as we do not change the teacher's weights
+        with torch.no_grad():
+            _, teacher_hidden_representation = teacher(images)
+
+        # Forward pass with the student model
+        student_logits, student_hidden_representation = student(images)
+
+        # Calculate the cosine loss. Target is a vector of ones. From the loss formula above we can see that is the case where loss minimization leads to cosine similarity increase.
+        hidden_rep_loss = cosine_loss(student_hidden_representation, teacher_hidden_representation,
+                                      target=torch.ones(images.size(0)).to(device))
+
+        # Calculate the true label loss
+        label_loss = ce_loss(student_logits, labels)
+
+        # Weighted sum of the two losses
+        loss = hidden_rep_loss_weight * hidden_rep_loss + ce_loss_weight * label_loss
+
+        loss.backward()
+        optimizer.step()
 
         with torch.no_grad():
             top1, = _accuracy_topk(student_logits, labels, topk=(1,))
@@ -204,40 +271,46 @@ def _train_one_epoch(model, loader, device, criterion, optimizer, current_epoch,
         top1_sum += top1.item() * images.size(0) / 100.0
     return {"loss": total_loss / total, "acc": 100.0 * top1_sum / total}
 
-def _evaluate(model, loader, device, criterion) -> Dict[str, float]:
+
+def _evaluate(model, loader, device, ce_loss) -> Dict[str, float]:
     model.eval()
-    total_loss, total_mse, total, top1_sum = 0.0, 0.0, 0, 0.0
+    total_loss, total_mse, total, top1_sum, correct = 0.0, 0.0, 0, 0.0, 0
 
     with torch.no_grad():
-        for x, y in loader:
-            x, y = x.to(device), y.to(device)
-            logits = model(x)
-            loss = criterion(logits, y)
+        for inputs, labels in loader:
+            inputs, labels = inputs.to(device), labels.to(device)
+            logits, _ = model(inputs)
+            loss = ce_loss(logits, labels)
+            total_loss += loss.item() * inputs.size(0)
 
             probs = F.softmax(logits, dim=1)
-            y_onehot = F.one_hot(y, num_classes=probs.size(1)).float()
+            y_onehot = F.one_hot(labels, num_classes=probs.size(1)).float()
             mse = F.mse_loss(probs, y_onehot, reduction='mean')
+            total_mse += mse.item() * inputs.size(0)
 
-            top1, = _accuracy_topk(logits, y, topk=(1,))
-            total_loss += loss.item() * x.size(0)
-            total_mse += mse.item() * x.size(0)
-            total += x.size(0)
-            top1_sum += top1.item() * x.size(0) / 100.0
+            _, predicted = torch.max(logits.data, 1)
+
+            correct += (predicted == labels).sum().item()
+
+            total += inputs.size(0)
+
 
     return {
         "loss": total_loss / total,
         "mse": total_mse / total,
-        "acc": 100.0 * top1_sum / total
+        "acc": 100 * correct / total
     }
 
 
 def _make_optimizer(model: nn.Module, lr: float, weight_decay: float):
     return AdamW(model.parameters(), lr=lr, weight_decay=weight_decay)
 
+
 def _make_scheduler(optimizer, scheme: str, epochs: int):
     if scheme == "cosine":
         return CosineAnnealingLR(optimizer, T_max=epochs)
     return None
+
 
 def _load_checkpoint(model, optimizer, filename, device):
     checkpoint = torch.load(filename, map_location=device)
@@ -248,8 +321,10 @@ def _load_checkpoint(model, optimizer, filename, device):
     print(f"Loaded checkpoint")
     return model, optimizer
 
+
 def _save_checkpoint(state, filename):
     torch.save(state, filename)
+
 
 def _accuracy_topk(output: Tensor, target: Tensor, topk=(1,)) -> Tuple[Tensor, ...]:
     with torch.no_grad():

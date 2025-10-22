@@ -34,7 +34,7 @@ def _format_run_spec(config: dict) -> str:
     return "_".join(parts)
 
 
-def setup_logging(config: dict, experiment_dir: Path):
+def setup_logging(config: dict, experiment_dir: Path, save_to_file: bool=True):
     """
     Setup logging based on validated config (cfg.model_dump()).
       - logging.default_level
@@ -42,24 +42,33 @@ def setup_logging(config: dict, experiment_dir: Path):
       - log file saved as logs/{run_id}.log
     :return: run_id
     """
-    # global log level
+    # Global log level
     raw_level = config.get("logging", {}).get("default_level", logging.INFO)
     log_level_str = raw_level.upper() if isinstance(raw_level, str) else "INFO"
     log_level = getattr(logging, log_level_str, logging.INFO)
 
-    # run id & log file
-    experiment_name = config.get("experiment", {}).get("name")
-    experiment_run = config.get("experiment", {}).get("run")
+    # Run id & log file
+    experiment_name = config.get("experiment", {}).get("name", "experiment")
+    experiment_run = config.get("experiment", {}).get("run", "run")
     log_file = Path(experiment_dir / f"{experiment_name}_{experiment_run}.log")
 
+    # Always include console output
+    handlers = [logging.StreamHandler()]
+
+    # Conditionally include file output
+    if save_to_file:
+        handlers.append(logging.FileHandler(log_file, mode="a", encoding="utf-8"))
+
+    # Configure logging
     logging.basicConfig(
         level=log_level,
         format="%(asctime)s [%(levelname)s] [%(name)s] (%(module)s.%(funcName)s:%(lineno)d) :: %(message)s",
-        handlers=[
-            logging.StreamHandler(),
-            logging.FileHandler(log_file, mode="a", encoding="utf-8"),
-        ],
+        handlers=handlers,
         force=True,
+    )
+
+    logging.getLogger().info(
+        f"Logging initialized. Level={log_level_str}, SaveToFile={save_to_file}, LogFile={log_file if save_to_file else 'N/A'}"
     )
 
     # per-module overrides
