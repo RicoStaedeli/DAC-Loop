@@ -33,8 +33,7 @@ def train(cfg, teacher, student, train_loader, val_loader, experiment_dir: Path,
 
     best_val_acc = 0.0
     epochs_no_improve = 0
-    metrics_history = []
-    metrics_path = Path(f"{experiment_dir}/metrics.json")
+    metrics_path = Path(f"{experiment_dir}/metrics.jsonl")
 
     ###################################################################################################################
     ################################## Prepare Models                ##################################################
@@ -130,11 +129,9 @@ def train(cfg, teacher, student, train_loader, val_loader, experiment_dir: Path,
         }
 
         # Save metrics after every epoch to metrics.json
-        metrics_history = [m for m in metrics_history if m.get("epoch") != metrics["epoch"]]
-        metrics_history.append(metrics)
         if metrics_path:
-            metrics_path.write_text(json.dumps(metrics_history, indent=2))
-            log.debug("Wrote metrics.json with %d entries", len(metrics_history))
+            with open(metrics_path, "a", encoding="utf-8") as f:
+                f.write(json.dumps(metrics) + "\n")
 
         save_dir = Path(f"{cfg.training.base_path_ckpts}{experiment_dir}")
 
