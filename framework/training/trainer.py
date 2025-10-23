@@ -57,7 +57,7 @@ def train(cfg, teacher, student, train_loader, val_loader, experiment_dir: Path,
         student.to(device)
         teacher.to(device)
         log.info("Loading teacher from checkpoint %s", teacher_model_path)
-        teacher, optimizer = _load_checkpoint(teacher, optimizer_teacher, f"{cfg.training.base_path_ckpts}/{teacher_model_path}",
+        teacher, optimizer = _load_checkpoint(teacher, optimizer_teacher, f"{cfg.training.base_path_ckpts}{teacher_model_path}",
                                               device=device)
     else:
         teacher.to(device)
