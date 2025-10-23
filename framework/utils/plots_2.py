@@ -69,7 +69,7 @@ def plot_teacher_student_metrics(cfg_path, project_root="."):
     if os.path.exists(student_ts_path):
         try:
             log.info(f"Loading student metrics from {student_ts_path}")
-            series.append(("Student (TS)", _load_metrics(student_ts_path)))
+            series.append(("Student (TS)" if cfg.training.teacher_student.train_student else "Teacher", _load_metrics(student_ts_path)))
         except:
             log.warning(f"Could not load student metrics from {student_ts_path}")
     if os.path.exists(student_baseline_path):
@@ -83,7 +83,7 @@ def plot_teacher_student_metrics(cfg_path, project_root="."):
         raise FileNotFoundError("No metrics files found.")
 
     # ----- Plot LOSS (training) -----
-    fig, ax = plt.subplots(figsize=(7, 4.5), dpi=200)
+    fig, ax = plt.subplots(figsize=(12, 5), dpi=200)
     for label, df in series:
         # Convert and drop invalid values
         df["train_loss"] = pd.to_numeric(df["train_loss"], errors="coerce")
@@ -100,7 +100,7 @@ def plot_teacher_student_metrics(cfg_path, project_root="."):
         loss_label = f"{label} (best={best_train_loss:.3f}@{int(best_epoch)})"
         ax.plot(
             df["epoch"], df["train_loss"],
-            linewidth=1.8,
+            linewidth=1,
             marker=None,
             linestyle="-",
             label=loss_label
@@ -108,10 +108,13 @@ def plot_teacher_student_metrics(cfg_path, project_root="."):
     ax.set_xlabel("Epoch", fontsize=11)
     ax.set_ylabel("Loss", fontsize=11)
     fig.suptitle("Validation loss over epochs", fontsize=12)  # main title
-    ax.set_title(f"Experiment: {cfg.experiment.name}, Run: {cfg.experiment.run}, KD-Type: {cfg.training.kd_type}", fontsize=10)  # subtitle
+    if(cfg.training.teacher_student.train_student):
+        ax.set_title(f"Experiment: {cfg.experiment.name}, Run: {cfg.experiment.run}, Model: {cfg.model.name}, Teacher-Model: {cfg.training.teacher_student.teacher_model_name} KD-Type: {cfg.training.kd_type}", fontsize=10)  # subtitle
+    else:
+        ax.set_title(f"Experiment: {cfg.experiment.name}, Run: {cfg.experiment.run}, Model: {cfg.model.name}", fontsize=10)  # subtitle
     ax.grid(True, linestyle=":", linewidth=0.7, alpha=0.8)
     ax.legend(frameon=False, fontsize=9)
-    fig.tight_layout(rect=[0, 0, 1, 0.95])  # leave space for suptitle
+    fig.tight_layout(rect=[0, 0, 1, 0.97])  # leave space for suptitle
 
     save_dir = f"{dir_config}/plots/"
     os.makedirs(save_dir, exist_ok=True)
@@ -120,7 +123,7 @@ def plot_teacher_student_metrics(cfg_path, project_root="."):
     plt.close()
 
     # ----- Plot VALIDATION ACCURACY -----
-    fig, ax = plt.subplots(figsize=(7, 4.5), dpi=200)
+    fig, ax = plt.subplots(figsize=(12, 5), dpi=200)
     for label, df in series:
         if "val_accuracy" in df.columns:
             # Convert and clean
@@ -137,7 +140,7 @@ def plot_teacher_student_metrics(cfg_path, project_root="."):
             # Label with both accuracy and epoch
             label_with_acc = f"{label} (best={best_acc:.2f}%@{int(best_epoch)})"
             ax.plot(df["epoch"], df["val_accuracy"],
-                     linewidth=1.8,
+                     linewidth=1,
                      marker=None,
                      linestyle="-",
                      label=label_with_acc)
@@ -145,11 +148,13 @@ def plot_teacher_student_metrics(cfg_path, project_root="."):
     ax.set_xlabel("Epoch", fontsize=11)
     ax.set_ylabel("Accuracy", fontsize=11)
     fig.suptitle("Validation accuracy over epochs", fontsize=12)  # main title
-    ax.set_title(f"Experiment: {cfg.experiment.name}, Run: {cfg.experiment.run}, KD-Type: {cfg.training.kd_type}",
-                 fontsize=10)  # subtitle
+    if(cfg.training.teacher_student.train_student):
+        ax.set_title(f"Experiment: {cfg.experiment.name}, Run: {cfg.experiment.run}, Model: {cfg.model.name}, Teacher-Model: {cfg.training.teacher_student.teacher_model_name} KD-Type: {cfg.training.kd_type}", fontsize=10)  # subtitle
+    else:
+        ax.set_title(f"Experiment: {cfg.experiment.name}, Run: {cfg.experiment.run}, Model: {cfg.model.name}", fontsize=10)  # subtitle
     ax.grid(True, linestyle=":", linewidth=0.7, alpha=0.8)
     ax.legend(frameon=False, fontsize=9)
-    fig.tight_layout(rect=[0, 0, 1, 0.95])  # leave space for suptitle
+    fig.tight_layout(rect=[0, 0, 1, 0.97])  # leave space for suptitle
 
     plt.savefig(f"{save_dir}val_accuracy_per_epoch.png", bbox_inches="tight")
     plt.close()
