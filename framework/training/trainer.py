@@ -124,7 +124,7 @@ def train(cfg, teacher, student, train_loader, val_loader, experiment_dir: Path,
             metrics_path.write_text(json.dumps(metrics_history, indent=2))
             log.debug("Wrote metrics.json with %d entries", len(metrics_history))
 
-        save_dir = Path(cfg.training.base_path_ckpts) / experiment_dir
+        save_dir = Path(f"{cfg.training.base_path_ckpts}{experiment_dir}")
 
         # Create the directory if it does not exist
         save_dir.mkdir(parents=True, exist_ok=True)
