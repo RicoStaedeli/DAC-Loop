@@ -360,11 +360,16 @@ def _train_one_epoch(model, loader, device, criterion, optimizer, current_epoch,
 
     for images, labels in tqdm(loader, desc=f"Epoch {current_epoch}/{epochs}"):
         images, labels = images.to(device), labels.to(device)
+
         optimizer.zero_grad()
-        logits = model(images)
+
+        logits, _ = model(images)
+
         loss = criterion(logits, labels)
+
         loss.backward()
         optimizer.step()
+
         with torch.no_grad():
             top1, = _accuracy_topk(logits, labels, topk=(1,))
 
