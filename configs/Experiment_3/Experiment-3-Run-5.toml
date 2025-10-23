@@ -16,7 +16,7 @@ name = "Experiment_3"                                           # (string) defau
 run = 5                                                         # (int) default: 1 | Run ID (used in saving checkpoints and logging).
 
 [saving]
-overwrite_run = false                                            # (bool) default: false | If true an existing run will be overwritten
+overwrite_run = true                                            # (bool) default: false | If true an existing run will be overwritten
 
 [training]                                                      # If train_student = true, this hyperparameters are used for the student model during the training.
 epochs = 25                                                     # (int) default: 2 | Number of full passes through the training dataset.
@@ -33,6 +33,8 @@ hidden_rep_loss_weight = 0.9                                    # (float) defaul
 ce_loss_weight = 0.75                                           # (float) default: 0.75 | weight to multiply the cross entropy loss of the labels used in 'CrossEntropyLoss', 'CosineEmbeddingLoss'
 soft_target_loss_weight = 0.25                                  # (float) default: 0.25 | weight to multiply the loss during KD with CrossEntropyLoss
 T_param = 2                                                     # (int) default: 2 | weight to multiply the loss during KD with CrossEntropyLoss
+base_path_ckpts = ""                                            #(string) default: "" | this is used as basepath for the checkoint dir. Used in Colab to save Checkpoints to G-Drive (/content/drive/MyDrive/HSG/DL)
+
 
 
 [training.teacher_student]
@@ -59,8 +61,8 @@ dataset_hf_repo_id = "blanchon/EuroSAT_MSI"   # (string) default:  | Huggingface
 image_size = 64                               # (int) default: 64 | 64x64 --> always cube Image Size used for upsampling image
 augment = false                               # (bool) default: False | Whether to use image augmenation or not
 normalize = true                              # (bool) default: True | Whether to normalize image or not$
-num_workers = 0                              # (int) default: 4 | How many workser the dataloader can use. This increased the GPU Memory load.
-pin_memory = false                             # (bool) default: False | Whether to use pin memory in DataLoader or nor. Much faster training. MPS does not support this option
+num_workers = 20                              # (int) default: 4 | How many workser the dataloader can use. This increased the GPU Memory load.
+pin_memory = true                             # (bool) default: False | Whether to use pin memory in DataLoader or nor. Much faster training. MPS does not support this option
 num_used_entries_train = 1000                 # (int) default: 100 | Number of training samples used. If 0 all samples are used.
 num_used_entries_validation = 100             # (int) default: 10 | Number of validation samples used. If 0 all samples are used.
 

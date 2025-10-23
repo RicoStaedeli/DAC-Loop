@@ -1,0 +1,70 @@
+[logging]
+default_level = "INFO"                                          # (string) default: INFO | The global logging level.
+[logging.levels]
+"framework.models.gpt2" = "INFO"                                # (string) default: INFO | Overwrites the logging level of framework.models.gpt2
+"framework.config_parser.model_loader" = "INFO"
+"framework.config_parser.config" = "INFO"
+
+[artifacts]
+hf_repo_id = ""              # (string) default:  | Hugging Face repository where artifacts (models, checkpoints) are stored.
+
+[hf_upload]
+enabled = false                                                 # (bool) default: False | Whether to upload trained models/artifacts automatically to Hugging Face Hub.
+
+[experiment]
+name = "Experiment_3"                                           # (string) default: Experiment_XY | Identifier for the experiment (used in saving checkpoints and logging).
+run = 23                                                         # (int) default: 1 | Run ID (used in saving checkpoints and logging).
+
+[saving]
+overwrite_run = false                                            # (bool) default: false | If true an existing run will be overwritten
+
+[training]                                                      # If train_student = true, this hyperparameters are used for the student model during the training.
+epochs = 25                                                     # (int) default: 2 | Number of full passes through the training dataset.
+learning_rate = 0.0003                                          # (float) default: 0.0003 | Step size for weight updates.
+weight_decay = 0.00001
+scheduler = "cosine"                                            # "cosine", "step", "none" --> only cosine implemented yet
+batch_size = 256                                                # (int) default: 128 | Number of samples per training batch.
+do_not_log_steps = false                                        # (bool) default: False | Whether to log metrics per step or not
+seed = 42                                                       # (int) default: 42 | Random seed for reproducibility.
+load_from_checkpoint = false                                    # (bool) default: False | Resume training from a saved checkpoint if true.
+previous_checkpoint_path = ""                                   # (string) default: None | Path to a checkpoint file for resuming training. Only relevant if load_from_checkpoint = true.
+kd_type = "CrossEntropyLoss"                                 # (string) Available: ['CrossEntropyLoss', 'CosineEmbeddingLoss']
+hidden_rep_loss_weight = 0.25                                    # (float) default: 0.25 | weight to multiply the loss during KD with CosineEmbeddingLoss
+ce_loss_weight = 0.75                                           # (float) default: 0.75 | weight to multiply the cross entropy loss of the labels used in 'CrossEntropyLoss', 'CosineEmbeddingLoss'
+soft_target_loss_weight = 0.25                                  # (float) default: 0.25 | weight to multiply the loss during KD with CrossEntropyLoss
+T_param = 10                                                    # (int) default: 2 | weight to multiply the loss during KD with CrossEntropyLoss
+base_path_ckpts = ""               #(string) default: "" | this is used as basepath for the checkoint dir. Used in Colab to save Checkpoints to G-Drive, (/content/drive/MyDrive/HSG/DL)
+
+
+[training.teacher_student]
+train_student = true                                                   # (bool) default: false | Whether a student is trained or not. If false a teacher model is trained.
+teacher_model_path = "experiments/Experiment_1/Run_3/epoch_17.pt"      # (string) default: | Path to trained ResNet18 Model (Teacher)
+teacher_model_name = "ResNet18"                                        # Available: ['ResNet10', 'ResNet18', 'TinyCNN']
+baseline_student = "experiments/Experiment_1/Run_9/metrics.json"        # (string) default: "" | Path to a pre-trained student model. If provided, the student model will be initialized with these weights before training.
+
+[training.early_stopping]
+enabled = false                         # (bool) default: False | Whether to use early stopping or not
+patience = 5                            # (int) default: 0 | Number of epochs to wait for improvement before stopping training.
+min_delta = 0.0                         # (float) default: 0.0 | Minimum improvement in validation loss required to reset patience and save the new best epoch.
+keep_last = 0                           # (int) default: 0 | Number of last checkpoints to keep during training.
+
+
+[model]
+name = "TinyCNN"                        # (string) default:  | If train_student = true then this is the name of the student Model. Otherwise, this is the model of the teacher.
+
+[model.args]
+classes = 10                            # (int) default: 10 | How manny classes the dataset has. Used for FC layer in CNN
+
+[data]
+dataset_hf_repo_id = "blanchon/EuroSAT_MSI"   # (string) default:  | Huggingface Repo of the dataset
+image_size = 64                               # (int) default: 64 | 64x64 --> always cube Image Size used for upsampling image
+augment = false                               # (bool) default: False | Whether to use image augmenation or not
+normalize = true                              # (bool) default: True | Whether to normalize image or not$
+num_workers = 20                              # (int) default: 4 | How many workser the dataloader can use. This increased the GPU Memory load.
+pin_memory = true                             # (bool) default: False | Whether to use pin memory in DataLoader or nor. Much faster training. MPS does not support this option
+num_used_entries_train = 1000                 # (int) default: 100 | Number of training samples used. If 0 all samples are used.
+num_used_entries_validation = 100             # (int) default: 10 | Number of validation samples used. If 0 all samples are used.
+
+[data.indices]
+calculated_indices = ["NDVI", "NDWI", "NDMI"]
+selected_bands = ["B02", "B03", "B04", "B07", "B08"]

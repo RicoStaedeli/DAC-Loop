@@ -83,7 +83,7 @@ def main():
 
             plot_teacher_student_metrics(f"{experiment_dir}/config.toml")
 
-          # git_commit_and_push(f"Experiment={cfg.experiment.name} Run={cfg.experiment.run}")
+            git_commit_and_push(f"Experiment={cfg.experiment.name} Run={cfg.experiment.run}")
 
 
         except Exception as e:
@@ -119,6 +119,7 @@ def _create_log_directory(cfg) -> Path:
 
 def _print_experiment_overview(cfg, input_channels, extra_channels):
     log.info(f"Experiment name: {cfg.experiment.name}")
+    log.info(f"Run ID: {cfg.experiment.run}")
     log.info("=" * 80)
     log.info(f"Input channels: {input_channels}")
     log.info(f"Extra channels: {extra_channels}")
