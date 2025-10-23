@@ -155,7 +155,7 @@ def train(cfg, teacher, student, train_loader, val_loader, experiment_dir: Path,
             }, f"{save_dir}/best.pt")
         else:
             epochs_no_improve += 1
-            if epochs_no_improve >= cfg.training.early_stopping.patience:
+            if epochs_no_improve >= cfg.training.early_stopping.patience and cfg.training.early_stopping.enabled:
                 log.info("Early stopping")
                 break
 
