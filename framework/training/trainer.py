@@ -91,6 +91,18 @@ def train(cfg, teacher, student, train_loader, val_loader, experiment_dir: Path,
                                                                           epochs=cfg.training.epochs,
                                                                           hidden_rep_loss_weight=cfg.training.hidden_rep_loss_weight,
                                                                           ce_loss_weight=cfg.training.ce_loss_weight)
+            if cfg.training.kd_type == "KLDivLoss":
+                train_metrics = train_one_epoch_kldiv(teacher=teacher, student=student, loader=train_loader, device=device,
+                                                      optimizer=optimizer_student,
+                                                      current_epoch=epoch,
+                                                      epochs=cfg.training.epochs,
+                                                      temperature=4,
+                                                      alpha_kd=0.7,
+                                                      beta_feat=0.25,
+                                                      ce_loss_weight=0.3,
+                                                      ce_criterion=ce_loss,
+                                                      feat_projector=None,
+                                                      use_mse_feat=True)
 
             val_metrics = _evaluate(student, val_loader, device, ce_loss)
 
@@ -154,6 +166,98 @@ def train(cfg, teacher, student, train_loader, val_loader, experiment_dir: Path,
     if config_path.exists():
         shutil.copy2(config_path, experiment_dir / "config.toml")
 
+
+
+class FeatureProjector(nn.Module):
+    """Optional: aligns student hidden to teacher hidden size."""
+    def __init__(self, in_dim, out_dim):
+        super().__init__()
+        self.proj = nn.Linear(in_dim, out_dim) if in_dim != out_dim else nn.Identity()
+    def forward(self, x):
+        return self.proj(x)
+
+def kd_loss(student_logits, teacher_logits, T: float):
+    # KLDiv expects log-prob from student and prob from teacher
+    return F.kl_div(
+        F.log_softmax(student_logits / T, dim=1),
+        F.softmax(teacher_logits / T, dim=1),
+        reduction="batchmean"
+    ) * (T * T)
+
+@torch.no_grad()
+def top1_accuracy(logits, y):
+    preds = logits.argmax(dim=1)
+    return (preds == y).float().mean()
+
+def train_one_epoch_kldiv(
+    *,
+    teacher,
+    student,
+    loader,
+    device,
+    optimizer,
+    current_epoch,
+    epochs,
+    temperature: float = 4.0,
+    alpha_kd: float = 0.7,          # weight for KD on logits
+    beta_feat: float = 0.25,        # weight for feature loss, set 0.0 to disable
+    ce_loss_weight: float = 0.3,    # weight for CE on hard labels, usually 1 - alpha_kd (adjust if using beta_feat)
+    ce_criterion = nn.CrossEntropyLoss(),
+    feat_projector: nn.Module = None,   # optional FeatureProjector
+    use_mse_feat: bool = True           # True -> MSE on normalized features, False -> 1 - cosine sim
+):
+    teacher.eval()
+    student.train()
+
+    total_loss = 0.0
+    total_acc = 0.0
+    total = 0
+
+    for images, labels in tqdm(loader, desc=f"Epoch {current_epoch}/{epochs}"):
+        images, labels = images.to(device), labels.to(device)
+        optimizer.zero_grad(set_to_none=True)
+
+        with torch.no_grad():
+            t_logits, t_feat = teacher(images)
+
+        s_logits, s_feat = student(images)
+
+        # logits KD
+        loss_kd = kd_loss(s_logits, t_logits, temperature)
+
+        # hard CE
+        loss_ce = ce_criterion(s_logits, labels)
+
+        # optional feature loss with normalization and projection
+        loss_feat = torch.tensor(0.0, device=device)
+        if beta_feat > 0.0:
+            if feat_projector is not None:
+                s_feat = feat_projector(s_feat)
+
+            s_n = F.normalize(s_feat, dim=1)
+            t_n = F.normalize(t_feat, dim=1)
+
+            if use_mse_feat:
+                loss_feat = F.mse_loss(s_n, t_n)
+            else:
+                # 1 - mean cosine similarity
+                loss_feat = 1.0 - F.cosine_similarity(s_n, t_n, dim=1).mean()
+
+        # combine losses
+        loss = alpha_kd * loss_kd + ce_loss_weight * loss_ce + beta_feat * loss_feat
+        loss.backward()
+        optimizer.step()
+
+        with torch.no_grad():
+            bsz = images.size(0)
+            total += bsz
+            total_loss += loss.item() * bsz
+            total_acc += top1_accuracy(s_logits, labels).item() * bsz
+
+    return {
+        "loss": total_loss / total,
+        "acc": 100.0 * (total_acc / total)
+    }
 
 # Tutorial here: https://docs.pytorch.org/tutorials/beginner/knowledge_distillation_tutorial.html
 def _train_one_epoch_with_crossEntropyLoss(*, teacher, student, loader, device, ce_loss, optimizer, current_epoch, epochs, T=2,
