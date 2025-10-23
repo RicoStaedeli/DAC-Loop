@@ -219,8 +219,8 @@ def build_loaders_from_hf(train_ds, val_ds, batch_size: int, image_size: int,
             sample_range,
             batch_size=batch_size,
             shuffle=False,
-            collate_fn=tmp_collate,   # no lambda
-            num_workers=0,            # stats pass single-threaded is fine
+            collate_fn=tmp_collate,
+            num_workers=num_workers,
             pin_memory=False,
         )
 
@@ -230,8 +230,6 @@ def build_loaders_from_hf(train_ds, val_ds, batch_size: int, image_size: int,
             f"norm_mean: {norm_mean.tolist()!r}\n"
             f"norm_std: {norm_std.tolist()!r}"
         )
-
-    nw = max(1, min(num_workers, 4))
 
     train_collate = partial(
         _collate_hf,
@@ -249,10 +247,10 @@ def build_loaders_from_hf(train_ds, val_ds, batch_size: int, image_size: int,
         batch_size=batch_size,
         shuffle=True,
         collate_fn=train_collate,
-        num_workers=nw,
+        num_workers=num_workers,
         pin_memory=pin_memory,
-        persistent_workers=(nw > 0),
-        prefetch_factor=(2 if nw > 0 else None),
+        persistent_workers=(num_workers > 0),
+        prefetch_factor=(2 if num_workers > 0 else None),
     )
 
     # Log after normalization only in DEBUG mode because it is time intensive
@@ -280,15 +278,15 @@ def build_loaders_from_hf(train_ds, val_ds, batch_size: int, image_size: int,
             batch_size=batch_size,
             shuffle=False,
             collate_fn=val_collate,
-            num_workers=nw,
+            num_workers=num_workers,
             pin_memory=pin_memory,
-            persistent_workers=(nw > 0),
-            prefetch_factor=(2 if nw > 0 else None),
+            persistent_workers=(num_workers > 0),
+            prefetch_factor=(2 if num_workers > 0 else None),
         )
 
     # Log after normalization only in DEBUG mode because it is time intensive
     if logging.getLevelName(log.getEffectiveLevel()) == "DEBUG":
-        # mean and std of validation dataset are not perfectly normalized scince the used std and mean is only as good as the train dataset generalizes
+        # mean and std of validation dataset are not perfectly normalized since the used std and mean is only as good as the train dataset generalizes
         mean_after_normalization, std_after_normalization = _calculate_mean_std(val_loader, desc="Validation Dataset after Normalization")
         log.info(f"After normalization (Validation) --> "
                  f"norm_mean: {mean_after_normalization.tolist()!r}\n"
