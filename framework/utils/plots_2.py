@@ -1,6 +1,7 @@
 import json
 import pandas as pd
 import matplotlib.pyplot as plt
+from matplotlib import rcParams
 from typing import Optional, List
 from framework.utils.utils import load_config_toml
 import os
@@ -8,6 +9,20 @@ import logging
 
 log = logging.getLogger(__name__)
 
+# Enable LaTeX rendering for text and set font style
+rcParams.update({
+    "text.usetex": True,
+    "font.family": "serif",
+    "font.serif": ["Computer Modern Roman"],
+    "axes.titlesize": 12,
+    "axes.labelsize": 14,
+    "legend.fontsize": 12,
+    "legend.title_fontsize": 12,
+    "xtick.labelsize": 12,
+    "ytick.labelsize": 12,
+    "figure.titlesize":16,
+    "figure.dpi": 400
+})
 
 def _load_metrics(path: str) -> pd.DataFrame:
     """Load a JSONL metrics file (one JSON object per line) and return a DataFrame with epoch and metrics."""
@@ -66,24 +81,24 @@ def plot_teacher_student_metrics(cfg_path, project_root="."):
             series.append(("Teacher", _load_metrics(teacher_metrics)))
         except:
             log.warning(f"Could not load teacher metrics from {teacher_metrics}")
-    if os.path.exists(student_ts_path):
-        try:
-            log.info(f"Loading student metrics from {student_ts_path}")
-            series.append(("Student" if cfg.training.teacher_student.train_student else "Teacher", _load_metrics(student_ts_path)))
-        except:
-            log.warning(f"Could not load student metrics from {student_ts_path}")
     if os.path.exists(student_baseline_path):
         try:
             log.info(f"Loading student baseline metrics from {student_baseline_path}")
             series.append(("Student Baseline", _load_metrics(student_baseline_path)))
         except:
             log.warning(f"Could not load baseline student metrics from {student_baseline_path}")
+    if os.path.exists(student_ts_path):
+        try:
+            log.info(f"Loading student metrics from {student_ts_path}")
+            series.append(("Student" if cfg.training.teacher_student.train_student else "Teacher", _load_metrics(student_ts_path)))
+        except:
+            log.warning(f"Could not load student metrics from {student_ts_path}")
 
     if not series:
         raise FileNotFoundError("No metrics files found.")
 
     # ----- Plot LOSS (training) -----
-    fig, ax = plt.subplots(figsize=(12, 5), dpi=200)
+    fig, ax = plt.subplots(figsize=(12, 5))
     for label, df in series:
         # Convert and drop invalid values
         df["train_loss"] = pd.to_numeric(df["train_loss"], errors="coerce")
@@ -105,16 +120,15 @@ def plot_teacher_student_metrics(cfg_path, project_root="."):
             linestyle="-",
             label=loss_label
         )
-    ax.set_xlabel("Epoch", fontsize=11)
-    ax.set_ylabel("Loss", fontsize=11)
-    fig.suptitle("Validation loss over epochs", fontsize=12)  # main title
+    ax.set_xlabel("Epoch")
+    ax.set_ylabel("Loss")
+    fig.suptitle(r"\textbf{Validation loss over epochs}")  # main title
     if(cfg.training.teacher_student.train_student):
-        ax.set_title(f"Experiment: {cfg.experiment.name}, Run: {cfg.experiment.run}, Model: {cfg.model.name}, Teacher-Model: {cfg.training.teacher_student.teacher_model_name} KD-Type: {cfg.training.kd_type}", fontsize=10)  # subtitle
+        ax.set_title(f"Experiment: {cfg.experiment.name}, Run: {cfg.experiment.run}, Model: {cfg.model.name}, Teacher-Model: {cfg.training.teacher_student.teacher_model_name} KD-Type: {cfg.training.kd_type}")  # subtitle
     else:
-        ax.set_title(f"Experiment: {cfg.experiment.name}, Run: {cfg.experiment.run}, Model: {cfg.model.name}", fontsize=10)  # subtitle
+        ax.set_title(f"Experiment: {cfg.experiment.name}, Run: {cfg.experiment.run}, Model: {cfg.model.name}")  # subtitle
     ax.grid(True, linestyle=":", linewidth=0.7, alpha=0.8)
-    ax.legend(frameon=False, fontsize=9)
-    fig.tight_layout(rect=[0, 0, 1, 0.97])  # leave space for suptitle
+    ax.legend(frameon=False)
 
     save_dir = f"{dir_config}/plots/"
     os.makedirs(save_dir, exist_ok=True)
@@ -123,7 +137,7 @@ def plot_teacher_student_metrics(cfg_path, project_root="."):
     plt.close()
 
     # ----- Plot VALIDATION ACCURACY -----
-    fig, ax = plt.subplots(figsize=(12, 5), dpi=200)
+    fig, ax = plt.subplots(figsize=(12, 5))
     for label, df in series:
         if "val_accuracy" in df.columns:
             # Convert and clean
@@ -138,23 +152,22 @@ def plot_teacher_student_metrics(cfg_path, project_root="."):
             log.info(f"{label}: best val accuracy {best_acc:.2f}% at epoch {best_epoch}")
 
             # Label with both accuracy and epoch
-            label_with_acc = f"{label} (best={best_acc:.2f}%@{int(best_epoch)})"
+            label_with_acc = rf"{label} (best={best_acc:.2f}\%@{int(best_epoch)})"
             ax.plot(df["epoch"], df["val_accuracy"],
                      linewidth=1,
                      marker=None,
                      linestyle="-",
                      label=label_with_acc)
 
-    ax.set_xlabel("Epoch", fontsize=11)
-    ax.set_ylabel("Accuracy", fontsize=11)
-    fig.suptitle("Validation accuracy over epochs", fontsize=12)  # main title
+    ax.set_xlabel("Epoch")
+    ax.set_ylabel("Accuracy")
+    fig.suptitle(r"\textbf{Validation accuracy over epochs}")  # main title
     if(cfg.training.teacher_student.train_student):
-        ax.set_title(f"Experiment: {cfg.experiment.name}, Run: {cfg.experiment.run}, Model: {cfg.model.name}, Teacher-Model: {cfg.training.teacher_student.teacher_model_name} KD-Type: {cfg.training.kd_type}", fontsize=10)  # subtitle
+        ax.set_title(f"Experiment: {cfg.experiment.name}, Run: {cfg.experiment.run}, Model: {cfg.model.name}, Teacher-Model: {cfg.training.teacher_student.teacher_model_name} KD-Type: {cfg.training.kd_type}")
     else:
-        ax.set_title(f"Experiment: {cfg.experiment.name}, Run: {cfg.experiment.run}, Model: {cfg.model.name}", fontsize=10)  # subtitle
+        ax.set_title(f"Experiment: {cfg.experiment.name}, Run: {cfg.experiment.run}, Model: {cfg.model.name}")
     ax.grid(True, linestyle=":", linewidth=0.7, alpha=0.8)
-    ax.legend(frameon=False, fontsize=9)
-    fig.tight_layout(rect=[0, 0, 1, 0.97])  # leave space for suptitle
+    ax.legend(frameon=False)
 
     plt.savefig(f"{save_dir}val_accuracy_per_epoch.png", bbox_inches="tight")
     plt.close()
