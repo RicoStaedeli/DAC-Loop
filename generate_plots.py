@@ -7,19 +7,32 @@ import os
 
 
 def main():
-    CFG_PATH = f'experiments/Experiment_3/Run_1/config.toml'
+    CFG_PATH = f'experiments/Experiment_1/Run_1/config.toml'
     cfg = load_config_toml(CFG_PATH)
     setup_logging(cfg.model_dump(), Path(), False)
 
-    for i in range(1,25):
-        CFG_PATH = f'experiments/Experiment_3/Run_{i}/config.toml'
+    for i in range(1,10):
+        CFG_PATH = f'experiments/Experiment_1/Run_{i}/config.toml'
         plot_teacher_student_metrics(CFG_PATH)
 
     _make_overview_png(
-        base_dir="experiments/Experiment_3",
-        run_indices=range(1, 25),
-        out_path="experiments/Experiment_3/overview_plot_Experiment_3.png",
+        base_dir="experiments/Experiment_1",
+        run_indices=range(1, 10),
+        out_path="experiments/Experiment_1/overview_plot_Experiment_1.png",
     )
+    # CFG_PATH = f'experiments/Experiment_3/Run_1/config.toml'
+    # cfg = load_config_toml(CFG_PATH)
+    # setup_logging(cfg.model_dump(), Path(), False)
+    #
+    # for i in range(1,25):
+    #     CFG_PATH = f'experiments/Experiment_3/Run_{i}/config.toml'
+    #     plot_teacher_student_metrics(CFG_PATH)
+    #
+    # _make_overview_png(
+    #     base_dir="experiments/Experiment_3",
+    #     run_indices=range(1, 25),
+    #     out_path="experiments/Experiment_3/overview_plot_Experiment_3.png",
+    # )
 
 def _make_overview_png(
     base_dir="experiments/Experiment_3",
