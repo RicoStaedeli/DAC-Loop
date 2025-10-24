@@ -15,6 +15,7 @@ from tqdm import tqdm
 
 # Framework Imports
 from framework.utils.logger import log_section
+from notebooks.plots import student_ts_path, teacher_path
 
 log = logging.getLogger(__name__)
 
@@ -33,8 +34,7 @@ def train(cfg, teacher, student, train_loader, val_loader, experiment_dir: Path,
 
     best_val_acc = 0.0
     epochs_no_improve = 0
-    metrics_history = []
-    metrics_path = Path(f"{experiment_dir}/metrics.json")
+    metrics_path = Path(f"{experiment_dir}/metrics.jsonl")
 
     ###################################################################################################################
     ################################## Prepare Models                ##################################################
@@ -74,6 +74,7 @@ def train(cfg, teacher, student, train_loader, val_loader, experiment_dir: Path,
 
     for epoch in range(1, cfg.training.epochs + 1):
         time_t0 = time.time()
+        train_metrics = []
 
         if student is not None and optimizer_student is not None:
             if cfg.training.kd_type == "CrossEntropyLoss":
@@ -92,17 +93,17 @@ def train(cfg, teacher, student, train_loader, val_loader, experiment_dir: Path,
                                                                           hidden_rep_loss_weight=cfg.training.hidden_rep_loss_weight,
                                                                           ce_loss_weight=cfg.training.ce_loss_weight)
             if cfg.training.kd_type == "KLDivLoss":
-                train_metrics = train_one_epoch_kldiv(teacher=teacher, student=student, loader=train_loader, device=device,
-                                                      optimizer=optimizer_student,
-                                                      current_epoch=epoch,
-                                                      epochs=cfg.training.epochs,
-                                                      temperature=4,
-                                                      alpha_kd=0.7,
-                                                      beta_feat=0.25,
-                                                      ce_loss_weight=0.3,
-                                                      ce_criterion=ce_loss,
-                                                      feat_projector=None,
-                                                      use_mse_feat=True)
+                train_metrics = _train_one_epoch_kldiv(teacher=teacher, student=student, loader=train_loader, device=device,
+                                                       optimizer=optimizer_student,
+                                                       current_epoch=epoch,
+                                                       epochs=cfg.training.epochs,
+                                                       temperature=4,
+                                                       alpha_kd=0.7,
+                                                       beta_feat=0.25,
+                                                       ce_loss_weight=0.3,
+                                                       ce_criterion=ce_loss,
+                                                       feat_projector=None,
+                                                       use_mse_feat=True)
 
             val_metrics = _evaluate(student, val_loader, device, ce_loss)
 
@@ -130,11 +131,9 @@ def train(cfg, teacher, student, train_loader, val_loader, experiment_dir: Path,
         }
 
         # Save metrics after every epoch to metrics.json
-        metrics_history = [m for m in metrics_history if m.get("epoch") != metrics["epoch"]]
-        metrics_history.append(metrics)
         if metrics_path:
-            metrics_path.write_text(json.dumps(metrics_history, indent=2))
-            log.debug("Wrote metrics.json with %d entries", len(metrics_history))
+            with open(metrics_path, "a", encoding="utf-8") as f:
+                f.write(json.dumps(metrics) + "\n")
 
         save_dir = Path(f"{cfg.training.base_path_ckpts}{experiment_dir}")
 
@@ -158,7 +157,7 @@ def train(cfg, teacher, student, train_loader, val_loader, experiment_dir: Path,
             }, f"{save_dir}/best.pt")
         else:
             epochs_no_improve += 1
-            if epochs_no_improve >= cfg.training.early_stopping.patience:
+            if epochs_no_improve >= cfg.training.early_stopping.patience and cfg.training.early_stopping.enabled:
                 log.info("Early stopping")
                 break
 
@@ -176,7 +175,7 @@ class FeatureProjector(nn.Module):
     def forward(self, x):
         return self.proj(x)
 
-def kd_loss(student_logits, teacher_logits, T: float):
+def _kd_loss(student_logits, teacher_logits, T: float):
     # KLDiv expects log-prob from student and prob from teacher
     return F.kl_div(
         F.log_softmax(student_logits / T, dim=1),
@@ -185,11 +184,11 @@ def kd_loss(student_logits, teacher_logits, T: float):
     ) * (T * T)
 
 @torch.no_grad()
-def top1_accuracy(logits, y):
+def _top1_accuracy(logits, y):
     preds = logits.argmax(dim=1)
     return (preds == y).float().mean()
 
-def train_one_epoch_kldiv(
+def _train_one_epoch_kldiv(
     *,
     teacher,
     student,
@@ -218,18 +217,18 @@ def train_one_epoch_kldiv(
         optimizer.zero_grad(set_to_none=True)
 
         with torch.no_grad():
-            t_logits, t_feat = teacher(images)
+            teacher_logits, t_feat = teacher(images)
 
-        s_logits, s_feat = student(images)
+        student_logits, s_feat = student(images)
 
         # logits KD
-        loss_kd = kd_loss(s_logits, t_logits, temperature)
+        loss_kd = _kd_loss(student_logits, teacher_logits, temperature)
 
         # hard CE
-        loss_ce = ce_criterion(s_logits, labels)
+        loss_ce = ce_criterion(student_logits, labels)
 
         # optional feature loss with normalization and projection
-        loss_feat = torch.tensor(0.0, device=device)
+        loss_features = torch.tensor(0.0, device=device)
         if beta_feat > 0.0:
             if feat_projector is not None:
                 s_feat = feat_projector(s_feat)
@@ -238,13 +237,13 @@ def train_one_epoch_kldiv(
             t_n = F.normalize(t_feat, dim=1)
 
             if use_mse_feat:
-                loss_feat = F.mse_loss(s_n, t_n)
+                loss_features = F.mse_loss(s_n, t_n)
             else:
                 # 1 - mean cosine similarity
-                loss_feat = 1.0 - F.cosine_similarity(s_n, t_n, dim=1).mean()
+                loss_features = 1.0 - F.cosine_similarity(s_n, t_n, dim=1).mean()
 
         # combine losses
-        loss = alpha_kd * loss_kd + ce_loss_weight * loss_ce + beta_feat * loss_feat
+        loss = alpha_kd * loss_kd + ce_loss_weight * loss_ce + beta_feat * loss_features
         loss.backward()
         optimizer.step()
 
@@ -252,7 +251,7 @@ def train_one_epoch_kldiv(
             bsz = images.size(0)
             total += bsz
             total_loss += loss.item() * bsz
-            total_acc += top1_accuracy(s_logits, labels).item() * bsz
+            total_acc += _top1_accuracy(student_logits, labels).item() * bsz
 
     return {
         "loss": total_loss / total,
@@ -363,11 +362,16 @@ def _train_one_epoch(model, loader, device, criterion, optimizer, current_epoch,
 
     for images, labels in tqdm(loader, desc=f"Epoch {current_epoch}/{epochs}"):
         images, labels = images.to(device), labels.to(device)
+
         optimizer.zero_grad()
-        logits = model(images)
+
+        logits, _ = model(images)
+
         loss = criterion(logits, labels)
+
         loss.backward()
         optimizer.step()
+
         with torch.no_grad():
             top1, = _accuracy_topk(logits, labels, topk=(1,))
 
