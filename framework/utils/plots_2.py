@@ -69,13 +69,13 @@ def plot_teacher_student_metrics(cfg_path, project_root="."):
     if os.path.exists(student_ts_path):
         try:
             log.info(f"Loading student metrics from {student_ts_path}")
-            series.append(("Student (TS)" if cfg.training.teacher_student.train_student else "Teacher", _load_metrics(student_ts_path)))
+            series.append(("Student" if cfg.training.teacher_student.train_student else "Teacher", _load_metrics(student_ts_path)))
         except:
             log.warning(f"Could not load student metrics from {student_ts_path}")
     if os.path.exists(student_baseline_path):
         try:
             log.info(f"Loading student baseline metrics from {student_baseline_path}")
-            series.append(("Student (no TS)", _load_metrics(student_baseline_path)))
+            series.append(("Student Baseline", _load_metrics(student_baseline_path)))
         except:
             log.warning(f"Could not load baseline student metrics from {student_baseline_path}")
 
