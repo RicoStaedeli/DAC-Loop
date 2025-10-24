@@ -15,7 +15,6 @@ from tqdm import tqdm
 
 # Framework Imports
 from framework.utils.logger import log_section
-from notebooks.plots import student_ts_path, teacher_path
 
 log = logging.getLogger(__name__)
 
@@ -57,7 +56,8 @@ def train(cfg, teacher, student, train_loader, val_loader, experiment_dir: Path,
         student.to(device)
         teacher.to(device)
         log.info("Loading teacher from checkpoint %s", teacher_model_path)
-        teacher, optimizer = _load_checkpoint(teacher, optimizer_teacher, f"{cfg.training.base_path_ckpts}{teacher_model_path}",
+        teacher, optimizer = _load_checkpoint(teacher, optimizer_teacher,
+                                              f"{cfg.training.base_path_ckpts}{teacher_model_path}",
                                               device=device)
     else:
         teacher.to(device)
@@ -78,10 +78,14 @@ def train(cfg, teacher, student, train_loader, val_loader, experiment_dir: Path,
 
         if student is not None and optimizer_student is not None:
             if cfg.training.kd_type == "CrossEntropyLoss":
-                train_metrics = _train_one_epoch_with_crossEntropyLoss(teacher=teacher, student=student, loader=train_loader,
-                                                                       device=device, ce_loss=ce_loss, optimizer=optimizer_student,
+                train_metrics = _train_one_epoch_with_crossEntropyLoss(teacher=teacher, student=student,
+                                                                       loader=train_loader,
+                                                                       device=device, ce_loss=ce_loss,
+                                                                       optimizer=optimizer_student,
                                                                        current_epoch=epoch, epochs=cfg.training.epochs,
-                                                                       T=cfg.training.T_param, soft_target_loss_weight=cfg.training.soft_target_loss_weight, ce_loss_weight=cfg.training.ce_loss_weight)
+                                                                       T=cfg.training.T_param,
+                                                                       soft_target_loss_weight=cfg.training.soft_target_loss_weight,
+                                                                       ce_loss_weight=cfg.training.ce_loss_weight)
 
             if cfg.training.kd_type == "CosineEmbeddingLoss":
                 train_metrics = _train_one_epoch_with_cosineEmbeddingLoss(teacher=teacher, student=student,
@@ -93,7 +97,8 @@ def train(cfg, teacher, student, train_loader, val_loader, experiment_dir: Path,
                                                                           hidden_rep_loss_weight=cfg.training.hidden_rep_loss_weight,
                                                                           ce_loss_weight=cfg.training.ce_loss_weight)
             if cfg.training.kd_type == "KLDivLoss":
-                train_metrics = _train_one_epoch_kldiv(teacher=teacher, student=student, loader=train_loader, device=device,
+                train_metrics = _train_one_epoch_kldiv(teacher=teacher, student=student, loader=train_loader,
+                                                       device=device,
                                                        optimizer=optimizer_student,
                                                        current_epoch=epoch,
                                                        epochs=cfg.training.epochs,
@@ -166,44 +171,57 @@ def train(cfg, teacher, student, train_loader, val_loader, experiment_dir: Path,
         shutil.copy2(config_path, experiment_dir / "config.toml")
 
 
-
 class FeatureProjector(nn.Module):
     """Optional: aligns student hidden to teacher hidden size."""
+
     def __init__(self, in_dim, out_dim):
         super().__init__()
         self.proj = nn.Linear(in_dim, out_dim) if in_dim != out_dim else nn.Identity()
+
     def forward(self, x):
         return self.proj(x)
 
+
 def _kd_loss(student_logits, teacher_logits, T: float):
-    # KLDiv expects log-prob from student and prob from teacher
+    """
+    Compute the knowledge distillation loss (KL Divergence) between student and teacher logits.
+    The logits are softened using temperature T before computing the KL divergence.
+    Args:
+        student_logits: Logits output from the student model.
+        teacher_logits: Logits output from the teacher model.
+        T: Temperature parameter for softening logits.
+    Returns:
+        KL Divergence loss value.
+    """
     return F.kl_div(
         F.log_softmax(student_logits / T, dim=1),
         F.softmax(teacher_logits / T, dim=1),
         reduction="batchmean"
     ) * (T * T)
 
+
 @torch.no_grad()
 def _top1_accuracy(logits, y):
     preds = logits.argmax(dim=1)
     return (preds == y).float().mean()
 
+
 def _train_one_epoch_kldiv(
-    *,
-    teacher,
-    student,
-    loader,
-    device,
-    optimizer,
-    current_epoch,
-    epochs,
-    temperature: float = 4.0,
-    alpha_kd: float = 0.7,          # weight for KD on logits
-    beta_feat: float = 0.25,        # weight for feature loss, set 0.0 to disable
-    ce_loss_weight: float = 0.3,    # weight for CE on hard labels, usually 1 - alpha_kd (adjust if using beta_feat)
-    ce_criterion = nn.CrossEntropyLoss(),
-    feat_projector: nn.Module = None,   # optional FeatureProjector
-    use_mse_feat: bool = True           # True -> MSE on normalized features, False -> 1 - cosine sim
+        *,
+        teacher,
+        student,
+        loader,
+        device,
+        optimizer,
+        current_epoch,
+        epochs,
+        temperature: float = 4.0,
+        alpha_kd: float = 0.7,  # weight for KD on logits
+        beta_feat: float = 0.25,  # weight for feature loss, set 0.0 to disable
+        ce_loss_weight: float = 0.3,  # weight for CE on hard labels, usually 1 - alpha_kd (adjust if using beta_feat)
+        ce_criterion=nn.CrossEntropyLoss(),
+        feat_projector: nn.Module = None,  # optional FeatureProjector
+        use_mse_feat: bool = True  # True -> MSE on normalized features, False -> 1 - cosine sim
 ):
     teacher.eval()
     student.train()
@@ -248,19 +266,45 @@ def _train_one_epoch_kldiv(
         optimizer.step()
 
         with torch.no_grad():
-            bsz = images.size(0)
-            total += bsz
-            total_loss += loss.item() * bsz
-            total_acc += _top1_accuracy(student_logits, labels).item() * bsz
+            batch_size = images.size(0)
+            total += batch_size
+            total_loss += loss.item() * batch_size
+            total_acc += _top1_accuracy(student_logits, labels).item() * batch_size
 
     return {
         "loss": total_loss / total,
         "acc": 100.0 * (total_acc / total)
     }
 
+
 # Tutorial here: https://docs.pytorch.org/tutorials/beginner/knowledge_distillation_tutorial.html
-def _train_one_epoch_with_crossEntropyLoss(*, teacher, student, loader, device, ce_loss, optimizer, current_epoch, epochs, T=2,
+def _train_one_epoch_with_crossEntropyLoss(*, teacher, student, loader, device, ce_loss, optimizer, current_epoch,
+                                           epochs, T=2,
                                            soft_target_loss_weight=0.25, ce_loss_weight=0.75) -> Dict[str, float]:
+    """
+    Train student model for one epoch using knowledge distillation with Cross Entropy Loss.
+    The loss is a weighted sum of the soft targets loss (from the teacher) and the true label loss.
+    1. Soft targets loss is calculated by applying softmax with temperature T to the teacher logits and log_softmax with temperature T to the student logits,
+       then computing the cross-entropy between these two distributions.
+    2. True label loss is calculated using standard cross-entropy loss between the student logits and the true labels.
+    The final loss is: loss = soft_target_loss_weight * soft_targets_loss + ce_loss_weight * label_loss
+    ️Note: The soft targets loss is scaled by T**2 as suggested in the original knowledge distillation paper "Distilling the knowledge in a neural network".
+    ️Make sure that soft_target_loss_weight + ce_loss_weight = 1.0 for proper balancing of the two loss components.
+    ️Args:
+        teacher: Pre-trained teacher model (in eval mode).
+        student: Student model to be trained.
+        loader: DataLoader providing training data.
+        device: Device to run the training on (e.g., 'cuda' or 'cpu').
+        ce_loss: CrossEntropyLoss function for true label loss.
+        optimizer: Optimizer for updating student model weights.
+        current_epoch: Current epoch number (for logging).
+        epochs: Total number of epochs (for logging).
+        T: Temperature parameter for softening logits.
+        soft_target_loss_weight: Weight for the soft targets loss component.
+        ce_loss_weight: Weight for the true label loss component.
+    ️Returns:
+        Dictionary with average loss and accuracy for the epoch.
+    ️"""
     teacher.eval()  # Teacher set to evaluation mode
     student.train()  # Student to train mode
 
@@ -311,6 +355,28 @@ def _train_one_epoch_with_crossEntropyLoss(*, teacher, student, loader, device, 
 def _train_one_epoch_with_cosineEmbeddingLoss(*, teacher, student, loader, device, ce_loss, cosine_loss, optimizer,
                                               current_epoch, epochs, hidden_rep_loss_weight=0.25,
                                               ce_loss_weight=0.75) -> Dict[str, float]:
+    """
+    Train student model for one epoch using knowledge distillation with Cosine Embedding Loss.
+    The loss is a weighted sum of the hidden representation loss (from the teacher) and the true label loss.
+    1. Hidden representation loss is calculated using Cosine Embedding Loss between the student and teacher hidden representations.
+    2. True label loss is calculated using standard cross-entropy loss between the student logits and the true labels.
+    The final loss is: loss = hidden_rep_loss_weight * hidden_rep_loss + ce_loss_weight * label_loss
+    ️Make sure that hidden_rep_loss_weight + ce_loss_weight = 1.0 for proper balancing of the two loss components.
+    ️Args:
+        teacher: Pre-trained teacher model (in eval mode).
+        student: Student model to be trained.
+        loader: DataLoader providing training data.
+        device: Device to run the training on (e.g., 'cuda' or 'cpu').
+        ce_loss: CrossEntropyLoss function for true label loss.
+        cosine_loss: CosineEmbeddingLoss function for hidden representation loss.
+        optimizer: Optimizer for updating student model weights.
+        current_epoch: Current epoch number (for logging).
+        epochs: Total number of epochs (for logging).
+        hidden_rep_loss_weight: Weight for the hidden representation loss component.
+        ce_loss_weight: Weight for the true label loss component.
+    ️Returns:
+        Dictionary with average loss and accuracy for the epoch.
+    """
     teacher.eval()  # Teacher set to evaluation mode
     student.train()  # Student to train mode
 
@@ -355,6 +421,9 @@ def _train_one_epoch_with_cosineEmbeddingLoss(*, teacher, student, loader, devic
 
 
 def _train_one_epoch(model, loader, device, criterion, optimizer, current_epoch, epochs) -> Dict[str, float]:
+    """
+    This is the standard training loop for a single model without knowledge distillation.
+    """
     model.train()
     total_loss, total, top1_sum = 0.0, 0, 0.0
     num_steps = len(loader)
@@ -405,7 +474,6 @@ def _evaluate(model, loader, device, ce_loss) -> Dict[str, float]:
             correct += (predicted == labels).sum().item()
 
             total += inputs.size(0)
-
 
     return {
         "loss": total_loss / total,
