@@ -18,7 +18,7 @@ def main():
     _make_overview_png(
         base_dir="experiments/Experiment_3",
         run_indices=range(1, 25),
-        out_path="experiments/Experiment_3/overview_all_plots.png",
+        out_path="experiments/Experiment_3/overview_plot_Experiment_3.png",
     )
 
 def _make_overview_png(
