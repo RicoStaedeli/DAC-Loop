@@ -507,6 +507,15 @@ def _save_checkpoint(state, filename):
 
 
 def _accuracy_topk(output: Tensor, target: Tensor, topk=(1,)) -> Tuple[Tensor, ...]:
+    """
+    Computes the top-k accuracy for the specified values of k
+    ️Args:
+        output: Model output logits of shape (batch_size, num_classes).
+        target: True labels of shape (batch_size,).
+        topk: Tuple of k values for which to compute the top-k accuracy.
+    ️Returns:
+        Tuple of tensors containing the top-k accuracies for each k in topk.
+    """
     with torch.no_grad():
         maxk = max(topk)
         batch_size = target.size(0)
