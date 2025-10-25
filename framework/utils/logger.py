@@ -47,16 +47,15 @@ def setup_logging(config: dict, experiment_dir: Path, save_to_file: bool=True):
     log_level_str = raw_level.upper() if isinstance(raw_level, str) else "INFO"
     log_level = getattr(logging, log_level_str, logging.INFO)
 
-    # Run id & log file
-    experiment_name = config.get("experiment", {}).get("name", "experiment")
-    experiment_run = config.get("experiment", {}).get("run", "run")
-    log_file = Path(experiment_dir / f"{experiment_name}_{experiment_run}.log")
-
     # Always include console output
     handlers = [logging.StreamHandler()]
 
     # Conditionally include file output
     if save_to_file:
+        # Run id & log file
+        experiment_name = config.get("experiment", {}).get("name", "experiment")
+        experiment_run = config.get("experiment", {}).get("run", "run")
+        log_file = Path(experiment_dir / f"{experiment_name}_{experiment_run}.log")
         handlers.append(logging.FileHandler(log_file, mode="a", encoding="utf-8"))
 
     # Configure logging

@@ -23,14 +23,18 @@ def set_seed(seed: int) -> None:
     os.environ["CUBLAS_WORKSPACE_CONFIG"] = ":4096:8" 
 
 
-def load_config_toml(path: str | Path) -> AppConfig:
+def load_config_toml(path: str | Path, validate: bool = True) -> AppConfig:
     path = Path(path)
     with path.open("rb") as f:
         data = tomllib.load(f)
+
+    if not validate:
+        # build model without validation
+        return AppConfig.model_construct(**data)
+
     try:
         return AppConfig.model_validate(data)
     except ValidationError as e:
-        # failing keys
         raise SystemExit(f"Config validation failed:\n{e}") from e
 
 

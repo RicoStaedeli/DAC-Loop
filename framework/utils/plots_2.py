@@ -122,11 +122,11 @@ def plot_teacher_student_metrics(cfg_path, project_root="."):
         )
     ax.set_xlabel("Epoch")
     ax.set_ylabel("Loss")
-    fig.suptitle(r"\textbf{Validation loss over epochs}")  # main title
+    fig.suptitle(fr"\textbf{{ Loss for {cfg.experiment.name}, Run: {cfg.experiment.run}}}")  # main title
     if(cfg.training.teacher_student.train_student):
-        ax.set_title(f"Experiment: {cfg.experiment.name}, Run: {cfg.experiment.run}, Model: {cfg.model.name}, Teacher-Model: {cfg.training.teacher_student.teacher_model_name} KD-Type: {cfg.training.kd_type}")  # subtitle
+        ax.set_title(f"Model: {cfg.model.name}, Teacher-Model: {cfg.training.teacher_student.teacher_model_name} KD-Type: {cfg.training.kd_type}")  # subtitle
     else:
-        ax.set_title(f"Experiment: {cfg.experiment.name}, Run: {cfg.experiment.run}, Model: {cfg.model.name}")  # subtitle
+        ax.set_title(f"Model: {cfg.model.name}")  # subtitle
     ax.grid(True, linestyle=":", linewidth=0.7, alpha=0.8)
     ax.legend(frameon=False)
 
@@ -161,7 +161,7 @@ def plot_teacher_student_metrics(cfg_path, project_root="."):
 
     ax.set_xlabel("Epoch")
     ax.set_ylabel("Accuracy")
-    fig.suptitle(r"\textbf{Validation accuracy over epochs}")  # main title
+    fig.suptitle(fr"\textbf{{ Accuracy for {cfg.experiment.name}, Run: {cfg.experiment.run}}}")  # main title
     if(cfg.training.teacher_student.train_student):
         ax.set_title(f"Experiment: {cfg.experiment.name}, Run: {cfg.experiment.run}, Model: {cfg.model.name}, Teacher-Model: {cfg.training.teacher_student.teacher_model_name} KD-Type: {cfg.training.kd_type}")
     else:

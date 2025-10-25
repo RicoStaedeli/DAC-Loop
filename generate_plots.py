@@ -7,32 +7,34 @@ import os
 
 
 def main():
-    CFG_PATH = f'experiments/Experiment_1/Run_1/config.toml'
-    cfg = load_config_toml(CFG_PATH)
+
+    # Setup logging
+    logger_cfg_path = "configs/plot_config.toml"
+    cfg = load_config_toml(logger_cfg_path, validate=False)
     setup_logging(cfg.model_dump(), Path(), False)
 
-    for i in range(1,10):
-        CFG_PATH = f'experiments/Experiment_1/Run_{i}/config.toml'
-        plot_teacher_student_metrics(CFG_PATH)
+    # Generate plots for experiments
+    _make_plots_for_experiment(experiment_name="Experiment_1", num_runs=9)
+    _make_plots_for_experiment(experiment_name="Experiment_3", num_runs=24)
+
+
+def _make_plots_for_experiment(experiment_name: str, num_runs: int):
+    """
+    Generate teacher-student plots for all runs in the specified experiment,
+    and create an overview PNG combining loss and validation accuracy plots.
+    """
+    base_dir = Path(f"experiments/{experiment_name}")
+
+    for i in range(1, num_runs + 1):
+        cfg_path = base_dir / f"Run_{i}" / "config.toml"
+        plot_teacher_student_metrics(cfg_path)
 
     _make_overview_png(
-        base_dir="experiments/Experiment_1",
-        run_indices=range(1, 10),
-        out_path="experiments/Experiment_1/overview_plot_Experiment_1.png",
+        base_dir=str(base_dir),
+        run_indices=range(1, num_runs + 1),
+        out_path=str(base_dir / f"overview_plot_{experiment_name}.png"),
     )
-    # CFG_PATH = f'experiments/Experiment_3/Run_1/config.toml'
-    # cfg = load_config_toml(CFG_PATH)
-    # setup_logging(cfg.model_dump(), Path(), False)
-    #
-    # for i in range(1,25):
-    #     CFG_PATH = f'experiments/Experiment_3/Run_{i}/config.toml'
-    #     plot_teacher_student_metrics(CFG_PATH)
-    #
-    # _make_overview_png(
-    #     base_dir="experiments/Experiment_3",
-    #     run_indices=range(1, 25),
-    #     out_path="experiments/Experiment_3/overview_plot_Experiment_3.png",
-    # )
+
 
 def _make_overview_png(
     base_dir="experiments/Experiment_3",
@@ -42,7 +44,7 @@ def _make_overview_png(
     margin=60,             # outer border
     caption_width=400,     # left gutter for "Run i"
     out_path="experiments/Experiment_3/overview_all_plots.png",
-    add_captions=True,
+    add_captions=False,
     final_scale=0.6,       # 1.0 = no final resize; <1.0 downscales once at the end
     set_png_dpi=400        # embeds DPI metadata (some viewers honor this)
 ):
