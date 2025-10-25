@@ -14,20 +14,21 @@ def main():
     setup_logging(cfg.model_dump(), Path(), False)
 
     # Generate plots for experiments
-    _make_plots_for_experiment(experiment_name="Experiment_1", num_runs=9)
-    _make_plots_for_experiment(experiment_name="Experiment_3", num_runs=24)
+    _make_plots_for_experiment(experiment_name="Experiment_1", num_runs=9, only_overview=True)
+    _make_plots_for_experiment(experiment_name="Experiment_3", num_runs=24, only_overview=True)
 
 
-def _make_plots_for_experiment(experiment_name: str, num_runs: int):
+def _make_plots_for_experiment(experiment_name: str, num_runs: int, only_overview: bool = False):
     """
     Generate teacher-student plots for all runs in the specified experiment,
     and create an overview PNG combining loss and validation accuracy plots.
     """
     base_dir = Path(f"experiments/{experiment_name}")
 
-    for i in range(1, num_runs + 1):
-        cfg_path = base_dir / f"Run_{i}" / "config.toml"
-        plot_teacher_student_metrics(cfg_path)
+    if not only_overview:
+        for i in range(1, num_runs + 1):
+            cfg_path = base_dir / f"Run_{i}" / "config.toml"
+            plot_teacher_student_metrics(cfg_path)
 
     _make_overview_png(
         base_dir=str(base_dir),
