@@ -45,7 +45,7 @@ def _first_existing(paths: List[str]) -> Optional[str]:
             return p
     return None
 
-def plot_teacher_student_metrics(cfg_path, project_root="."):
+def plot_teacher_student_metrics(cfg_path, project_root=".", set_png_dpi=400):
     """
     Plot loss and validation accuracy vs. epoch for teacher, student with TS, and student without TS.
     Each plot is saved separately. Legends include best values per series.
@@ -53,6 +53,9 @@ def plot_teacher_student_metrics(cfg_path, project_root="."):
     """
     cfg = load_config_toml(cfg_path)
 
+    rcParams.update({
+        "figure.dpi": set_png_dpi
+    })
     # Always resolve absolute paths
     project_root = os.path.abspath(project_root)
     cfg_path = os.path.abspath(cfg_path)

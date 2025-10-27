@@ -47,6 +47,8 @@ def setup_logging(config: dict, experiment_dir: Path, save_to_file: bool=True):
     log_level_str = raw_level.upper() if isinstance(raw_level, str) else "INFO"
     log_level = getattr(logging, log_level_str, logging.INFO)
 
+
+
     # Always include console output
     handlers = [logging.StreamHandler()]
 

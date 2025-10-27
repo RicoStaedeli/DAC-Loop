@@ -4,7 +4,9 @@ from framework.utils.utils import load_config_toml
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
 import os
+import logging
 
+log = logging.getLogger(__name__)
 
 def main():
 
@@ -12,10 +14,11 @@ def main():
     logger_cfg_path = "configs/plot_config.toml"
     cfg = load_config_toml(logger_cfg_path, validate=False)
     setup_logging(cfg.model_dump(), Path(), False)
+    log.info(f"Config loaded from {logger_cfg_path}")
 
     # Generate plots for experiments
-    _make_plots_for_experiment(experiment_name="Experiment_1", num_runs=9, only_overview=True)
-    _make_plots_for_experiment(experiment_name="Experiment_3", num_runs=24, only_overview=True)
+    _make_plots_for_experiment(experiment_name="Experiment_1", num_runs=9, only_overview=False)
+    _make_plots_for_experiment(experiment_name="Experiment_3", num_runs=24, only_overview=False)
 
 
 def _make_plots_for_experiment(experiment_name: str, num_runs: int, only_overview: bool = False):
@@ -28,12 +31,13 @@ def _make_plots_for_experiment(experiment_name: str, num_runs: int, only_overvie
     if not only_overview:
         for i in range(1, num_runs + 1):
             cfg_path = base_dir / f"Run_{i}" / "config.toml"
-            plot_teacher_student_metrics(cfg_path)
+            plot_teacher_student_metrics(cfg_path, project_root=".", set_png_dpi=300)
 
     _make_overview_png(
         base_dir=str(base_dir),
         run_indices=range(1, num_runs + 1),
         out_path=str(base_dir / f"overview_plot_{experiment_name}.png"),
+        set_png_dpi=300,
     )
 
 
