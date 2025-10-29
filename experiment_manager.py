@@ -81,7 +81,7 @@ def main():
             train(cfg, teacher=model_teacher, student=model_student, train_loader=train_loader, val_loader=val_loader,
                   experiment_dir=experiment_dir, config_path=CFG_PATH)
 
-            plot_teacher_student_metrics(f"{experiment_dir}/config.toml")
+            # plot_teacher_student_metrics(f"{experiment_dir}/config.toml")
 
             git_commit_and_push(f"Experiment={cfg.experiment.name} Run={cfg.experiment.run}")
 
