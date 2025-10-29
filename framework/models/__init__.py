@@ -9,5 +9,5 @@ MODEL_REGISTRY = {
     "ResNet10": ResNet10,
     "ResNet18": ResNet18,
     "TinyCNN": TinyCNN,
-    "Resnet50": ResNet50,
+    "ResNet50": ResNet50,
 }
