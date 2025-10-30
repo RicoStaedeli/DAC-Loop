@@ -19,7 +19,7 @@ def main():
     # Generate plots for experiments
     _make_plots_for_experiment(experiment_name="Experiment_1", num_runs=12, only_overview=False)
     _make_plots_for_experiment(experiment_name="Experiment_3", num_runs=24, only_overview=False)
-    # _make_plots_for_experiment(experiment_name="Experiment_4", num_runs=24, only_overview=False)
+    _make_plots_for_experiment(experiment_name="Experiment_4", num_runs=24, only_overview=False)
     _make_plots_for_experiment(experiment_name="Experiment_5", num_runs=4, only_overview=False)
     # _make_plots_for_experiment(experiment_name="Experiment_6", num_runs=24, only_overview=False)
 
