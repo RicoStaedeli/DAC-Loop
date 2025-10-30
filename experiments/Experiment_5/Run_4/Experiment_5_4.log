@@ -1,0 +1,388 @@
+2025-10-30 11:35:09,576 [INFO] [root] (logger.setup_logging:71) :: Logging initialized. Level=INFO, SaveToFile=True, LogFile=experiments/Experiment_5/Run_4/Experiment_5_4.log
+2025-10-30 11:35:09,576 [INFO] [framework.utils.logger] (logger.log_meta_info:97) :: Experiment=Experiment_5 | Run ID=4 | Device=cuda | Seed=42 | Experiment Directory=experiments/Experiment_5/Run_4
+2025-10-30 11:35:09,576 [INFO] [__main__] (Runner.main:70) :: Loading experiment configs/Experiment_5/Run-4.toml
+2025-10-30 11:35:09,576 [INFO] [__main__] (Runner._print_experiment_overview:138) :: Experiment name: Experiment_5
+2025-10-30 11:35:09,576 [INFO] [__main__] (Runner._print_experiment_overview:139) :: Run ID: 4
+2025-10-30 11:35:09,576 [INFO] [__main__] (Runner._print_experiment_overview:140) :: ================================================================================
+2025-10-30 11:35:09,576 [INFO] [__main__] (Runner._print_experiment_overview:141) :: Input channels: 3
+2025-10-30 11:35:09,576 [INFO] [__main__] (Runner._print_experiment_overview:142) :: Extra channels: 0
+2025-10-30 11:35:09,576 [INFO] [__main__] (Runner._print_experiment_overview:143) :: Dataset: timm/resisc45
+2025-10-30 11:35:09,576 [INFO] [__main__] (Runner._print_experiment_overview:144) :: ================================================================================
+2025-10-30 11:35:09,576 [INFO] [__main__] (Runner._print_experiment_overview:145) :: Number of Workers: 20
+2025-10-30 11:35:09,576 [INFO] [__main__] (Runner._print_experiment_overview:146) :: Pin Memory: True
+2025-10-30 11:35:09,576 [INFO] [__main__] (Runner._print_experiment_overview:147) :: Batch size: 256
+2025-10-30 11:35:09,576 [INFO] [__main__] (Runner._print_experiment_overview:148) :: ================================================================================
+2025-10-30 11:35:09,577 [INFO] [__main__] (Runner._print_experiment_overview:159) :: No teacher knowledge distillation. -> Train teacher itself
+2025-10-30 11:35:09,577 [INFO] [__main__] (Runner._print_experiment_overview:160) :: Teacher Name: ResNet50
+2025-10-30 11:35:09,577 [INFO] [__main__] (Runner._print_experiment_overview:161) :: ================================================================================
+2025-10-30 11:35:09,577 [INFO] [__main__] (Runner._load_models:199) :: Build models
+2025-10-30 11:35:09,892 [INFO] [__main__] (Runner._print_model_summary:175) :: Teacher:
+---------------------------
+============================================================================================================================================
+Layer (type:depth-idx)                   Input Shape               Output Shape              Param #                   Trainable
+============================================================================================================================================
+ResNet50                                 [256, 3, 64, 64]          [256, 45]                 --                        True
+├─Conv2d: 1-1                            [256, 3, 64, 64]          [256, 64, 64, 64]         1,728                     True
+├─BatchNorm2d: 1-2                       [256, 64, 64, 64]         [256, 64, 64, 64]         128                       True
+├─ReLU: 1-3                              [256, 64, 64, 64]         [256, 64, 64, 64]         --                        --
+├─Identity: 1-4                          [256, 64, 64, 64]         [256, 64, 64, 64]         --                        --
+├─Sequential: 1-5                        [256, 64, 64, 64]         [256, 256, 64, 64]        --                        True
+│    └─Bottleneck: 2-1                   [256, 64, 64, 64]         [256, 256, 64, 64]        --                        True
+│    │    └─Conv2d: 3-1                  [256, 64, 64, 64]         [256, 64, 64, 64]         4,096                     True
+│    │    └─BatchNorm2d: 3-2             [256, 64, 64, 64]         [256, 64, 64, 64]         128                       True
+│    │    └─ReLU: 3-3                    [256, 64, 64, 64]         [256, 64, 64, 64]         --                        --
+│    │    └─Conv2d: 3-4                  [256, 64, 64, 64]         [256, 64, 64, 64]         36,864                    True
+│    │    └─BatchNorm2d: 3-5             [256, 64, 64, 64]         [256, 64, 64, 64]         128                       True
+│    │    └─ReLU: 3-6                    [256, 64, 64, 64]         [256, 64, 64, 64]         --                        --
+│    │    └─Conv2d: 3-7                  [256, 64, 64, 64]         [256, 256, 64, 64]        16,384                    True
+│    │    └─BatchNorm2d: 3-8             [256, 256, 64, 64]        [256, 256, 64, 64]        512                       True
+│    │    └─Sequential: 3-9              [256, 64, 64, 64]         [256, 256, 64, 64]        --                        True
+│    │    │    └─Conv2d: 4-1             [256, 64, 64, 64]         [256, 256, 64, 64]        16,384                    True
+│    │    │    └─BatchNorm2d: 4-2        [256, 256, 64, 64]        [256, 256, 64, 64]        512                       True
+│    │    └─ReLU: 3-10                   [256, 256, 64, 64]        [256, 256, 64, 64]        --                        --
+│    └─Bottleneck: 2-2                   [256, 256, 64, 64]        [256, 256, 64, 64]        --                        True
+│    │    └─Conv2d: 3-11                 [256, 256, 64, 64]        [256, 64, 64, 64]         16,384                    True
+│    │    └─BatchNorm2d: 3-12            [256, 64, 64, 64]         [256, 64, 64, 64]         128                       True
+│    │    └─ReLU: 3-13                   [256, 64, 64, 64]         [256, 64, 64, 64]         --                        --
+│    │    └─Conv2d: 3-14                 [256, 64, 64, 64]         [256, 64, 64, 64]         36,864                    True
+│    │    └─BatchNorm2d: 3-15            [256, 64, 64, 64]         [256, 64, 64, 64]         128                       True
+│    │    └─ReLU: 3-16                   [256, 64, 64, 64]         [256, 64, 64, 64]         --                        --
+│    │    └─Conv2d: 3-17                 [256, 64, 64, 64]         [256, 256, 64, 64]        16,384                    True
+│    │    └─BatchNorm2d: 3-18            [256, 256, 64, 64]        [256, 256, 64, 64]        512                       True
+│    │    └─Sequential: 3-19             [256, 256, 64, 64]        [256, 256, 64, 64]        --                        --
+│    │    └─ReLU: 3-20                   [256, 256, 64, 64]        [256, 256, 64, 64]        --                        --
+│    └─Bottleneck: 2-3                   [256, 256, 64, 64]        [256, 256, 64, 64]        --                        True
+│    │    └─Conv2d: 3-21                 [256, 256, 64, 64]        [256, 64, 64, 64]         16,384                    True
+│    │    └─BatchNorm2d: 3-22            [256, 64, 64, 64]         [256, 64, 64, 64]         128                       True
+│    │    └─ReLU: 3-23                   [256, 64, 64, 64]         [256, 64, 64, 64]         --                        --
+│    │    └─Conv2d: 3-24                 [256, 64, 64, 64]         [256, 64, 64, 64]         36,864                    True
+│    │    └─BatchNorm2d: 3-25            [256, 64, 64, 64]         [256, 64, 64, 64]         128                       True
+│    │    └─ReLU: 3-26                   [256, 64, 64, 64]         [256, 64, 64, 64]         --                        --
+│    │    └─Conv2d: 3-27                 [256, 64, 64, 64]         [256, 256, 64, 64]        16,384                    True
+│    │    └─BatchNorm2d: 3-28            [256, 256, 64, 64]        [256, 256, 64, 64]        512                       True
+│    │    └─Sequential: 3-29             [256, 256, 64, 64]        [256, 256, 64, 64]        --                        --
+│    │    └─ReLU: 3-30                   [256, 256, 64, 64]        [256, 256, 64, 64]        --                        --
+├─Sequential: 1-6                        [256, 256, 64, 64]        [256, 512, 32, 32]        --                        True
+│    └─Bottleneck: 2-4                   [256, 256, 64, 64]        [256, 512, 32, 32]        --                        True
+│    │    └─Conv2d: 3-31                 [256, 256, 64, 64]        [256, 128, 64, 64]        32,768                    True
+│    │    └─BatchNorm2d: 3-32            [256, 128, 64, 64]        [256, 128, 64, 64]        256                       True
+│    │    └─ReLU: 3-33                   [256, 128, 64, 64]        [256, 128, 64, 64]        --                        --
+│    │    └─Conv2d: 3-34                 [256, 128, 64, 64]        [256, 128, 32, 32]        147,456                   True
+│    │    └─BatchNorm2d: 3-35            [256, 128, 32, 32]        [256, 128, 32, 32]        256                       True
+│    │    └─ReLU: 3-36                   [256, 128, 32, 32]        [256, 128, 32, 32]        --                        --
+│    │    └─Conv2d: 3-37                 [256, 128, 32, 32]        [256, 512, 32, 32]        65,536                    True
+│    │    └─BatchNorm2d: 3-38            [256, 512, 32, 32]        [256, 512, 32, 32]        1,024                     True
+│    │    └─Sequential: 3-39             [256, 256, 64, 64]        [256, 512, 32, 32]        --                        True
+│    │    │    └─Conv2d: 4-3             [256, 256, 64, 64]        [256, 512, 32, 32]        131,072                   True
+│    │    │    └─BatchNorm2d: 4-4        [256, 512, 32, 32]        [256, 512, 32, 32]        1,024                     True
+│    │    └─ReLU: 3-40                   [256, 512, 32, 32]        [256, 512, 32, 32]        --                        --
+│    └─Bottleneck: 2-5                   [256, 512, 32, 32]        [256, 512, 32, 32]        --                        True
+│    │    └─Conv2d: 3-41                 [256, 512, 32, 32]        [256, 128, 32, 32]        65,536                    True
+│    │    └─BatchNorm2d: 3-42            [256, 128, 32, 32]        [256, 128, 32, 32]        256                       True
+│    │    └─ReLU: 3-43                   [256, 128, 32, 32]        [256, 128, 32, 32]        --                        --
+│    │    └─Conv2d: 3-44                 [256, 128, 32, 32]        [256, 128, 32, 32]        147,456                   True
+│    │    └─BatchNorm2d: 3-45            [256, 128, 32, 32]        [256, 128, 32, 32]        256                       True
+│    │    └─ReLU: 3-46                   [256, 128, 32, 32]        [256, 128, 32, 32]        --                        --
+│    │    └─Conv2d: 3-47                 [256, 128, 32, 32]        [256, 512, 32, 32]        65,536                    True
+│    │    └─BatchNorm2d: 3-48            [256, 512, 32, 32]        [256, 512, 32, 32]        1,024                     True
+│    │    └─Sequential: 3-49             [256, 512, 32, 32]        [256, 512, 32, 32]        --                        --
+│    │    └─ReLU: 3-50                   [256, 512, 32, 32]        [256, 512, 32, 32]        --                        --
+│    └─Bottleneck: 2-6                   [256, 512, 32, 32]        [256, 512, 32, 32]        --                        True
+│    │    └─Conv2d: 3-51                 [256, 512, 32, 32]        [256, 128, 32, 32]        65,536                    True
+│    │    └─BatchNorm2d: 3-52            [256, 128, 32, 32]        [256, 128, 32, 32]        256                       True
+│    │    └─ReLU: 3-53                   [256, 128, 32, 32]        [256, 128, 32, 32]        --                        --
+│    │    └─Conv2d: 3-54                 [256, 128, 32, 32]        [256, 128, 32, 32]        147,456                   True
+│    │    └─BatchNorm2d: 3-55            [256, 128, 32, 32]        [256, 128, 32, 32]        256                       True
+│    │    └─ReLU: 3-56                   [256, 128, 32, 32]        [256, 128, 32, 32]        --                        --
+│    │    └─Conv2d: 3-57                 [256, 128, 32, 32]        [256, 512, 32, 32]        65,536                    True
+│    │    └─BatchNorm2d: 3-58            [256, 512, 32, 32]        [256, 512, 32, 32]        1,024                     True
+│    │    └─Sequential: 3-59             [256, 512, 32, 32]        [256, 512, 32, 32]        --                        --
+│    │    └─ReLU: 3-60                   [256, 512, 32, 32]        [256, 512, 32, 32]        --                        --
+│    └─Bottleneck: 2-7                   [256, 512, 32, 32]        [256, 512, 32, 32]        --                        True
+│    │    └─Conv2d: 3-61                 [256, 512, 32, 32]        [256, 128, 32, 32]        65,536                    True
+│    │    └─BatchNorm2d: 3-62            [256, 128, 32, 32]        [256, 128, 32, 32]        256                       True
+│    │    └─ReLU: 3-63                   [256, 128, 32, 32]        [256, 128, 32, 32]        --                        --
+│    │    └─Conv2d: 3-64                 [256, 128, 32, 32]        [256, 128, 32, 32]        147,456                   True
+│    │    └─BatchNorm2d: 3-65            [256, 128, 32, 32]        [256, 128, 32, 32]        256                       True
+│    │    └─ReLU: 3-66                   [256, 128, 32, 32]        [256, 128, 32, 32]        --                        --
+│    │    └─Conv2d: 3-67                 [256, 128, 32, 32]        [256, 512, 32, 32]        65,536                    True
+│    │    └─BatchNorm2d: 3-68            [256, 512, 32, 32]        [256, 512, 32, 32]        1,024                     True
+│    │    └─Sequential: 3-69             [256, 512, 32, 32]        [256, 512, 32, 32]        --                        --
+│    │    └─ReLU: 3-70                   [256, 512, 32, 32]        [256, 512, 32, 32]        --                        --
+├─Sequential: 1-7                        [256, 512, 32, 32]        [256, 1024, 16, 16]       --                        True
+│    └─Bottleneck: 2-8                   [256, 512, 32, 32]        [256, 1024, 16, 16]       --                        True
+│    │    └─Conv2d: 3-71                 [256, 512, 32, 32]        [256, 256, 32, 32]        131,072                   True
+│    │    └─BatchNorm2d: 3-72            [256, 256, 32, 32]        [256, 256, 32, 32]        512                       True
+│    │    └─ReLU: 3-73                   [256, 256, 32, 32]        [256, 256, 32, 32]        --                        --
+│    │    └─Conv2d: 3-74                 [256, 256, 32, 32]        [256, 256, 16, 16]        589,824                   True
+│    │    └─BatchNorm2d: 3-75            [256, 256, 16, 16]        [256, 256, 16, 16]        512                       True
+│    │    └─ReLU: 3-76                   [256, 256, 16, 16]        [256, 256, 16, 16]        --                        --
+│    │    └─Conv2d: 3-77                 [256, 256, 16, 16]        [256, 1024, 16, 16]       262,144                   True
+│    │    └─BatchNorm2d: 3-78            [256, 1024, 16, 16]       [256, 1024, 16, 16]       2,048                     True
+│    │    └─Sequential: 3-79             [256, 512, 32, 32]        [256, 1024, 16, 16]       --                        True
+│    │    │    └─Conv2d: 4-5             [256, 512, 32, 32]        [256, 1024, 16, 16]       524,288                   True
+│    │    │    └─BatchNorm2d: 4-6        [256, 1024, 16, 16]       [256, 1024, 16, 16]       2,048                     True
+│    │    └─ReLU: 3-80                   [256, 1024, 16, 16]       [256, 1024, 16, 16]       --                        --
+│    └─Bottleneck: 2-9                   [256, 1024, 16, 16]       [256, 1024, 16, 16]       --                        True
+│    │    └─Conv2d: 3-81                 [256, 1024, 16, 16]       [256, 256, 16, 16]        262,144                   True
+│    │    └─BatchNorm2d: 3-82            [256, 256, 16, 16]        [256, 256, 16, 16]        512                       True
+│    │    └─ReLU: 3-83                   [256, 256, 16, 16]        [256, 256, 16, 16]        --                        --
+│    │    └─Conv2d: 3-84                 [256, 256, 16, 16]        [256, 256, 16, 16]        589,824                   True
+│    │    └─BatchNorm2d: 3-85            [256, 256, 16, 16]        [256, 256, 16, 16]        512                       True
+│    │    └─ReLU: 3-86                   [256, 256, 16, 16]        [256, 256, 16, 16]        --                        --
+│    │    └─Conv2d: 3-87                 [256, 256, 16, 16]        [256, 1024, 16, 16]       262,144                   True
+│    │    └─BatchNorm2d: 3-88            [256, 1024, 16, 16]       [256, 1024, 16, 16]       2,048                     True
+│    │    └─Sequential: 3-89             [256, 1024, 16, 16]       [256, 1024, 16, 16]       --                        --
+│    │    └─ReLU: 3-90                   [256, 1024, 16, 16]       [256, 1024, 16, 16]       --                        --
+│    └─Bottleneck: 2-10                  [256, 1024, 16, 16]       [256, 1024, 16, 16]       --                        True
+│    │    └─Conv2d: 3-91                 [256, 1024, 16, 16]       [256, 256, 16, 16]        262,144                   True
+│    │    └─BatchNorm2d: 3-92            [256, 256, 16, 16]        [256, 256, 16, 16]        512                       True
+│    │    └─ReLU: 3-93                   [256, 256, 16, 16]        [256, 256, 16, 16]        --                        --
+│    │    └─Conv2d: 3-94                 [256, 256, 16, 16]        [256, 256, 16, 16]        589,824                   True
+│    │    └─BatchNorm2d: 3-95            [256, 256, 16, 16]        [256, 256, 16, 16]        512                       True
+│    │    └─ReLU: 3-96                   [256, 256, 16, 16]        [256, 256, 16, 16]        --                        --
+│    │    └─Conv2d: 3-97                 [256, 256, 16, 16]        [256, 1024, 16, 16]       262,144                   True
+│    │    └─BatchNorm2d: 3-98            [256, 1024, 16, 16]       [256, 1024, 16, 16]       2,048                     True
+│    │    └─Sequential: 3-99             [256, 1024, 16, 16]       [256, 1024, 16, 16]       --                        --
+│    │    └─ReLU: 3-100                  [256, 1024, 16, 16]       [256, 1024, 16, 16]       --                        --
+│    └─Bottleneck: 2-11                  [256, 1024, 16, 16]       [256, 1024, 16, 16]       --                        True
+│    │    └─Conv2d: 3-101                [256, 1024, 16, 16]       [256, 256, 16, 16]        262,144                   True
+│    │    └─BatchNorm2d: 3-102           [256, 256, 16, 16]        [256, 256, 16, 16]        512                       True
+│    │    └─ReLU: 3-103                  [256, 256, 16, 16]        [256, 256, 16, 16]        --                        --
+│    │    └─Conv2d: 3-104                [256, 256, 16, 16]        [256, 256, 16, 16]        589,824                   True
+│    │    └─BatchNorm2d: 3-105           [256, 256, 16, 16]        [256, 256, 16, 16]        512                       True
+│    │    └─ReLU: 3-106                  [256, 256, 16, 16]        [256, 256, 16, 16]        --                        --
+│    │    └─Conv2d: 3-107                [256, 256, 16, 16]        [256, 1024, 16, 16]       262,144                   True
+│    │    └─BatchNorm2d: 3-108           [256, 1024, 16, 16]       [256, 1024, 16, 16]       2,048                     True
+│    │    └─Sequential: 3-109            [256, 1024, 16, 16]       [256, 1024, 16, 16]       --                        --
+│    │    └─ReLU: 3-110                  [256, 1024, 16, 16]       [256, 1024, 16, 16]       --                        --
+│    └─Bottleneck: 2-12                  [256, 1024, 16, 16]       [256, 1024, 16, 16]       --                        True
+│    │    └─Conv2d: 3-111                [256, 1024, 16, 16]       [256, 256, 16, 16]        262,144                   True
+│    │    └─BatchNorm2d: 3-112           [256, 256, 16, 16]        [256, 256, 16, 16]        512                       True
+│    │    └─ReLU: 3-113                  [256, 256, 16, 16]        [256, 256, 16, 16]        --                        --
+│    │    └─Conv2d: 3-114                [256, 256, 16, 16]        [256, 256, 16, 16]        589,824                   True
+│    │    └─BatchNorm2d: 3-115           [256, 256, 16, 16]        [256, 256, 16, 16]        512                       True
+│    │    └─ReLU: 3-116                  [256, 256, 16, 16]        [256, 256, 16, 16]        --                        --
+│    │    └─Conv2d: 3-117                [256, 256, 16, 16]        [256, 1024, 16, 16]       262,144                   True
+│    │    └─BatchNorm2d: 3-118           [256, 1024, 16, 16]       [256, 1024, 16, 16]       2,048                     True
+│    │    └─Sequential: 3-119            [256, 1024, 16, 16]       [256, 1024, 16, 16]       --                        --
+│    │    └─ReLU: 3-120                  [256, 1024, 16, 16]       [256, 1024, 16, 16]       --                        --
+│    └─Bottleneck: 2-13                  [256, 1024, 16, 16]       [256, 1024, 16, 16]       --                        True
+│    │    └─Conv2d: 3-121                [256, 1024, 16, 16]       [256, 256, 16, 16]        262,144                   True
+│    │    └─BatchNorm2d: 3-122           [256, 256, 16, 16]        [256, 256, 16, 16]        512                       True
+│    │    └─ReLU: 3-123                  [256, 256, 16, 16]        [256, 256, 16, 16]        --                        --
+│    │    └─Conv2d: 3-124                [256, 256, 16, 16]        [256, 256, 16, 16]        589,824                   True
+│    │    └─BatchNorm2d: 3-125           [256, 256, 16, 16]        [256, 256, 16, 16]        512                       True
+│    │    └─ReLU: 3-126                  [256, 256, 16, 16]        [256, 256, 16, 16]        --                        --
+│    │    └─Conv2d: 3-127                [256, 256, 16, 16]        [256, 1024, 16, 16]       262,144                   True
+│    │    └─BatchNorm2d: 3-128           [256, 1024, 16, 16]       [256, 1024, 16, 16]       2,048                     True
+│    │    └─Sequential: 3-129            [256, 1024, 16, 16]       [256, 1024, 16, 16]       --                        --
+│    │    └─ReLU: 3-130                  [256, 1024, 16, 16]       [256, 1024, 16, 16]       --                        --
+├─Sequential: 1-8                        [256, 1024, 16, 16]       [256, 2048, 8, 8]         --                        True
+│    └─Bottleneck: 2-14                  [256, 1024, 16, 16]       [256, 2048, 8, 8]         --                        True
+│    │    └─Conv2d: 3-131                [256, 1024, 16, 16]       [256, 512, 16, 16]        524,288                   True
+│    │    └─BatchNorm2d: 3-132           [256, 512, 16, 16]        [256, 512, 16, 16]        1,024                     True
+│    │    └─ReLU: 3-133                  [256, 512, 16, 16]        [256, 512, 16, 16]        --                        --
+│    │    └─Conv2d: 3-134                [256, 512, 16, 16]        [256, 512, 8, 8]          2,359,296                 True
+│    │    └─BatchNorm2d: 3-135           [256, 512, 8, 8]          [256, 512, 8, 8]          1,024                     True
+│    │    └─ReLU: 3-136                  [256, 512, 8, 8]          [256, 512, 8, 8]          --                        --
+│    │    └─Conv2d: 3-137                [256, 512, 8, 8]          [256, 2048, 8, 8]         1,048,576                 True
+│    │    └─BatchNorm2d: 3-138           [256, 2048, 8, 8]         [256, 2048, 8, 8]         4,096                     True
+│    │    └─Sequential: 3-139            [256, 1024, 16, 16]       [256, 2048, 8, 8]         --                        True
+│    │    │    └─Conv2d: 4-7             [256, 1024, 16, 16]       [256, 2048, 8, 8]         2,097,152                 True
+│    │    │    └─BatchNorm2d: 4-8        [256, 2048, 8, 8]         [256, 2048, 8, 8]         4,096                     True
+│    │    └─ReLU: 3-140                  [256, 2048, 8, 8]         [256, 2048, 8, 8]         --                        --
+│    └─Bottleneck: 2-15                  [256, 2048, 8, 8]         [256, 2048, 8, 8]         --                        True
+│    │    └─Conv2d: 3-141                [256, 2048, 8, 8]         [256, 512, 8, 8]          1,048,576                 True
+│    │    └─BatchNorm2d: 3-142           [256, 512, 8, 8]          [256, 512, 8, 8]          1,024                     True
+│    │    └─ReLU: 3-143                  [256, 512, 8, 8]          [256, 512, 8, 8]          --                        --
+│    │    └─Conv2d: 3-144                [256, 512, 8, 8]          [256, 512, 8, 8]          2,359,296                 True
+│    │    └─BatchNorm2d: 3-145           [256, 512, 8, 8]          [256, 512, 8, 8]          1,024                     True
+│    │    └─ReLU: 3-146                  [256, 512, 8, 8]          [256, 512, 8, 8]          --                        --
+│    │    └─Conv2d: 3-147                [256, 512, 8, 8]          [256, 2048, 8, 8]         1,048,576                 True
+│    │    └─BatchNorm2d: 3-148           [256, 2048, 8, 8]         [256, 2048, 8, 8]         4,096                     True
+│    │    └─Sequential: 3-149            [256, 2048, 8, 8]         [256, 2048, 8, 8]         --                        --
+│    │    └─ReLU: 3-150                  [256, 2048, 8, 8]         [256, 2048, 8, 8]         --                        --
+│    └─Bottleneck: 2-16                  [256, 2048, 8, 8]         [256, 2048, 8, 8]         --                        True
+│    │    └─Conv2d: 3-151                [256, 2048, 8, 8]         [256, 512, 8, 8]          1,048,576                 True
+│    │    └─BatchNorm2d: 3-152           [256, 512, 8, 8]          [256, 512, 8, 8]          1,024                     True
+│    │    └─ReLU: 3-153                  [256, 512, 8, 8]          [256, 512, 8, 8]          --                        --
+│    │    └─Conv2d: 3-154                [256, 512, 8, 8]          [256, 512, 8, 8]          2,359,296                 True
+│    │    └─BatchNorm2d: 3-155           [256, 512, 8, 8]          [256, 512, 8, 8]          1,024                     True
+│    │    └─ReLU: 3-156                  [256, 512, 8, 8]          [256, 512, 8, 8]          --                        --
+│    │    └─Conv2d: 3-157                [256, 512, 8, 8]          [256, 2048, 8, 8]         1,048,576                 True
+│    │    └─BatchNorm2d: 3-158           [256, 2048, 8, 8]         [256, 2048, 8, 8]         4,096                     True
+│    │    └─Sequential: 3-159            [256, 2048, 8, 8]         [256, 2048, 8, 8]         --                        --
+│    │    └─ReLU: 3-160                  [256, 2048, 8, 8]         [256, 2048, 8, 8]         --                        --
+├─AdaptiveAvgPool2d: 1-9                 [256, 2048, 8, 8]         [256, 2048, 1, 1]         --                        --
+├─Linear: 1-10                           [256, 2048]               [256, 512]                1,048,576                 True
+├─Linear: 1-11                           [256, 2048]               [256, 45]                 92,205                    True
+============================================================================================================================================
+Total params: 24,641,133
+Trainable params: 24,641,133
+Non-trainable params: 0
+Total mult-adds (Units.TERABYTES): 1.33
+============================================================================================================================================
+Input size (MB): 12.58
+Forward/backward pass size (MB): 56238.37
+Params size (MB): 98.56
+Estimated Total Size (MB): 56349.52
+============================================================================================================================================
+
+
+2025-10-30 11:35:09,893 [INFO] [framework.dataset.load_for_training] (load_for_training.load_eurosat_hf_splits:47) :: Loading Dataset: timm/resisc45
+2025-10-30 11:35:10,886 [INFO] [framework.dataset.load_for_training] (load_for_training.load_eurosat_hf_splits:52) :: Finished loading EuroSAT HF splits
+2025-10-30 11:35:10,887 [INFO] [framework.dataset.load_for_training] (load_for_training.build_loaders_from_hf:204) :: Start normalization.
+2025-10-30 11:35:13,552 [INFO] [framework.dataset.load_for_training] (load_for_training.build_loaders_from_hf:228) :: Before normalization --> norm_mean: [91.20372772216797, 91.1934814453125, 91.19300842285156]
+norm_std: [45.011024475097656, 44.94978713989258, 44.98139953613281]
+2025-10-30 11:35:13,694 [INFO] [framework.training.trainer] (trainer.train:53) :: Using device: cuda --> move model to device: cuda
+2025-10-30 11:35:13,701 [INFO] [framework.training.trainer] (trainer._train_one_epoch:430) :: Epoch 1/50 — 74 steps total
+2025-10-30 11:36:33,029 [INFO] [framework.training.trainer] (trainer.train:122) :: Epoch 001 | train_loss 3.3372 train_accuracy 14.19% | val_loss 3.1077 val_accuracy 18.68 val_MSE 0.02%
+2025-10-30 11:36:33,030 [INFO] [framework.training.trainer] (trainer.train:126) :: Time taken for epoch 1 = 79.33 sec
+2025-10-30 11:36:33,823 [INFO] [framework.training.trainer] (trainer._train_one_epoch:430) :: Epoch 2/50 — 74 steps total
+2025-10-30 11:37:51,567 [INFO] [framework.training.trainer] (trainer.train:122) :: Epoch 002 | train_loss 2.9763 train_accuracy 20.40% | val_loss 3.0717 val_accuracy 19.75 val_MSE 0.02%
+2025-10-30 11:37:51,567 [INFO] [framework.training.trainer] (trainer.train:126) :: Time taken for epoch 2 = 77.74 sec
+2025-10-30 11:37:52,504 [INFO] [framework.training.trainer] (trainer._train_one_epoch:430) :: Epoch 3/50 — 74 steps total
+2025-10-30 11:39:10,432 [INFO] [framework.training.trainer] (trainer.train:122) :: Epoch 003 | train_loss 2.7709 train_accuracy 24.52% | val_loss 2.8768 val_accuracy 22.63 val_MSE 0.02%
+2025-10-30 11:39:10,432 [INFO] [framework.training.trainer] (trainer.train:126) :: Time taken for epoch 3 = 77.93 sec
+2025-10-30 11:39:11,340 [INFO] [framework.training.trainer] (trainer._train_one_epoch:430) :: Epoch 4/50 — 74 steps total
+2025-10-30 11:40:29,198 [INFO] [framework.training.trainer] (trainer.train:122) :: Epoch 004 | train_loss 2.5767 train_accuracy 29.14% | val_loss 2.9196 val_accuracy 23.67 val_MSE 0.02%
+2025-10-30 11:40:29,199 [INFO] [framework.training.trainer] (trainer.train:126) :: Time taken for epoch 4 = 77.86 sec
+2025-10-30 11:40:30,190 [INFO] [framework.training.trainer] (trainer._train_one_epoch:430) :: Epoch 5/50 — 74 steps total
+2025-10-30 11:41:48,160 [INFO] [framework.training.trainer] (trainer.train:122) :: Epoch 005 | train_loss 2.4528 train_accuracy 31.23% | val_loss 2.9031 val_accuracy 24.73 val_MSE 0.02%
+2025-10-30 11:41:48,160 [INFO] [framework.training.trainer] (trainer.train:126) :: Time taken for epoch 5 = 77.97 sec
+2025-10-30 11:41:49,099 [INFO] [framework.training.trainer] (trainer._train_one_epoch:430) :: Epoch 6/50 — 74 steps total
+2025-10-30 11:43:07,014 [INFO] [framework.training.trainer] (trainer.train:122) :: Epoch 006 | train_loss 2.2768 train_accuracy 35.59% | val_loss 2.8509 val_accuracy 26.44 val_MSE 0.02%
+2025-10-30 11:43:07,014 [INFO] [framework.training.trainer] (trainer.train:126) :: Time taken for epoch 6 = 77.92 sec
+2025-10-30 11:43:07,977 [INFO] [framework.training.trainer] (trainer._train_one_epoch:430) :: Epoch 7/50 — 74 steps total
+2025-10-30 11:44:25,865 [INFO] [framework.training.trainer] (trainer.train:122) :: Epoch 007 | train_loss 2.1141 train_accuracy 40.09% | val_loss 2.8568 val_accuracy 26.56 val_MSE 0.02%
+2025-10-30 11:44:25,866 [INFO] [framework.training.trainer] (trainer.train:126) :: Time taken for epoch 7 = 77.89 sec
+2025-10-30 11:44:26,806 [INFO] [framework.training.trainer] (trainer._train_one_epoch:430) :: Epoch 8/50 — 74 steps total
+2025-10-30 11:45:44,607 [INFO] [framework.training.trainer] (trainer.train:122) :: Epoch 008 | train_loss 1.9484 train_accuracy 44.01% | val_loss 3.1977 val_accuracy 25.19 val_MSE 0.02%
+2025-10-30 11:45:44,607 [INFO] [framework.training.trainer] (trainer.train:126) :: Time taken for epoch 8 = 77.80 sec
+2025-10-30 11:45:45,105 [INFO] [framework.training.trainer] (trainer._train_one_epoch:430) :: Epoch 9/50 — 74 steps total
+2025-10-30 11:47:03,221 [INFO] [framework.training.trainer] (trainer.train:122) :: Epoch 009 | train_loss 1.7471 train_accuracy 49.13% | val_loss 3.4176 val_accuracy 24.27 val_MSE 0.02%
+2025-10-30 11:47:03,222 [INFO] [framework.training.trainer] (trainer.train:126) :: Time taken for epoch 9 = 78.12 sec
+2025-10-30 11:47:03,680 [INFO] [framework.training.trainer] (trainer._train_one_epoch:430) :: Epoch 10/50 — 74 steps total
+2025-10-30 11:48:21,526 [INFO] [framework.training.trainer] (trainer.train:122) :: Epoch 010 | train_loss 1.5204 train_accuracy 55.20% | val_loss 3.3915 val_accuracy 24.86 val_MSE 0.02%
+2025-10-30 11:48:21,526 [INFO] [framework.training.trainer] (trainer.train:126) :: Time taken for epoch 10 = 77.85 sec
+2025-10-30 11:48:21,975 [INFO] [framework.training.trainer] (trainer._train_one_epoch:430) :: Epoch 11/50 — 74 steps total
+2025-10-30 11:49:39,818 [INFO] [framework.training.trainer] (trainer.train:122) :: Epoch 011 | train_loss 1.2721 train_accuracy 62.08% | val_loss 3.4717 val_accuracy 25.57 val_MSE 0.02%
+2025-10-30 11:49:39,819 [INFO] [framework.training.trainer] (trainer.train:126) :: Time taken for epoch 11 = 77.84 sec
+2025-10-30 11:49:40,245 [INFO] [framework.training.trainer] (trainer._train_one_epoch:430) :: Epoch 12/50 — 74 steps total
+2025-10-30 11:50:58,042 [INFO] [framework.training.trainer] (trainer.train:122) :: Epoch 012 | train_loss 1.0367 train_accuracy 68.85% | val_loss 3.8891 val_accuracy 23.76 val_MSE 0.02%
+2025-10-30 11:50:58,042 [INFO] [framework.training.trainer] (trainer.train:126) :: Time taken for epoch 12 = 77.80 sec
+2025-10-30 11:50:58,497 [INFO] [framework.training.trainer] (trainer._train_one_epoch:430) :: Epoch 13/50 — 74 steps total
+2025-10-30 11:52:16,440 [INFO] [framework.training.trainer] (trainer.train:122) :: Epoch 013 | train_loss 0.8025 train_accuracy 75.76% | val_loss 4.4804 val_accuracy 24.05 val_MSE 0.02%
+2025-10-30 11:52:16,440 [INFO] [framework.training.trainer] (trainer.train:126) :: Time taken for epoch 13 = 77.94 sec
+2025-10-30 11:52:16,903 [INFO] [framework.training.trainer] (trainer._train_one_epoch:430) :: Epoch 14/50 — 74 steps total
+2025-10-30 11:53:34,791 [INFO] [framework.training.trainer] (trainer.train:122) :: Epoch 014 | train_loss 0.6273 train_accuracy 80.80% | val_loss 4.9817 val_accuracy 23.54 val_MSE 0.02%
+2025-10-30 11:53:34,791 [INFO] [framework.training.trainer] (trainer.train:126) :: Time taken for epoch 14 = 77.89 sec
+2025-10-30 11:53:35,239 [INFO] [framework.training.trainer] (trainer._train_one_epoch:430) :: Epoch 15/50 — 74 steps total
+2025-10-30 11:54:53,191 [INFO] [framework.training.trainer] (trainer.train:122) :: Epoch 015 | train_loss 0.4814 train_accuracy 85.06% | val_loss 4.5603 val_accuracy 23.97 val_MSE 0.02%
+2025-10-30 11:54:53,192 [INFO] [framework.training.trainer] (trainer.train:126) :: Time taken for epoch 15 = 77.95 sec
+2025-10-30 11:54:53,737 [INFO] [framework.training.trainer] (trainer._train_one_epoch:430) :: Epoch 16/50 — 74 steps total
+2025-10-30 11:56:11,607 [INFO] [framework.training.trainer] (trainer.train:122) :: Epoch 016 | train_loss 0.3888 train_accuracy 88.08% | val_loss 4.6480 val_accuracy 24.70 val_MSE 0.02%
+2025-10-30 11:56:11,608 [INFO] [framework.training.trainer] (trainer.train:126) :: Time taken for epoch 16 = 77.87 sec
+2025-10-30 11:56:12,045 [INFO] [framework.training.trainer] (trainer._train_one_epoch:430) :: Epoch 17/50 — 74 steps total
+2025-10-30 11:57:30,080 [INFO] [framework.training.trainer] (trainer.train:122) :: Epoch 017 | train_loss 0.2779 train_accuracy 91.62% | val_loss 5.3550 val_accuracy 23.32 val_MSE 0.03%
+2025-10-30 11:57:30,081 [INFO] [framework.training.trainer] (trainer.train:126) :: Time taken for epoch 17 = 78.04 sec
+2025-10-30 11:57:30,575 [INFO] [framework.training.trainer] (trainer._train_one_epoch:430) :: Epoch 18/50 — 74 steps total
+2025-10-30 11:58:48,684 [INFO] [framework.training.trainer] (trainer.train:122) :: Epoch 018 | train_loss 0.1860 train_accuracy 94.62% | val_loss 5.2517 val_accuracy 24.43 val_MSE 0.03%
+2025-10-30 11:58:48,684 [INFO] [framework.training.trainer] (trainer.train:126) :: Time taken for epoch 18 = 78.11 sec
+2025-10-30 11:58:49,118 [INFO] [framework.training.trainer] (trainer._train_one_epoch:430) :: Epoch 19/50 — 74 steps total
+2025-10-30 12:00:07,039 [INFO] [framework.training.trainer] (trainer.train:122) :: Epoch 019 | train_loss 0.1397 train_accuracy 95.92% | val_loss 5.4687 val_accuracy 24.38 val_MSE 0.03%
+2025-10-30 12:00:07,039 [INFO] [framework.training.trainer] (trainer.train:126) :: Time taken for epoch 19 = 77.92 sec
+2025-10-30 12:00:07,493 [INFO] [framework.training.trainer] (trainer._train_one_epoch:430) :: Epoch 20/50 — 74 steps total
+2025-10-30 12:01:25,474 [INFO] [framework.training.trainer] (trainer.train:122) :: Epoch 020 | train_loss 0.1126 train_accuracy 96.72% | val_loss 5.3083 val_accuracy 25.86 val_MSE 0.03%
+2025-10-30 12:01:25,475 [INFO] [framework.training.trainer] (trainer.train:126) :: Time taken for epoch 20 = 77.98 sec
+2025-10-30 12:01:25,905 [INFO] [framework.training.trainer] (trainer._train_one_epoch:430) :: Epoch 21/50 — 74 steps total
+2025-10-30 12:02:43,691 [INFO] [framework.training.trainer] (trainer.train:122) :: Epoch 021 | train_loss 0.0775 train_accuracy 97.88% | val_loss 5.3902 val_accuracy 25.56 val_MSE 0.03%
+2025-10-30 12:02:43,691 [INFO] [framework.training.trainer] (trainer.train:126) :: Time taken for epoch 21 = 77.79 sec
+2025-10-30 12:02:44,170 [INFO] [framework.training.trainer] (trainer._train_one_epoch:430) :: Epoch 22/50 — 74 steps total
+2025-10-30 12:04:01,942 [INFO] [framework.training.trainer] (trainer.train:122) :: Epoch 022 | train_loss 0.0492 train_accuracy 98.74% | val_loss 5.4148 val_accuracy 26.00 val_MSE 0.03%
+2025-10-30 12:04:01,942 [INFO] [framework.training.trainer] (trainer.train:126) :: Time taken for epoch 22 = 77.77 sec
+2025-10-30 12:04:02,399 [INFO] [framework.training.trainer] (trainer._train_one_epoch:430) :: Epoch 23/50 — 74 steps total
+2025-10-30 12:05:20,361 [INFO] [framework.training.trainer] (trainer.train:122) :: Epoch 023 | train_loss 0.0246 train_accuracy 99.44% | val_loss 5.4836 val_accuracy 26.29 val_MSE 0.03%
+2025-10-30 12:05:20,362 [INFO] [framework.training.trainer] (trainer.train:126) :: Time taken for epoch 23 = 77.96 sec
+2025-10-30 12:05:20,799 [INFO] [framework.training.trainer] (trainer._train_one_epoch:430) :: Epoch 24/50 — 74 steps total
+2025-10-30 12:06:38,585 [INFO] [framework.training.trainer] (trainer.train:122) :: Epoch 024 | train_loss 0.0162 train_accuracy 99.64% | val_loss 5.4127 val_accuracy 26.52 val_MSE 0.03%
+2025-10-30 12:06:38,586 [INFO] [framework.training.trainer] (trainer.train:126) :: Time taken for epoch 24 = 77.79 sec
+2025-10-30 12:06:39,039 [INFO] [framework.training.trainer] (trainer._train_one_epoch:430) :: Epoch 25/50 — 74 steps total
+2025-10-30 12:07:56,850 [INFO] [framework.training.trainer] (trainer.train:122) :: Epoch 025 | train_loss 0.0123 train_accuracy 99.67% | val_loss 5.4677 val_accuracy 26.14 val_MSE 0.03%
+2025-10-30 12:07:56,850 [INFO] [framework.training.trainer] (trainer.train:126) :: Time taken for epoch 25 = 77.81 sec
+2025-10-30 12:07:57,291 [INFO] [framework.training.trainer] (trainer._train_one_epoch:430) :: Epoch 26/50 — 74 steps total
+2025-10-30 12:09:15,316 [INFO] [framework.training.trainer] (trainer.train:122) :: Epoch 026 | train_loss 0.0085 train_accuracy 99.79% | val_loss 5.4753 val_accuracy 26.27 val_MSE 0.03%
+2025-10-30 12:09:15,316 [INFO] [framework.training.trainer] (trainer.train:126) :: Time taken for epoch 26 = 78.03 sec
+2025-10-30 12:09:15,760 [INFO] [framework.training.trainer] (trainer._train_one_epoch:430) :: Epoch 27/50 — 74 steps total
+2025-10-30 12:10:33,643 [INFO] [framework.training.trainer] (trainer.train:122) :: Epoch 027 | train_loss 0.0062 train_accuracy 99.88% | val_loss 5.5090 val_accuracy 26.51 val_MSE 0.03%
+2025-10-30 12:10:33,644 [INFO] [framework.training.trainer] (trainer.train:126) :: Time taken for epoch 27 = 77.88 sec
+2025-10-30 12:10:34,074 [INFO] [framework.training.trainer] (trainer._train_one_epoch:430) :: Epoch 28/50 — 74 steps total
+2025-10-30 12:11:52,003 [INFO] [framework.training.trainer] (trainer.train:122) :: Epoch 028 | train_loss 0.0049 train_accuracy 99.90% | val_loss 5.5564 val_accuracy 26.63 val_MSE 0.03%
+2025-10-30 12:11:52,003 [INFO] [framework.training.trainer] (trainer.train:126) :: Time taken for epoch 28 = 77.93 sec
+2025-10-30 12:11:52,946 [INFO] [framework.training.trainer] (trainer._train_one_epoch:430) :: Epoch 29/50 — 74 steps total
+2025-10-30 12:13:10,779 [INFO] [framework.training.trainer] (trainer.train:122) :: Epoch 029 | train_loss 0.0037 train_accuracy 99.93% | val_loss 5.5419 val_accuracy 25.75 val_MSE 0.03%
+2025-10-30 12:13:10,779 [INFO] [framework.training.trainer] (trainer.train:126) :: Time taken for epoch 29 = 77.83 sec
+2025-10-30 12:13:11,271 [INFO] [framework.training.trainer] (trainer._train_one_epoch:430) :: Epoch 30/50 — 74 steps total
+2025-10-30 12:14:29,254 [INFO] [framework.training.trainer] (trainer.train:122) :: Epoch 030 | train_loss 0.0046 train_accuracy 99.91% | val_loss 5.5659 val_accuracy 26.32 val_MSE 0.03%
+2025-10-30 12:14:29,254 [INFO] [framework.training.trainer] (trainer.train:126) :: Time taken for epoch 30 = 77.98 sec
+2025-10-30 12:14:29,705 [INFO] [framework.training.trainer] (trainer._train_one_epoch:430) :: Epoch 31/50 — 74 steps total
+2025-10-30 12:15:47,602 [INFO] [framework.training.trainer] (trainer.train:122) :: Epoch 031 | train_loss 0.0030 train_accuracy 99.98% | val_loss 5.5622 val_accuracy 26.16 val_MSE 0.03%
+2025-10-30 12:15:47,602 [INFO] [framework.training.trainer] (trainer.train:126) :: Time taken for epoch 31 = 77.90 sec
+2025-10-30 12:15:48,039 [INFO] [framework.training.trainer] (trainer._train_one_epoch:430) :: Epoch 32/50 — 74 steps total
+2025-10-30 12:17:05,862 [INFO] [framework.training.trainer] (trainer.train:122) :: Epoch 032 | train_loss 0.0016 train_accuracy 99.99% | val_loss 5.5967 val_accuracy 26.21 val_MSE 0.03%
+2025-10-30 12:17:05,862 [INFO] [framework.training.trainer] (trainer.train:126) :: Time taken for epoch 32 = 77.82 sec
+2025-10-30 12:17:06,293 [INFO] [framework.training.trainer] (trainer._train_one_epoch:430) :: Epoch 33/50 — 74 steps total
+2025-10-30 12:18:24,139 [INFO] [framework.training.trainer] (trainer.train:122) :: Epoch 033 | train_loss 0.0012 train_accuracy 99.99% | val_loss 5.5875 val_accuracy 26.22 val_MSE 0.03%
+2025-10-30 12:18:24,140 [INFO] [framework.training.trainer] (trainer.train:126) :: Time taken for epoch 33 = 77.85 sec
+2025-10-30 12:18:24,640 [INFO] [framework.training.trainer] (trainer._train_one_epoch:430) :: Epoch 34/50 — 74 steps total
+2025-10-30 12:19:42,491 [INFO] [framework.training.trainer] (trainer.train:122) :: Epoch 034 | train_loss 0.0009 train_accuracy 100.00% | val_loss 5.5844 val_accuracy 26.13 val_MSE 0.03%
+2025-10-30 12:19:42,491 [INFO] [framework.training.trainer] (trainer.train:126) :: Time taken for epoch 34 = 77.85 sec
+2025-10-30 12:19:42,922 [INFO] [framework.training.trainer] (trainer._train_one_epoch:430) :: Epoch 35/50 — 74 steps total
+2025-10-30 12:21:00,710 [INFO] [framework.training.trainer] (trainer.train:122) :: Epoch 035 | train_loss 0.0010 train_accuracy 100.00% | val_loss 5.6232 val_accuracy 26.46 val_MSE 0.03%
+2025-10-30 12:21:00,711 [INFO] [framework.training.trainer] (trainer.train:126) :: Time taken for epoch 35 = 77.79 sec
+2025-10-30 12:21:01,204 [INFO] [framework.training.trainer] (trainer._train_one_epoch:430) :: Epoch 36/50 — 74 steps total
+2025-10-30 12:22:19,039 [INFO] [framework.training.trainer] (trainer.train:122) :: Epoch 036 | train_loss 0.0009 train_accuracy 99.99% | val_loss 5.6140 val_accuracy 26.37 val_MSE 0.03%
+2025-10-30 12:22:19,039 [INFO] [framework.training.trainer] (trainer.train:126) :: Time taken for epoch 36 = 77.84 sec
+2025-10-30 12:22:19,822 [INFO] [framework.training.trainer] (trainer._train_one_epoch:430) :: Epoch 37/50 — 74 steps total
+2025-10-30 12:23:37,831 [INFO] [framework.training.trainer] (trainer.train:122) :: Epoch 037 | train_loss 0.0007 train_accuracy 100.00% | val_loss 5.6320 val_accuracy 26.43 val_MSE 0.03%
+2025-10-30 12:23:37,831 [INFO] [framework.training.trainer] (trainer.train:126) :: Time taken for epoch 37 = 78.01 sec
+2025-10-30 12:23:38,318 [INFO] [framework.training.trainer] (trainer._train_one_epoch:430) :: Epoch 38/50 — 74 steps total
+2025-10-30 12:24:56,168 [INFO] [framework.training.trainer] (trainer.train:122) :: Epoch 038 | train_loss 0.0007 train_accuracy 100.00% | val_loss 5.6326 val_accuracy 26.35 val_MSE 0.03%
+2025-10-30 12:24:56,169 [INFO] [framework.training.trainer] (trainer.train:126) :: Time taken for epoch 38 = 77.85 sec
+2025-10-30 12:24:56,592 [INFO] [framework.training.trainer] (trainer._train_one_epoch:430) :: Epoch 39/50 — 74 steps total
+2025-10-30 12:26:14,435 [INFO] [framework.training.trainer] (trainer.train:122) :: Epoch 039 | train_loss 0.0006 train_accuracy 100.00% | val_loss 5.6323 val_accuracy 26.35 val_MSE 0.03%
+2025-10-30 12:26:14,435 [INFO] [framework.training.trainer] (trainer.train:126) :: Time taken for epoch 39 = 77.84 sec
+2025-10-30 12:26:14,876 [INFO] [framework.training.trainer] (trainer._train_one_epoch:430) :: Epoch 40/50 — 74 steps total
+2025-10-30 12:27:32,814 [INFO] [framework.training.trainer] (trainer.train:122) :: Epoch 040 | train_loss 0.0006 train_accuracy 100.00% | val_loss 5.6423 val_accuracy 26.37 val_MSE 0.03%
+2025-10-30 12:27:32,814 [INFO] [framework.training.trainer] (trainer.train:126) :: Time taken for epoch 40 = 77.94 sec
+2025-10-30 12:27:33,245 [INFO] [framework.training.trainer] (trainer._train_one_epoch:430) :: Epoch 41/50 — 74 steps total
+2025-10-30 12:28:51,174 [INFO] [framework.training.trainer] (trainer.train:122) :: Epoch 041 | train_loss 0.0005 train_accuracy 100.00% | val_loss 5.6546 val_accuracy 26.38 val_MSE 0.03%
+2025-10-30 12:28:51,175 [INFO] [framework.training.trainer] (trainer.train:126) :: Time taken for epoch 41 = 77.93 sec
+2025-10-30 12:28:51,620 [INFO] [framework.training.trainer] (trainer._train_one_epoch:430) :: Epoch 42/50 — 74 steps total
+2025-10-30 12:30:09,445 [INFO] [framework.training.trainer] (trainer.train:122) :: Epoch 042 | train_loss 0.0005 train_accuracy 100.00% | val_loss 5.6463 val_accuracy 26.35 val_MSE 0.03%
+2025-10-30 12:30:09,446 [INFO] [framework.training.trainer] (trainer.train:126) :: Time taken for epoch 42 = 77.83 sec
+2025-10-30 12:30:09,893 [INFO] [framework.training.trainer] (trainer._train_one_epoch:430) :: Epoch 43/50 — 74 steps total
+2025-10-30 12:31:27,726 [INFO] [framework.training.trainer] (trainer.train:122) :: Epoch 043 | train_loss 0.0005 train_accuracy 100.00% | val_loss 5.6465 val_accuracy 26.32 val_MSE 0.03%
+2025-10-30 12:31:27,727 [INFO] [framework.training.trainer] (trainer.train:126) :: Time taken for epoch 43 = 77.83 sec
+2025-10-30 12:31:28,179 [INFO] [framework.training.trainer] (trainer._train_one_epoch:430) :: Epoch 44/50 — 74 steps total
+2025-10-30 12:32:46,046 [INFO] [framework.training.trainer] (trainer.train:122) :: Epoch 044 | train_loss 0.0005 train_accuracy 100.00% | val_loss 5.6492 val_accuracy 26.51 val_MSE 0.03%
+2025-10-30 12:32:46,046 [INFO] [framework.training.trainer] (trainer.train:126) :: Time taken for epoch 44 = 77.87 sec
+2025-10-30 12:32:46,496 [INFO] [framework.training.trainer] (trainer._train_one_epoch:430) :: Epoch 45/50 — 74 steps total
+2025-10-30 12:34:04,331 [INFO] [framework.training.trainer] (trainer.train:122) :: Epoch 045 | train_loss 0.0004 train_accuracy 100.00% | val_loss 5.6350 val_accuracy 26.33 val_MSE 0.03%
+2025-10-30 12:34:04,331 [INFO] [framework.training.trainer] (trainer.train:126) :: Time taken for epoch 45 = 77.84 sec
+2025-10-30 12:34:04,807 [INFO] [framework.training.trainer] (trainer._train_one_epoch:430) :: Epoch 46/50 — 74 steps total
+2025-10-30 12:35:22,668 [INFO] [framework.training.trainer] (trainer.train:122) :: Epoch 046 | train_loss 0.0004 train_accuracy 100.00% | val_loss 5.6429 val_accuracy 26.48 val_MSE 0.03%
+2025-10-30 12:35:22,668 [INFO] [framework.training.trainer] (trainer.train:126) :: Time taken for epoch 46 = 77.86 sec
+2025-10-30 12:35:23,091 [INFO] [framework.training.trainer] (trainer._train_one_epoch:430) :: Epoch 47/50 — 74 steps total
+2025-10-30 12:36:40,927 [INFO] [framework.training.trainer] (trainer.train:122) :: Epoch 047 | train_loss 0.0005 train_accuracy 100.00% | val_loss 5.6463 val_accuracy 26.41 val_MSE 0.03%
+2025-10-30 12:36:40,928 [INFO] [framework.training.trainer] (trainer.train:126) :: Time taken for epoch 47 = 77.84 sec
+2025-10-30 12:36:41,357 [INFO] [framework.training.trainer] (trainer._train_one_epoch:430) :: Epoch 48/50 — 74 steps total
+2025-10-30 12:37:59,195 [INFO] [framework.training.trainer] (trainer.train:122) :: Epoch 048 | train_loss 0.0005 train_accuracy 100.00% | val_loss 5.6502 val_accuracy 26.37 val_MSE 0.03%
+2025-10-30 12:37:59,195 [INFO] [framework.training.trainer] (trainer.train:126) :: Time taken for epoch 48 = 77.84 sec
+2025-10-30 12:37:59,620 [INFO] [framework.training.trainer] (trainer._train_one_epoch:430) :: Epoch 49/50 — 74 steps total
+2025-10-30 12:39:17,462 [INFO] [framework.training.trainer] (trainer.train:122) :: Epoch 049 | train_loss 0.0005 train_accuracy 100.00% | val_loss 5.6454 val_accuracy 26.62 val_MSE 0.03%
+2025-10-30 12:39:17,463 [INFO] [framework.training.trainer] (trainer.train:126) :: Time taken for epoch 49 = 77.84 sec
+2025-10-30 12:39:17,958 [INFO] [framework.training.trainer] (trainer._train_one_epoch:430) :: Epoch 50/50 — 74 steps total
+2025-10-30 12:40:35,777 [INFO] [framework.training.trainer] (trainer.train:122) :: Epoch 050 | train_loss 0.0005 train_accuracy 100.00% | val_loss 5.6586 val_accuracy 26.29 val_MSE 0.03%
+2025-10-30 12:40:35,778 [INFO] [framework.training.trainer] (trainer.train:126) :: Time taken for epoch 50 = 77.82 sec
