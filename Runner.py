@@ -31,7 +31,7 @@ def _load_manifest(p: Path) -> list[Path]:
 
 
 def main():
-    for CFG_PATH in _load_manifest(Path("configs/Experiment_1/Experiment_Orchestrator_Config.toml")):
+    for CFG_PATH in _load_manifest(Path("configs/Experiment_4/Experiment_Orchestrator_Config.toml")):
 
         t0 = time.time()
         # validate .toml
@@ -81,7 +81,7 @@ def main():
             train(cfg, teacher=model_teacher, student=model_student, train_loader=train_loader, val_loader=val_loader,
                   experiment_dir=experiment_dir, config_path=CFG_PATH)
 
-            plot_teacher_student_metrics(f"{experiment_dir}/config.toml")
+            # plot_teacher_student_metrics(f"{experiment_dir}/config.toml")
 
             git_commit_and_push(f"Experiment={cfg.experiment.name} Run={cfg.experiment.run}")
 

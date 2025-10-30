@@ -17,6 +17,10 @@ class ResNet18Config(BaseModel):
     name: Literal["ResNet18"]
     args: CNNArgs = CNNArgs()
 
+class ResNet50Config(BaseModel):
+    name: Literal["ResNet50"]
+    args: CNNArgs = CNNArgs()
+
 class TinyCNNConfig(BaseModel):
     name: Literal["TinyCNN"]
     args: CNNArgs = CNNArgs()

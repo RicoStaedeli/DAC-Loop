@@ -29,7 +29,7 @@ class BasicBlock(nn.Module):
 
 
 class ResNet18(nn.Module):
-    def __init__(self,input_channels=3, num_classes=10):
+    def __init__(self,input_channels=3, num_classes=10, feature_dim=512):
         super(ResNet18, self).__init__()
         self.in_channels = 64
         self.conv1 = nn.Conv2d(input_channels, 64, kernel_size=3, stride=1, padding=1, bias=False)
@@ -44,6 +44,11 @@ class ResNet18(nn.Module):
 
         self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
         self.fc = nn.Linear(512, num_classes)
+
+        # projection used only for KD features
+        self.kd_proj = nn.Identity()
+        if feature_dim != 512:
+            self.kd_proj = nn.Linear(512, feature_dim, bias=False)
 
     def _make_layer(self, block, out_channels, num_blocks, stride):
         strides = [stride] + [1] * (num_blocks - 1)
@@ -66,5 +71,6 @@ class ResNet18(nn.Module):
 
         out = self.avgpool(out)  # N, 512, 1, 1
         feat = out.view(out.size(0), -1)  # N, 512
+        kd_feat = self.kd_proj(feat)
         logits = self.fc(feat)  # N, num_classe
-        return (logits, feat) if return_features else logits
+        return (logits, kd_feat) if return_features else logits

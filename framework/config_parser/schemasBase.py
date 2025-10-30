@@ -4,11 +4,11 @@ from typing import Dict, Optional, Union, Annotated, List
 
 from pydantic import BaseModel, Field, PositiveInt, field_validator, model_validator, conint
 
-from .schemasCNN import ResNet10Config, ResNet18Config, TinyCNNConfig
+from .schemasCNN import ResNet10Config, ResNet18Config, TinyCNNConfig, ResNet50Config
 
 # TODO: add more model types here (instead of model registry)
 ModelConfig = Annotated[
-    Union[ResNet10Config, ResNet18Config, TinyCNNConfig],
+    Union[ResNet50Config, ResNet10Config, ResNet18Config, TinyCNNConfig],
     Field(discriminator="name")
 ]
 
