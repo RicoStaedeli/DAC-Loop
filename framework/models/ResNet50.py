@@ -38,7 +38,7 @@ class Bottleneck(nn.Module):
 
 
 class ResNet50(nn.Module):
-    def __init__(self, input_channels=3, num_classes=10, imagenet_stem=False):
+    def __init__(self, input_channels=3, num_classes=10, imagenet_stem=False, feature_dim=512):
         super().__init__()
         self.in_channels = 64
 
@@ -64,6 +64,12 @@ class ResNet50(nn.Module):
         self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
         self.fc = nn.Linear(512 * Bottleneck.expansion, num_classes)
 
+        # projection used only for KD features
+        out_feats = 512 * Bottleneck.expansion  # 2048
+        self.kd_proj = nn.Identity()
+        if feature_dim != out_feats:
+            self.kd_proj = nn.Linear(out_feats, feature_dim, bias=False)
+
     def _make_layer(self, block, out_channels, num_blocks, stride):
         strides = [stride] + [1] * (num_blocks - 1)
         layers = []
@@ -83,5 +89,6 @@ class ResNet50(nn.Module):
 
         out = self.avgpool(out)
         feat = torch.flatten(out, 1)
+        kd_feat = self.kd_proj(feat)  # feature_dim
         logits = self.fc(feat)
-        return (logits, feat) if return_features else logits
+        return (logits, kd_feat) if return_features else logits
