@@ -7,6 +7,7 @@ from typing import Optional, Tuple
 import tomllib
 from dotenv import load_dotenv
 from torchinfo import summary
+import argparse
 
 # Framework Imports
 from framework.dataset.load_for_training import load_eurosat_hf_splits, build_loaders_from_hf
@@ -15,11 +16,25 @@ from framework.training.trainer import train
 from framework.utils.logger import setup_logging, log_meta_info
 from framework.utils.utils import set_seed, load_config_toml
 from framework.utils.push_to_gitlab import git_commit_and_push
-from framework.utils.plots_2 import plot_teacher_student_metrics
 
 log = logging.getLogger(__name__)
 load_dotenv()
 
+def _parse_args():
+    parser = argparse.ArgumentParser(description="Run experiment with specified GPU device.")
+    parser.add_argument(
+        "--gpu",
+        type=str,
+        default="0",
+        help="GPU device ID to use (e.g. '0', '1', or '0,1' for multiple GPUs)."
+    )
+    parser.add_argument(
+        "--exp",
+        type=str,
+        default="XY",
+        help="Experiment Number"
+    )
+    return parser.parse_args()
 
 def _load_manifest(p: Path) -> list[Path]:
     """
@@ -30,8 +45,10 @@ def _load_manifest(p: Path) -> list[Path]:
     return [Path(x) for x in cfg["experiments"]["paths"]]
 
 
-def main():
-    for CFG_PATH in _load_manifest(Path("configs/Experiment_4/Experiment_Orchestrator_Config.toml")):
+def main(gpu_id: str, experiment_number: str):
+    os.environ["CUDA_VISIBLE_DEVICES"] = gpu_id
+
+    for CFG_PATH in _load_manifest(Path(f"configs/Experiment_{experiment_number}/Experiment_Orchestrator_Config.toml")):
 
         t0 = time.time()
         # validate .toml
@@ -100,9 +117,9 @@ def main():
 def _create_log_directory(cfg) -> Path:
     experiment_log_dir = Path(f"experiments/{cfg.experiment.name}/Run_{cfg.experiment.run}")
     if os.path.exists(experiment_log_dir) and cfg.saving.overwrite_run == False:
-        raise ValueError("There is already a directory named '%s'. Check if you updated the run ID to a new one. "
+        raise ValueError(f"There is already a directory named {experiment_log_dir}. Check if you updated the run ID to a new one. "
                          "If you want to overwrite the current existing directory please set the parameter in the config file.",
-                         experiment_log_dir)
+                         )
 
     elif os.path.exists(experiment_log_dir) and cfg.saving.overwrite_run == True:
         log.warning(
@@ -195,4 +212,5 @@ def _load_models(cfg, input_channels) -> Tuple[object, Optional[object]]:
 
 
 if __name__ == "__main__":
-    main()
+    args = _parse_args()
+    main(args.gpu, args.exp)
