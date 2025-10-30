@@ -3,6 +3,7 @@ from typing import List, Optional
 from functools import partial
 import numpy as np
 import torch
+import torch.nn.functional as F
 import torchvision.transforms.functional as TF
 from datasets import load_dataset, Dataset
 from torch.utils.data import DataLoader
@@ -184,32 +185,6 @@ def _random_affine_light(x: torch.Tensor, max_translate=0.07, scale_range=(0.9, 
                                                 torch.randint(-translate[1], translate[1]+1, (1,)).item()),
                      scale=scale, shear=shear, interpolation=TF.InterpolationMode.BILINEAR)
 
-def _rgb_channel_indices(selected_bands: Optional[List[str]], indices: Optional[List[str]]) -> Optional[List[int]]:
-    """
-    Try to infer indices of RGB channels if present.
-    Returns [r,g,b] positions in the assembled tensor, or None if not found.
-    """
-    # If user passes explicit indices list mapping band names -> positions, respect that
-    if selected_bands is not None:
-        # Common band names
-        name2pos = {b.lower(): i for i, b in enumerate(selected_bands)}
-        keys = ["B04"], ["B03"], ["B02"]
-        out = []
-        for group in keys:
-            pos = None
-            for k in group:
-                if k in name2pos:
-                    pos = name2pos[k]
-                    break
-            if pos is None:
-                return None
-            out.append(pos)
-        return out
-    # Fallback: if exactly 3 channels, assume RGB
-    if indices is None:
-        return None
-    return None
-
 def _preprocess_sample(sample: dict, image_size: int,
                        indices: Optional[List[str]], augment: bool,
                        mean=None, std=None,
@@ -223,10 +198,6 @@ def _preprocess_sample(sample: dict, image_size: int,
     x = TF.resize(x, [image_size, image_size])
     if (mean is not None) and (std is not None):
         x = (x - mean[:, None, None]) / (std[:, None, None] + 1e-6)
-
-    if augment:
-        rgb_idx = _rgb_channel_indices(selected_bands, indices)
-        x = _color_jitter_rgb(x, rgb_idx, brightness=0.4, contrast=0.4, saturation=0.4, hue=0.08, p=0.8)
 
     if augment:
         if torch.rand(1).item() < 0.5:
