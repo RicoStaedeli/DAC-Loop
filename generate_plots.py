@@ -18,7 +18,10 @@ def main():
 
     # Generate plots for experiments
     _make_plots_for_experiment(experiment_name="Experiment_1", num_runs=12, only_overview=False)
-    _make_plots_for_experiment(experiment_name="Experiment_4", num_runs=24, only_overview=False)
+    _make_plots_for_experiment(experiment_name="Experiment_3", num_runs=24, only_overview=False)
+    # _make_plots_for_experiment(experiment_name="Experiment_4", num_runs=24, only_overview=False)
+    _make_plots_for_experiment(experiment_name="Experiment_5", num_runs=4, only_overview=False)
+    # _make_plots_for_experiment(experiment_name="Experiment_6", num_runs=24, only_overview=False)
 
 
 def _make_plots_for_experiment(experiment_name: str, num_runs: int, only_overview: bool = False):
@@ -31,13 +34,13 @@ def _make_plots_for_experiment(experiment_name: str, num_runs: int, only_overvie
     if not only_overview:
         for i in range(1, num_runs + 1):
             cfg_path = base_dir / f"Run_{i}" / "config.toml"
-            plot_teacher_student_metrics(cfg_path, project_root=".", set_png_dpi=300)
+            plot_teacher_student_metrics(cfg_path, project_root=".", set_png_dpi=200)
 
     _make_overview_png(
         base_dir=str(base_dir),
         run_indices=range(1, num_runs + 1),
         out_path=str(base_dir / f"overview_plot_{experiment_name}.png"),
-        set_png_dpi=300,
+        set_png_dpi=200,
     )
 
 

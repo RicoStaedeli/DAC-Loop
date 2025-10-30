@@ -38,22 +38,16 @@ class Bottleneck(nn.Module):
 
 
 class ResNet50(nn.Module):
-    def __init__(self, input_channels=3, num_classes=10, imagenet_stem=False, feature_dim=512):
+    def __init__(self, input_channels=3, num_classes=10, feature_dim=512):
         super().__init__()
         self.in_channels = 64
 
-        if imagenet_stem:
-            # ImageNet-style stem
-            self.conv1 = nn.Conv2d(input_channels, 64, kernel_size=7, stride=2, padding=3, bias=False)
-            self.bn1   = nn.BatchNorm2d(64)
-            self.relu  = nn.ReLU(inplace=True)
-            self.maxpool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
-        else:
-            # CIFAR-friendly stem
-            self.conv1 = nn.Conv2d(input_channels, 64, kernel_size=3, stride=1, padding=1, bias=False)
-            self.bn1   = nn.BatchNorm2d(64)
-            self.relu  = nn.ReLU(inplace=True)
-            self.maxpool = nn.Identity()  # often no maxpool for small images
+
+        # ImageNet-style stem
+        self.conv1 = nn.Conv2d(input_channels, 64, kernel_size=7, stride=2, padding=3, bias=False)
+        self.bn1   = nn.BatchNorm2d(64)
+        self.relu  = nn.ReLU(inplace=True)
+        self.maxpool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
 
         # ResNet-50 layers: [3, 4, 6, 3]
         self.layer1 = self._make_layer(Bottleneck, 64,  3, stride=1)

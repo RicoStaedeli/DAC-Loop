@@ -135,6 +135,80 @@ def _assemble_channels(cube: np.ndarray,
         return np.concatenate([base, extra], axis=0)
     return base
 
+def _color_jitter_rgb(x: torch.Tensor, rgb_idx: Optional[List[int]],
+                      brightness=0.4, contrast=0.4, saturation=0.4, hue=0.1, p=0.8):
+    if rgb_idx is None or torch.rand(1).item() > p:
+        return x
+    # Extract RGB, jitter, then write back
+    rgb = x[rgb_idx, :, :]
+    rgb = TF.adjust_brightness(rgb, 1.0 + torch.empty(1).uniform_(-brightness, brightness).item())
+    rgb = TF.adjust_contrast(rgb, 1.0 + torch.empty(1).uniform_(-contrast, contrast).item())
+    rgb = TF.adjust_saturation(rgb, 1.0 + torch.empty(1).uniform_(-saturation, saturation).item())
+    rgb = TF.adjust_hue(rgb, torch.empty(1).uniform_(-hue, hue).item())
+    x[rgb_idx, :, :] = rgb
+    return x
+
+def _gaussian_blur(x: torch.Tensor, kernel_size=3, sigma=(0.1, 2.0), p=0.2):
+    if torch.rand(1).item() > p:
+        return x
+    sig = torch.empty(1).uniform_(sigma[0], sigma[1]).item()
+    # Depthwise conv for blur
+    C, H, W = x.shape
+    radius = kernel_size // 2
+    coords = torch.arange(-radius, radius+1, dtype=x.dtype, device=x.device)
+    g = torch.exp(-(coords**2) / (2 * sig * sig))
+    g = (g / g.sum()).reshape(1, 1, -1)
+    k = g.transpose(2, 1) @ g  # 2D kernel
+    k = k.expand(C, 1, kernel_size, kernel_size)
+    x = F.pad(x.unsqueeze(0), (radius, radius, radius, radius), mode='reflect')
+    x = F.conv2d(x, k, groups=C)
+    return x.squeeze(0)
+
+def _random_90_rot(x: torch.Tensor, p=0.75):
+    if torch.rand(1).item() > p:
+        return x
+    k = torch.randint(0, 4, (1,)).item()
+    if k == 0:
+        return x
+    return torch.rot90(x, k, dims=(-2, -1))
+
+def _random_affine_light(x: torch.Tensor, max_translate=0.07, scale_range=(0.9, 1.1), p=0.5):
+    if torch.rand(1).item() > p:
+        return x
+    _, H, W = x.shape
+    translate = (int(W * max_translate), int(H * max_translate))
+    scale = float(torch.empty(1).uniform_(scale_range[0], scale_range[1]).item())
+    angle = float(torch.empty(1).uniform_(-5.0, 5.0).item())
+    shear = [float(torch.empty(1).uniform_(-3.0, 3.0).item()), 0.0]
+    return TF.affine(x, angle=angle, translate=(torch.randint(-translate[0], translate[0]+1, (1,)).item(),
+                                                torch.randint(-translate[1], translate[1]+1, (1,)).item()),
+                     scale=scale, shear=shear, interpolation=TF.InterpolationMode.BILINEAR)
+
+def _rgb_channel_indices(selected_bands: Optional[List[str]], indices: Optional[List[str]]) -> Optional[List[int]]:
+    """
+    Try to infer indices of RGB channels if present.
+    Returns [r,g,b] positions in the assembled tensor, or None if not found.
+    """
+    # If user passes explicit indices list mapping band names -> positions, respect that
+    if selected_bands is not None:
+        # Common band names
+        name2pos = {b.lower(): i for i, b in enumerate(selected_bands)}
+        keys = ["B04"], ["B03"], ["B02"]
+        out = []
+        for group in keys:
+            pos = None
+            for k in group:
+                if k in name2pos:
+                    pos = name2pos[k]
+                    break
+            if pos is None:
+                return None
+            out.append(pos)
+        return out
+    # Fallback: if exactly 3 channels, assume RGB
+    if indices is None:
+        return None
+    return None
 
 def _preprocess_sample(sample: dict, image_size: int,
                        indices: Optional[List[str]], augment: bool,
@@ -149,11 +223,20 @@ def _preprocess_sample(sample: dict, image_size: int,
     x = TF.resize(x, [image_size, image_size])
     if (mean is not None) and (std is not None):
         x = (x - mean[:, None, None]) / (std[:, None, None] + 1e-6)
+
+    if augment:
+        rgb_idx = _rgb_channel_indices(selected_bands, indices)
+        x = _color_jitter_rgb(x, rgb_idx, brightness=0.4, contrast=0.4, saturation=0.4, hue=0.08, p=0.8)
+
     if augment:
         if torch.rand(1).item() < 0.5:
             x = TF.hflip(x)
         if torch.rand(1).item() < 0.5:
             x = TF.vflip(x)
+        x = _random_90_rot(x, p=0.75)
+        x = _random_affine_light(x, max_translate=0.07, scale_range=(0.9, 1.1), p=0.5)
+        x = _gaussian_blur(x, kernel_size=3, sigma=(0.1, 2.0), p=0.2)
+
     y = _pick_label(sample)
     return x, torch.tensor(y, dtype=torch.long)
 
