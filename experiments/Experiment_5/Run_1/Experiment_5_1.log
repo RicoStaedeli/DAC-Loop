@@ -1,0 +1,170 @@
+2025-10-30 02:18:31,573 [INFO] [root] (logger.setup_logging:71) :: Logging initialized. Level=INFO, SaveToFile=True, LogFile=experiments/Experiment_5/Run_1/Experiment_5_1.log
+2025-10-30 02:18:31,573 [INFO] [framework.utils.logger] (logger.log_meta_info:97) :: Experiment=Experiment_5 | Run ID=1 | Device=cuda | Seed=42 | Experiment Directory=experiments/Experiment_5/Run_1
+2025-10-30 02:18:31,574 [INFO] [__main__] (Runner.main:53) :: Loading experiment configs/Experiment_5/Run-1.toml
+2025-10-30 02:18:31,574 [INFO] [__main__] (Runner._print_experiment_overview:121) :: Experiment name: Experiment_5
+2025-10-30 02:18:31,574 [INFO] [__main__] (Runner._print_experiment_overview:122) :: Run ID: 1
+2025-10-30 02:18:31,574 [INFO] [__main__] (Runner._print_experiment_overview:123) :: ================================================================================
+2025-10-30 02:18:31,574 [INFO] [__main__] (Runner._print_experiment_overview:124) :: Input channels: 12
+2025-10-30 02:18:31,574 [INFO] [__main__] (Runner._print_experiment_overview:125) :: Extra channels: 0
+2025-10-30 02:18:31,574 [INFO] [__main__] (Runner._print_experiment_overview:126) :: Dataset: timm/resisc45
+2025-10-30 02:18:31,574 [INFO] [__main__] (Runner._print_experiment_overview:127) :: ================================================================================
+2025-10-30 02:18:31,574 [INFO] [__main__] (Runner._print_experiment_overview:128) :: Number of Workers: 20
+2025-10-30 02:18:31,574 [INFO] [__main__] (Runner._print_experiment_overview:129) :: Pin Memory: True
+2025-10-30 02:18:31,574 [INFO] [__main__] (Runner._print_experiment_overview:130) :: Batch size: 256
+2025-10-30 02:18:31,574 [INFO] [__main__] (Runner._print_experiment_overview:131) :: ================================================================================
+2025-10-30 02:18:31,574 [INFO] [__main__] (Runner._print_experiment_overview:142) :: No teacher knowledge distillation. -> Train teacher itself
+2025-10-30 02:18:31,574 [INFO] [__main__] (Runner._print_experiment_overview:143) :: Teacher Name: ResNet18
+2025-10-30 02:18:31,574 [INFO] [__main__] (Runner._print_experiment_overview:144) :: ================================================================================
+2025-10-30 02:18:31,574 [INFO] [__main__] (Runner._load_models:182) :: Build models
+2025-10-30 02:18:31,800 [INFO] [__main__] (Runner._print_model_summary:158) :: Teacher:
+---------------------------
+============================================================================================================================================
+Layer (type:depth-idx)                   Input Shape               Output Shape              Param #                   Trainable
+============================================================================================================================================
+ResNet18                                 [256, 12, 64, 64]         [256, 10]                 --                        True
+├─Conv2d: 1-1                            [256, 12, 64, 64]         [256, 64, 64, 64]         6,912                     True
+├─BatchNorm2d: 1-2                       [256, 64, 64, 64]         [256, 64, 64, 64]         128                       True
+├─ReLU: 1-3                              [256, 64, 64, 64]         [256, 64, 64, 64]         --                        --
+├─MaxPool2d: 1-4                         [256, 64, 64, 64]         [256, 64, 32, 32]         --                        --
+├─Sequential: 1-5                        [256, 64, 32, 32]         [256, 64, 32, 32]         --                        True
+│    └─BasicBlock: 2-1                   [256, 64, 32, 32]         [256, 64, 32, 32]         --                        True
+│    │    └─Conv2d: 3-1                  [256, 64, 32, 32]         [256, 64, 32, 32]         36,864                    True
+│    │    └─BatchNorm2d: 3-2             [256, 64, 32, 32]         [256, 64, 32, 32]         128                       True
+│    │    └─ReLU: 3-3                    [256, 64, 32, 32]         [256, 64, 32, 32]         --                        --
+│    │    └─Conv2d: 3-4                  [256, 64, 32, 32]         [256, 64, 32, 32]         36,864                    True
+│    │    └─BatchNorm2d: 3-5             [256, 64, 32, 32]         [256, 64, 32, 32]         128                       True
+│    │    └─Sequential: 3-6              [256, 64, 32, 32]         [256, 64, 32, 32]         --                        --
+│    │    └─ReLU: 3-7                    [256, 64, 32, 32]         [256, 64, 32, 32]         --                        --
+│    └─BasicBlock: 2-2                   [256, 64, 32, 32]         [256, 64, 32, 32]         --                        True
+│    │    └─Conv2d: 3-8                  [256, 64, 32, 32]         [256, 64, 32, 32]         36,864                    True
+│    │    └─BatchNorm2d: 3-9             [256, 64, 32, 32]         [256, 64, 32, 32]         128                       True
+│    │    └─ReLU: 3-10                   [256, 64, 32, 32]         [256, 64, 32, 32]         --                        --
+│    │    └─Conv2d: 3-11                 [256, 64, 32, 32]         [256, 64, 32, 32]         36,864                    True
+│    │    └─BatchNorm2d: 3-12            [256, 64, 32, 32]         [256, 64, 32, 32]         128                       True
+│    │    └─Sequential: 3-13             [256, 64, 32, 32]         [256, 64, 32, 32]         --                        --
+│    │    └─ReLU: 3-14                   [256, 64, 32, 32]         [256, 64, 32, 32]         --                        --
+├─Sequential: 1-6                        [256, 64, 32, 32]         [256, 128, 16, 16]        --                        True
+│    └─BasicBlock: 2-3                   [256, 64, 32, 32]         [256, 128, 16, 16]        --                        True
+│    │    └─Conv2d: 3-15                 [256, 64, 32, 32]         [256, 128, 16, 16]        73,728                    True
+│    │    └─BatchNorm2d: 3-16            [256, 128, 16, 16]        [256, 128, 16, 16]        256                       True
+│    │    └─ReLU: 3-17                   [256, 128, 16, 16]        [256, 128, 16, 16]        --                        --
+│    │    └─Conv2d: 3-18                 [256, 128, 16, 16]        [256, 128, 16, 16]        147,456                   True
+│    │    └─BatchNorm2d: 3-19            [256, 128, 16, 16]        [256, 128, 16, 16]        256                       True
+│    │    └─Sequential: 3-20             [256, 64, 32, 32]         [256, 128, 16, 16]        --                        True
+│    │    │    └─Conv2d: 4-1             [256, 64, 32, 32]         [256, 128, 16, 16]        8,192                     True
+│    │    │    └─BatchNorm2d: 4-2        [256, 128, 16, 16]        [256, 128, 16, 16]        256                       True
+│    │    └─ReLU: 3-21                   [256, 128, 16, 16]        [256, 128, 16, 16]        --                        --
+│    └─BasicBlock: 2-4                   [256, 128, 16, 16]        [256, 128, 16, 16]        --                        True
+│    │    └─Conv2d: 3-22                 [256, 128, 16, 16]        [256, 128, 16, 16]        147,456                   True
+│    │    └─BatchNorm2d: 3-23            [256, 128, 16, 16]        [256, 128, 16, 16]        256                       True
+│    │    └─ReLU: 3-24                   [256, 128, 16, 16]        [256, 128, 16, 16]        --                        --
+│    │    └─Conv2d: 3-25                 [256, 128, 16, 16]        [256, 128, 16, 16]        147,456                   True
+│    │    └─BatchNorm2d: 3-26            [256, 128, 16, 16]        [256, 128, 16, 16]        256                       True
+│    │    └─Sequential: 3-27             [256, 128, 16, 16]        [256, 128, 16, 16]        --                        --
+│    │    └─ReLU: 3-28                   [256, 128, 16, 16]        [256, 128, 16, 16]        --                        --
+├─Sequential: 1-7                        [256, 128, 16, 16]        [256, 256, 8, 8]          --                        True
+│    └─BasicBlock: 2-5                   [256, 128, 16, 16]        [256, 256, 8, 8]          --                        True
+│    │    └─Conv2d: 3-29                 [256, 128, 16, 16]        [256, 256, 8, 8]          294,912                   True
+│    │    └─BatchNorm2d: 3-30            [256, 256, 8, 8]          [256, 256, 8, 8]          512                       True
+│    │    └─ReLU: 3-31                   [256, 256, 8, 8]          [256, 256, 8, 8]          --                        --
+│    │    └─Conv2d: 3-32                 [256, 256, 8, 8]          [256, 256, 8, 8]          589,824                   True
+│    │    └─BatchNorm2d: 3-33            [256, 256, 8, 8]          [256, 256, 8, 8]          512                       True
+│    │    └─Sequential: 3-34             [256, 128, 16, 16]        [256, 256, 8, 8]          --                        True
+│    │    │    └─Conv2d: 4-3             [256, 128, 16, 16]        [256, 256, 8, 8]          32,768                    True
+│    │    │    └─BatchNorm2d: 4-4        [256, 256, 8, 8]          [256, 256, 8, 8]          512                       True
+│    │    └─ReLU: 3-35                   [256, 256, 8, 8]          [256, 256, 8, 8]          --                        --
+│    └─BasicBlock: 2-6                   [256, 256, 8, 8]          [256, 256, 8, 8]          --                        True
+│    │    └─Conv2d: 3-36                 [256, 256, 8, 8]          [256, 256, 8, 8]          589,824                   True
+│    │    └─BatchNorm2d: 3-37            [256, 256, 8, 8]          [256, 256, 8, 8]          512                       True
+│    │    └─ReLU: 3-38                   [256, 256, 8, 8]          [256, 256, 8, 8]          --                        --
+│    │    └─Conv2d: 3-39                 [256, 256, 8, 8]          [256, 256, 8, 8]          589,824                   True
+│    │    └─BatchNorm2d: 3-40            [256, 256, 8, 8]          [256, 256, 8, 8]          512                       True
+│    │    └─Sequential: 3-41             [256, 256, 8, 8]          [256, 256, 8, 8]          --                        --
+│    │    └─ReLU: 3-42                   [256, 256, 8, 8]          [256, 256, 8, 8]          --                        --
+├─Sequential: 1-8                        [256, 256, 8, 8]          [256, 512, 4, 4]          --                        True
+│    └─BasicBlock: 2-7                   [256, 256, 8, 8]          [256, 512, 4, 4]          --                        True
+│    │    └─Conv2d: 3-43                 [256, 256, 8, 8]          [256, 512, 4, 4]          1,179,648                 True
+│    │    └─BatchNorm2d: 3-44            [256, 512, 4, 4]          [256, 512, 4, 4]          1,024                     True
+│    │    └─ReLU: 3-45                   [256, 512, 4, 4]          [256, 512, 4, 4]          --                        --
+│    │    └─Conv2d: 3-46                 [256, 512, 4, 4]          [256, 512, 4, 4]          2,359,296                 True
+│    │    └─BatchNorm2d: 3-47            [256, 512, 4, 4]          [256, 512, 4, 4]          1,024                     True
+│    │    └─Sequential: 3-48             [256, 256, 8, 8]          [256, 512, 4, 4]          --                        True
+│    │    │    └─Conv2d: 4-5             [256, 256, 8, 8]          [256, 512, 4, 4]          131,072                   True
+│    │    │    └─BatchNorm2d: 4-6        [256, 512, 4, 4]          [256, 512, 4, 4]          1,024                     True
+│    │    └─ReLU: 3-49                   [256, 512, 4, 4]          [256, 512, 4, 4]          --                        --
+│    └─BasicBlock: 2-8                   [256, 512, 4, 4]          [256, 512, 4, 4]          --                        True
+│    │    └─Conv2d: 3-50                 [256, 512, 4, 4]          [256, 512, 4, 4]          2,359,296                 True
+│    │    └─BatchNorm2d: 3-51            [256, 512, 4, 4]          [256, 512, 4, 4]          1,024                     True
+│    │    └─ReLU: 3-52                   [256, 512, 4, 4]          [256, 512, 4, 4]          --                        --
+│    │    └─Conv2d: 3-53                 [256, 512, 4, 4]          [256, 512, 4, 4]          2,359,296                 True
+│    │    └─BatchNorm2d: 3-54            [256, 512, 4, 4]          [256, 512, 4, 4]          1,024                     True
+│    │    └─Sequential: 3-55             [256, 512, 4, 4]          [256, 512, 4, 4]          --                        --
+│    │    └─ReLU: 3-56                   [256, 512, 4, 4]          [256, 512, 4, 4]          --                        --
+├─AdaptiveAvgPool2d: 1-9                 [256, 512, 4, 4]          [256, 512, 1, 1]          --                        --
+├─Linear: 1-10                           [256, 512]                [256, 10]                 5,130                     True
+============================================================================================================================================
+Total params: 11,179,146
+Trainable params: 11,179,146
+Non-trainable params: 0
+Total mult-adds (Units.GIGABYTES): 148.99
+============================================================================================================================================
+Input size (MB): 50.33
+Forward/backward pass size (MB): 3321.91
+Params size (MB): 44.72
+Estimated Total Size (MB): 3416.96
+============================================================================================================================================
+
+
+2025-10-30 02:18:31,800 [INFO] [framework.dataset.load_for_training] (load_for_training.load_eurosat_hf_splits:47) :: Loading Dataset: timm/resisc45
+2025-10-30 02:18:46,751 [INFO] [framework.dataset.load_for_training] (load_for_training.load_eurosat_hf_splits:52) :: Finished loading EuroSAT HF splits
+2025-10-30 02:18:46,751 [INFO] [framework.dataset.load_for_training] (load_for_training.build_loaders_from_hf:204) :: Start normalization.
+2025-10-30 02:18:50,821 [INFO] [framework.dataset.load_for_training] (load_for_training.build_loaders_from_hf:228) :: Before normalization --> norm_mean: [91.20372772216797, 91.1934814453125, 91.19300842285156, 91.18944549560547, 91.19071197509766, 91.21666717529297, 91.22052001953125, 91.22076416015625, 91.24176788330078, 91.2652816772461, 91.30430603027344, 91.29830932617188]
+norm_std: [45.011024475097656, 44.94978713989258, 44.98139953613281, 44.949222564697266, 44.947635650634766, 44.99410629272461, 44.96255111694336, 44.99372863769531, 45.00301742553711, 45.00029373168945, 45.0783805847168, 45.051456451416016]
+2025-10-30 02:18:50,937 [INFO] [framework.training.trainer] (trainer.train:53) :: Using device: cuda --> move model to device: cuda
+2025-10-30 02:18:50,938 [INFO] [framework.training.trainer] (trainer._train_one_epoch:430) :: Epoch 1/50 — 74 steps total
+2025-10-30 02:18:53,304 [ERROR] [__main__] (Runner.main:90) :: Experiment name: Experiment_5 --> error: DataLoader worker (pid(s) 90751) exited unexpectedly
+Traceback (most recent call last):
+  File "/home/ubuntu/code/data/R-L-Net/.venv/lib/python3.12/site-packages/torch/utils/data/dataloader.py", line 1285, in _try_get_data
+    data = self._data_queue.get(timeout=timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/queue.py", line 180, in get
+    self.not_empty.wait(remaining)
+  File "/usr/local/lib/python3.12/threading.py", line 359, in wait
+    gotit = waiter.acquire(True, timeout)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/code/data/R-L-Net/.venv/lib/python3.12/site-packages/torch/utils/data/_utils/signal_handling.py", line 73, in handler
+    _error_if_any_worker_fails()
+RuntimeError: DataLoader worker (pid 90751) is killed by signal: Bus error. It is possible that dataloader's workers are out of shared memory. Please try to raise your shared memory limit.
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/ubuntu/code/data/R-L-Net/Runner.py", line 81, in main
+    train(cfg, teacher=model_teacher, student=model_student, train_loader=train_loader, val_loader=val_loader,
+  File "/home/ubuntu/code/data/R-L-Net/framework/training/trainer.py", line 116, in train
+    train_metrics = _train_one_epoch(teacher, train_loader, device, ce_loss, optimizer_teacher, epoch,
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/code/data/R-L-Net/framework/training/trainer.py", line 432, in _train_one_epoch
+    for images, labels in tqdm(loader, desc=f"Epoch {current_epoch}/{epochs}"):
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/code/data/R-L-Net/.venv/lib/python3.12/site-packages/tqdm/std.py", line 1181, in __iter__
+    for obj in iterable:
+               ^^^^^^^^
+  File "/home/ubuntu/code/data/R-L-Net/.venv/lib/python3.12/site-packages/torch/utils/data/dataloader.py", line 734, in __next__
+    data = self._next_data()
+           ^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/code/data/R-L-Net/.venv/lib/python3.12/site-packages/torch/utils/data/dataloader.py", line 1492, in _next_data
+    idx, data = self._get_data()
+                ^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/code/data/R-L-Net/.venv/lib/python3.12/site-packages/torch/utils/data/dataloader.py", line 1444, in _get_data
+    success, data = self._try_get_data()
+                    ^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/code/data/R-L-Net/.venv/lib/python3.12/site-packages/torch/utils/data/dataloader.py", line 1298, in _try_get_data
+    raise RuntimeError(
+RuntimeError: DataLoader worker (pid(s) 90751) exited unexpectedly
+2025-10-30 02:18:53,308 [INFO] [__main__] (Runner.main:93) :: Experiment name: Experiment_5 --> end training
+2025-10-30 02:18:53,308 [INFO] [__main__] (Runner.main:94) :: 
+========================================================================================
+2025-10-30 02:18:53,308 [INFO] [__main__] (Runner.main:95) :: RUN END    |  Experiment=Experiment_5  |  Run ID=1  |  Duration=21.7s
+2025-10-30 02:18:53,308 [INFO] [__main__] (Runner.main:97) :: ========================================================================================
+2025-10-30 02:18:53,311 [INFO] [__main__] (Runner._create_log_directory:114) :: Creating directory 'experiments/Experiment_5/Run_2'
