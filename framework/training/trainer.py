@@ -15,6 +15,7 @@ from tqdm import tqdm
 
 # Framework Imports
 from framework.utils.logger import log_section
+from notebooks.plots import teacher_path
 
 log = logging.getLogger(__name__)
 
@@ -235,9 +236,9 @@ def _train_one_epoch_kldiv(
         optimizer.zero_grad(set_to_none=True)
 
         with torch.no_grad():
-            teacher_logits, t_feat = teacher(images)
+            teacher_logits, teacher_features = teacher(images)
 
-        student_logits, s_feat = student(images)
+        student_logits, student_features = student(images)
 
         # logits KD
         loss_kd = _kd_loss(student_logits, teacher_logits, temperature)
@@ -249,10 +250,10 @@ def _train_one_epoch_kldiv(
         loss_features = torch.tensor(0.0, device=device)
         if beta_feat > 0.0:
             if feat_projector is not None:
-                s_feat = feat_projector(s_feat)
+                student_features = feat_projector(student_features)
 
-            s_n = F.normalize(s_feat, dim=1)
-            t_n = F.normalize(t_feat, dim=1)
+            s_n = F.normalize(student_features, dim=1)
+            t_n = F.normalize(teacher_features, dim=1)
 
             if use_mse_feat:
                 loss_features = F.mse_loss(s_n, t_n)
