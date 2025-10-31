@@ -10,8 +10,8 @@ def _create_ex_desc_table(experiment_name, runs) -> str:
     The table includes Experiment Name, Description, and Config Path.
     """
     # Create markdown table content for runs 11–24
-    table_md = """| Run  | Date       | Author | Config                                           | Model Student | Model Teacher | KD-Type | Dataset                                   | Hardware   | Train Time | Metrics                                             | Plots                                | Bands                                                        | Notes/Issues | Next Steps |
-    |------|------------|--------|--------------------------------------------------|---------------|---------------|---------|-------------------------------------------|------------|------------|----------------------------------------------------|--------------------------------------|--------------------------------------------------------------|--------------|------------|
+    table_md = """| Run  | Date       | Author | Config                                           | Model Student | Model Teacher | KD-Type | Dataset                                   | Hardware   | Train Time | Metrics                                            | Plots                                | Bands                                                        | Notes/Issues | Next Steps |
+    |--------------------|------------|--------|--------------------------------------------------|---------------|---------------|---------|-------------------------------------------|------------|------------|----------------------------------------------------|--------------------------------------|--------------------------------------------------------------|--------------|------------|
     """
     for i in range(1, 1+runs):
         logger_cfg_path = f"experiments/{experiment_name}/Run_{i}/config.toml"
