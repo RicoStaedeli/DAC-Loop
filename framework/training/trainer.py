@@ -15,7 +15,6 @@ from tqdm import tqdm
 
 # Framework Imports
 from framework.utils.logger import log_section
-from notebooks.plots import teacher_path
 
 log = logging.getLogger(__name__)
 
