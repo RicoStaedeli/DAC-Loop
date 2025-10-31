@@ -3,7 +3,7 @@ from framework.utils.utils import load_config_toml
 
 
 
-def _create_ex_desc_table(experiment_name) -> str:
+def _create_ex_desc_table(experiment_name, runs) -> str:
     """
     Create a markdown table summarizing experiments in the given directory.
     Each experiment is expected to be in a subdirectory named 'Experiment_X'.
@@ -13,7 +13,7 @@ def _create_ex_desc_table(experiment_name) -> str:
     table_md = """| Run  | Date       | Author | Config                                           | Model Student | Model Teacher | KD-Type | Dataset                                   | Hardware   | Train Time | Metrics                                             | Plots                                | Bands                                                        | Notes/Issues | Next Steps |
     |------|------------|--------|--------------------------------------------------|---------------|---------------|---------|-------------------------------------------|------------|------------|----------------------------------------------------|--------------------------------------|--------------------------------------------------------------|--------------|------------|
     """
-    for i in range(1, 25):
+    for i in range(1, 1+runs):
         logger_cfg_path = f"experiments/{experiment_name}/Run_{i}/config.toml"
         cfg = load_config_toml(logger_cfg_path, validate=True)
         name_student = cfg.model.name
@@ -22,14 +22,14 @@ def _create_ex_desc_table(experiment_name) -> str:
         indices = cfg.data.indices.calculated_indices + cfg.data.indices.selected_bands
         kd_type = cfg.training.kd_type
 
-        table_md += f'| [{i}] | 2025-10-25 | Rico   | [Config.toml](Experiment_3/Run_{i}/config.toml)  |    {name_student}    | {name_teacher}      | Train/Val/Test split of {dataset_name} | {kd_type} | DGX-7 Rico |            | [metrics.json](Experiment_3/Run_{i}/metrics.jsonl) | [plots](Experiment_3/Run_{i}/plots)  | {indices}  |              |            |\n'
+        table_md += f'| [{i}] | 2025-10-25 | Rico   | [Config.toml]({experiment_name}/Run_{i}/config.toml)  |    {name_student}    | {name_teacher}      | Train/Val/Test split of {dataset_name} | {kd_type} | DGX-7 Rico |            | [metrics.json]({experiment_name}/Run_{i}/metrics.jsonl) | [plots]({experiment_name}/Run_{i}/plots)  | {indices}  |              |            |\n'
 
     return table_md
 
 
 
 def main():
-    print(_create_ex_desc_table(experiment_name = "Experiment_3"))
+    print(_create_ex_desc_table(experiment_name = "Experiment_5",runs=5))
 
 if __name__ == "__main__":
     main()
