@@ -11,8 +11,7 @@ def _create_ex_desc_table(experiment_name, runs) -> str:
     """
     # Create markdown table content for runs 11–24
     table_md = """| Run  | Date       | Author | Config                                           | Model Student | Model Teacher | KD-Type | Dataset                                   | Hardware   | Train Time | Metrics                                            | Plots                                | Bands                                                        | Notes/Issues | Next Steps |
-    |--------------------|------------|--------|--------------------------------------------------|---------------|---------------|---------|-------------------------------------------|------------|------------|----------------------------------------------------|--------------------------------------|--------------------------------------------------------------|--------------|------------|
-    """
+|------|------------|--------|--------------------------------------------------|---------------|---------------|---------|-------------------------------------------|------------|------------|----------------------------------------------------|--------------------------------------|--------------------------------------------------------------|--------------|------------|\n"""
     for i in range(1, 1+runs):
         logger_cfg_path = f"experiments/{experiment_name}/Run_{i}/config.toml"
         cfg = load_config_toml(logger_cfg_path, validate=True)
@@ -22,7 +21,7 @@ def _create_ex_desc_table(experiment_name, runs) -> str:
         indices = cfg.data.indices.calculated_indices + cfg.data.indices.selected_bands
         kd_type = cfg.training.kd_type
 
-        table_md += f'| [{i}] | 2025-10-25 | Rico   | [Config.toml]({experiment_name}/Run_{i}/config.toml)  |    {name_student}    | {name_teacher}      | Train/Val/Test split of {dataset_name} | {kd_type} | DGX-7 Rico |            | [metrics.json]({experiment_name}/Run_{i}/metrics.jsonl) | [plots]({experiment_name}/Run_{i}/plots)  | {indices}  |              |            |\n'
+        table_md += f'| [{i}]  | 2025-10-25 | Rico   |  [Config.toml]({experiment_name}/Run_{i}/config.toml)   |    {name_student}    | {name_teacher}      | Train/Val/Test split of {dataset_name} | {kd_type} | DGX-7 Rico |            | [metrics.json]({experiment_name}/Run_{i}/metrics.jsonl) | [plots]({experiment_name}/Run_{i}/plots)  | {indices}  |              |            |\n'
 
     return table_md
 
