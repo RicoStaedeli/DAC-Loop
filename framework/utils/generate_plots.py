@@ -1,4 +1,4 @@
-from framework.utils.plots_2 import plot_teacher_student_metrics
+from framework.utils.plot_repository import plot_teacher_student_metrics
 from framework.utils.logger import setup_logging
 from framework.utils.utils import load_config_toml
 from pathlib import Path
