@@ -15,7 +15,7 @@ from framework.models import MODEL_REGISTRY
 from framework.training.trainer import train
 from framework.utils.logger import setup_logging, log_meta_info
 from framework.utils.utils import set_seed, load_config_toml
-from framework.utils.push_to_gitlab import git_commit_and_push
+from framework.utils.push_to_remote_repository import git_commit_and_push
 
 log = logging.getLogger(__name__)
 load_dotenv()
