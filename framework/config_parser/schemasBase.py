@@ -102,7 +102,7 @@ class TrainingConfig(BaseModel):
     @field_validator("kd_type")
     @classmethod
     def valid_kd_type(cls, v: str) -> str:
-        allowed = ["CrossEntropyLoss", "CosineEmbeddingLoss", "KLDivLoss"]
+        allowed = ["CrossEntropyLoss", "CosineEmbeddingLoss", "KLDivLoss", "RegressorMSE"]
         if v not in allowed:
             raise ValueError(f"kd_type must be one of {allowed}")
         return v

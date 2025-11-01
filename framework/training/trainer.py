@@ -110,6 +110,26 @@ def train(cfg, teacher, student, train_loader, val_loader, experiment_dir: Path,
                                                        feat_projector=None,
                                                        use_mse_feat=True)
 
+            if cfg.training.kd_type == "RegressorMSE":
+                optimizer_student = _make_optimizer(student, cfg.training.learning_rate, cfg.training.weight_decay)
+                scheduler = _make_scheduler(optimizer_student, cfg.training.scheduler, cfg.training.epochs)
+
+                train_metrics = _train_one_epoch_regressor_mse(
+                    teacher=teacher,
+                    student=student,
+                    loader=train_loader,
+                    device=device,
+                    ce_loss=ce_loss,
+                    optimizer=optimizer_student,
+                    current_epoch=epoch,
+                    epochs=cfg.training.epochs,
+                    feature_map_loss_weight=cfg.training.feature_map_loss_weight,  # e.g. 0.25
+                    ce_loss_weight=cfg.training.ce_loss_weight,  # e.g. 0.75
+                    feat_regressor=getattr(student, "_fitnets_regressor", None)
+                )
+
+
+
             val_metrics = _evaluate(student, val_loader, device, ce_loss)
 
         else:
@@ -199,6 +219,41 @@ def _kd_loss(student_logits, teacher_logits, T: float):
         reduction="batchmean"
     ) * (T * T)
 
+
+class ConvFeatureRegressor(nn.Module):
+    """
+    Maps student conv features (B, Cs, Hs, Ws) -> teacher conv features (B, Ct, Ht, Wt).
+    Uses a 1x1 conv + BN + ReLU.
+    """
+    def __init__(self, in_ch, out_ch):
+        super().__init__()
+        self.net = nn.Sequential(
+            nn.Conv2d(in_ch, out_ch, kernel_size=1, bias=False),
+            nn.BatchNorm2d(out_ch),
+            nn.ReLU(inplace=True),
+        )
+
+    def forward(self, x, target_hw=None):
+        y = self.net(x)
+        if target_hw is not None and (y.shape[-2:] != target_hw):
+            # match the teacher's HxW if needed
+            y = F.adaptive_avg_pool2d(y, target_hw)
+        return y
+
+
+class LinearFeatureRegressor(nn.Module):
+    """
+    Fallback for vector features (B, Ds) -> (B, Dt).
+    """
+    def __init__(self, in_dim, out_dim):
+        super().__init__()
+        self.net = nn.Sequential(
+            nn.Linear(in_dim, out_dim),
+            nn.ReLU(inplace=True),
+        )
+
+    def forward(self, x, target_hw=None):
+        return self.net(x)  # target_hw unused here
 
 @torch.no_grad()
 def _top1_accuracy(logits, y):
@@ -417,6 +472,92 @@ def _train_one_epoch_with_cosineEmbeddingLoss(*, teacher, student, loader, devic
         total += images.size(0)
         top1_sum += top1.item() * images.size(0) / 100.0
     return {"loss": total_loss / total, "acc": 100.0 * top1_sum / total}
+
+
+# Tutorial here: https://docs.pytorch.org/tutorials/beginner/knowledge_distillation_tutorial.html
+def _train_one_epoch_regressor_mse(
+    *,
+    teacher,
+    student,
+    loader,
+    device,
+    ce_loss,
+    optimizer,
+    current_epoch,
+    epochs,
+    feature_map_loss_weight: float = 0.25,
+    ce_loss_weight: float = 0.75,
+    feat_regressor: nn.Module = None  # pass None -> lazy init on first batch
+) -> Dict[str, float]:
+    """
+    Hint-based distillation: regress student's intermediate feature to teacher's
+    intermediate feature and MSE-match them, plus regular CE on labels.
+
+    Returns epoch metrics. If you want to keep the regressor instance around
+    across epochs for checkpointing, attach it to the student externally or
+    store it in your train() scope.
+    """
+    teacher.eval()
+    student.train()
+
+    total_loss, total, top1_sum = 0.0, 0, 0.0
+    num_steps = len(loader)
+    log.info(f"Epoch {current_epoch}/{epochs} — {num_steps} steps total")
+
+    for images, labels in tqdm(loader, desc=f"Epoch {current_epoch}/{epochs}"):
+        images, labels = images.to(device), labels.to(device)
+        optimizer.zero_grad(set_to_none=True)
+
+        with torch.no_grad():
+            _, teacher_feat = teacher(images)   # (logits ignored), keep the conv feature
+
+        student_logits, student_feat = student(images)
+
+        # Lazy-create the regressor once we see shapes
+        if feat_regressor is None:
+            if student_feat.dim() == 4 and teacher_feat.dim() == 4:
+                # (B, C, H, W) -> (B, C_t, H_t, W_t). We’ll handle H/W via pooling.
+                feat_regressor = ConvFeatureRegressor(
+                    in_ch=student_feat.size(1),
+                    out_ch=teacher_feat.size(1)
+                ).to(device)
+            elif student_feat.dim() == 2 and teacher_feat.dim() == 2:
+                feat_regressor = LinearFeatureRegressor(
+                    in_dim=student_feat.size(1),
+                    out_dim=teacher_feat.size(1)
+                ).to(device)
+            else:
+                raise RuntimeError(
+                    f"Unsupported feature shapes for regressor: student={student_feat.shape}, teacher={teacher_feat.shape}"
+                )
+            # make sure optimizer also updates the regressor
+            optimizer.add_param_group({"params": feat_regressor.parameters()})
+            # stash for the outer scope if you want (optional):
+            student._fitnets_regressor = feat_regressor  # convenient handle
+
+        # forward through regressor and match spatial dims if needed
+        target_hw = teacher_feat.shape[-2:] if teacher_feat.dim() == 4 else None
+        regressed_feat = feat_regressor(student_feat, target_hw=target_hw)
+
+        # MSE on intermediate features (properly defined since shapes now match)
+        hidden_rep_loss = F.mse_loss(regressed_feat, teacher_feat)
+
+        # CE on hard labels
+        label_loss = ce_loss(student_logits, labels)
+
+        loss = feature_map_loss_weight * hidden_rep_loss + ce_loss_weight * label_loss
+        loss.backward()
+        optimizer.step()
+
+        with torch.no_grad():
+            top1, = _accuracy_topk(student_logits, labels, topk=(1,))
+        batch_size = images.size(0)
+        total_loss += loss.item() * batch_size
+        total += batch_size
+        top1_sum += top1.item() * batch_size / 100.0
+
+    return {"loss": total_loss / total, "acc": 100.0 * top1_sum / total}
+
 
 
 def _train_one_epoch(model, loader, device, criterion, optimizer, current_epoch, epochs) -> Dict[str, float]:
