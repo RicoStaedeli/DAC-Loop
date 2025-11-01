@@ -48,7 +48,7 @@ def _load_manifest(p: Path) -> list[Path]:
 def main(gpu_id: str, experiment_number: str):
     os.environ["CUDA_VISIBLE_DEVICES"] = gpu_id
     # config_orchestrator_path = f"configs/Experiment_{experiment_number}/Experiment_Orchestrator_Config.toml"
-    config_orchestrator_path = f"configs/Experiment_7/Experiment_Orchestrator_Config.toml"
+    config_orchestrator_path = f"configs/Experiment_6/Experiment_Orchestrator_Config.toml"
 
     for CFG_PATH in _load_manifest(Path(config_orchestrator_path)):
 
