@@ -111,9 +111,7 @@ def train(cfg, teacher, student, train_loader, val_loader, experiment_dir: Path,
                                                        use_mse_feat=True)
 
             if cfg.training.kd_type == "RegressorMSE":
-                optimizer_student = _make_optimizer(student, cfg.training.learning_rate, cfg.training.weight_decay)
-                scheduler = _make_scheduler(optimizer_student, cfg.training.scheduler, cfg.training.epochs)
-
+                # DO NOT recreate the optimizer/scheduler here; keep the ones from above.
                 train_metrics = _train_one_epoch_regressor_mse(
                     teacher=teacher,
                     student=student,
@@ -123,11 +121,12 @@ def train(cfg, teacher, student, train_loader, val_loader, experiment_dir: Path,
                     optimizer=optimizer_student,
                     current_epoch=epoch,
                     epochs=cfg.training.epochs,
-                    feature_map_loss_weight=cfg.training.feature_map_loss_weight,  # e.g. 0.25
-                    ce_loss_weight=cfg.training.ce_loss_weight,  # e.g. 0.75
+                    feature_map_loss_weight=cfg.training.feature_map_loss_weight,  # w_rep
+                    ce_loss_weight=cfg.training.ce_loss_weight,  # w_ce
+                    soft_target_loss_weight=cfg.training.soft_target_loss_weight,  # w_kd
+                    T=cfg.training.T_param,  # temperature
                     feat_regressor=getattr(student, "_fitnets_regressor", None)
                 )
-
 
 
             val_metrics = _evaluate(student, val_loader, device, ce_loss)
@@ -476,27 +475,21 @@ def _train_one_epoch_with_cosineEmbeddingLoss(*, teacher, student, loader, devic
 
 # Tutorial here: https://docs.pytorch.org/tutorials/beginner/knowledge_distillation_tutorial.html
 def _train_one_epoch_regressor_mse(
-    *,
-    teacher,
-    student,
-    loader,
-    device,
-    ce_loss,
-    optimizer,
-    current_epoch,
-    epochs,
-    feature_map_loss_weight: float = 0.25,
-    ce_loss_weight: float = 0.75,
-    feat_regressor: nn.Module = None  # pass None -> lazy init on first batch
+        *,
+        teacher,
+        student,
+        loader,
+        device,
+        ce_loss,
+        optimizer,
+        current_epoch,
+        epochs,
+        feature_map_loss_weight: float,  # w_rep
+        ce_loss_weight: float,  # w_ce
+        soft_target_loss_weight: float,  # w_kd   <-- add this
+        T: float,  # temperature <-- add this
+        feat_regressor: nn.Module = None
 ) -> Dict[str, float]:
-    """
-    Hint-based distillation: regress student's intermediate feature to teacher's
-    intermediate feature and MSE-match them, plus regular CE on labels.
-
-    Returns epoch metrics. If you want to keep the regressor instance around
-    across epochs for checkpointing, attach it to the student externally or
-    store it in your train() scope.
-    """
     teacher.eval()
     student.train()
 
@@ -504,19 +497,27 @@ def _train_one_epoch_regressor_mse(
     num_steps = len(loader)
     log.info(f"Epoch {current_epoch}/{epochs} — {num_steps} steps total")
 
+    comp = {"ce": 0.0, "kd": 0.0, "rep": 0.0}
+
+    # use the passed-in values, not cfg.*
+    w_ce = ce_loss_weight
+    w_kd = soft_target_loss_weight
+    w_rep = feature_map_loss_weight
+
     for images, labels in tqdm(loader, desc=f"Epoch {current_epoch}/{epochs}"):
         images, labels = images.to(device), labels.to(device)
         optimizer.zero_grad(set_to_none=True)
 
+        # Teacher forward (logits + tapped feature), no grad
         with torch.no_grad():
-            _, teacher_feat = teacher(images)   # (logits ignored), keep the conv feature
+            teacher_logits, teacher_feat = teacher(images)
 
+        # Student forward (logits + tapped feature)
         student_logits, student_feat = student(images)
 
-        # Lazy-create the regressor once we see shapes
+        # Lazy-create the regressor once we know shapes
         if feat_regressor is None:
             if student_feat.dim() == 4 and teacher_feat.dim() == 4:
-                # (B, C, H, W) -> (B, C_t, H_t, W_t). We’ll handle H/W via pooling.
                 feat_regressor = ConvFeatureRegressor(
                     in_ch=student_feat.size(1),
                     out_ch=teacher_feat.size(1)
@@ -530,34 +531,51 @@ def _train_one_epoch_regressor_mse(
                 raise RuntimeError(
                     f"Unsupported feature shapes for regressor: student={student_feat.shape}, teacher={teacher_feat.shape}"
                 )
-            # make sure optimizer also updates the regressor
-            optimizer.add_param_group({"params": feat_regressor.parameters()})
-            # stash for the outer scope if you want (optional):
-            student._fitnets_regressor = feat_regressor  # convenient handle
 
-        # forward through regressor and match spatial dims if needed
+            # IMPORTANT: add regressor params to the EXISTING optimizer (do not recreate optimizer)
+            optimizer.add_param_group({"params": feat_regressor.parameters()})
+            # keep a handle so you can save/load it
+            student._fitnets_regressor = feat_regressor
+
+        # Regress student feature to teacher feature shape (and H×W if needed)
         target_hw = teacher_feat.shape[-2:] if teacher_feat.dim() == 4 else None
         regressed_feat = feat_regressor(student_feat, target_hw=target_hw)
 
-        # MSE on intermediate features (properly defined since shapes now match)
-        hidden_rep_loss = F.mse_loss(regressed_feat, teacher_feat)
+        # Feature MSE (hint loss)
+        loss_rep = F.mse_loss(regressed_feat, teacher_feat)
 
-        # CE on hard labels
-        label_loss = ce_loss(student_logits, labels)
+        # Hard-label CE
+        loss_ce = ce_loss(student_logits, labels)
 
-        loss = feature_map_loss_weight * hidden_rep_loss + ce_loss_weight * label_loss
+        # Logits KD (Hinton): KL(student_T || teacher_T) * T^2
+        loss_kd = F.kl_div(
+            F.log_softmax(student_logits / T, dim=1),
+            F.softmax(teacher_logits / T, dim=1),
+            reduction="batchmean"
+        ) * (T * T)
+
+        # Total loss
+        loss = w_ce * loss_ce + w_kd * loss_kd + w_rep * loss_rep
         loss.backward()
         optimizer.step()
 
         with torch.no_grad():
             top1, = _accuracy_topk(student_logits, labels, topk=(1,))
-        batch_size = images.size(0)
-        total_loss += loss.item() * batch_size
-        total += batch_size
-        top1_sum += top1.item() * batch_size / 100.0
+        bsz = images.size(0)
+        total_loss += loss.item() * bsz
+        top1_sum   += top1.item() * bsz / 100.0
+        total      += bsz
 
-    return {"loss": total_loss / total, "acc": 100.0 * top1_sum / total}
+        # optional component tracking
+        comp["ce"]  += loss_ce.item() * bsz
+        comp["kd"]  += loss_kd.item() * bsz
+        comp["rep"] += loss_rep.item() * bsz
 
+    # Optional: print averages for components
+    if total > 0:
+        log.info(f"[epoch {current_epoch}] CE={comp['ce']/total:.4f} KD={comp['kd']/total:.4f} REP={comp['rep']/total:.4f}")
+
+    return {"loss": total_loss / total, "acc": 100.0 * (top1_sum / total)}
 
 
 def _train_one_epoch(model, loader, device, criterion, optimizer, current_epoch, epochs) -> Dict[str, float]:
