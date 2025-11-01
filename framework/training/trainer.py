@@ -323,12 +323,11 @@ def _train_one_epoch_with_crossEntropyLoss(*, teacher, student, loader, device, 
         # Forward pass with the student model
         student_logits, _ = student(images)
 
-        # Soften the student logits by applying softmax first and log() second
-        soft_targets = nn.functional.softmax(teacher_logits / T, dim=-1)
-        soft_prob = nn.functional.log_softmax(student_logits / T, dim=-1)
+        with torch.no_grad():
+            teacher_log_probs = nn.functional.log_softmax(teacher_logits / T, dim=1)
+        student_log_probs = nn.functional.log_softmax(student_logits / T, dim=1)
 
-        # Calculate the soft targets loss. Scaled by T**2 as suggested by the authors of the paper "Distilling the knowledge in a neural network"
-        soft_targets_loss = torch.sum(soft_targets * (soft_targets.log() - soft_prob)) / soft_prob.size()[0] * (T ** 2)
+        soft_targets_loss = nn.functional.kl_div(student_log_probs, teacher_log_probs, reduction="batchmean", log_target=True) * (T ** 2)
 
         # Calculate the true label loss
         label_loss = ce_loss(student_logits, labels)
