@@ -107,15 +107,23 @@ def plot_teacher_student_metrics(cfg_path, project_root=".", set_png_dpi=400):
         df["train_loss"] = pd.to_numeric(df["train_loss"], errors="coerce")
         df = df.dropna(subset=["train_loss", "epoch"])
 
-        # Find best loss and corresponding epoch
-        best_idx = df["train_loss"].idxmin()
-        best_train_loss = df.loc[best_idx, "train_loss"]
-        best_epoch = df.loc[best_idx, "epoch"]
+        s = df["train_loss"].dropna()
+        best_idx = s.idxmin() if not s.empty else None
 
-        log.info(f"{label}: best train loss {best_train_loss:.4f} at epoch {best_epoch}")
+        if best_idx is not None:
+            best_train_loss = df.loc[best_idx, "train_loss"]
+            best_epoch = df.loc[best_idx, "epoch"]
+            log.info(f"{label}: best train loss {best_train_loss:.4f} at epoch {best_epoch}")
+            loss_label = f"{label} (best={best_train_loss:.3f}@{int(best_epoch)})"
+
+
+        else:
+            log.info(f"No valid train loss data for {label}")
+            loss_label = f"{label} (No Values)"
+
+
 
         # Label with both loss and epoch
-        loss_label = f"{label} (best={best_train_loss:.3f}@{int(best_epoch)})"
         ax.plot(
             df["epoch"], df["train_loss"],
             linewidth=1,

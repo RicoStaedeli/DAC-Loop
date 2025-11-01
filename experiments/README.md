@@ -171,7 +171,7 @@ In this experiment we will do hyperparameter tuning for the student model traini
 Dataset is the RESISC45 dataset.
 <details>
   <summary>Experiment 6 – overview plot</summary>
-  <img src="Experiment_6/overview_plot_Experiment_6.png" alt="overview">
+  <img src="../configs/Experiment_6/overview_plot_Experiment_6.png" alt="overview">
 </details>
 
 ### Runs
