@@ -170,8 +170,8 @@ In this experiment we will do hyperparameter tuning for the student model traini
 In this experiment we will do hyperparameter tuning for the student model training. Also we use different knowledge distillation methods such as CosineEmbeddingLoss, CrossEntropyLoss and KLDivergenceLoss.
 Dataset is the RESISC45 dataset.
 <details>
-  <summary>Experiment 6 – overview plot</summary>
-  <img src="../configs/Experiment_6/overview_plot_Experiment_6.png" alt="overview">
+    <summary>Experiment 6 – overview plot</summary>
+    <img src="Experiment_6/overview_plot_Experiment_6.png" alt="overview">
 </details>
 
 ### Runs
