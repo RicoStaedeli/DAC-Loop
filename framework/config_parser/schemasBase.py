@@ -86,10 +86,11 @@ class TrainingConfig(BaseModel):
     load_from_checkpoint: bool = False
     previous_checkpoint_path: Path = None
     kd_type: str = "CrossEntropyLoss"
-    feature_map_loss_weight: float = Field(0.25, ge=0.0)
     hidden_rep_loss_weight: float = 0.25
     ce_loss_weight: float = 0.75
     soft_target_loss_weight: float = 0.25
+    alpha_kd: float = 0.25
+    beta_feat: float = 0.25
     T_param: PositiveInt = 1
     base_path_ckpts: str = ""
 

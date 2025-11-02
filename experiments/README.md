@@ -53,6 +53,7 @@ Also, every smaller model will be trained from scratch as a baseline.
 ## Experiment 2 - students
 
 **Goal:** Train the smaller models (ResNet10 and TiniCNN) with teacher-student training. Use the best teacher model (best validation loss) ResNet18 as a guiding teacher.
+This experiment was later replaced by Experiment 3 and 4 which include hyperparameter tuning.
 <details>
 <summary>Experiment 1– extra notes & insights</summary>
 - space for extra comments here
