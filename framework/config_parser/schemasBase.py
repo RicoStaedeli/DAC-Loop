@@ -86,6 +86,7 @@ class TrainingConfig(BaseModel):
     load_from_checkpoint: bool = False
     previous_checkpoint_path: Path = None
     kd_type: str = "CrossEntropyLoss"
+    feature_map_loss_weight: float = Field(0.25, ge=0.0)
     hidden_rep_loss_weight: float = 0.25
     ce_loss_weight: float = 0.75
     soft_target_loss_weight: float = 0.25
@@ -102,7 +103,7 @@ class TrainingConfig(BaseModel):
     @field_validator("kd_type")
     @classmethod
     def valid_kd_type(cls, v: str) -> str:
-        allowed = ["CrossEntropyLoss", "CosineEmbeddingLoss", "KLDivLoss"]
+        allowed = ["CrossEntropyLoss", "CosineEmbeddingLoss", "KLDivLoss", "RegressorMSE"]
         if v not in allowed:
             raise ValueError(f"kd_type must be one of {allowed}")
         return v

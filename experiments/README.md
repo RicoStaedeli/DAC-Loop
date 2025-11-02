@@ -175,3 +175,24 @@ Dataset is the RESISC45 dataset.
 </details>
 
 ### Runs
+-  RegressorMSE Variants - Lorena
+
+| Run  | Date | Author | Config                                         | Model Student | Model Teacher | KD-Type | Dataset | Hardware | Train Time | Metrics                                           | Plots                              | Bands | Notes/Issues | Next Steps |
+|------|------------|--------|------------------------------------------------|---------------|---------------|---------|-------------------------------------------|------------|------------|---------------------------------------------------|------------------------------------|--------------------------------------------------------------|-----------------------------------------|------------|
+| [25] | 2025-11-01 | Lorena | [Config.toml](Experiment_6/Run_25/config.toml) | ResNet18 | ResNet50 | **RegressorMSE** | Train/Val/Test split of `timm/resisc45` | DGX-7 Rico | TBD | [metrics.json](Experiment_6/Run_25/metrics.jsonl) | [plots](Experiment_6/Run_25/plots) | ['B01','B02','B03'] | |
+| [26] | 2025-11-01 | Lorena | [Config.toml](Experiment_6/Run_26/config.toml) | ResNet18 | ResNet50 | **RegressorMSE** | Train/Val/Test split of `timm/resisc45` | DGX-7 Rico | TBD | [metrics.json](Experiment_6/Run_26/metrics.jsonl) | [plots](Experiment_6/Run_26/plots) | ['B01','B02','B03'] | |
+| [27] | 2025-11-01 | Lorena | [Config.toml](Experiment_6/Run_27/config.toml) | ResNet18 | ResNet50 | **RegressorMSE** | Train/Val/Test split of `timm/resisc45` | DGX-7 Rico | TBD | [metrics.json](Experiment_6/Run_27/metrics.jsonl) | [plots](Experiment_6/Run_27/plots) | ['B01','B02','B03'] | |
+| [28] | 2025-11-01 | Lorena | [Config.toml](Experiment_6/Run_28/config.toml) | ResNet18 | ResNet50 | **RegressorMSE** | Train/Val/Test split of `timm/resisc45` | DGX-7 Rico| TBD | [metrics.json](Experiment_6/Run_28/metrics.jsonl) | [plots](Experiment_6/Run_28/plots) | ['B01','B02','B03'] ||
+| [29] | 2025-11-01 | Lorena | [Config.toml](Experiment_6/Run_29/config.toml) | ResNet18 | ResNet50 | **RegressorMSE** | Train/Val/Test split of `timm/resisc45` | DGX-7 Rico | TBD | [metrics.json](Experiment_6/Run_29/metrics.jsonl) | [plots](Experiment_6/Run_29/plots) | ['B01','B02','B03'] |   |
+
+---
+
+### Summary of Parameter Differences for Regressor MSE experiments
+
+| Run | T_param | CE weight | KD weight | REP weight | Focus                                                                                                                                     |
+|-----|---------|-----------|-----------|------------|-------------------------------------------------------------------------------------------------------------------------------------------|
+| 25  | 4       | 0.75      | 0.25      | 0.25       | reference balanced baseline                                                                                                               |
+| 26  | 4       | 0.60      | 0.40      | 0.10       | Lean more on the teacher probabilities                                                                                                    |
+| 27  | 4       | 0.60      | 0.20      | 0.40       | strong regressor loss                                                                                                                     |
+| 28  | 2       | 0.50      | 0.50      | 0.10       | Lower T sharpens teacher targets; the 50/50 mix makes the student mimic teacher probabilities more aggressively but still consider labels |
+| 29  | 4       | 0.50      | 0.10      | 0.40       | pushing internal / arhcitceture alignment                                                                                                 |
