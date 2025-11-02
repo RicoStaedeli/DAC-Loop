@@ -28,7 +28,7 @@ def _create_ex_desc_table(experiment_name, runs) -> str:
 
 
 def main():
-    print(_create_ex_desc_table(experiment_name = "Experiment_5",runs=5))
+    print(_create_ex_desc_table(experiment_name = "Experiment_6",runs=24))
 
 if __name__ == "__main__":
     main()
