@@ -96,16 +96,17 @@ def train(cfg, teacher, student, train_loader, val_loader, experiment_dir: Path,
                                                                           epochs=cfg.training.epochs,
                                                                           hidden_rep_loss_weight=cfg.training.hidden_rep_loss_weight,
                                                                           ce_loss_weight=cfg.training.ce_loss_weight)
+
             if cfg.training.kd_type == "KLDivLoss":
                 train_metrics = _train_one_epoch_kldiv(teacher=teacher, student=student, loader=train_loader,
                                                        device=device,
                                                        optimizer=optimizer_student,
                                                        current_epoch=epoch,
                                                        epochs=cfg.training.epochs,
-                                                       temperature=4,
-                                                       alpha_kd=0.7,
-                                                       beta_feat=0.25,
-                                                       ce_loss_weight=0.3,
+                                                       temperature=cfg.training.T_param,
+                                                       alpha_kd=cfg.training.alpha_kd,
+                                                       beta_feat=cfg.training.beta_feat,
+                                                       ce_loss_weight=cfg.training.ce_loss_weight,
                                                        ce_criterion=ce_loss,
                                                        feat_projector=None,
                                                        use_mse_feat=True)
@@ -121,8 +122,8 @@ def train(cfg, teacher, student, train_loader, val_loader, experiment_dir: Path,
                     optimizer=optimizer_student,
                     current_epoch=epoch,
                     epochs=cfg.training.epochs,
-                    feature_map_loss_weight=cfg.training.feature_map_loss_weight,  # w_rep
-                    ce_loss_weight=cfg.training.ce_loss_weight,  # w_ce
+                    hidden_rep_loss_weight = cfg.training.hidden_rep_loss_weight,  # w_rep
+                    ce_loss_weight = cfg.training.ce_loss_weight,  # w_ce
                     soft_target_loss_weight=cfg.training.soft_target_loss_weight,  # w_kd
                     T=cfg.training.T_param,  # temperature
                     feat_regressor=getattr(student, "_fitnets_regressor", None)
@@ -484,7 +485,7 @@ def _train_one_epoch_regressor_mse(
         optimizer,
         current_epoch,
         epochs,
-        feature_map_loss_weight: float,  # w_rep
+        hidden_rep_loss_weight: float,  # w_rep
         ce_loss_weight: float,  # w_ce
         soft_target_loss_weight: float,  # w_kd   <-- add this
         T: float,  # temperature <-- add this
@@ -502,7 +503,7 @@ def _train_one_epoch_regressor_mse(
     # use the passed-in values, not cfg.*
     w_ce = ce_loss_weight
     w_kd = soft_target_loss_weight
-    w_rep = feature_map_loss_weight
+    w_rep = hidden_rep_loss_weight
 
     for images, labels in tqdm(loader, desc=f"Epoch {current_epoch}/{epochs}"):
         images, labels = images.to(device), labels.to(device)
