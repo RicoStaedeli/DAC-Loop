@@ -16,6 +16,7 @@ from framework.training.trainer import train
 from framework.utils.logger import setup_logging, log_meta_info
 from framework.utils.utils import set_seed, load_config_toml
 from framework.utils.push_to_remote_repository import git_commit_and_push
+from framework.utils.plot_repository import plot_teacher_student_metrics
 
 log = logging.getLogger(__name__)
 load_dotenv()
@@ -100,7 +101,13 @@ def main(gpu_id: str, experiment_number: str):
             train(cfg, teacher=model_teacher, student=model_student, train_loader=train_loader, val_loader=val_loader,
                   experiment_dir=experiment_dir, config_path=CFG_PATH)
 
-            # plot_teacher_student_metrics(f"{experiment_dir}/config.toml")
+            plot_teacher_student_metrics(f"{experiment_dir}/config.toml", project_root=".", set_png_dpi=350)
+
+            log.info(f"Experiment name: {experiment_name} --> end training")
+            log.info("\n" + "=" * 88)
+            log.info("RUN END    |  Experiment=%s  |  Run ID=%s  |  Duration=%.1fs",
+                     experiment_name, cfg.experiment.run, time.time() - t0)
+            log.info("=" * 88)
 
             git_commit_and_push(f"Experiment={cfg.experiment.name} Run={cfg.experiment.run}")
 
@@ -108,12 +115,6 @@ def main(gpu_id: str, experiment_number: str):
         except Exception as e:
             log.error(f"Experiment name: {experiment_name} --> error: {e}", exc_info=True)
 
-        finally:
-            log.info(f"Experiment name: {experiment_name} --> end training")
-            log.info("\n" + "=" * 88)
-            log.info("RUN END    |  Experiment=%s  |  Run ID=%s  |  Duration=%.1fs",
-                     experiment_name, cfg.experiment.run, time.time() - t0)
-            log.info("=" * 88)
 
 
 def _create_log_directory(cfg) -> Path:
