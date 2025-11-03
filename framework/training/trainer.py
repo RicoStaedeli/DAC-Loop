@@ -108,7 +108,6 @@ def train(cfg, teacher, student, train_loader, val_loader, experiment_dir: Path,
                                                        beta_feat=cfg.training.beta_feat,
                                                        ce_loss_weight=cfg.training.ce_loss_weight,
                                                        ce_criterion=ce_loss,
-                                                       feat_projector=None,
                                                        use_mse_feat=True)
 
             if cfg.training.kd_type == "RegressorMSE":
@@ -191,16 +190,6 @@ def train(cfg, teacher, student, train_loader, val_loader, experiment_dir: Path,
         shutil.copy2(config_path, experiment_dir / "config.toml")
 
 
-class FeatureProjector(nn.Module):
-    """Optional: aligns student hidden to teacher hidden size."""
-
-    def __init__(self, in_dim, out_dim):
-        super().__init__()
-        self.proj = nn.Linear(in_dim, out_dim) if in_dim != out_dim else nn.Identity()
-
-    def forward(self, x):
-        return self.proj(x)
-
 
 def _kd_loss(student_logits, teacher_logits, T: float):
     """
@@ -257,8 +246,8 @@ class LinearFeatureRegressor(nn.Module):
 
 @torch.no_grad()
 def _top1_accuracy(logits, y):
-    preds = logits.argmax(dim=1)
-    return (preds == y).float().mean()
+    predictions = logits.argmax(dim=1)
+    return (predictions == y).float().mean()
 
 
 def _train_one_epoch_kldiv(
@@ -275,7 +264,6 @@ def _train_one_epoch_kldiv(
         beta_feat: float = 0.25,  # weight for feature loss, set 0.0 to disable
         ce_loss_weight: float = 0.3,  # weight for CE on hard labels, usually 1 - alpha_kd (adjust if using beta_feat)
         ce_criterion=nn.CrossEntropyLoss(),
-        feat_projector: nn.Module = None,  # optional FeatureProjector
         use_mse_feat: bool = True  # True -> MSE on normalized features, False -> 1 - cosine sim
 ):
     teacher.eval()
@@ -283,7 +271,7 @@ def _train_one_epoch_kldiv(
 
     total_loss = 0.0
     total_acc = 0.0
-    total = 0
+    number_of_images = 0
 
     for images, labels in tqdm(loader, desc=f"Epoch {current_epoch}/{epochs}"):
         images, labels = images.to(device), labels.to(device)
@@ -303,8 +291,6 @@ def _train_one_epoch_kldiv(
         # optional feature loss with normalization and projection
         loss_features = torch.tensor(0.0, device=device)
         if beta_feat > 0.0:
-            if feat_projector is not None:
-                student_features = feat_projector(student_features)
 
             s_n = F.normalize(student_features, dim=1)
             t_n = F.normalize(teacher_features, dim=1)
@@ -322,13 +308,13 @@ def _train_one_epoch_kldiv(
 
         with torch.no_grad():
             batch_size = images.size(0)
-            total += batch_size
+            number_of_images += batch_size
             total_loss += loss.item() * batch_size
             total_acc += _top1_accuracy(student_logits, labels).item() * batch_size
 
     return {
-        "loss": total_loss / total,
-        "acc": 100.0 * (total_acc / total)
+        "loss": total_loss / number_of_images,
+        "acc": 100.0 * (total_acc / number_of_images)
     }
 
 
