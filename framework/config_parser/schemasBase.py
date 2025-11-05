@@ -93,6 +93,7 @@ class TrainingConfig(BaseModel):
     beta_feat: float = 0.25
     T_param: PositiveInt = 1
     base_path_ckpts: str = ""
+    save_only_best: bool = True
 
     @field_validator("learning_rate")
     @classmethod

@@ -167,11 +167,12 @@ def train(cfg, teacher, student, train_loader, val_loader, experiment_dir: Path,
                 f.write(json.dumps(metrics) + "\n")
 
         # Save every epoch
-        _save_checkpoint({
-            "epoch": epoch,
-            "model_state": student.state_dict() if student is not None else teacher.state_dict(),
-            "optimizer_state": optimizer_student.state_dict() if student is not None else optimizer_teacher.state_dict(),
-        }, f"{save_dir}/epoch_{epoch}.pt")
+        if not cfg.training.save_only_best:
+            _save_checkpoint({
+                "epoch": epoch,
+                "model_state": student.state_dict() if student is not None else teacher.state_dict(),
+                "optimizer_state": optimizer_student.state_dict() if student is not None else optimizer_teacher.state_dict(),
+            }, f"{save_dir}/epoch_{epoch}.pt")
 
         if val_metrics["acc"] > best_val_acc:
             best_val_acc = val_metrics["acc"]
