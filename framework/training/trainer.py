@@ -161,11 +161,10 @@ def train(cfg, teacher, student, train_loader, val_loader, experiment_dir: Path,
             "time_per_epoch": time_t1,
         }
 
-        # Save metrics after every epoch to metrics.json
+        # Save metrics after every epoch to metrics.jsonl
         if metrics_path:
             with open(metrics_path, "a", encoding="utf-8") as f:
                 f.write(json.dumps(metrics) + "\n")
-
 
         # Save every epoch
         _save_checkpoint({
