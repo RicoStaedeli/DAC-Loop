@@ -33,7 +33,13 @@ def train(cfg, teacher, student, train_loader, val_loader, experiment_dir: Path,
 
     best_val_acc = 0.0
     epochs_no_improve = 0
-    metrics_path = Path(f"{experiment_dir}/metrics.jsonl")
+
+    # Paths
+    save_dir = Path(f"{cfg.training.base_path_ckpts}{experiment_dir}")
+    save_dir.mkdir(parents=True, exist_ok=True)
+    metrics_path = Path(f"{save_dir}/metrics.jsonl")
+    log.info("Checkpoints and metrics will be saved to %s", save_dir)
+    log.info("Metrics path: %s", metrics_path)
 
     ###################################################################################################################
     ################################## Prepare Models                ##################################################
@@ -136,6 +142,7 @@ def train(cfg, teacher, student, train_loader, val_loader, experiment_dir: Path,
                                              cfg.training.epochs)
 
             val_metrics = _evaluate(teacher, val_loader, device, ce_loss)
+
         if scheduler: scheduler.step()
 
         log.info(
@@ -159,10 +166,7 @@ def train(cfg, teacher, student, train_loader, val_loader, experiment_dir: Path,
             with open(metrics_path, "a", encoding="utf-8") as f:
                 f.write(json.dumps(metrics) + "\n")
 
-        save_dir = Path(f"{cfg.training.base_path_ckpts}{experiment_dir}")
 
-        # Create the directory if it does not exist
-        save_dir.mkdir(parents=True, exist_ok=True)
         # Save every epoch
         _save_checkpoint({
             "epoch": epoch,
@@ -266,6 +270,30 @@ def _train_one_epoch_kldiv(
         ce_criterion=nn.CrossEntropyLoss(),
         use_mse_feat: bool = True  # True -> MSE on normalized features, False -> 1 - cosine sim
 ):
+    """
+    Train student model for one epoch using knowledge distillation with KL Divergence Loss on logits and optional feature loss.
+    The loss is a weighted sum of the KD loss on logits, hard label cross-entropy loss, and optional feature loss.
+    1. KD loss on logits is calculated using KL Divergence between the softened student and teacher logits.
+    2. Hard label cross-entropy loss is calculated using standard cross-entropy loss between the student logits and the true labels.
+    3. Optional feature loss is calculated between the normalized student and teacher features using either MSE or cosine similarity.
+    The final loss is: loss = alpha_kd * kd_loss + ce_loss_weight * ce_loss + beta_feat * feature_loss
+    Args:
+        teacher: Pre-trained teacher model (in eval mode).
+        student: Student model to be trained.
+        loader: DataLoader providing training data.
+        device: Device to run the training on (e.g., 'cuda' or 'cpu').
+        optimizer: Optimizer for updating student model weights.
+        current_epoch: Current epoch number (for logging).
+        epochs: Total number of epochs (for logging).
+        temperature: Temperature parameter for softening logits.
+        alpha_kd: Weight for the KD loss component.
+        beta_feat: Weight for the feature loss component.
+        ce_loss_weight: Weight for the hard label cross-entropy loss component.
+        ce_criterion: CrossEntropyLoss function for hard label loss.
+        use_mse_feat: If True, use MSE for feature loss; if False, use 1 - cosine similarity.
+    Returns:
+        Dictionary with average loss and accuracy for the epoch.
+    """
     teacher.eval()
     student.train()
 
