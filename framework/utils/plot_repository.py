@@ -252,5 +252,171 @@ def plot_teacher_student_metrics(cfg_path, project_root=".", set_png_dpi=400):
     loss_path = _plot_loss(series, cfg, save_dir)
     val_acc_path = _plot_val_accuracy(series, cfg, save_dir)
 
+    tv_acc_path = _plot_train_vs_val_accuracy(series, cfg, save_dir)
+    tv_loss_path = _plot_train_vs_val_loss(series, cfg, save_dir)
+
     log.info(f"Plots generated save dir: {save_dir}")
     return {"loss": str(loss_path), "val_acc": str(val_acc_path)}
+
+
+def _plot_train_vs_val_accuracy(series, cfg, save_dir: Path, figsize=(12, 5)):
+    """
+    Plot train_accuracy and val_accuracy vs. epoch for each available series (side-by-side on the same axes).
+    Saves to save_dir / 'train_vs_val_accuracy_per_epoch.png'
+    """
+    fig, ax = plt.subplots(figsize=figsize)
+    any_plotted = False
+
+    for label, df in series:
+        if not {"train_accuracy", "val_accuracy"}.issubset(df.columns):
+            log.info(f"{label}: missing 'train_accuracy' or 'val_accuracy'; skipping.")
+            continue
+
+        d = df.copy()
+        d["epoch"] = pd.to_numeric(d.get("epoch"), errors="coerce")
+        d["train_accuracy"] = pd.to_numeric(d.get("train_accuracy"), errors="coerce")
+        d["val_accuracy"] = pd.to_numeric(d.get("val_accuracy"), errors="coerce")
+        d = d.dropna(subset=["epoch", "train_accuracy", "val_accuracy"])
+
+        if d.empty:
+            log.info(f"{label}: no valid accuracy rows after cleaning; skipping.")
+            continue
+
+        # Best points for labels (no markers drawn to keep style consistent)
+        best_train_idx = d["train_accuracy"].idxmax()
+        best_train_acc = float(d.loc[best_train_idx, "train_accuracy"])
+        best_train_epoch = int(d.loc[best_train_idx, "epoch"])
+
+        best_val_idx = d["val_accuracy"].idxmax()
+        best_val_acc = float(d.loc[best_val_idx, "val_accuracy"])
+        best_val_epoch = int(d.loc[best_val_idx, "epoch"])
+
+        log.info(
+            f"{label}: best train acc {best_train_acc:.2f}% @ epoch {best_train_epoch}; "
+            f"best val acc {best_val_acc:.2f}% @ epoch {best_val_epoch}"
+        )
+
+        # Lines
+        ax.plot(
+            d["epoch"].to_numpy(),
+            d["train_accuracy"].to_numpy(),
+            linewidth=1,
+            linestyle="-",
+            marker=None,
+            label=rf"{label} Train (best={best_train_acc:.2f}\%@{best_train_epoch})",
+        )
+        ax.plot(
+            d["epoch"].to_numpy(),
+            d["val_accuracy"].to_numpy(),
+            linewidth=1,
+            linestyle="--",
+            marker=None,
+            label=rf"{label} Val (best={best_val_acc:.2f}\%@{best_val_epoch})",
+        )
+
+        any_plotted = True
+
+    ax.set_xlabel("Epoch")
+    ax.set_ylabel("Accuracy")
+
+    fig.suptitle(rf"\textbf{{Train vs. Val Accuracy for {cfg.experiment.name}, Run: {cfg.experiment.run}}}")
+    if cfg.training.teacher_student.train_student:
+        subtitle = (
+            f"Model: {cfg.model.name}, "
+            f"Teacher-Model: {cfg.training.teacher_student.teacher_model_name} "
+            f"KD-Type: {cfg.training.kd_type}"
+        )
+    else:
+        subtitle = f"Model: {cfg.model.name}"
+    ax.set_title(subtitle)
+
+    ax.grid(True, linestyle=":", linewidth=0.7, alpha=0.8)
+    if any_plotted:
+        ax.legend(frameon=False)
+
+    out_path = save_dir / "train_vs_val_accuracy_per_epoch.png"
+    fig.savefig(out_path, bbox_inches="tight")
+    plt.close(fig)
+    return out_path
+
+
+def _plot_train_vs_val_loss(series, cfg, save_dir: Path, figsize=(12, 5)):
+    """
+    Plot train_loss and val_loss vs. epoch for each available series (side-by-side on the same axes).
+    Saves to save_dir / 'train_vs_val_loss_per_epoch.png'
+    """
+    fig, ax = plt.subplots(figsize=figsize)
+    any_plotted = False
+
+    for label, df in series:
+        # train_loss is already required by _load_metrics; val_loss may be missing
+        if "train_loss" not in df.columns or "val_loss" not in df.columns:
+            log.info(f"{label}: missing 'train_loss' or 'val_loss'; skipping.")
+            continue
+
+        d = df.copy()
+        d["epoch"] = pd.to_numeric(d.get("epoch"), errors="coerce")
+        d["train_loss"] = pd.to_numeric(d.get("train_loss"), errors="coerce")
+        d["val_loss"] = pd.to_numeric(d.get("val_loss"), errors="coerce")
+        d = d.dropna(subset=["epoch", "train_loss", "val_loss"])
+
+        if d.empty:
+            log.info(f"{label}: no valid loss rows after cleaning; skipping.")
+            continue
+
+        # Best (min) points for labels
+        best_train_idx = d["train_loss"].idxmin()
+        best_train_loss = float(d.loc[best_train_idx, "train_loss"])
+        best_train_epoch = int(d.loc[best_train_idx, "epoch"])
+
+        best_val_idx = d["val_loss"].idxmin()
+        best_val_loss = float(d.loc[best_val_idx, "val_loss"])
+        best_val_epoch = int(d.loc[best_val_idx, "epoch"])
+
+        log.info(
+            f"{label}: best train loss {best_train_loss:.4f} @ epoch {best_train_epoch}; "
+            f"best val loss {best_val_loss:.4f} @ epoch {best_val_epoch}"
+        )
+
+        # Lines
+        ax.plot(
+            d["epoch"].to_numpy(),
+            d["train_loss"].to_numpy(),
+            linewidth=1,
+            linestyle="-",
+            marker=None,
+            label=rf"{label} Train (best={best_train_loss:.3f}\@{best_train_epoch})",
+        )
+        ax.plot(
+            d["epoch"].to_numpy(),
+            d["val_loss"].to_numpy(),
+            linewidth=1,
+            linestyle="--",
+            marker=None,
+            label=rf"{label} Val (best={best_val_loss:.3f}\@{best_val_epoch})",
+        )
+
+        any_plotted = True
+
+    ax.set_xlabel("Epoch")
+    ax.set_ylabel("Loss")
+
+    fig.suptitle(rf"\textbf{{Train vs. Val Loss for {cfg.experiment.name}, Run: {cfg.experiment.run}}}")
+    if cfg.training.teacher_student.train_student:
+        subtitle = (
+            f"Model: {cfg.model.name}, "
+            f"Teacher-Model: {cfg.training.teacher_student.teacher_model_name} "
+            f"KD-Type: {cfg.training.kd_type}"
+        )
+    else:
+        subtitle = f"Model: {cfg.model.name}"
+    ax.set_title(subtitle)
+
+    ax.grid(True, linestyle=":", linewidth=0.7, alpha=0.8)
+    if any_plotted:
+        ax.legend(frameon=False)
+
+    out_path = save_dir / "train_vs_val_loss_per_epoch.png"
+    fig.savefig(out_path, bbox_inches="tight")
+    plt.close(fig)
+    return out_path

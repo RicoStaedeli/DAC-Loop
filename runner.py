@@ -10,7 +10,7 @@ from torchinfo import summary
 import argparse
 
 # Framework Imports
-from framework.dataset.load_for_training import load_eurosat_hf_splits, build_loaders_from_hf
+from framework.dataset.load_for_training import load_hf_splits, build_loaders_from_hf
 from framework.models import MODEL_REGISTRY
 from framework.training.trainer import train
 from framework.utils.logger import setup_logging, log_meta_info
@@ -49,7 +49,7 @@ def _load_manifest(p: Path) -> list[Path]:
 def main(gpu_id: str, experiment_number: str):
     os.environ["CUDA_VISIBLE_DEVICES"] = gpu_id
     # config_orchestrator_path = f"configs/Experiment_{experiment_number}/Experiment_Orchestrator_Config.toml"
-    config_orchestrator_path = f"configs/Experiment_6/Experiment_Orchestrator_Config.toml"
+    config_orchestrator_path = f"configs/Experiment_5/Experiment_Orchestrator_Config.toml"
 
     for CFG_PATH in _load_manifest(Path(config_orchestrator_path)):
 
@@ -85,7 +85,7 @@ def main(gpu_id: str, experiment_number: str):
                                  experiment_dir) if cfg.training.teacher_student.train_student else None
             _print_model_summary(cfg, model_teacher, input_channels, "Teacher", experiment_dir)
 
-            train_ds, val_ds, test_ds = load_eurosat_hf_splits(cfg.data.dataset_hf_repo_id)
+            train_ds, val_ds, test_ds = load_hf_splits(cfg.data.dataset_hf_repo_id)
 
             train_loader, val_loader = build_loaders_from_hf(train_ds, val_ds,
                                                              cfg.training.batch_size,
@@ -148,6 +148,14 @@ def _print_experiment_overview(cfg, input_channels, extra_channels):
     log.info(f"Number of Workers: {cfg.data.num_workers}")
     log.info(f"Pin Memory: {cfg.data.pin_memory}")
     log.info(f"Batch size: {cfg.training.batch_size}")
+    log.info("=" * 80)
+    log.info(f"Dataset Name: {cfg.data.dataset_hf_repo_id}")
+    log.info(f"Number of Classes: {cfg.model.args.classes}")
+    log.info(f"Image Size: {cfg.data.image_size}x{cfg.data.image_size}")
+    log.info(f"Selected Bands: {cfg.data.indices.selected_bands}")
+    log.info(f"Calculated Indices: {cfg.data.indices.calculated_indices}")
+    log.info(f"Data Augmentation: {cfg.data.augment}")
+    log.info(f"Data Normalization: {cfg.data.normalize}")
     log.info("=" * 80)
     if cfg.training.teacher_student.train_student:
         log.info("Train with teacher-student knowledge distillation.")

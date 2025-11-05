@@ -33,16 +33,13 @@ SPECTRAL_INDICES = {
 
 BAND_ORDER = ["B01", "B02", "B03", "B04", "B05", "B06", "B07", "B08", "B8A", "B09", "B11", "B12"]
 
-euroSAT_classes = {"AnnualCrop": 0, "Forest": 1, "HerbaceousVegetation": 2, "Highway": 3, "Industrial": 4, "Pasture": 5,
-                   "PermanentCrop": 6, "Residential": 7, "River": 8, "SeaLake": 9}
-
 _VALID_BANDS = {"B01", "B02", "B03", "B04", "B05", "B06", "B07", "B08", "B8A", "B09", "B11", "B12"}
 _VALID_INDICES = set(SPECTRAL_INDICES.keys())
 
 
-def load_eurosat_hf_splits(dataset_hf_repo_id: str) -> tuple[Dataset | None, Dataset | None, Dataset | None]:
+def load_hf_splits(dataset_hf_repo_id: str) -> tuple[Dataset | None, Dataset | None, Dataset | None]:
     """
-    This function loads the EuroSAT HF splits dataset.
+    This function loads the HF splits of the dataset dataset.
     It returns the train, val and test splits.
     """
     log.info(f"Loading Dataset: {dataset_hf_repo_id}")
@@ -50,7 +47,6 @@ def load_eurosat_hf_splits(dataset_hf_repo_id: str) -> tuple[Dataset | None, Dat
     train_ds = ds.get("train", None)
     val_ds = ds.get("validation", None) or ds.get("val", None)
     test_ds = ds.get("test", None)
-    log.info("Finished loading EuroSAT HF splits")
     return train_ds, val_ds, test_ds
 
 
