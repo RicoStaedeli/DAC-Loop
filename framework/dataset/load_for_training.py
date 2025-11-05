@@ -70,16 +70,21 @@ def _pick_label(sample: dict):
 
 def _ensure_chw(cube: np.ndarray) -> np.ndarray:
     """
-    Ensures that the input cube has a CHW dimension and 12 Sentinel-2 bands (B10 dropped).
-    The order after this function is BAND_ORDER.
+    Ensures CHW layout. If last dim looks like channels (3, 12, or 13), move it to dim 0.
+    If we have 13 channels, drop B10 to keep 12.
     """
     cube = np.asarray(cube)
-    if cube.ndim == 2:
-        cube = cube[None, ...]
-    if cube.shape[0] not in (12, 13) and cube.shape[-1] in (12, 13):
-        cube = np.moveaxis(cube, -1, 0)
-    if cube.shape[0] == 13:  # drop B10
-        cube = np.concatenate([cube[:9], cube[10:]], axis=0)
+    if cube.ndim == 2:  # single channel
+        cube = cube[None, ...]  # 1,H,W
+
+    # If channels are at the end (H,W,C) for typical C in {1,3,12,13}, move to (C,H,W)
+    if cube.ndim == 3 and cube.shape[-1] in (1, 3, 12, 13) and cube.shape[0] not in (1, 3, 12, 13):
+        cube = np.moveaxis(cube, -1, 0)  # C,H,W
+
+    # If we got 13 channels (Sentinel-2), drop B10
+    if cube.ndim == 3 and cube.shape[0] == 13:
+        cube = np.concatenate([cube[:9], cube[10:]], axis=0)  # 12 channels
+
     return cube.astype(np.float32)
 
 
@@ -196,6 +201,8 @@ def _preprocess_sample(sample: dict, image_size: int,
         x = (x - mean[:, None, None]) / (std[:, None, None] + 1e-6)
 
     if augment:
+        if x.shape[0] == 3:
+            x = _color_jitter_rgb(x, rgb_idx=[0, 1, 2], p=0.8)
         if torch.rand(1).item() < 0.5:
             x = TF.hflip(x)
         if torch.rand(1).item() < 0.5:
