@@ -221,7 +221,7 @@ def _plot_val_accuracy(series, cfg, save_dir: Path, figsize=(12, 5)):
     return out_path
 
 
-def plot_teacher_student_metrics(cfg_path, project_root=".", set_png_dpi=400):
+def plot_teacher_student_metrics(cfg_path, project_root=".", set_png_dpi=400, use_latex=True):
     """
     Plot loss and validation accuracy vs. epoch for teacher, student with TS, and student without TS.
     Each plot is saved separately. Legends include best values per series.
@@ -235,6 +235,7 @@ def plot_teacher_student_metrics(cfg_path, project_root=".", set_png_dpi=400):
 
     # Global figure DPI (keeps your original behavior)
     rcParams.update({"figure.dpi": set_png_dpi})
+    rcParams.update({"text.usetex": use_latex})
 
     # Resolve paths
     project_root = Path(project_root).expanduser().resolve()
