@@ -33,16 +33,13 @@ SPECTRAL_INDICES = {
 
 BAND_ORDER = ["B01", "B02", "B03", "B04", "B05", "B06", "B07", "B08", "B8A", "B09", "B11", "B12"]
 
-euroSAT_classes = {"AnnualCrop": 0, "Forest": 1, "HerbaceousVegetation": 2, "Highway": 3, "Industrial": 4, "Pasture": 5,
-                   "PermanentCrop": 6, "Residential": 7, "River": 8, "SeaLake": 9}
-
 _VALID_BANDS = {"B01", "B02", "B03", "B04", "B05", "B06", "B07", "B08", "B8A", "B09", "B11", "B12"}
 _VALID_INDICES = set(SPECTRAL_INDICES.keys())
 
 
-def load_eurosat_hf_splits(dataset_hf_repo_id: str) -> tuple[Dataset | None, Dataset | None, Dataset | None]:
+def load_hf_splits(dataset_hf_repo_id: str) -> tuple[Dataset | None, Dataset | None, Dataset | None]:
     """
-    This function loads the EuroSAT HF splits dataset.
+    This function loads the HF splits of the dataset dataset.
     It returns the train, val and test splits.
     """
     log.info(f"Loading Dataset: {dataset_hf_repo_id}")
@@ -50,7 +47,6 @@ def load_eurosat_hf_splits(dataset_hf_repo_id: str) -> tuple[Dataset | None, Dat
     train_ds = ds.get("train", None)
     val_ds = ds.get("validation", None) or ds.get("val", None)
     test_ds = ds.get("test", None)
-    log.info("Finished loading EuroSAT HF splits")
     return train_ds, val_ds, test_ds
 
 
@@ -74,16 +70,21 @@ def _pick_label(sample: dict):
 
 def _ensure_chw(cube: np.ndarray) -> np.ndarray:
     """
-    Ensures that the input cube has a CHW dimension and 12 Sentinel-2 bands (B10 dropped).
-    The order after this function is BAND_ORDER.
+    Ensures CHW layout. If last dim looks like channels (3, 12, or 13), move it to dim 0.
+    If we have 13 channels, drop B10 to keep 12.
     """
     cube = np.asarray(cube)
-    if cube.ndim == 2:
-        cube = cube[None, ...]
-    if cube.shape[0] not in (12, 13) and cube.shape[-1] in (12, 13):
-        cube = np.moveaxis(cube, -1, 0)
-    if cube.shape[0] == 13:  # drop B10
-        cube = np.concatenate([cube[:9], cube[10:]], axis=0)
+    if cube.ndim == 2:  # single channel
+        cube = cube[None, ...]  # 1,H,W
+
+    # If channels are at the end (H,W,C) for typical C in {1,3,12,13}, move to (C,H,W)
+    if cube.ndim == 3 and cube.shape[-1] in (1, 3, 12, 13) and cube.shape[0] not in (1, 3, 12, 13):
+        cube = np.moveaxis(cube, -1, 0)  # C,H,W
+
+    # If we got 13 channels (Sentinel-2), drop B10
+    if cube.ndim == 3 and cube.shape[0] == 13:
+        cube = np.concatenate([cube[:9], cube[10:]], axis=0)  # 12 channels
+
     return cube.astype(np.float32)
 
 
@@ -200,6 +201,8 @@ def _preprocess_sample(sample: dict, image_size: int,
         x = (x - mean[:, None, None]) / (std[:, None, None] + 1e-6)
 
     if augment:
+        if x.shape[0] == 3:
+            x = _color_jitter_rgb(x, rgb_idx=[0, 1, 2], p=0.8)
         if torch.rand(1).item() < 0.5:
             x = TF.hflip(x)
         if torch.rand(1).item() < 0.5:
