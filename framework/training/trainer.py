@@ -35,10 +35,11 @@ def train(cfg, teacher, student, train_loader, val_loader, experiment_dir: Path,
     epochs_no_improve = 0
 
     # Paths
-    save_dir = Path(f"{cfg.training.base_path_ckpts}{experiment_dir}")
-    save_dir.mkdir(parents=True, exist_ok=True)
-    metrics_path = Path(f"{save_dir}/metrics.jsonl")
-    log.info("Checkpoints and metrics will be saved to %s", save_dir)
+    save_dir_checkpoints = Path(f"{cfg.training.base_path_ckpts}{experiment_dir}")
+    save_dir_checkpoints.mkdir(parents=True, exist_ok=True)
+    log.info("Checkpoints path: %s", save_dir_checkpoints)
+
+    metrics_path = Path(f"{experiment_dir}/metrics.jsonl")
     log.info("Metrics path: %s", metrics_path)
 
     ###################################################################################################################
@@ -117,23 +118,18 @@ def train(cfg, teacher, student, train_loader, val_loader, experiment_dir: Path,
                                                        use_mse_feat=True)
 
             if cfg.training.kd_type == "RegressorMSE":
-                # DO NOT recreate the optimizer/scheduler here; keep the ones from above.
-                train_metrics = _train_one_epoch_regressor_mse(
-                    teacher=teacher,
-                    student=student,
-                    loader=train_loader,
-                    device=device,
-                    ce_loss=ce_loss,
-                    optimizer=optimizer_student,
-                    current_epoch=epoch,
-                    epochs=cfg.training.epochs,
-                    hidden_rep_loss_weight = cfg.training.hidden_rep_loss_weight,  # w_rep
-                    ce_loss_weight = cfg.training.ce_loss_weight,  # w_ce
-                    soft_target_loss_weight=cfg.training.soft_target_loss_weight,  # w_kd
-                    T=cfg.training.T_param,  # temperature
-                    feat_regressor=getattr(student, "_fitnets_regressor", None)
-                )
-
+                train_metrics = _train_one_epoch_regressor_mse(teacher=teacher, student=student, loader=train_loader,
+                                                               device=device,
+                                                               ce_loss=ce_loss,
+                                                               optimizer=optimizer_student,
+                                                               current_epoch=epoch,
+                                                               epochs=cfg.training.epochs,
+                                                               hidden_rep_loss_weight=cfg.training.hidden_rep_loss_weight,
+                                                               ce_loss_weight=cfg.training.ce_loss_weight,
+                                                               soft_target_loss_weight=cfg.training.soft_target_loss_weight,
+                                                               T=cfg.training.T_param,
+                                                               feat_regressor=getattr(student, "_fitnets_regressor", None)
+                                                               )
 
             val_metrics = _evaluate(student, val_loader, device, ce_loss)
 
@@ -172,7 +168,7 @@ def train(cfg, teacher, student, train_loader, val_loader, experiment_dir: Path,
                 "epoch": epoch,
                 "model_state": student.state_dict() if student is not None else teacher.state_dict(),
                 "optimizer_state": optimizer_student.state_dict() if student is not None else optimizer_teacher.state_dict(),
-            }, f"{save_dir}/epoch_{epoch}.pt")
+            }, f"{save_dir_checkpoints}/epoch_{epoch}.pt")
 
         if val_metrics["acc"] > best_val_acc:
             best_val_acc = val_metrics["acc"]
@@ -182,7 +178,7 @@ def train(cfg, teacher, student, train_loader, val_loader, experiment_dir: Path,
                 "model_state": student.state_dict() if student is not None else teacher.state_dict(),
                 "optimizer_state": optimizer_student.state_dict() if student is not None else optimizer_teacher.state_dict(),
                 "best_val_acc": best_val_acc,
-            }, f"{save_dir}/best.pt")
+            }, f"{save_dir_checkpoints}/best.pt")
         else:
             epochs_no_improve += 1
             if epochs_no_improve >= cfg.training.early_stopping.patience and cfg.training.early_stopping.enabled:
@@ -192,7 +188,6 @@ def train(cfg, teacher, student, train_loader, val_loader, experiment_dir: Path,
     # After training finished add config file to HF upload path
     if config_path.exists():
         shutil.copy2(config_path, experiment_dir / "config.toml")
-
 
 
 def _kd_loss(student_logits, teacher_logits, T: float):
@@ -218,6 +213,7 @@ class ConvFeatureRegressor(nn.Module):
     Maps student conv features (B, Cs, Hs, Ws) -> teacher conv features (B, Ct, Ht, Wt).
     Uses a 1x1 conv + BN + ReLU.
     """
+
     def __init__(self, in_ch, out_ch):
         super().__init__()
         self.net = nn.Sequential(
@@ -238,6 +234,7 @@ class LinearFeatureRegressor(nn.Module):
     """
     Fallback for vector features (B, Ds) -> (B, Dt).
     """
+
     def __init__(self, in_dim, out_dim):
         super().__init__()
         self.net = nn.Sequential(
@@ -247,6 +244,7 @@ class LinearFeatureRegressor(nn.Module):
 
     def forward(self, x, target_hw=None):
         return self.net(x)  # target_hw unused here
+
 
 @torch.no_grad()
 def _top1_accuracy(logits, y):
@@ -396,7 +394,8 @@ def _train_one_epoch_with_crossEntropyLoss(*, teacher, student, loader, device, 
             teacher_log_probs = nn.functional.log_softmax(teacher_logits / T, dim=1)
         student_log_probs = nn.functional.log_softmax(student_logits / T, dim=1)
 
-        soft_targets_loss = nn.functional.kl_div(student_log_probs, teacher_log_probs, reduction="batchmean", log_target=True) * (T ** 2)
+        soft_targets_loss = nn.functional.kl_div(student_log_probs, teacher_log_probs, reduction="batchmean",
+                                                 log_target=True) * (T ** 2)
 
         # Calculate the true label loss
         label_loss = ce_loss(student_logits, labels)
@@ -578,17 +577,18 @@ def _train_one_epoch_regressor_mse(
             top1, = _accuracy_topk(student_logits, labels, topk=(1,))
         bsz = images.size(0)
         total_loss += loss.item() * bsz
-        top1_sum   += top1.item() * bsz / 100.0
-        total      += bsz
+        top1_sum += top1.item() * bsz / 100.0
+        total += bsz
 
         # optional component tracking
-        comp["ce"]  += loss_ce.item() * bsz
-        comp["kd"]  += loss_kd.item() * bsz
+        comp["ce"] += loss_ce.item() * bsz
+        comp["kd"] += loss_kd.item() * bsz
         comp["rep"] += loss_rep.item() * bsz
 
     # Optional: print averages for components
     if total > 0:
-        log.info(f"[epoch {current_epoch}] CE={comp['ce']/total:.4f} KD={comp['kd']/total:.4f} REP={comp['rep']/total:.4f}")
+        log.info(
+            f"[epoch {current_epoch}] CE={comp['ce'] / total:.4f} KD={comp['kd'] / total:.4f} REP={comp['rep'] / total:.4f}")
 
     return {"loss": total_loss / total, "acc": 100.0 * (top1_sum / total)}
 
@@ -658,6 +658,7 @@ def _evaluate(model, loader, device, ce_loss) -> Dict[str, float]:
 
 def _make_optimizer(model: nn.Module, cfg):
     return AdamW(model.parameters(), lr=cfg.training.learning_rate, weight_decay=cfg.training.weight_decay)
+
 
 def _make_scheduler(optimizer, cfg):
     if cfg.training.scheduler == "cosine":
