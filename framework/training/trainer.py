@@ -22,14 +22,14 @@ log = logging.getLogger(__name__)
 def train(cfg, teacher, student, train_loader, val_loader, experiment_dir: Path, config_path) -> None:
     ce_loss = nn.CrossEntropyLoss()
     cosine_loss = nn.CosineEmbeddingLoss()
-    optimizer_teacher = _make_optimizer(teacher, cfg.training.learning_rate, cfg.training.weight_decay)
-    optimizer_student = None
 
-    if student is not None:
-        optimizer_student = _make_optimizer(student, cfg.training.learning_rate, cfg.training.weight_decay)
-        scheduler = _make_scheduler(optimizer_student, cfg.training.scheduler, cfg.training.epochs)
-    else:
-        scheduler = _make_scheduler(optimizer_teacher, cfg.training.scheduler, cfg.training.epochs)
+    # Initialize optimizers
+    optimizer_teacher = _make_optimizer(teacher, cfg)
+    optimizer_student = _make_optimizer(student, cfg) if student else None
+
+    # Scheduler applies to whichever model trains
+    active_optimizer = optimizer_student or optimizer_teacher
+    scheduler = _make_scheduler(active_optimizer, cfg)
 
     best_val_acc = 0.0
     epochs_no_improve = 0
@@ -625,6 +625,7 @@ def _train_one_epoch(model, loader, device, criterion, optimizer, current_epoch,
     return {"loss": total_loss / total, "acc": 100.0 * top1_sum / total}
 
 
+@torch.inference_mode()
 def _evaluate(model, loader, device, ce_loss) -> Dict[str, float]:
     model.eval()
     total_loss, total_mse, total, top1_sum, correct = 0.0, 0.0, 0, 0.0, 0
@@ -654,13 +655,12 @@ def _evaluate(model, loader, device, ce_loss) -> Dict[str, float]:
     }
 
 
-def _make_optimizer(model: nn.Module, lr: float, weight_decay: float):
-    return AdamW(model.parameters(), lr=lr, weight_decay=weight_decay)
+def _make_optimizer(model: nn.Module, cfg):
+    return AdamW(model.parameters(), lr=cfg.training.learning_rate, weight_decay=cfg.training.weight_decay)
 
-
-def _make_scheduler(optimizer, scheme: str, epochs: int):
-    if scheme == "cosine":
-        return CosineAnnealingLR(optimizer, T_max=epochs)
+def _make_scheduler(optimizer, cfg):
+    if cfg.training.scheduler == "cosine":
+        return CosineAnnealingLR(optimizer, T_max=cfg.training.epochs)
     return None
 
 
