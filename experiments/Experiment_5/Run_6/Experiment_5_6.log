@@ -1,0 +1,643 @@
+2025-11-06 01:08:32,190 [INFO] [root] (logger.setup_logging:71) :: Logging initialized. Level=INFO, SaveToFile=True, LogFile=experiments/Experiment_5/Run_6/Experiment_5_6.log
+2025-11-06 01:08:32,190 [INFO] [framework.utils.logger] (logger.log_meta_info:97) :: Experiment=Experiment_5 | Run ID=6 | Device=cuda | Seed=42 | Experiment Directory=experiments/Experiment_5/Run_6
+2025-11-06 01:08:32,191 [INFO] [__main__] (runner.main:73) :: Loading experiment configs/Experiment_5/Run-6.toml
+2025-11-06 01:08:32,191 [INFO] [__main__] (runner._print_experiment_overview:141) :: Experiment name: Experiment_5
+2025-11-06 01:08:32,191 [INFO] [__main__] (runner._print_experiment_overview:142) :: Run ID: 6
+2025-11-06 01:08:32,191 [INFO] [__main__] (runner._print_experiment_overview:143) :: ================================================================================
+2025-11-06 01:08:32,191 [INFO] [__main__] (runner._print_experiment_overview:144) :: Input channels: 3
+2025-11-06 01:08:32,191 [INFO] [__main__] (runner._print_experiment_overview:145) :: Extra channels: 0
+2025-11-06 01:08:32,191 [INFO] [__main__] (runner._print_experiment_overview:146) :: Dataset: timm/resisc45
+2025-11-06 01:08:32,191 [INFO] [__main__] (runner._print_experiment_overview:147) :: ================================================================================
+2025-11-06 01:08:32,191 [INFO] [__main__] (runner._print_experiment_overview:148) :: Number of Workers: 3
+2025-11-06 01:08:32,191 [INFO] [__main__] (runner._print_experiment_overview:149) :: Pin Memory: True
+2025-11-06 01:08:32,191 [INFO] [__main__] (runner._print_experiment_overview:150) :: Batch size: 256
+2025-11-06 01:08:32,191 [INFO] [__main__] (runner._print_experiment_overview:151) :: ================================================================================
+2025-11-06 01:08:32,191 [INFO] [__main__] (runner._print_experiment_overview:152) :: Dataset Name: timm/resisc45
+2025-11-06 01:08:32,191 [INFO] [__main__] (runner._print_experiment_overview:153) :: Number of Classes: 45
+2025-11-06 01:08:32,191 [INFO] [__main__] (runner._print_experiment_overview:154) :: Image Size: 256x256
+2025-11-06 01:08:32,191 [INFO] [__main__] (runner._print_experiment_overview:155) :: Selected Bands: ['B01', 'B02', 'B03']
+2025-11-06 01:08:32,191 [INFO] [__main__] (runner._print_experiment_overview:156) :: Calculated Indices: []
+2025-11-06 01:08:32,191 [INFO] [__main__] (runner._print_experiment_overview:157) :: Data Augmentation: True
+2025-11-06 01:08:32,191 [INFO] [__main__] (runner._print_experiment_overview:158) :: Data Normalization: True
+2025-11-06 01:08:32,191 [INFO] [__main__] (runner._print_experiment_overview:159) :: ================================================================================
+2025-11-06 01:08:32,191 [INFO] [__main__] (runner._print_experiment_overview:170) :: No teacher knowledge distillation. -> Train teacher itself
+2025-11-06 01:08:32,191 [INFO] [__main__] (runner._print_experiment_overview:171) :: Teacher Name: ResNet50
+2025-11-06 01:08:32,191 [INFO] [__main__] (runner._print_experiment_overview:172) :: ================================================================================
+2025-11-06 01:08:32,191 [INFO] [__main__] (runner._load_models:210) :: Build models
+2025-11-06 01:08:32,829 [INFO] [__main__] (runner._print_model_summary:186) :: Teacher:
+---------------------------
+============================================================================================================================================
+Layer (type:depth-idx)                   Input Shape               Output Shape              Param #                   Trainable
+============================================================================================================================================
+ResNet50                                 [256, 3, 256, 256]        [256, 45]                 --                        True
+├─Conv2d: 1-1                            [256, 3, 256, 256]        [256, 64, 128, 128]       9,408                     True
+├─BatchNorm2d: 1-2                       [256, 64, 128, 128]       [256, 64, 128, 128]       128                       True
+├─ReLU: 1-3                              [256, 64, 128, 128]       [256, 64, 128, 128]       --                        --
+├─MaxPool2d: 1-4                         [256, 64, 128, 128]       [256, 64, 64, 64]         --                        --
+├─Sequential: 1-5                        [256, 64, 64, 64]         [256, 256, 64, 64]        --                        True
+│    └─Bottleneck: 2-1                   [256, 64, 64, 64]         [256, 256, 64, 64]        --                        True
+│    │    └─Conv2d: 3-1                  [256, 64, 64, 64]         [256, 64, 64, 64]         4,096                     True
+│    │    └─BatchNorm2d: 3-2             [256, 64, 64, 64]         [256, 64, 64, 64]         128                       True
+│    │    └─ReLU: 3-3                    [256, 64, 64, 64]         [256, 64, 64, 64]         --                        --
+│    │    └─Conv2d: 3-4                  [256, 64, 64, 64]         [256, 64, 64, 64]         36,864                    True
+│    │    └─BatchNorm2d: 3-5             [256, 64, 64, 64]         [256, 64, 64, 64]         128                       True
+│    │    └─ReLU: 3-6                    [256, 64, 64, 64]         [256, 64, 64, 64]         --                        --
+│    │    └─Conv2d: 3-7                  [256, 64, 64, 64]         [256, 256, 64, 64]        16,384                    True
+│    │    └─BatchNorm2d: 3-8             [256, 256, 64, 64]        [256, 256, 64, 64]        512                       True
+│    │    └─Sequential: 3-9              [256, 64, 64, 64]         [256, 256, 64, 64]        --                        True
+│    │    │    └─Conv2d: 4-1             [256, 64, 64, 64]         [256, 256, 64, 64]        16,384                    True
+│    │    │    └─BatchNorm2d: 4-2        [256, 256, 64, 64]        [256, 256, 64, 64]        512                       True
+│    │    └─ReLU: 3-10                   [256, 256, 64, 64]        [256, 256, 64, 64]        --                        --
+│    └─Bottleneck: 2-2                   [256, 256, 64, 64]        [256, 256, 64, 64]        --                        True
+│    │    └─Conv2d: 3-11                 [256, 256, 64, 64]        [256, 64, 64, 64]         16,384                    True
+│    │    └─BatchNorm2d: 3-12            [256, 64, 64, 64]         [256, 64, 64, 64]         128                       True
+│    │    └─ReLU: 3-13                   [256, 64, 64, 64]         [256, 64, 64, 64]         --                        --
+│    │    └─Conv2d: 3-14                 [256, 64, 64, 64]         [256, 64, 64, 64]         36,864                    True
+│    │    └─BatchNorm2d: 3-15            [256, 64, 64, 64]         [256, 64, 64, 64]         128                       True
+│    │    └─ReLU: 3-16                   [256, 64, 64, 64]         [256, 64, 64, 64]         --                        --
+│    │    └─Conv2d: 3-17                 [256, 64, 64, 64]         [256, 256, 64, 64]        16,384                    True
+│    │    └─BatchNorm2d: 3-18            [256, 256, 64, 64]        [256, 256, 64, 64]        512                       True
+│    │    └─Sequential: 3-19             [256, 256, 64, 64]        [256, 256, 64, 64]        --                        --
+│    │    └─ReLU: 3-20                   [256, 256, 64, 64]        [256, 256, 64, 64]        --                        --
+│    └─Bottleneck: 2-3                   [256, 256, 64, 64]        [256, 256, 64, 64]        --                        True
+│    │    └─Conv2d: 3-21                 [256, 256, 64, 64]        [256, 64, 64, 64]         16,384                    True
+│    │    └─BatchNorm2d: 3-22            [256, 64, 64, 64]         [256, 64, 64, 64]         128                       True
+│    │    └─ReLU: 3-23                   [256, 64, 64, 64]         [256, 64, 64, 64]         --                        --
+│    │    └─Conv2d: 3-24                 [256, 64, 64, 64]         [256, 64, 64, 64]         36,864                    True
+│    │    └─BatchNorm2d: 3-25            [256, 64, 64, 64]         [256, 64, 64, 64]         128                       True
+│    │    └─ReLU: 3-26                   [256, 64, 64, 64]         [256, 64, 64, 64]         --                        --
+│    │    └─Conv2d: 3-27                 [256, 64, 64, 64]         [256, 256, 64, 64]        16,384                    True
+│    │    └─BatchNorm2d: 3-28            [256, 256, 64, 64]        [256, 256, 64, 64]        512                       True
+│    │    └─Sequential: 3-29             [256, 256, 64, 64]        [256, 256, 64, 64]        --                        --
+│    │    └─ReLU: 3-30                   [256, 256, 64, 64]        [256, 256, 64, 64]        --                        --
+├─Sequential: 1-6                        [256, 256, 64, 64]        [256, 512, 32, 32]        --                        True
+│    └─Bottleneck: 2-4                   [256, 256, 64, 64]        [256, 512, 32, 32]        --                        True
+│    │    └─Conv2d: 3-31                 [256, 256, 64, 64]        [256, 128, 64, 64]        32,768                    True
+│    │    └─BatchNorm2d: 3-32            [256, 128, 64, 64]        [256, 128, 64, 64]        256                       True
+│    │    └─ReLU: 3-33                   [256, 128, 64, 64]        [256, 128, 64, 64]        --                        --
+│    │    └─Conv2d: 3-34                 [256, 128, 64, 64]        [256, 128, 32, 32]        147,456                   True
+│    │    └─BatchNorm2d: 3-35            [256, 128, 32, 32]        [256, 128, 32, 32]        256                       True
+│    │    └─ReLU: 3-36                   [256, 128, 32, 32]        [256, 128, 32, 32]        --                        --
+│    │    └─Conv2d: 3-37                 [256, 128, 32, 32]        [256, 512, 32, 32]        65,536                    True
+│    │    └─BatchNorm2d: 3-38            [256, 512, 32, 32]        [256, 512, 32, 32]        1,024                     True
+│    │    └─Sequential: 3-39             [256, 256, 64, 64]        [256, 512, 32, 32]        --                        True
+│    │    │    └─Conv2d: 4-3             [256, 256, 64, 64]        [256, 512, 32, 32]        131,072                   True
+│    │    │    └─BatchNorm2d: 4-4        [256, 512, 32, 32]        [256, 512, 32, 32]        1,024                     True
+│    │    └─ReLU: 3-40                   [256, 512, 32, 32]        [256, 512, 32, 32]        --                        --
+│    └─Bottleneck: 2-5                   [256, 512, 32, 32]        [256, 512, 32, 32]        --                        True
+│    │    └─Conv2d: 3-41                 [256, 512, 32, 32]        [256, 128, 32, 32]        65,536                    True
+│    │    └─BatchNorm2d: 3-42            [256, 128, 32, 32]        [256, 128, 32, 32]        256                       True
+│    │    └─ReLU: 3-43                   [256, 128, 32, 32]        [256, 128, 32, 32]        --                        --
+│    │    └─Conv2d: 3-44                 [256, 128, 32, 32]        [256, 128, 32, 32]        147,456                   True
+│    │    └─BatchNorm2d: 3-45            [256, 128, 32, 32]        [256, 128, 32, 32]        256                       True
+│    │    └─ReLU: 3-46                   [256, 128, 32, 32]        [256, 128, 32, 32]        --                        --
+│    │    └─Conv2d: 3-47                 [256, 128, 32, 32]        [256, 512, 32, 32]        65,536                    True
+│    │    └─BatchNorm2d: 3-48            [256, 512, 32, 32]        [256, 512, 32, 32]        1,024                     True
+│    │    └─Sequential: 3-49             [256, 512, 32, 32]        [256, 512, 32, 32]        --                        --
+│    │    └─ReLU: 3-50                   [256, 512, 32, 32]        [256, 512, 32, 32]        --                        --
+│    └─Bottleneck: 2-6                   [256, 512, 32, 32]        [256, 512, 32, 32]        --                        True
+│    │    └─Conv2d: 3-51                 [256, 512, 32, 32]        [256, 128, 32, 32]        65,536                    True
+│    │    └─BatchNorm2d: 3-52            [256, 128, 32, 32]        [256, 128, 32, 32]        256                       True
+│    │    └─ReLU: 3-53                   [256, 128, 32, 32]        [256, 128, 32, 32]        --                        --
+│    │    └─Conv2d: 3-54                 [256, 128, 32, 32]        [256, 128, 32, 32]        147,456                   True
+│    │    └─BatchNorm2d: 3-55            [256, 128, 32, 32]        [256, 128, 32, 32]        256                       True
+│    │    └─ReLU: 3-56                   [256, 128, 32, 32]        [256, 128, 32, 32]        --                        --
+│    │    └─Conv2d: 3-57                 [256, 128, 32, 32]        [256, 512, 32, 32]        65,536                    True
+│    │    └─BatchNorm2d: 3-58            [256, 512, 32, 32]        [256, 512, 32, 32]        1,024                     True
+│    │    └─Sequential: 3-59             [256, 512, 32, 32]        [256, 512, 32, 32]        --                        --
+│    │    └─ReLU: 3-60                   [256, 512, 32, 32]        [256, 512, 32, 32]        --                        --
+│    └─Bottleneck: 2-7                   [256, 512, 32, 32]        [256, 512, 32, 32]        --                        True
+│    │    └─Conv2d: 3-61                 [256, 512, 32, 32]        [256, 128, 32, 32]        65,536                    True
+│    │    └─BatchNorm2d: 3-62            [256, 128, 32, 32]        [256, 128, 32, 32]        256                       True
+│    │    └─ReLU: 3-63                   [256, 128, 32, 32]        [256, 128, 32, 32]        --                        --
+│    │    └─Conv2d: 3-64                 [256, 128, 32, 32]        [256, 128, 32, 32]        147,456                   True
+│    │    └─BatchNorm2d: 3-65            [256, 128, 32, 32]        [256, 128, 32, 32]        256                       True
+│    │    └─ReLU: 3-66                   [256, 128, 32, 32]        [256, 128, 32, 32]        --                        --
+│    │    └─Conv2d: 3-67                 [256, 128, 32, 32]        [256, 512, 32, 32]        65,536                    True
+│    │    └─BatchNorm2d: 3-68            [256, 512, 32, 32]        [256, 512, 32, 32]        1,024                     True
+│    │    └─Sequential: 3-69             [256, 512, 32, 32]        [256, 512, 32, 32]        --                        --
+│    │    └─ReLU: 3-70                   [256, 512, 32, 32]        [256, 512, 32, 32]        --                        --
+├─Sequential: 1-7                        [256, 512, 32, 32]        [256, 1024, 16, 16]       --                        True
+│    └─Bottleneck: 2-8                   [256, 512, 32, 32]        [256, 1024, 16, 16]       --                        True
+│    │    └─Conv2d: 3-71                 [256, 512, 32, 32]        [256, 256, 32, 32]        131,072                   True
+│    │    └─BatchNorm2d: 3-72            [256, 256, 32, 32]        [256, 256, 32, 32]        512                       True
+│    │    └─ReLU: 3-73                   [256, 256, 32, 32]        [256, 256, 32, 32]        --                        --
+│    │    └─Conv2d: 3-74                 [256, 256, 32, 32]        [256, 256, 16, 16]        589,824                   True
+│    │    └─BatchNorm2d: 3-75            [256, 256, 16, 16]        [256, 256, 16, 16]        512                       True
+│    │    └─ReLU: 3-76                   [256, 256, 16, 16]        [256, 256, 16, 16]        --                        --
+│    │    └─Conv2d: 3-77                 [256, 256, 16, 16]        [256, 1024, 16, 16]       262,144                   True
+│    │    └─BatchNorm2d: 3-78            [256, 1024, 16, 16]       [256, 1024, 16, 16]       2,048                     True
+│    │    └─Sequential: 3-79             [256, 512, 32, 32]        [256, 1024, 16, 16]       --                        True
+│    │    │    └─Conv2d: 4-5             [256, 512, 32, 32]        [256, 1024, 16, 16]       524,288                   True
+│    │    │    └─BatchNorm2d: 4-6        [256, 1024, 16, 16]       [256, 1024, 16, 16]       2,048                     True
+│    │    └─ReLU: 3-80                   [256, 1024, 16, 16]       [256, 1024, 16, 16]       --                        --
+│    └─Bottleneck: 2-9                   [256, 1024, 16, 16]       [256, 1024, 16, 16]       --                        True
+│    │    └─Conv2d: 3-81                 [256, 1024, 16, 16]       [256, 256, 16, 16]        262,144                   True
+│    │    └─BatchNorm2d: 3-82            [256, 256, 16, 16]        [256, 256, 16, 16]        512                       True
+│    │    └─ReLU: 3-83                   [256, 256, 16, 16]        [256, 256, 16, 16]        --                        --
+│    │    └─Conv2d: 3-84                 [256, 256, 16, 16]        [256, 256, 16, 16]        589,824                   True
+│    │    └─BatchNorm2d: 3-85            [256, 256, 16, 16]        [256, 256, 16, 16]        512                       True
+│    │    └─ReLU: 3-86                   [256, 256, 16, 16]        [256, 256, 16, 16]        --                        --
+│    │    └─Conv2d: 3-87                 [256, 256, 16, 16]        [256, 1024, 16, 16]       262,144                   True
+│    │    └─BatchNorm2d: 3-88            [256, 1024, 16, 16]       [256, 1024, 16, 16]       2,048                     True
+│    │    └─Sequential: 3-89             [256, 1024, 16, 16]       [256, 1024, 16, 16]       --                        --
+│    │    └─ReLU: 3-90                   [256, 1024, 16, 16]       [256, 1024, 16, 16]       --                        --
+│    └─Bottleneck: 2-10                  [256, 1024, 16, 16]       [256, 1024, 16, 16]       --                        True
+│    │    └─Conv2d: 3-91                 [256, 1024, 16, 16]       [256, 256, 16, 16]        262,144                   True
+│    │    └─BatchNorm2d: 3-92            [256, 256, 16, 16]        [256, 256, 16, 16]        512                       True
+│    │    └─ReLU: 3-93                   [256, 256, 16, 16]        [256, 256, 16, 16]        --                        --
+│    │    └─Conv2d: 3-94                 [256, 256, 16, 16]        [256, 256, 16, 16]        589,824                   True
+│    │    └─BatchNorm2d: 3-95            [256, 256, 16, 16]        [256, 256, 16, 16]        512                       True
+│    │    └─ReLU: 3-96                   [256, 256, 16, 16]        [256, 256, 16, 16]        --                        --
+│    │    └─Conv2d: 3-97                 [256, 256, 16, 16]        [256, 1024, 16, 16]       262,144                   True
+│    │    └─BatchNorm2d: 3-98            [256, 1024, 16, 16]       [256, 1024, 16, 16]       2,048                     True
+│    │    └─Sequential: 3-99             [256, 1024, 16, 16]       [256, 1024, 16, 16]       --                        --
+│    │    └─ReLU: 3-100                  [256, 1024, 16, 16]       [256, 1024, 16, 16]       --                        --
+│    └─Bottleneck: 2-11                  [256, 1024, 16, 16]       [256, 1024, 16, 16]       --                        True
+│    │    └─Conv2d: 3-101                [256, 1024, 16, 16]       [256, 256, 16, 16]        262,144                   True
+│    │    └─BatchNorm2d: 3-102           [256, 256, 16, 16]        [256, 256, 16, 16]        512                       True
+│    │    └─ReLU: 3-103                  [256, 256, 16, 16]        [256, 256, 16, 16]        --                        --
+│    │    └─Conv2d: 3-104                [256, 256, 16, 16]        [256, 256, 16, 16]        589,824                   True
+│    │    └─BatchNorm2d: 3-105           [256, 256, 16, 16]        [256, 256, 16, 16]        512                       True
+│    │    └─ReLU: 3-106                  [256, 256, 16, 16]        [256, 256, 16, 16]        --                        --
+│    │    └─Conv2d: 3-107                [256, 256, 16, 16]        [256, 1024, 16, 16]       262,144                   True
+│    │    └─BatchNorm2d: 3-108           [256, 1024, 16, 16]       [256, 1024, 16, 16]       2,048                     True
+│    │    └─Sequential: 3-109            [256, 1024, 16, 16]       [256, 1024, 16, 16]       --                        --
+│    │    └─ReLU: 3-110                  [256, 1024, 16, 16]       [256, 1024, 16, 16]       --                        --
+│    └─Bottleneck: 2-12                  [256, 1024, 16, 16]       [256, 1024, 16, 16]       --                        True
+│    │    └─Conv2d: 3-111                [256, 1024, 16, 16]       [256, 256, 16, 16]        262,144                   True
+│    │    └─BatchNorm2d: 3-112           [256, 256, 16, 16]        [256, 256, 16, 16]        512                       True
+│    │    └─ReLU: 3-113                  [256, 256, 16, 16]        [256, 256, 16, 16]        --                        --
+│    │    └─Conv2d: 3-114                [256, 256, 16, 16]        [256, 256, 16, 16]        589,824                   True
+│    │    └─BatchNorm2d: 3-115           [256, 256, 16, 16]        [256, 256, 16, 16]        512                       True
+│    │    └─ReLU: 3-116                  [256, 256, 16, 16]        [256, 256, 16, 16]        --                        --
+│    │    └─Conv2d: 3-117                [256, 256, 16, 16]        [256, 1024, 16, 16]       262,144                   True
+│    │    └─BatchNorm2d: 3-118           [256, 1024, 16, 16]       [256, 1024, 16, 16]       2,048                     True
+│    │    └─Sequential: 3-119            [256, 1024, 16, 16]       [256, 1024, 16, 16]       --                        --
+│    │    └─ReLU: 3-120                  [256, 1024, 16, 16]       [256, 1024, 16, 16]       --                        --
+│    └─Bottleneck: 2-13                  [256, 1024, 16, 16]       [256, 1024, 16, 16]       --                        True
+│    │    └─Conv2d: 3-121                [256, 1024, 16, 16]       [256, 256, 16, 16]        262,144                   True
+│    │    └─BatchNorm2d: 3-122           [256, 256, 16, 16]        [256, 256, 16, 16]        512                       True
+│    │    └─ReLU: 3-123                  [256, 256, 16, 16]        [256, 256, 16, 16]        --                        --
+│    │    └─Conv2d: 3-124                [256, 256, 16, 16]        [256, 256, 16, 16]        589,824                   True
+│    │    └─BatchNorm2d: 3-125           [256, 256, 16, 16]        [256, 256, 16, 16]        512                       True
+│    │    └─ReLU: 3-126                  [256, 256, 16, 16]        [256, 256, 16, 16]        --                        --
+│    │    └─Conv2d: 3-127                [256, 256, 16, 16]        [256, 1024, 16, 16]       262,144                   True
+│    │    └─BatchNorm2d: 3-128           [256, 1024, 16, 16]       [256, 1024, 16, 16]       2,048                     True
+│    │    └─Sequential: 3-129            [256, 1024, 16, 16]       [256, 1024, 16, 16]       --                        --
+│    │    └─ReLU: 3-130                  [256, 1024, 16, 16]       [256, 1024, 16, 16]       --                        --
+├─Sequential: 1-8                        [256, 1024, 16, 16]       [256, 2048, 8, 8]         --                        True
+│    └─Bottleneck: 2-14                  [256, 1024, 16, 16]       [256, 2048, 8, 8]         --                        True
+│    │    └─Conv2d: 3-131                [256, 1024, 16, 16]       [256, 512, 16, 16]        524,288                   True
+│    │    └─BatchNorm2d: 3-132           [256, 512, 16, 16]        [256, 512, 16, 16]        1,024                     True
+│    │    └─ReLU: 3-133                  [256, 512, 16, 16]        [256, 512, 16, 16]        --                        --
+│    │    └─Conv2d: 3-134                [256, 512, 16, 16]        [256, 512, 8, 8]          2,359,296                 True
+│    │    └─BatchNorm2d: 3-135           [256, 512, 8, 8]          [256, 512, 8, 8]          1,024                     True
+│    │    └─ReLU: 3-136                  [256, 512, 8, 8]          [256, 512, 8, 8]          --                        --
+│    │    └─Conv2d: 3-137                [256, 512, 8, 8]          [256, 2048, 8, 8]         1,048,576                 True
+│    │    └─BatchNorm2d: 3-138           [256, 2048, 8, 8]         [256, 2048, 8, 8]         4,096                     True
+│    │    └─Sequential: 3-139            [256, 1024, 16, 16]       [256, 2048, 8, 8]         --                        True
+│    │    │    └─Conv2d: 4-7             [256, 1024, 16, 16]       [256, 2048, 8, 8]         2,097,152                 True
+│    │    │    └─BatchNorm2d: 4-8        [256, 2048, 8, 8]         [256, 2048, 8, 8]         4,096                     True
+│    │    └─ReLU: 3-140                  [256, 2048, 8, 8]         [256, 2048, 8, 8]         --                        --
+│    └─Bottleneck: 2-15                  [256, 2048, 8, 8]         [256, 2048, 8, 8]         --                        True
+│    │    └─Conv2d: 3-141                [256, 2048, 8, 8]         [256, 512, 8, 8]          1,048,576                 True
+│    │    └─BatchNorm2d: 3-142           [256, 512, 8, 8]          [256, 512, 8, 8]          1,024                     True
+│    │    └─ReLU: 3-143                  [256, 512, 8, 8]          [256, 512, 8, 8]          --                        --
+│    │    └─Conv2d: 3-144                [256, 512, 8, 8]          [256, 512, 8, 8]          2,359,296                 True
+│    │    └─BatchNorm2d: 3-145           [256, 512, 8, 8]          [256, 512, 8, 8]          1,024                     True
+│    │    └─ReLU: 3-146                  [256, 512, 8, 8]          [256, 512, 8, 8]          --                        --
+│    │    └─Conv2d: 3-147                [256, 512, 8, 8]          [256, 2048, 8, 8]         1,048,576                 True
+│    │    └─BatchNorm2d: 3-148           [256, 2048, 8, 8]         [256, 2048, 8, 8]         4,096                     True
+│    │    └─Sequential: 3-149            [256, 2048, 8, 8]         [256, 2048, 8, 8]         --                        --
+│    │    └─ReLU: 3-150                  [256, 2048, 8, 8]         [256, 2048, 8, 8]         --                        --
+│    └─Bottleneck: 2-16                  [256, 2048, 8, 8]         [256, 2048, 8, 8]         --                        True
+│    │    └─Conv2d: 3-151                [256, 2048, 8, 8]         [256, 512, 8, 8]          1,048,576                 True
+│    │    └─BatchNorm2d: 3-152           [256, 512, 8, 8]          [256, 512, 8, 8]          1,024                     True
+│    │    └─ReLU: 3-153                  [256, 512, 8, 8]          [256, 512, 8, 8]          --                        --
+│    │    └─Conv2d: 3-154                [256, 512, 8, 8]          [256, 512, 8, 8]          2,359,296                 True
+│    │    └─BatchNorm2d: 3-155           [256, 512, 8, 8]          [256, 512, 8, 8]          1,024                     True
+│    │    └─ReLU: 3-156                  [256, 512, 8, 8]          [256, 512, 8, 8]          --                        --
+│    │    └─Conv2d: 3-157                [256, 512, 8, 8]          [256, 2048, 8, 8]         1,048,576                 True
+│    │    └─BatchNorm2d: 3-158           [256, 2048, 8, 8]         [256, 2048, 8, 8]         4,096                     True
+│    │    └─Sequential: 3-159            [256, 2048, 8, 8]         [256, 2048, 8, 8]         --                        --
+│    │    └─ReLU: 3-160                  [256, 2048, 8, 8]         [256, 2048, 8, 8]         --                        --
+├─AdaptiveAvgPool2d: 1-9                 [256, 2048, 8, 8]         [256, 2048, 1, 1]         --                        --
+├─Linear: 1-10                           [256, 2048]               [256, 512]                1,048,576                 True
+├─Linear: 1-11                           [256, 2048]               [256, 45]                 92,205                    True
+============================================================================================================================================
+Total params: 24,648,813
+Trainable params: 24,648,813
+Non-trainable params: 0
+Total mult-adds (Units.TERABYTES): 1.37
+============================================================================================================================================
+Input size (MB): 201.33
+Forward/backward pass size (MB): 59459.59
+Params size (MB): 98.60
+Estimated Total Size (MB): 59759.52
+============================================================================================================================================
+
+
+2025-11-06 01:08:32,830 [INFO] [framework.dataset.load_for_training] (load_for_training.load_hf_splits:45) :: Loading Dataset: timm/resisc45
+2025-11-06 01:08:33,912 [INFO] [framework.dataset.load_for_training] (load_for_training.build_loaders_from_hf:261) :: Start normalization.
+2025-11-06 01:08:47,102 [INFO] [framework.dataset.load_for_training] (load_for_training.build_loaders_from_hf:285) :: Before normalization --> norm_mean: [93.89390563964844, 97.11225891113281, 87.5677490234375]
+norm_std: [51.84919357299805, 47.23660659790039, 47.06311798095703]
+2025-11-06 01:08:47,258 [INFO] [framework.training.trainer] (trainer.train:40) :: Checkpoints path: experiments/Experiment_5/Run_6
+2025-11-06 01:08:47,258 [INFO] [framework.training.trainer] (trainer.train:43) :: Metrics path: experiments/Experiment_5/Run_6/metrics.jsonl
+2025-11-06 01:08:47,258 [INFO] [framework.training.trainer] (trainer.train:60) :: Using device: cuda --> move model to device: cuda
+2025-11-06 01:08:47,261 [INFO] [framework.training.trainer] (trainer._train_one_epoch:603) :: Epoch 1/50 — 74 steps total
+2025-11-06 01:10:31,315 [INFO] [framework.training.trainer] (trainer.train:144) :: Epoch 001 | train_loss 3.9918 train_accuracy 5.20% | val_loss 3.7572 val_accuracy 8.03 val_MSE 0.02%
+2025-11-06 01:10:31,316 [INFO] [framework.training.trainer] (trainer.train:148) :: Time taken for epoch 1 = 104.06 sec
+2025-11-06 01:10:31,700 [INFO] [framework.training.trainer] (trainer._train_one_epoch:603) :: Epoch 2/50 — 74 steps total
+2025-11-06 01:12:16,933 [INFO] [framework.training.trainer] (trainer.train:144) :: Epoch 002 | train_loss 3.3739 train_accuracy 9.80% | val_loss 3.2790 val_accuracy 12.92 val_MSE 0.02%
+2025-11-06 01:12:16,934 [INFO] [framework.training.trainer] (trainer.train:148) :: Time taken for epoch 2 = 105.23 sec
+2025-11-06 01:12:17,411 [INFO] [framework.training.trainer] (trainer._train_one_epoch:603) :: Epoch 3/50 — 74 steps total
+2025-11-06 01:14:01,248 [INFO] [framework.training.trainer] (trainer.train:144) :: Epoch 003 | train_loss 3.1633 train_accuracy 14.25% | val_loss 3.1286 val_accuracy 15.70 val_MSE 0.02%
+2025-11-06 01:14:01,248 [INFO] [framework.training.trainer] (trainer.train:148) :: Time taken for epoch 3 = 103.84 sec
+2025-11-06 01:14:01,747 [INFO] [framework.training.trainer] (trainer._train_one_epoch:603) :: Epoch 4/50 — 74 steps total
+2025-11-06 01:15:43,750 [INFO] [framework.training.trainer] (trainer.train:144) :: Epoch 004 | train_loss 2.9790 train_accuracy 17.56% | val_loss 4.4772 val_accuracy 17.52 val_MSE 0.02%
+2025-11-06 01:15:43,751 [INFO] [framework.training.trainer] (trainer.train:148) :: Time taken for epoch 4 = 102.01 sec
+2025-11-06 01:15:44,261 [INFO] [framework.training.trainer] (trainer._train_one_epoch:603) :: Epoch 5/50 — 74 steps total
+2025-11-06 01:17:26,426 [INFO] [framework.training.trainer] (trainer.train:144) :: Epoch 005 | train_loss 2.8180 train_accuracy 21.02% | val_loss 2.8562 val_accuracy 23.56 val_MSE 0.02%
+2025-11-06 01:17:26,426 [INFO] [framework.training.trainer] (trainer.train:148) :: Time taken for epoch 5 = 102.17 sec
+2025-11-06 01:17:26,939 [INFO] [framework.training.trainer] (trainer._train_one_epoch:603) :: Epoch 6/50 — 74 steps total
+2025-11-06 01:19:09,884 [INFO] [framework.training.trainer] (trainer.train:144) :: Epoch 006 | train_loss 2.6880 train_accuracy 24.42% | val_loss 2.6162 val_accuracy 26.65 val_MSE 0.02%
+2025-11-06 01:19:09,884 [INFO] [framework.training.trainer] (trainer.train:148) :: Time taken for epoch 6 = 102.95 sec
+2025-11-06 01:19:10,362 [INFO] [framework.training.trainer] (trainer._train_one_epoch:603) :: Epoch 7/50 — 74 steps total
+2025-11-06 01:20:52,756 [INFO] [framework.training.trainer] (trainer.train:144) :: Epoch 007 | train_loss 2.5669 train_accuracy 27.53% | val_loss 2.4877 val_accuracy 32.65 val_MSE 0.02%
+2025-11-06 01:20:52,756 [INFO] [framework.training.trainer] (trainer.train:148) :: Time taken for epoch 7 = 102.40 sec
+2025-11-06 01:20:53,256 [INFO] [framework.training.trainer] (trainer._train_one_epoch:603) :: Epoch 8/50 — 74 steps total
+2025-11-06 01:22:35,808 [INFO] [framework.training.trainer] (trainer.train:144) :: Epoch 008 | train_loss 2.4366 train_accuracy 30.52% | val_loss 2.1744 val_accuracy 38.13 val_MSE 0.02%
+2025-11-06 01:22:35,809 [INFO] [framework.training.trainer] (trainer.train:148) :: Time taken for epoch 8 = 102.55 sec
+2025-11-06 01:22:36,284 [INFO] [framework.training.trainer] (trainer._train_one_epoch:603) :: Epoch 9/50 — 74 steps total
+2025-11-06 01:24:18,942 [INFO] [framework.training.trainer] (trainer.train:144) :: Epoch 009 | train_loss 2.3653 train_accuracy 32.60% | val_loss 2.2171 val_accuracy 40.11 val_MSE 0.02%
+2025-11-06 01:24:18,943 [INFO] [framework.training.trainer] (trainer.train:148) :: Time taken for epoch 9 = 102.66 sec
+2025-11-06 01:24:19,422 [INFO] [framework.training.trainer] (trainer._train_one_epoch:603) :: Epoch 10/50 — 74 steps total
+2025-11-06 01:26:03,282 [INFO] [framework.training.trainer] (trainer.train:144) :: Epoch 010 | train_loss 2.2620 train_accuracy 34.96% | val_loss 5.4355 val_accuracy 39.08 val_MSE 0.02%
+2025-11-06 01:26:03,283 [INFO] [framework.training.trainer] (trainer.train:148) :: Time taken for epoch 10 = 103.86 sec
+2025-11-06 01:26:03,284 [INFO] [framework.training.trainer] (trainer._train_one_epoch:603) :: Epoch 11/50 — 74 steps total
+2025-11-06 01:27:48,057 [INFO] [framework.training.trainer] (trainer.train:144) :: Epoch 011 | train_loss 2.1665 train_accuracy 37.08% | val_loss 1.9708 val_accuracy 43.70 val_MSE 0.02%
+2025-11-06 01:27:48,057 [INFO] [framework.training.trainer] (trainer.train:148) :: Time taken for epoch 11 = 104.77 sec
+2025-11-06 01:27:48,537 [INFO] [framework.training.trainer] (trainer._train_one_epoch:603) :: Epoch 12/50 — 74 steps total
+2025-11-06 01:29:31,371 [INFO] [framework.training.trainer] (trainer.train:144) :: Epoch 012 | train_loss 2.0821 train_accuracy 40.36% | val_loss 1.8522 val_accuracy 45.94 val_MSE 0.02%
+2025-11-06 01:29:31,371 [INFO] [framework.training.trainer] (trainer.train:148) :: Time taken for epoch 12 = 102.83 sec
+2025-11-06 01:29:31,850 [INFO] [framework.training.trainer] (trainer._train_one_epoch:603) :: Epoch 13/50 — 74 steps total
+2025-11-06 01:31:15,184 [INFO] [framework.training.trainer] (trainer.train:144) :: Epoch 013 | train_loss 1.9853 train_accuracy 41.98% | val_loss 1.7279 val_accuracy 50.41 val_MSE 0.01%
+2025-11-06 01:31:15,184 [INFO] [framework.training.trainer] (trainer.train:148) :: Time taken for epoch 13 = 103.33 sec
+2025-11-06 01:31:15,695 [INFO] [framework.training.trainer] (trainer._train_one_epoch:603) :: Epoch 14/50 — 74 steps total
+2025-11-06 01:32:59,203 [INFO] [framework.training.trainer] (trainer.train:144) :: Epoch 014 | train_loss 1.9048 train_accuracy 44.36% | val_loss 1.6379 val_accuracy 51.17 val_MSE 0.01%
+2025-11-06 01:32:59,204 [INFO] [framework.training.trainer] (trainer.train:148) :: Time taken for epoch 14 = 103.51 sec
+2025-11-06 01:32:59,709 [INFO] [framework.training.trainer] (trainer._train_one_epoch:603) :: Epoch 15/50 — 74 steps total
+2025-11-06 01:34:42,329 [INFO] [framework.training.trainer] (trainer.train:144) :: Epoch 015 | train_loss 1.8225 train_accuracy 46.87% | val_loss 1.8877 val_accuracy 46.63 val_MSE 0.02%
+2025-11-06 01:34:42,329 [INFO] [framework.training.trainer] (trainer.train:148) :: Time taken for epoch 15 = 102.62 sec
+2025-11-06 01:34:42,330 [INFO] [framework.training.trainer] (trainer._train_one_epoch:603) :: Epoch 16/50 — 74 steps total
+2025-11-06 01:36:25,540 [INFO] [framework.training.trainer] (trainer.train:144) :: Epoch 016 | train_loss 1.7297 train_accuracy 48.89% | val_loss 1.5984 val_accuracy 56.63 val_MSE 0.01%
+2025-11-06 01:36:25,540 [INFO] [framework.training.trainer] (trainer.train:148) :: Time taken for epoch 16 = 103.21 sec
+2025-11-06 01:36:26,047 [INFO] [framework.training.trainer] (trainer._train_one_epoch:603) :: Epoch 17/50 — 74 steps total
+2025-11-06 01:38:08,239 [INFO] [framework.training.trainer] (trainer.train:144) :: Epoch 017 | train_loss 1.6438 train_accuracy 51.04% | val_loss 1.3833 val_accuracy 57.56 val_MSE 0.01%
+2025-11-06 01:38:08,239 [INFO] [framework.training.trainer] (trainer.train:148) :: Time taken for epoch 17 = 102.19 sec
+2025-11-06 01:38:08,749 [INFO] [framework.training.trainer] (trainer._train_one_epoch:603) :: Epoch 18/50 — 74 steps total
+2025-11-06 01:39:51,731 [INFO] [framework.training.trainer] (trainer.train:144) :: Epoch 018 | train_loss 1.5604 train_accuracy 53.79% | val_loss 3.1615 val_accuracy 55.03 val_MSE 0.01%
+2025-11-06 01:39:51,732 [INFO] [framework.training.trainer] (trainer.train:148) :: Time taken for epoch 18 = 102.98 sec
+2025-11-06 01:39:51,732 [INFO] [framework.training.trainer] (trainer._train_one_epoch:603) :: Epoch 19/50 — 74 steps total
+2025-11-06 01:41:34,987 [INFO] [framework.training.trainer] (trainer.train:144) :: Epoch 019 | train_loss 1.5016 train_accuracy 54.76% | val_loss 1.2930 val_accuracy 60.71 val_MSE 0.01%
+2025-11-06 01:41:34,987 [INFO] [framework.training.trainer] (trainer.train:148) :: Time taken for epoch 19 = 103.26 sec
+2025-11-06 01:41:35,466 [INFO] [framework.training.trainer] (trainer._train_one_epoch:603) :: Epoch 20/50 — 74 steps total
+2025-11-06 01:43:19,343 [INFO] [framework.training.trainer] (trainer.train:144) :: Epoch 020 | train_loss 1.4462 train_accuracy 56.52% | val_loss 1.6221 val_accuracy 56.56 val_MSE 0.01%
+2025-11-06 01:43:19,344 [INFO] [framework.training.trainer] (trainer.train:148) :: Time taken for epoch 20 = 103.88 sec
+2025-11-06 01:43:19,345 [INFO] [framework.training.trainer] (trainer._train_one_epoch:603) :: Epoch 21/50 — 74 steps total
+2025-11-06 01:45:04,389 [INFO] [framework.training.trainer] (trainer.train:144) :: Epoch 021 | train_loss 1.3745 train_accuracy 58.49% | val_loss 3.6413 val_accuracy 63.71 val_MSE 0.01%
+2025-11-06 01:45:04,390 [INFO] [framework.training.trainer] (trainer.train:148) :: Time taken for epoch 21 = 105.05 sec
+2025-11-06 01:45:04,870 [INFO] [framework.training.trainer] (trainer._train_one_epoch:603) :: Epoch 22/50 — 74 steps total
+2025-11-06 01:46:49,154 [INFO] [framework.training.trainer] (trainer.train:144) :: Epoch 022 | train_loss 1.3453 train_accuracy 59.55% | val_loss 1.2864 val_accuracy 64.43 val_MSE 0.01%
+2025-11-06 01:46:49,154 [INFO] [framework.training.trainer] (trainer.train:148) :: Time taken for epoch 22 = 104.29 sec
+2025-11-06 01:46:49,668 [INFO] [framework.training.trainer] (trainer._train_one_epoch:603) :: Epoch 23/50 — 74 steps total
+2025-11-06 01:48:33,329 [INFO] [framework.training.trainer] (trainer.train:144) :: Epoch 023 | train_loss 1.2655 train_accuracy 61.66% | val_loss 1.1564 val_accuracy 66.98 val_MSE 0.01%
+2025-11-06 01:48:33,329 [INFO] [framework.training.trainer] (trainer.train:148) :: Time taken for epoch 23 = 103.66 sec
+2025-11-06 01:48:33,844 [INFO] [framework.training.trainer] (trainer._train_one_epoch:603) :: Epoch 24/50 — 74 steps total
+2025-11-06 01:50:18,070 [INFO] [framework.training.trainer] (trainer.train:144) :: Epoch 024 | train_loss 1.2402 train_accuracy 62.68% | val_loss 1.3642 val_accuracy 61.17 val_MSE 0.01%
+2025-11-06 01:50:18,070 [INFO] [framework.training.trainer] (trainer.train:148) :: Time taken for epoch 24 = 104.23 sec
+2025-11-06 01:50:18,071 [INFO] [framework.training.trainer] (trainer._train_one_epoch:603) :: Epoch 25/50 — 74 steps total
+2025-11-06 01:52:01,654 [INFO] [framework.training.trainer] (trainer.train:144) :: Epoch 025 | train_loss 1.2256 train_accuracy 62.45% | val_loss 1.3366 val_accuracy 67.63 val_MSE 0.01%
+2025-11-06 01:52:01,654 [INFO] [framework.training.trainer] (trainer.train:148) :: Time taken for epoch 25 = 103.58 sec
+2025-11-06 01:52:02,172 [INFO] [framework.training.trainer] (trainer._train_one_epoch:603) :: Epoch 26/50 — 74 steps total
+2025-11-06 01:53:47,712 [INFO] [framework.training.trainer] (trainer.train:144) :: Epoch 026 | train_loss 1.1445 train_accuracy 64.68% | val_loss 1.2739 val_accuracy 70.52 val_MSE 0.01%
+2025-11-06 01:53:47,712 [INFO] [framework.training.trainer] (trainer.train:148) :: Time taken for epoch 26 = 105.54 sec
+2025-11-06 01:53:48,219 [INFO] [framework.training.trainer] (trainer._train_one_epoch:603) :: Epoch 27/50 — 74 steps total
+2025-11-06 01:55:31,520 [INFO] [framework.training.trainer] (trainer.train:144) :: Epoch 027 | train_loss 1.0980 train_accuracy 66.78% | val_loss 1.8923 val_accuracy 66.22 val_MSE 0.01%
+2025-11-06 01:55:31,520 [INFO] [framework.training.trainer] (trainer.train:148) :: Time taken for epoch 27 = 103.30 sec
+2025-11-06 01:55:31,521 [INFO] [framework.training.trainer] (trainer._train_one_epoch:603) :: Epoch 28/50 — 74 steps total
+2025-11-06 01:57:14,398 [INFO] [framework.training.trainer] (trainer.train:144) :: Epoch 028 | train_loss 1.0471 train_accuracy 67.60% | val_loss 1.1055 val_accuracy 71.27 val_MSE 0.01%
+2025-11-06 01:57:14,398 [INFO] [framework.training.trainer] (trainer.train:148) :: Time taken for epoch 28 = 102.88 sec
+2025-11-06 01:57:14,886 [INFO] [framework.training.trainer] (trainer._train_one_epoch:603) :: Epoch 29/50 — 74 steps total
+2025-11-06 01:58:58,545 [INFO] [framework.training.trainer] (trainer.train:144) :: Epoch 029 | train_loss 1.0205 train_accuracy 68.74% | val_loss 1.0816 val_accuracy 74.14 val_MSE 0.01%
+2025-11-06 01:58:58,546 [INFO] [framework.training.trainer] (trainer.train:148) :: Time taken for epoch 29 = 103.66 sec
+2025-11-06 01:58:59,029 [INFO] [framework.training.trainer] (trainer._train_one_epoch:603) :: Epoch 30/50 — 74 steps total
+2025-11-06 02:00:42,956 [INFO] [framework.training.trainer] (trainer.train:144) :: Epoch 030 | train_loss 0.9712 train_accuracy 69.89% | val_loss 2.0514 val_accuracy 71.00 val_MSE 0.01%
+2025-11-06 02:00:42,956 [INFO] [framework.training.trainer] (trainer.train:148) :: Time taken for epoch 30 = 103.93 sec
+2025-11-06 02:00:42,957 [INFO] [framework.training.trainer] (trainer._train_one_epoch:603) :: Epoch 31/50 — 74 steps total
+2025-11-06 02:02:27,533 [INFO] [framework.training.trainer] (trainer.train:144) :: Epoch 031 | train_loss 0.9623 train_accuracy 69.95% | val_loss 0.8805 val_accuracy 73.29 val_MSE 0.01%
+2025-11-06 02:02:27,534 [INFO] [framework.training.trainer] (trainer.train:148) :: Time taken for epoch 31 = 104.58 sec
+2025-11-06 02:02:27,535 [INFO] [framework.training.trainer] (trainer._train_one_epoch:603) :: Epoch 32/50 — 74 steps total
+2025-11-06 02:04:11,834 [INFO] [framework.training.trainer] (trainer.train:144) :: Epoch 032 | train_loss 0.9076 train_accuracy 71.87% | val_loss 0.8542 val_accuracy 74.89 val_MSE 0.01%
+2025-11-06 02:04:11,834 [INFO] [framework.training.trainer] (trainer.train:148) :: Time taken for epoch 32 = 104.30 sec
+2025-11-06 02:04:12,329 [INFO] [framework.training.trainer] (trainer._train_one_epoch:603) :: Epoch 33/50 — 74 steps total
+2025-11-06 02:05:55,796 [INFO] [framework.training.trainer] (trainer.train:144) :: Epoch 033 | train_loss 0.8686 train_accuracy 73.23% | val_loss 1.5134 val_accuracy 72.13 val_MSE 0.01%
+2025-11-06 02:05:55,796 [INFO] [framework.training.trainer] (trainer.train:148) :: Time taken for epoch 33 = 103.47 sec
+2025-11-06 02:05:55,797 [INFO] [framework.training.trainer] (trainer._train_one_epoch:603) :: Epoch 34/50 — 74 steps total
+2025-11-06 02:07:39,235 [INFO] [framework.training.trainer] (trainer.train:144) :: Epoch 034 | train_loss 0.8450 train_accuracy 73.83% | val_loss 0.8746 val_accuracy 75.65 val_MSE 0.01%
+2025-11-06 02:07:39,235 [INFO] [framework.training.trainer] (trainer.train:148) :: Time taken for epoch 34 = 103.44 sec
+2025-11-06 02:07:39,711 [INFO] [framework.training.trainer] (trainer._train_one_epoch:603) :: Epoch 35/50 — 74 steps total
+2025-11-06 02:09:23,310 [INFO] [framework.training.trainer] (trainer.train:144) :: Epoch 035 | train_loss 0.8129 train_accuracy 74.53% | val_loss 1.0071 val_accuracy 77.44 val_MSE 0.01%
+2025-11-06 02:09:23,311 [INFO] [framework.training.trainer] (trainer.train:148) :: Time taken for epoch 35 = 103.60 sec
+2025-11-06 02:09:23,826 [INFO] [framework.training.trainer] (trainer._train_one_epoch:603) :: Epoch 36/50 — 74 steps total
+2025-11-06 02:11:08,500 [INFO] [framework.training.trainer] (trainer.train:144) :: Epoch 036 | train_loss 0.7848 train_accuracy 75.42% | val_loss 1.4641 val_accuracy 74.84 val_MSE 0.01%
+2025-11-06 02:11:08,500 [INFO] [framework.training.trainer] (trainer.train:148) :: Time taken for epoch 36 = 104.67 sec
+2025-11-06 02:11:08,501 [INFO] [framework.training.trainer] (trainer._train_one_epoch:603) :: Epoch 37/50 — 74 steps total
+2025-11-06 02:12:52,740 [INFO] [framework.training.trainer] (trainer.train:144) :: Epoch 037 | train_loss 0.7550 train_accuracy 76.11% | val_loss 2.3887 val_accuracy 76.83 val_MSE 0.01%
+2025-11-06 02:12:52,740 [INFO] [framework.training.trainer] (trainer.train:148) :: Time taken for epoch 37 = 104.24 sec
+2025-11-06 02:12:52,741 [INFO] [framework.training.trainer] (trainer._train_one_epoch:603) :: Epoch 38/50 — 74 steps total
+2025-11-06 02:14:35,662 [INFO] [framework.training.trainer] (trainer.train:144) :: Epoch 038 | train_loss 0.7103 train_accuracy 77.40% | val_loss 4.1786 val_accuracy 76.81 val_MSE 0.01%
+2025-11-06 02:14:35,663 [INFO] [framework.training.trainer] (trainer.train:148) :: Time taken for epoch 38 = 102.92 sec
+2025-11-06 02:14:35,664 [INFO] [framework.training.trainer] (trainer._train_one_epoch:603) :: Epoch 39/50 — 74 steps total
+2025-11-06 02:16:18,834 [INFO] [framework.training.trainer] (trainer.train:144) :: Epoch 039 | train_loss 0.6965 train_accuracy 77.84% | val_loss 1.4873 val_accuracy 78.46 val_MSE 0.01%
+2025-11-06 02:16:18,834 [INFO] [framework.training.trainer] (trainer.train:148) :: Time taken for epoch 39 = 103.17 sec
+2025-11-06 02:16:19,330 [INFO] [framework.training.trainer] (trainer._train_one_epoch:603) :: Epoch 40/50 — 74 steps total
+2025-11-06 02:18:04,282 [INFO] [framework.training.trainer] (trainer.train:144) :: Epoch 040 | train_loss 0.6588 train_accuracy 79.07% | val_loss 0.7937 val_accuracy 79.89 val_MSE 0.01%
+2025-11-06 02:18:04,282 [INFO] [framework.training.trainer] (trainer.train:148) :: Time taken for epoch 40 = 104.95 sec
+2025-11-06 02:18:04,759 [INFO] [framework.training.trainer] (trainer._train_one_epoch:603) :: Epoch 41/50 — 74 steps total
+2025-11-06 02:19:49,371 [INFO] [framework.training.trainer] (trainer.train:144) :: Epoch 041 | train_loss 0.6442 train_accuracy 79.63% | val_loss 1.0175 val_accuracy 79.75 val_MSE 0.01%
+2025-11-06 02:19:49,371 [INFO] [framework.training.trainer] (trainer.train:148) :: Time taken for epoch 41 = 104.61 sec
+2025-11-06 02:19:49,372 [INFO] [framework.training.trainer] (trainer._train_one_epoch:603) :: Epoch 42/50 — 74 steps total
+2025-11-06 02:21:32,530 [INFO] [framework.training.trainer] (trainer.train:144) :: Epoch 042 | train_loss 0.6101 train_accuracy 80.47% | val_loss 2.4832 val_accuracy 79.40 val_MSE 0.01%
+2025-11-06 02:21:32,530 [INFO] [framework.training.trainer] (trainer.train:148) :: Time taken for epoch 42 = 103.16 sec
+2025-11-06 02:21:32,531 [INFO] [framework.training.trainer] (trainer._train_one_epoch:603) :: Epoch 43/50 — 74 steps total
+2025-11-06 02:23:16,598 [INFO] [framework.training.trainer] (trainer.train:144) :: Epoch 043 | train_loss 0.5877 train_accuracy 81.23% | val_loss 4.2438 val_accuracy 79.22 val_MSE 0.01%
+2025-11-06 02:23:16,598 [INFO] [framework.training.trainer] (trainer.train:148) :: Time taken for epoch 43 = 104.07 sec
+2025-11-06 02:23:16,599 [INFO] [framework.training.trainer] (trainer._train_one_epoch:603) :: Epoch 44/50 — 74 steps total
+2025-11-06 02:25:00,393 [INFO] [framework.training.trainer] (trainer.train:144) :: Epoch 044 | train_loss 0.5717 train_accuracy 81.70% | val_loss 1.0479 val_accuracy 81.16 val_MSE 0.01%
+2025-11-06 02:25:00,393 [INFO] [framework.training.trainer] (trainer.train:148) :: Time taken for epoch 44 = 103.79 sec
+2025-11-06 02:25:00,895 [INFO] [framework.training.trainer] (trainer._train_one_epoch:603) :: Epoch 45/50 — 74 steps total
+2025-11-06 02:26:44,296 [INFO] [framework.training.trainer] (trainer.train:144) :: Epoch 045 | train_loss 0.5565 train_accuracy 82.24% | val_loss 2.8835 val_accuracy 80.03 val_MSE 0.01%
+2025-11-06 02:26:44,296 [INFO] [framework.training.trainer] (trainer.train:148) :: Time taken for epoch 45 = 103.40 sec
+2025-11-06 02:26:44,297 [INFO] [framework.training.trainer] (trainer._train_one_epoch:603) :: Epoch 46/50 — 74 steps total
+2025-11-06 02:28:27,238 [INFO] [framework.training.trainer] (trainer.train:144) :: Epoch 046 | train_loss 0.5407 train_accuracy 82.45% | val_loss 1.5762 val_accuracy 81.44 val_MSE 0.01%
+2025-11-06 02:28:27,238 [INFO] [framework.training.trainer] (trainer.train:148) :: Time taken for epoch 46 = 102.94 sec
+2025-11-06 02:28:27,731 [INFO] [framework.training.trainer] (trainer._train_one_epoch:603) :: Epoch 47/50 — 74 steps total
+2025-11-06 02:30:11,596 [INFO] [framework.training.trainer] (trainer.train:144) :: Epoch 047 | train_loss 0.5398 train_accuracy 82.56% | val_loss 1.1573 val_accuracy 81.57 val_MSE 0.01%
+2025-11-06 02:30:11,597 [INFO] [framework.training.trainer] (trainer.train:148) :: Time taken for epoch 47 = 103.87 sec
+2025-11-06 02:30:12,074 [INFO] [framework.training.trainer] (trainer._train_one_epoch:603) :: Epoch 48/50 — 74 steps total
+2025-11-06 02:31:56,342 [INFO] [framework.training.trainer] (trainer.train:144) :: Epoch 048 | train_loss 0.5278 train_accuracy 82.94% | val_loss 1.1037 val_accuracy 81.54 val_MSE 0.01%
+2025-11-06 02:31:56,342 [INFO] [framework.training.trainer] (trainer.train:148) :: Time taken for epoch 48 = 104.27 sec
+2025-11-06 02:31:56,343 [INFO] [framework.training.trainer] (trainer._train_one_epoch:603) :: Epoch 49/50 — 74 steps total
+2025-11-06 02:33:40,474 [INFO] [framework.training.trainer] (trainer.train:144) :: Epoch 049 | train_loss 0.5172 train_accuracy 83.58% | val_loss 1.2207 val_accuracy 81.62 val_MSE 0.01%
+2025-11-06 02:33:40,474 [INFO] [framework.training.trainer] (trainer.train:148) :: Time taken for epoch 49 = 104.13 sec
+2025-11-06 02:33:40,989 [INFO] [framework.training.trainer] (trainer._train_one_epoch:603) :: Epoch 50/50 — 74 steps total
+2025-11-06 02:35:24,770 [INFO] [framework.training.trainer] (trainer.train:144) :: Epoch 050 | train_loss 0.5098 train_accuracy 83.74% | val_loss 1.5576 val_accuracy 81.24 val_MSE 0.01%
+2025-11-06 02:35:24,770 [INFO] [framework.training.trainer] (trainer.train:148) :: Time taken for epoch 50 = 103.78 sec
+2025-11-06 02:35:24,773 [INFO] [framework.utils.plot_repository] (plot_repository._prepare_series:57) :: Path Teacher Metrics: /home/ubuntu/code/data/metrics.jsonl
+2025-11-06 02:35:24,773 [INFO] [framework.utils.plot_repository] (plot_repository._prepare_series:61) :: Path Student Baseline: /home/ubuntu/code/data/R-L-Net
+2025-11-06 02:35:24,773 [INFO] [framework.utils.plot_repository] (plot_repository._prepare_series:65) :: Path new Student metrics: /home/ubuntu/code/data/R-L-Net/experiments/Experiment_5/Run_6/metrics.jsonl
+2025-11-06 02:35:24,773 [INFO] [framework.utils.plot_repository] (plot_repository._prepare_series:78) :: Loading student baseline metrics from /home/ubuntu/code/data/R-L-Net
+2025-11-06 02:35:24,773 [WARNING] [framework.utils.plot_repository] (plot_repository._prepare_series:81) :: Could not load baseline student metrics from /home/ubuntu/code/data/R-L-Net: [Errno 21] Is a directory: '/home/ubuntu/code/data/R-L-Net'
+2025-11-06 02:35:24,773 [INFO] [framework.utils.plot_repository] (plot_repository._prepare_series:86) :: Loading teacher metrics from /home/ubuntu/code/data/R-L-Net/experiments/Experiment_5/Run_6/metrics.jsonl
+2025-11-06 02:35:24,790 [INFO] [framework.utils.plot_repository] (plot_repository._plot_loss:121) :: Teacher: best train loss 0.5098 at epoch 50
+2025-11-06 02:35:24,824 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:24,824 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:24,825 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:24,826 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:24,826 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:24,826 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:24,827 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:24,827 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:24,827 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:24,830 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:24,830 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:24,830 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:24,839 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:24,839 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:24,839 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:24,840 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:24,840 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:24,840 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:24,846 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:24,855 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:24,858 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:24,858 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:24,900 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:24,900 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:24,900 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:24,901 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:24,901 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:24,901 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:24,902 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:24,902 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:24,903 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:24,905 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:24,905 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:24,906 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:24,910 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:24,911 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:24,911 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:24,912 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:24,912 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:24,912 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:24,913 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:24,914 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:24,915 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:24,916 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:24,917 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:24,918 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:24,921 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:24,922 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:24,925 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:24,926 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:24,927 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:24,928 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:24,929 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:24,930 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:24,931 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:24,932 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:24,936 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:24,939 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:24,940 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:24,942 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:24,943 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:24,944 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:24,944 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,300 [INFO] [framework.utils.plot_repository] (plot_repository._plot_val_accuracy:182) :: Teacher: best val accuracy 81.62% at epoch 49
+2025-11-06 02:35:25,320 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,320 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,321 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,321 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,321 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,322 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,322 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,322 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,323 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,325 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,325 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,326 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,334 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,340 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,349 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,352 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,352 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,394 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,394 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,395 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,395 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,396 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,396 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,396 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,396 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,397 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,399 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,399 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,400 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,406 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,407 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,408 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,409 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,410 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,411 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,412 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,416 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,416 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,419 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,420 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,421 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,422 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,424 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,425 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,426 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,427 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,430 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,434 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,436 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,439 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,441 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,441 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,442 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,805 [INFO] [framework.utils.plot_repository] (plot_repository._plot_train_vs_val_accuracy:295) :: Teacher: best train acc 83.74% @ epoch 50; best val acc 81.62% @ epoch 49
+2025-11-06 02:35:25,825 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,825 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,826 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,826 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,827 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,827 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,828 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,828 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,828 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,831 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,831 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,831 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,839 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,846 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,855 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,856 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,860 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,860 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,894 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,894 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,895 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,895 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,895 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,896 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,896 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,896 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,897 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,899 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,899 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,900 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,905 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,907 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,908 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,909 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,910 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,911 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,912 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,915 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,915 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,919 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,920 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,921 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,922 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,923 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,924 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,926 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,927 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,930 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,934 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,935 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,936 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,940 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,942 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,943 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,944 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:25,945 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:26,310 [INFO] [framework.utils.plot_repository] (plot_repository._plot_train_vs_val_loss:377) :: Teacher: best train loss 0.5098 @ epoch 50; best val loss 0.7937 @ epoch 40
+2025-11-06 02:35:26,327 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:26,328 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:26,328 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:26,329 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:26,329 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:26,329 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:26,331 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:26,331 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:26,332 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:26,339 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:26,340 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:26,340 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:26,340 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:26,341 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:26,341 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:26,346 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:26,354 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:26,354 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:26,358 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:26,359 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:26,398 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:26,398 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:26,399 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:26,399 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:26,399 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:26,399 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:26,401 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:26,402 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:26,402 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:26,407 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:26,407 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:26,408 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:26,408 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:26,408 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:26,409 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:26,410 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:26,411 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:26,412 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:26,413 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:26,414 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:26,415 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:26,418 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:26,418 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:26,421 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:26,422 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:26,423 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:26,424 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:26,425 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:26,428 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:26,433 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:26,434 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:26,435 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:26,438 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:26,440 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:26,441 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:26,442 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:26,443 [WARNING] [matplotlib.font_manager] (font_manager._find_fonts_by_props:1425) :: findfont: Generic family 'serif' not found because none of the following families were found: Computer Modern Roman
+2025-11-06 02:35:26,778 [INFO] [framework.utils.plot_repository] (plot_repository.plot_teacher_student_metrics:259) :: Plots generated save dir: /home/ubuntu/code/data/R-L-Net/experiments/Experiment_5/Run_6/plots
+2025-11-06 02:35:26,778 [INFO] [__main__] (runner.main:106) :: Experiment name: Experiment_5 --> end training
+2025-11-06 02:35:26,778 [INFO] [__main__] (runner.main:107) :: 
+========================================================================================
+2025-11-06 02:35:26,778 [INFO] [__main__] (runner.main:108) :: RUN END    |  Experiment=Experiment_5  |  Run ID=6  |  Duration=5214.6s
+2025-11-06 02:35:26,778 [INFO] [__main__] (runner.main:110) :: ========================================================================================
+2025-11-06 02:35:28,014 [INFO] [__main__] (runner._create_log_directory:134) :: Creating directory 'experiments/Experiment_5/Run_7'
