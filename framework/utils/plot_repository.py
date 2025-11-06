@@ -25,6 +25,46 @@ rcParams.update({
     "figure.dpi": 400
 })
 
+def plot_teacher_student_metrics(cfg_path, project_root=".", set_png_dpi=400, use_latex=True):
+    """
+    Plot loss and validation accuracy vs. epoch for teacher, student with TS, and student without TS.
+    Each plot is saved separately. Legends include best values per series.
+    All paths are resolved relative to the given project_root.
+
+    Returns:
+        dict with keys 'loss' and 'val_acc' pointing to saved PNG paths.
+    """
+    # Load config
+    cfg = load_config_toml(cfg_path)
+
+    # Global figure DPI (keeps your original behavior)
+    rcParams.update({"figure.dpi": set_png_dpi})
+    rcParams.update({"text.usetex": use_latex})
+
+    # Resolve paths
+    project_root = Path(project_root).expanduser().resolve()
+    cfg_path = Path(cfg_path).expanduser().resolve()
+    dir_config = cfg_path.parent
+
+    # Load available series
+    series = _prepare_series(cfg, project_root, cfg_path)
+
+    # Prepare output dir
+    save_dir = dir_config / "plots"
+    save_dir.mkdir(parents=True, exist_ok=True)
+
+    figsize = (10, 4)
+
+    # Make plots
+    loss_path = _plot_loss(series, cfg, save_dir,figsize=figsize)
+    val_acc_path = _plot_val_accuracy(series, cfg, save_dir,figsize=figsize)
+
+    tv_acc_path = _plot_train_vs_val_accuracy(series, cfg, save_dir,figsize=figsize)
+    tv_loss_path = _plot_train_vs_val_loss(series, cfg, save_dir,figsize=figsize)
+
+    log.info(f"Plots generated save dir: {save_dir}")
+    return {"loss": str(loss_path), "val_acc": str(val_acc_path)}
+
 def _load_metrics(path: str) -> pd.DataFrame:
     """Load a JSONL metrics file (one JSON object per line) and return a DataFrame with epoch and metrics."""
     with open(path, "r") as f:
@@ -199,7 +239,6 @@ def _plot_val_accuracy(series, cfg, save_dir: Path, figsize=(12, 5)):
     fig.suptitle(rf"\textbf{{Accuracy for {cfg.experiment.name}, Run: {cfg.experiment.run}}}")
     if cfg.training.teacher_student.train_student:
         subtitle = (
-            f"Experiment: {cfg.experiment.name}, Run: {cfg.experiment.run}, "
             f"Model: {cfg.model.name}, "
             f"Teacher-Model: {cfg.training.teacher_student.teacher_model_name} "
             f"KD-Type: {cfg.training.kd_type}"
@@ -221,43 +260,7 @@ def _plot_val_accuracy(series, cfg, save_dir: Path, figsize=(12, 5)):
     return out_path
 
 
-def plot_teacher_student_metrics(cfg_path, project_root=".", set_png_dpi=400, use_latex=True):
-    """
-    Plot loss and validation accuracy vs. epoch for teacher, student with TS, and student without TS.
-    Each plot is saved separately. Legends include best values per series.
-    All paths are resolved relative to the given project_root.
 
-    Returns:
-        dict with keys 'loss' and 'val_acc' pointing to saved PNG paths.
-    """
-    # Load config
-    cfg = load_config_toml(cfg_path)
-
-    # Global figure DPI (keeps your original behavior)
-    rcParams.update({"figure.dpi": set_png_dpi})
-    rcParams.update({"text.usetex": use_latex})
-
-    # Resolve paths
-    project_root = Path(project_root).expanduser().resolve()
-    cfg_path = Path(cfg_path).expanduser().resolve()
-    dir_config = cfg_path.parent
-
-    # Load available series
-    series = _prepare_series(cfg, project_root, cfg_path)
-
-    # Prepare output dir
-    save_dir = dir_config / "plots"
-    save_dir.mkdir(parents=True, exist_ok=True)
-
-    # Make plots
-    loss_path = _plot_loss(series, cfg, save_dir)
-    val_acc_path = _plot_val_accuracy(series, cfg, save_dir)
-
-    tv_acc_path = _plot_train_vs_val_accuracy(series, cfg, save_dir)
-    tv_loss_path = _plot_train_vs_val_loss(series, cfg, save_dir)
-
-    log.info(f"Plots generated save dir: {save_dir}")
-    return {"loss": str(loss_path), "val_acc": str(val_acc_path)}
 
 
 def _plot_train_vs_val_accuracy(series, cfg, save_dir: Path, figsize=(12, 5)):
