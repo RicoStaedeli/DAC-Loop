@@ -101,7 +101,8 @@ def main(gpu_id: str, experiment_number: str):
             train(cfg, teacher=model_teacher, student=model_student, train_loader=train_loader, val_loader=val_loader,
                   experiment_dir=experiment_dir, config_path=CFG_PATH)
 
-            plot_teacher_student_metrics(f"{experiment_dir}/config.toml", project_root=".", set_png_dpi=350,use_latex=False)
+            plot_teacher_student_metrics(cfg_path = f"{experiment_dir}/config.toml", project_root=".", export_png=True, export_pdf=False, png_dpi=600,
+                                         use_latex=False)
 
             log.info(f"Experiment name: {experiment_name} --> end training")
             log.info("\n" + "=" * 88)
