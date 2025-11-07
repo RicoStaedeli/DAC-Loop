@@ -119,8 +119,14 @@ def main(gpu_id: str, experiment_number: str):
                 log.info("== After pruning (with masks) ==")
                 pruner.report_sparsity()
 
+                # Fine-tune the pruned model
+                # test and evaluate the pruned model
+
+
                 # Remove pruning masks
                 pruner.remove_pruning_reparam()
+
+                # Save the pruned model
 
 
 
