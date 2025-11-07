@@ -17,6 +17,8 @@ from framework.utils.logger import setup_logging, log_meta_info
 from framework.utils.utils import set_seed, load_config_toml
 from framework.utils.push_to_remote_repository import git_commit_and_push
 from framework.utils.plot_repository import plot_teacher_student_metrics
+from framework.compression.pruning_manager import PruningManager
+
 
 log = logging.getLogger(__name__)
 load_dotenv()
@@ -49,7 +51,7 @@ def _load_manifest(p: Path) -> list[Path]:
 def main(gpu_id: str, experiment_number: str):
     os.environ["CUDA_VISIBLE_DEVICES"] = gpu_id
     # config_orchestrator_path = f"configs/Experiment_{experiment_number}/Experiment_Orchestrator_Config.toml"
-    config_orchestrator_path = f"configs/Experiment_6/Experiment_Orchestrator_Config.toml"
+    config_orchestrator_path = f"configs/Experiment_XY/Experiment_Orchestrator_Config.toml"
 
     for CFG_PATH in _load_manifest(Path(config_orchestrator_path)):
 
@@ -98,11 +100,29 @@ def main(gpu_id: str, experiment_number: str):
                                                              num_workers=cfg.data.num_workers,
                                                              pin_memory=cfg.data.pin_memory)
 
-            train(cfg, teacher=model_teacher, student=model_student, train_loader=train_loader, val_loader=val_loader,
-                  experiment_dir=experiment_dir, config_path=CFG_PATH)
+            if not cfg.training.prune:
 
-            plot_teacher_student_metrics(cfg_path = f"{experiment_dir}/config.toml", project_root=".", export_png=True, export_pdf=False, png_dpi=600,
-                                         use_latex=False)
+                train(cfg, teacher=model_teacher, student=model_student, train_loader=train_loader, val_loader=val_loader,
+                      experiment_dir=experiment_dir, config_path=CFG_PATH)
+
+                plot_teacher_student_metrics(cfg_path = f"{experiment_dir}/config.toml", project_root=".", export_png=True, export_pdf=False, png_dpi=600,
+                                             use_latex=False)
+
+            else:
+                pruner = PruningManager(model_student,cfg.training.path_checkpoint_to_prune)
+
+                log.info("== Before pruning ==")
+                pruner.report_sparsity()
+
+                pruner.apply_global_pruning(amount=cfg.training.pruning_amount, method="l1_unstructured")
+
+                log.info("== After pruning (with masks) ==")
+                pruner.report_sparsity()
+
+                # Remove pruning masks
+                pruner.remove_pruning_reparam()
+
+
 
             log.info(f"Experiment name: {experiment_name} --> end training")
             log.info("\n" + "=" * 88)
@@ -144,17 +164,16 @@ def _print_experiment_overview(cfg, input_channels, extra_channels):
     log.info("=" * 80)
     log.info(f"Input channels: {input_channels}")
     log.info(f"Extra channels: {extra_channels}")
-    log.info(f"Dataset: {cfg.data.dataset_hf_repo_id}")
+    log.info(f"Selected Bands: {cfg.data.indices.selected_bands}")
+    log.info(f"Calculated Indices: {cfg.data.indices.calculated_indices}")
+    log.info(f"Number of Classes: {cfg.model.args.classes}")
+    log.info(f"Image Size: {cfg.data.image_size}x{cfg.data.image_size}")
     log.info("=" * 80)
     log.info(f"Number of Workers: {cfg.data.num_workers}")
     log.info(f"Pin Memory: {cfg.data.pin_memory}")
     log.info(f"Batch size: {cfg.training.batch_size}")
     log.info("=" * 80)
     log.info(f"Dataset Name: {cfg.data.dataset_hf_repo_id}")
-    log.info(f"Number of Classes: {cfg.model.args.classes}")
-    log.info(f"Image Size: {cfg.data.image_size}x{cfg.data.image_size}")
-    log.info(f"Selected Bands: {cfg.data.indices.selected_bands}")
-    log.info(f"Calculated Indices: {cfg.data.indices.calculated_indices}")
     log.info(f"Data Augmentation: {cfg.data.augment}")
     log.info(f"Data Normalization: {cfg.data.normalize}")
     log.info("=" * 80)
@@ -162,11 +181,11 @@ def _print_experiment_overview(cfg, input_channels, extra_channels):
         log.info("Train with teacher-student knowledge distillation.")
         log.info(f"Teacher Name: {cfg.training.teacher_student.teacher_model_name}")
         log.info(f"Student Name: {cfg.model.name}")
-        log.info(f"KD Type: {cfg.training.kd_type}")
-        log.info(f"Hidden Rep weight: {cfg.training.hidden_rep_loss_weight}")
-        log.info(f"CE Loss weight: {cfg.training.ce_loss_weight}")
-        log.info(f"Soft Target weight: {cfg.training.soft_target_loss_weight}")
-        log.info(f"T weight: {cfg.training.T_param}")
+        log.info(f"KD Type: {cfg.training.teacher_student.kd_type}")
+        log.info(f"Hidden Rep weight: {cfg.training.teacher_student.hidden_rep_loss_weight}")
+        log.info(f"CE Loss weight: {cfg.training.teacher_student.ce_loss_weight}")
+        log.info(f"Soft Target weight: {cfg.training.teacher_student.soft_target_loss_weight}")
+        log.info(f"T weight: {cfg.training.teacher_student.T_param}")
     else:
         log.info("No teacher knowledge distillation. -> Train teacher itself")
         log.info(f"Teacher Name: {cfg.model.name}")
@@ -177,6 +196,8 @@ def _print_model_summary(cfg, model, input_channels, description, experiment_dir
     """
     This function prints the summary of the model and also saves the prints in a separate file.
     """
+    if model is None:
+        return
     batch_size = cfg.training.batch_size
     image_size = cfg.data.image_size
     model_info_string = summary(model, input_size=(batch_size, input_channels, image_size, image_size),
@@ -210,15 +231,15 @@ def _load_models(cfg, input_channels) -> Tuple[object, Optional[object]]:
     """
     log.info("Build models")
     ts_cfg = cfg.training.teacher_student
-    teacher_name = ts_cfg.teacher_model_name if ts_cfg.train_student else cfg.model.name
-    student_name = cfg.model.name if ts_cfg.train_student else None
+    teacher_name = None if cfg.training.prune else ts_cfg.teacher_model_name if ts_cfg.train_student else cfg.model.name
+    student_name = cfg.model.name if ts_cfg.train_student or cfg.training.prune else None
 
     common_args = {
         "input_channels": input_channels,
         "num_classes": cfg.model.args.classes,
     }
 
-    teacher = _build_model(teacher_name, **common_args)
+    teacher = _build_model(teacher_name, **common_args) if teacher_name else None
     student = _build_model(student_name, **common_args) if student_name else None
     return teacher, student
 

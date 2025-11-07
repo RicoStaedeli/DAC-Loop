@@ -44,6 +44,21 @@ class TeacherStudentConfig(BaseModel):
     teacher_model_path: Optional[str] = None
     teacher_model_name: Optional[str] = None
     baseline_student: Optional[str] = None
+    kd_type: str = "CrossEntropyLoss"
+    hidden_rep_loss_weight: float = 0.25
+    ce_loss_weight: float = 0.75
+    soft_target_loss_weight: float = 0.25
+    alpha_kd: float = 0.25
+    beta_feat: float = 0.25
+    T_param: PositiveInt = 1
+
+    @field_validator("kd_type")
+    @classmethod
+    def valid_kd_type(cls, v: str) -> str:
+        allowed = ["CrossEntropyLoss", "CosineEmbeddingLoss", "KLDivLoss", "RegressorMSE"]
+        if v not in allowed:
+            raise ValueError(f"kd_type must be one of {allowed}")
+        return v
 
 class EarlyStoppingConfig(BaseModel):
     enabled: bool = False
@@ -85,15 +100,11 @@ class TrainingConfig(BaseModel):
     teacher_student: TeacherStudentConfig = TeacherStudentConfig()
     load_from_checkpoint: bool = False
     previous_checkpoint_path: Path = None
-    kd_type: str = "CrossEntropyLoss"
-    hidden_rep_loss_weight: float = 0.25
-    ce_loss_weight: float = 0.75
-    soft_target_loss_weight: float = 0.25
-    alpha_kd: float = 0.25
-    beta_feat: float = 0.25
-    T_param: PositiveInt = 1
     base_path_ckpts: str = ""
     save_only_best: bool = True
+    prune: bool = False
+    pruning_amount: float = 0.5
+    path_checkpoint_to_prune: Optional[str] = None
 
     @field_validator("learning_rate")
     @classmethod
@@ -101,15 +112,6 @@ class TrainingConfig(BaseModel):
         if not (0 < v <= 1.0):
             raise ValueError("learning_rate must be in (0, 1.0]")
         return v
-
-    @field_validator("kd_type")
-    @classmethod
-    def valid_kd_type(cls, v: str) -> str:
-        allowed = ["CrossEntropyLoss", "CosineEmbeddingLoss", "KLDivLoss", "RegressorMSE"]
-        if v not in allowed:
-            raise ValueError(f"kd_type must be one of {allowed}")
-        return v
-
 
 
 class DataConfig(BaseModel):
