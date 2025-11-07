@@ -8,11 +8,14 @@ import tomllib
 from dotenv import load_dotenv
 from torchinfo import summary
 import argparse
+import torch
+import torch.nn as nn
+
 
 # Framework Imports
 from framework.dataset.load_for_training import load_hf_splits, build_loaders_from_hf
 from framework.models import MODEL_REGISTRY
-from framework.training.trainer import train
+from framework.training.trainer import train, _evaluate
 from framework.utils.logger import setup_logging, log_meta_info
 from framework.utils.utils import set_seed, load_config_toml
 from framework.utils.push_to_remote_repository import git_commit_and_push
@@ -121,12 +124,27 @@ def main(gpu_id: str, experiment_number: str):
 
                 # Fine-tune the pruned model
                 # test and evaluate the pruned model
+                if torch.backends.mps.is_available():
+                    device = torch.device("mps")
+                elif torch.cuda.is_available():
+                    device = torch.device("cuda")
+                else:
+                    device = torch.device("cpu")
+
+                ce_loss = nn.CrossEntropyLoss()
+
+                model_student.to(device)
+
+                metrics = _evaluate(model_student, val_loader, device, ce_loss )
+                log.info("Evaluation of pruned model before fine-tuning completed.")
+                log.info(f"Validation Loss = {metrics['loss']:.4f}, Validation Accuracy = {metrics['acc']:.2f}%, Validation MSE = {metrics['mse']:.4f}")
 
 
                 # Remove pruning masks
                 pruner.remove_pruning_reparam()
 
                 # Save the pruned model
+
 
 
 
