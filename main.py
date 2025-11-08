@@ -123,13 +123,13 @@ def main(gpu_id: str, experiment_number: str):
                 ce_loss = nn.CrossEntropyLoss()
                 model_student.to(device)
 
+                pruner = PruningManager(model_student,cfg.training.pruning.path_checkpoint_to_prune)
+
                 metrics = _evaluate(model_student, val_loader, device, ce_loss)
-                log.info("Evaluation of pruned model before fine-tuning completed.")
+                log.info("Evaluation of pretrained model before pruning completed.")
                 log.info(
                     f"Validation Loss = {metrics['loss']:.4f}, Validation Accuracy = {metrics['acc']:.2f}%, Validation MSE = {metrics['mse']:.4f}")
 
-
-                pruner = PruningManager(model_student,cfg.training.pruning.path_checkpoint_to_prune)
 
                 log.info("== Before pruning ==")
                 pruner.report_sparsity()
@@ -146,13 +146,16 @@ def main(gpu_id: str, experiment_number: str):
 
                 # Fine-tune the pruned model
                 log.info("Starting fine-tuning of the pruned model...")
-
-                 # train(cfg, teacher=model_teacher, student=pruner.get_model(), train_loader=train_loader,
-                 #      val_loader=val_loader,
-                 #      experiment_dir=experiment_dir, config_path=CFG_PATH)
+                train(cfg, teacher=model_teacher, student=model_student, train_loader=train_loader,
+                      val_loader=val_loader,
+                      experiment_dir=experiment_dir, config_path=CFG_PATH)
 
                 # Remove pruning masks
                 pruner.remove_pruning_reparam()
+                metrics = _evaluate(model_student, val_loader, device, ce_loss)
+                log.info("Evaluation of pruned and fine tuned model")
+                log.info(
+                    f"Validation Loss = {metrics['loss']:.4f}, Validation Accuracy = {metrics['acc']:.2f}%, Validation MSE = {metrics['mse']:.4f}")
 
                 # Save the pruned model
 
