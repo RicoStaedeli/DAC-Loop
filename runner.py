@@ -309,7 +309,7 @@ def main(gpu_id: str, experiment_number: str) -> None:
             git_commit_and_push(f"Experiment={cfg.experiment.name} Run={cfg.experiment.run}")
 
         except Exception as e:
-            log.error("Error during Experiment --> ", e, exc_info=True)
+            log.error("Error during Experiment --> %s", e, exc_info=True)
 
 
 if __name__ == "__main__":
