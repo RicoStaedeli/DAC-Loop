@@ -110,7 +110,7 @@ class PruningManager:
                 print(f"Structured prune: {name}")
 
     def remove_pruning_reparam(self):
-        """Remove pruning reparametrizations to make pruning permanent."""
+        """Remove pruning parameterization to make pruning permanent. Call this function before saving the model."""
         for name, module in self._get_prunable_layers():
             try:
                 prune.remove(module, "weight")
