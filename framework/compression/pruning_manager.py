@@ -12,7 +12,7 @@ def _strip_module_prefix(sd: dict) -> dict:
     return sd
 
 class PruningManager:
-    def __init__(self, model,  ckpt_path: str | None = None, strict: bool = True):
+    def __init__(self, model,  prefix_path, ckpt_path: str | None = None, strict: bool = True):
         """
         Args:
             model (nn.Module): The model to prune.
@@ -26,7 +26,7 @@ class PruningManager:
 
         self.model = model
         if ckpt_path:
-            ckpt = torch.load(ckpt_path, map_location=device)
+            ckpt = torch.load(f"{prefix_path}{ckpt_path}", map_location=device)
             # accept various formats
             if isinstance(ckpt, dict) and "model_state" in ckpt:
                 sd = ckpt["model_state"]

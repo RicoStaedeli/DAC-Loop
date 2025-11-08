@@ -1,30 +1,30 @@
+import argparse
 import logging
 import os
 import shutil
 import time
+import tomllib
 from pathlib import Path
 from typing import Optional, Tuple
-import tomllib
-from dotenv import load_dotenv
-from torchinfo import summary
-import argparse
+
 import torch
 import torch.nn as nn
+from dotenv import load_dotenv
+from torchinfo import summary
 
-
+from framework.compression.pruning_manager import PruningManager
 # Framework Imports
 from framework.dataset.load_for_training import load_hf_splits, build_loaders_from_hf
 from framework.models import MODEL_REGISTRY
 from framework.training.trainer import train, _evaluate
 from framework.utils.logger import setup_logging, log_meta_info
-from framework.utils.utils import set_seed, load_config_toml
-from framework.utils.push_to_remote_repository import git_commit_and_push
 from framework.utils.plot_repository import plot_teacher_student_metrics
-from framework.compression.pruning_manager import PruningManager
-
+from framework.utils.push_to_remote_repository import git_commit_and_push
+from framework.utils.utils import set_seed, load_config_toml
 
 log = logging.getLogger(__name__)
 load_dotenv()
+
 
 def _parse_args():
     parser = argparse.ArgumentParser(description="Run experiment with specified GPU device.")
@@ -41,6 +41,7 @@ def _parse_args():
         help="Experiment Number"
     )
     return parser.parse_args()
+
 
 def _load_manifest(p: Path) -> list[Path]:
     """
@@ -105,10 +106,12 @@ def main(gpu_id: str, experiment_number: str):
 
             if not cfg.training.pruning.prune:
 
-                train(cfg, teacher=model_teacher, student=model_student, train_loader=train_loader, val_loader=val_loader,
+                train(cfg, teacher=model_teacher, student=model_student, train_loader=train_loader,
+                      val_loader=val_loader,
                       experiment_dir=experiment_dir, config_path=CFG_PATH)
 
-                plot_teacher_student_metrics(cfg_path = f"{experiment_dir}/config.toml", project_root=".", export_png=True, export_pdf=False, png_dpi=600,
+                plot_teacher_student_metrics(cfg_path=f"{experiment_dir}/config.toml", project_root=".",
+                                             export_png=True, export_pdf=False, png_dpi=600,
                                              use_latex=False)
 
             else:
@@ -123,13 +126,13 @@ def main(gpu_id: str, experiment_number: str):
                 ce_loss = nn.CrossEntropyLoss()
                 model_student.to(device)
 
-                pruner = PruningManager(model_student,cfg.training.pruning.path_checkpoint_to_prune)
+                pruner = PruningManager(model=model_student, prefix_path=cfg.training.base_path_ckpts,
+                                        ckpt_path=cfg.training.pruning.path_checkpoint_to_prune)
 
                 metrics = _evaluate(model_student, val_loader, device, ce_loss)
                 log.info("Evaluation of pretrained model before pruning completed.")
                 log.info(
                     f"Validation Loss = {metrics['loss']:.4f}, Validation Accuracy = {metrics['acc']:.2f}%, Validation MSE = {metrics['mse']:.4f}")
-
 
                 log.info("== Before pruning ==")
                 pruner.report_sparsity()
@@ -139,10 +142,10 @@ def main(gpu_id: str, experiment_number: str):
                 log.info("== After pruning (with masks) ==")
                 pruner.report_sparsity()
 
-
-                metrics = _evaluate(model_student, val_loader, device, ce_loss )
+                metrics = _evaluate(model_student, val_loader, device, ce_loss)
                 log.info("Evaluation of pruned model before fine-tuning completed.")
-                log.info(f"Validation Loss = {metrics['loss']:.4f}, Validation Accuracy = {metrics['acc']:.2f}%, Validation MSE = {metrics['mse']:.4f}")
+                log.info(
+                    f"Validation Loss = {metrics['loss']:.4f}, Validation Accuracy = {metrics['acc']:.2f}%, Validation MSE = {metrics['mse']:.4f}")
 
                 # Fine-tune the pruned model
                 log.info("Starting fine-tuning of the pruned model...")
@@ -159,8 +162,6 @@ def main(gpu_id: str, experiment_number: str):
 
                 # Save the pruned model
 
-
-
             log.info(f"Experiment name: {experiment_name} --> end training")
             log.info("\n" + "=" * 88)
             log.info("RUN END    |  Experiment=%s  |  Run ID=%s  |  Duration=%.1fs",
@@ -174,13 +175,13 @@ def main(gpu_id: str, experiment_number: str):
             log.error(f"Experiment name: {experiment_name} --> error: {e}", exc_info=True)
 
 
-
 def _create_log_directory(cfg) -> Path:
     experiment_log_dir = Path(f"experiments/{cfg.experiment.name}/Run_{cfg.experiment.run}")
     if os.path.exists(experiment_log_dir) and cfg.saving.overwrite_run == False:
-        raise ValueError(f"There is already a directory named {experiment_log_dir}. Check if you updated the run ID to a new one. "
-                         "If you want to overwrite the current existing directory please set the parameter in the config file.",
-                         )
+        raise ValueError(
+            f"There is already a directory named {experiment_log_dir}. Check if you updated the run ID to a new one. "
+            "If you want to overwrite the current existing directory please set the parameter in the config file.",
+            )
 
     elif os.path.exists(experiment_log_dir) and cfg.saving.overwrite_run == True:
         log.warning(
