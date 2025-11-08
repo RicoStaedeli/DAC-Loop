@@ -170,40 +170,48 @@ class PruningManager:
         return keep
 
     def _pick_prune_indices(self, conv: torch.nn.Conv2d, prune_ratio: float):
+        """
+        Decide which output channels to DELETE in this conv, using mask if present,
+        else magnitude. Returns a Python list of indices to prune.
+        """
         out_c = conv.out_channels
         n_prune = int(out_c * prune_ratio)
         if n_prune <= 0:
             return []
 
         W = conv.weight.detach()
-        # Try to use mask only if it exists and matches weight shape
-        use_mask = hasattr(conv, "weight_mask")
-        if use_mask:
-            M = conv.weight_mask.detach()
-            if M.shape != W.shape or M.numel() != W.numel():
-                use_mask = False  # stale/mismatched mask — ignore
-
-        if use_mask:
-            # fraction of zeros per filter from the mask
-            zeros_per_filter = (M.view(out_c, -1) == 0).float().mean(dim=1)
-            # first take filters that are fully / mostly zero, then fill by L2 if needed
-            dead = (zeros_per_filter >= 0.95).nonzero(as_tuple=False).view(-1)
+        if hasattr(conv, "weight_mask"):
+            mask = conv.weight_mask.detach()
+            # channels with all-zero mask are good prune candidates
+            dead = (~mask.view(out_c, -1).any(dim=1)).nonzero(as_tuple=False).view(-1)
+            # if we have enough "dead" channels, prune those; else fill by L2
             if dead.numel() >= n_prune:
                 return dead[:n_prune].tolist()
-
-            # fill remaining by smallest L2 among the rest
-            alive = torch.tensor(
-                [i for i in range(out_c) if i not in set(dead.tolist())],
-                device=W.device
-            )
+            # fill with smallest-L2 among the rest
+            alive = torch.tensor([i for i in range(out_c) if i not in set(dead.tolist())], device=W.device)
             l2 = W[alive].pow(2).sum(dim=(1, 2, 3))
             fill = alive[torch.argsort(l2)[: (n_prune - dead.numel())]]
             return torch.cat([dead, fill]).tolist()
+        else:
+            # pure magnitude-based
+            l2 = W.pow(2).sum(dim=(1, 2, 3))
+            idxs = torch.argsort(l2)[:n_prune]
+            return idxs.tolist()
 
-        # No usable mask: pure magnitude selection
-        l2 = W.pow(2).sum(dim=(1, 2, 3))
-        idxs = torch.argsort(l2)[:n_prune]
-        return idxs.tolist()
+    def _remove_all_masks_if_any(self):
+        """
+        Remove any pruning reparametrizations (e.g., weight/weight_mask buffers)
+        so that weights are plain dense tensors. Safe to call multiple times.
+        """
+        for _, module in self._get_prunable_layers():
+            # Only Conv/Linear have weight params in our prunable set
+            if hasattr(module, "weight"):
+                try:
+                    # This is a no-op if the module wasn't pruned
+                    prune.remove(module, "weight")
+                except (ValueError, AttributeError):
+                    # No pruning reparam on this module
+                    pass
 
     def structured_surgery(self, layer_prune_ratio: float = 0.3, min_channels: int = 8):
         """
@@ -215,6 +223,9 @@ class PruningManager:
         assert hasattr(self, "DG"), "Call build_dependency(example_input) before structured_surgery()."
 
         self.model.eval()
+
+        self._remove_all_masks_if_any()
+
         # Iterate over modules; create and run pruning plans
         for m in list(self.model.modules()):
             if isinstance(m, torch.nn.Conv2d):
