@@ -184,6 +184,7 @@ def _prune_and_finetune(cfg, model_student: torch.nn.Module, model_teacher: Opti
     if not cfg.training.pruning.structured:
         log.info("Pruning (unstructured, L1) amount=%.3f", cfg.training.pruning.pruning_amount)
         pruner.apply_global_pruning(amount=cfg.training.pruning.pruning_amount, method="l1_unstructured")
+
     else:
         log.info("Pruning (structured) amount=%.3f dim=%s",
                  cfg.training.pruning.pruning_amount, cfg.training.pruning.dim)
@@ -211,7 +212,7 @@ def _prune_and_finetune(cfg, model_student: torch.nn.Module, model_teacher: Opti
     log.info("Starting fine-tuning of the pruned model...")
     train(cfg, teacher=model_teacher, student=pruner.get_model(),
           train_loader=train_loader, val_loader=val_loader,
-          experiment_dir=experiment_dir, config_path=experiment_dir / "config.toml")
+          experiment_dir=experiment_dir, config_path=experiment_dir / "config.toml", adapt_kd_proj=True if cfg.training.pruning.structured else False)
 
     # Remove masks and evaluate
     pruner.remove_pruning_reparam()
