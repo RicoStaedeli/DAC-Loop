@@ -193,12 +193,10 @@ def _prune_and_finetune(cfg, model_student: torch.nn.Module, model_teacher: Opti
         example = torch.randn(1, input_channels, cfg.data.image_size, cfg.data.image_size, device=device)
         pruner.build_dependency(example)
 
-        # 4) SURGERY: physically delete channels
-        #    - If you already masked with amount=X, choose a modest ratio here (e.g., 0.0–0.2),
-        #      OR skip 2) and control everything here with layer_prune_ratio alone.
+        # SURGERY: physically delete channels
         pruner.structured_surgery(layer_prune_ratio=0.15, min_channels=8)
 
-        # 5) Verify the model truly shrank
+        # Verify the model truly shrank
         log.info(f"Params (trainable): {pruner.count_params(trainable_only=True):,}")
         log.info(f"Params (total):     {pruner.count_params():,}")
         _print_model_summary(cfg, pruner.get_model(), input_channels, "Student - After Surgery", experiment_dir)
