@@ -19,9 +19,13 @@ from framework.utils.logger import log_section
 log = logging.getLogger(__name__)
 
 
-def train(cfg, teacher, student, train_loader, val_loader, experiment_dir: Path, config_path) -> None:
+def train(cfg, teacher, student, train_loader, val_loader, experiment_dir: Path, config_path,adapt_kd_proj = False) -> None:
     ce_loss = nn.CrossEntropyLoss()
     cosine_loss = nn.CosineEmbeddingLoss()
+
+    if adapt_kd_proj:
+        _adapt_student_kd_proj(student, teacher)
+        log.info("Adapted student.kd_proj to match teacher.kd_proj output dimension.")
 
     # Initialize optimizers
     optimizer_teacher = _make_optimizer(teacher, cfg)
@@ -189,6 +193,18 @@ def train(cfg, teacher, student, train_loader, val_loader, experiment_dir: Path,
     if config_path.exists():
         shutil.copy2(config_path, experiment_dir / "config.toml")
 
+
+def _adapt_student_kd_proj(student, teacher):
+    # student pooled feature dim AFTER surgery
+    s_dim = student.fc.in_features
+    # teacher KD target dim
+    if isinstance(teacher.kd_proj, nn.Linear):
+        t_dim = teacher.kd_proj.out_features
+    else:
+        t_dim = teacher.fc.in_features
+    # replace student's kd_proj to map s_dim -> t_dim
+    student.kd_proj = nn.Linear(s_dim, t_dim, bias=False)
+    nn.init.kaiming_normal_(student.kd_proj.weight, nonlinearity="linear")
 
 def _kd_loss(student_logits, teacher_logits, T: float):
     """
