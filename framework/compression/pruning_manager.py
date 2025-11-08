@@ -116,6 +116,11 @@ class PruningManager:
                 # Layer might not be pruned
                 pass
 
+    def save_pruned_model(self, path: str):
+        """Save the pruned model to the specified path."""
+        torch.save(self.model.state_dict(), path)
+        log.info(f"Pruned model saved to {path}")
+
     def report_sparsity(self):
         """Print and return overall and per-layer sparsity."""
         total_zeros = 0

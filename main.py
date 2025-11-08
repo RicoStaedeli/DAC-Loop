@@ -155,12 +155,16 @@ def main(gpu_id: str, experiment_number: str):
 
                 # Remove pruning masks
                 pruner.remove_pruning_reparam()
+                log.info("== After removing masks (permanent zeros) ==")
+                pruner.report_sparsity()
                 metrics = _evaluate(model_student, val_loader, device, ce_loss)
                 log.info("Evaluation of pruned and fine tuned model")
                 log.info(
                     f"Validation Loss = {metrics['loss']:.4f}, Validation Accuracy = {metrics['acc']:.2f}%, Validation MSE = {metrics['mse']:.4f}")
-
+                _print_model_summary(cfg, model_student, input_channels, "Student - Pruned and Fine-tuned",
+                                     experiment_dir)
                 # Save the pruned model
+                pruner.save_pruned_model(f"{cfg.training.base_path_ckpts}{experiment_dir}/pruned_finetuned_model.pth")
 
             log.info(f"Experiment name: {experiment_name} --> end training")
             log.info("\n" + "=" * 88)
