@@ -39,6 +39,12 @@ class ExperimentConfig(BaseModel):
 class SavingConfig(BaseModel):
     overwrite_run: bool = False
 
+class PruningConfig(BaseModel):
+    prune: bool = False
+    pruning_amount: float = 0.5
+    path_checkpoint_to_prune: Optional[str] = None
+    method: str = "l1_unstructured"
+
 class TeacherStudentConfig(BaseModel):
     train_student: bool = False
     teacher_model_path: Optional[str] = None
@@ -98,13 +104,12 @@ class TrainingConfig(BaseModel):
     seed: Optional[int] = 42
     early_stopping: EarlyStoppingConfig = EarlyStoppingConfig()
     teacher_student: TeacherStudentConfig = TeacherStudentConfig()
+    pruning: PruningConfig = PruningConfig()
     load_from_checkpoint: bool = False
     previous_checkpoint_path: Path = None
     base_path_ckpts: str = ""
     save_only_best: bool = True
-    prune: bool = False
-    pruning_amount: float = 0.5
-    path_checkpoint_to_prune: Optional[str] = None
+
 
     @field_validator("learning_rate")
     @classmethod

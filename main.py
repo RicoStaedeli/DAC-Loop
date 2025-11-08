@@ -103,7 +103,7 @@ def main(gpu_id: str, experiment_number: str):
                                                              num_workers=cfg.data.num_workers,
                                                              pin_memory=cfg.data.pin_memory)
 
-            if not cfg.training.prune:
+            if not cfg.training.pruning.prune:
 
                 train(cfg, teacher=model_teacher, student=model_student, train_loader=train_loader, val_loader=val_loader,
                       experiment_dir=experiment_dir, config_path=CFG_PATH)
@@ -112,18 +112,7 @@ def main(gpu_id: str, experiment_number: str):
                                              use_latex=False)
 
             else:
-                pruner = PruningManager(model_student,cfg.training.path_checkpoint_to_prune)
 
-                log.info("== Before pruning ==")
-                pruner.report_sparsity()
-
-                pruner.apply_global_pruning(amount=cfg.training.pruning_amount, method="l1_unstructured")
-
-                log.info("== After pruning (with masks) ==")
-                pruner.report_sparsity()
-
-                # Fine-tune the pruned model
-                # test and evaluate the pruned model
                 if torch.backends.mps.is_available():
                     device = torch.device("mps")
                 elif torch.cuda.is_available():
@@ -132,19 +121,40 @@ def main(gpu_id: str, experiment_number: str):
                     device = torch.device("cpu")
 
                 ce_loss = nn.CrossEntropyLoss()
-
                 model_student.to(device)
+
+                metrics = _evaluate(model_student, val_loader, device, ce_loss)
+                log.info("Evaluation of pruned model before fine-tuning completed.")
+                log.info(
+                    f"Validation Loss = {metrics['loss']:.4f}, Validation Accuracy = {metrics['acc']:.2f}%, Validation MSE = {metrics['mse']:.4f}")
+
+
+                pruner = PruningManager(model_student,cfg.training.pruning.path_checkpoint_to_prune)
+
+                log.info("== Before pruning ==")
+                pruner.report_sparsity()
+
+                pruner.apply_global_pruning(amount=cfg.training.pruning.pruning_amount, method="l1_unstructured")
+
+                log.info("== After pruning (with masks) ==")
+                pruner.report_sparsity()
+
 
                 metrics = _evaluate(model_student, val_loader, device, ce_loss )
                 log.info("Evaluation of pruned model before fine-tuning completed.")
                 log.info(f"Validation Loss = {metrics['loss']:.4f}, Validation Accuracy = {metrics['acc']:.2f}%, Validation MSE = {metrics['mse']:.4f}")
 
+                # Fine-tune the pruned model
+                log.info("Starting fine-tuning of the pruned model...")
+
+                 # train(cfg, teacher=model_teacher, student=pruner.get_model(), train_loader=train_loader,
+                 #      val_loader=val_loader,
+                 #      experiment_dir=experiment_dir, config_path=CFG_PATH)
 
                 # Remove pruning masks
                 pruner.remove_pruning_reparam()
 
                 # Save the pruned model
-
 
 
 
@@ -255,8 +265,8 @@ def _load_models(cfg, input_channels) -> Tuple[object, Optional[object]]:
     """
     log.info("Build models")
     ts_cfg = cfg.training.teacher_student
-    teacher_name = None if cfg.training.prune else ts_cfg.teacher_model_name if ts_cfg.train_student else cfg.model.name
-    student_name = cfg.model.name if ts_cfg.train_student or cfg.training.prune else None
+    teacher_name = ts_cfg.teacher_model_name if ts_cfg.train_student else cfg.model.name
+    student_name = cfg.model.name if ts_cfg.train_student or cfg.training.pruning.prune else None
 
     common_args = {
         "input_channels": input_channels,

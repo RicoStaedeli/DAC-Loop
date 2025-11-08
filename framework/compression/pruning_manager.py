@@ -42,7 +42,9 @@ class PruningManager:
             sd = _strip_module_prefix(sd)
             self.model.load_state_dict(sd, strict=strict)
 
-
+    def get_model(self):
+        """Return the pruned model."""
+        return self.model
 
     def _get_prunable_layers(self):
         """Return all convolutional and linear layers that can be pruned."""
