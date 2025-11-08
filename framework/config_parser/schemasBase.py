@@ -44,6 +44,8 @@ class PruningConfig(BaseModel):
     pruning_amount: float = 0.5
     path_checkpoint_to_prune: Optional[str] = None
     method: str = "l1_unstructured"
+    structured: bool = False
+    dim: Optional[int] = None
 
 class TeacherStudentConfig(BaseModel):
     train_student: bool = False

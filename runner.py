@@ -55,7 +55,7 @@ def _load_manifest(p: Path) -> list[Path]:
 def main(gpu_id: str, experiment_number: str):
     os.environ["CUDA_VISIBLE_DEVICES"] = gpu_id
     # config_orchestrator_path = f"configs/Experiment_{experiment_number}/Experiment_Orchestrator_Config.toml"
-    config_orchestrator_path = f"configs/Experiment_XY/Experiment_Orchestrator_Config.toml"
+    config_orchestrator_path = f"configs/Experiment_7/Experiment_Orchestrator_Config.toml"
 
     for CFG_PATH in _load_manifest(Path(config_orchestrator_path)):
 
@@ -140,7 +140,12 @@ def main(gpu_id: str, experiment_number: str):
                 log.info("== Before pruning ==")
                 pruner.report_sparsity()
 
-                pruner.apply_global_pruning(amount=cfg.training.pruning.pruning_amount, method="l1_unstructured")
+                if not cfg.training.pruning.structured:
+                    log.info("Pruning with unstructured method...")
+                    pruner.apply_global_pruning(amount=cfg.training.pruning.pruning_amount, method="l1_unstructured")
+                else:
+                    log.info("Pruning with structured method...")
+                    pruner.apply_structured_pruning(amount=cfg.training.pruning.pruning_amount, dim=cfg.training.pruning.dim)
 
                 log.info("== After pruning (with masks) ==")
                 pruner.report_sparsity()
