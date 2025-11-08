@@ -129,6 +129,9 @@ def main(gpu_id: str, experiment_number: str):
                 pruner = PruningManager(model=model_student, prefix_path=cfg.training.base_path_ckpts,
                                         ckpt_path=cfg.training.pruning.path_checkpoint_to_prune)
 
+                _print_model_summary(cfg, model_student, input_channels, "Student - Before Pruning",
+                                     experiment_dir)
+
                 metrics = _evaluate(model_student, val_loader, device, ce_loss)
                 log.info("Evaluation of pretrained model before pruning completed.")
                 log.info(
