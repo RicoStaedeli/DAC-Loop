@@ -226,7 +226,7 @@ class PruningManager:
 
                 # Build and execute a dependency-aware plan to prune OUT channels of this conv
                 group = self.DG.get_pruning_group(m, tp.prune_conv_out_channels, idxs_to_prune)
-                tp.execute_pruning_group(group)
+                group.prune()
 
         # After surgery, all shapes are changed; remove any lingering pruning reparam
         self._clean_after_surgery()
