@@ -189,6 +189,18 @@ def _prune_and_finetune(cfg, model_student: torch.nn.Module, model_teacher: Opti
                  cfg.training.pruning.pruning_amount, cfg.training.pruning.dim)
         pruner.apply_structured_pruning(amount=cfg.training.pruning.pruning_amount,
                                         dim=cfg.training.pruning.dim)
+        example = torch.randn(1, input_channels, cfg.data.image_size, cfg.data.image_size, device=device)
+        pruner.build_dependency(example)
+
+        # 4) SURGERY: physically delete channels
+        #    - If you already masked with amount=X, choose a modest ratio here (e.g., 0.0–0.2),
+        #      OR skip 2) and control everything here with layer_prune_ratio alone.
+        pruner.structured_surgery(layer_prune_ratio=0.15, min_channels=8)
+
+        # 5) Verify the model truly shrank
+        log.info(f"Params (trainable): {pruner.count_params(trainable_only=True):,}")
+        log.info(f"Params (total):     {pruner.count_params():,}")
+        _print_model_summary(cfg, pruner.get_model(), input_channels, "Student - After Surgery", experiment_dir)
 
     log.info("== Sparsity AFTER pruning (with masks) ==")
     pruner.report_sparsity()
@@ -197,7 +209,7 @@ def _prune_and_finetune(cfg, model_student: torch.nn.Module, model_teacher: Opti
 
     # Fine-tune the pruned model
     log.info("Starting fine-tuning of the pruned model...")
-    train(cfg, teacher=model_teacher, student=model_student,
+    train(cfg, teacher=model_teacher, student=pruner.get_model(),
           train_loader=train_loader, val_loader=val_loader,
           experiment_dir=experiment_dir, config_path=experiment_dir / "config.toml")
 
@@ -221,7 +233,7 @@ def main(gpu_id: str, experiment_number: str) -> None:
     os.environ["CUDA_VISIBLE_DEVICES"] = gpu_id
 
     # If experiment_number is used to pick orchestrator, wire it here.
-    orchestrator_path = Path("configs") / "Experiment_XY" / "Experiment_Orchestrator_Config.toml"
+    orchestrator_path = Path("configs") / "Experiment_7" / "Experiment_Orchestrator_Config.toml"
 
     for cfg_path in _load_manifest(orchestrator_path):
         t0 = time.perf_counter()
