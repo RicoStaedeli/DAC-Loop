@@ -19,9 +19,13 @@ from framework.utils.logger import log_section
 log = logging.getLogger(__name__)
 
 
-def train(cfg, teacher, student, train_loader, val_loader, experiment_dir: Path, config_path) -> None:
+def train(cfg, teacher, student, train_loader, val_loader, experiment_dir: Path, config_path,adapt_kd_proj = False) -> None:
     ce_loss = nn.CrossEntropyLoss()
     cosine_loss = nn.CosineEmbeddingLoss()
+
+    if adapt_kd_proj:
+        _adapt_student_kd_proj(student, teacher)
+        log.info("Adapted student.kd_proj to match teacher.kd_proj output dimension.")
 
     # Initialize optimizers
     optimizer_teacher = _make_optimizer(teacher, cfg)
@@ -84,50 +88,50 @@ def train(cfg, teacher, student, train_loader, val_loader, experiment_dir: Path,
         train_metrics = []
 
         if student is not None and optimizer_student is not None:
-            if cfg.training.kd_type == "CrossEntropyLoss":
+            if cfg.training.teacher_student.kd_type == "CrossEntropyLoss":
                 train_metrics = _train_one_epoch_with_crossEntropyLoss(teacher=teacher, student=student,
                                                                        loader=train_loader,
                                                                        device=device, ce_loss=ce_loss,
                                                                        optimizer=optimizer_student,
                                                                        current_epoch=epoch, epochs=cfg.training.epochs,
-                                                                       T=cfg.training.T_param,
-                                                                       soft_target_loss_weight=cfg.training.soft_target_loss_weight,
-                                                                       ce_loss_weight=cfg.training.ce_loss_weight)
+                                                                       T=cfg.training.teacher_student.T_param,
+                                                                       soft_target_loss_weight=cfg.training.teacher_student.soft_target_loss_weight,
+                                                                       ce_loss_weight=cfg.training.teacher_student.ce_loss_weight)
 
-            if cfg.training.kd_type == "CosineEmbeddingLoss":
+            if cfg.training.teacher_student.kd_type == "CosineEmbeddingLoss":
                 train_metrics = _train_one_epoch_with_cosineEmbeddingLoss(teacher=teacher, student=student,
                                                                           loader=train_loader, device=device,
                                                                           ce_loss=ce_loss, cosine_loss=cosine_loss,
                                                                           optimizer=optimizer_student,
                                                                           current_epoch=epoch,
                                                                           epochs=cfg.training.epochs,
-                                                                          hidden_rep_loss_weight=cfg.training.hidden_rep_loss_weight,
-                                                                          ce_loss_weight=cfg.training.ce_loss_weight)
+                                                                          hidden_rep_loss_weight=cfg.training.teacher_student.hidden_rep_loss_weight,
+                                                                          ce_loss_weight=cfg.training.teacher_student.ce_loss_weight)
 
-            if cfg.training.kd_type == "KLDivLoss":
+            if cfg.training.teacher_student.kd_type == "KLDivLoss":
                 train_metrics = _train_one_epoch_kldiv(teacher=teacher, student=student, loader=train_loader,
                                                        device=device,
                                                        optimizer=optimizer_student,
                                                        current_epoch=epoch,
                                                        epochs=cfg.training.epochs,
-                                                       temperature=cfg.training.T_param,
-                                                       alpha_kd=cfg.training.alpha_kd,
-                                                       beta_feat=cfg.training.beta_feat,
-                                                       ce_loss_weight=cfg.training.ce_loss_weight,
+                                                       temperature=cfg.training.teacher_student.T_param,
+                                                       alpha_kd=cfg.training.teacher_student.alpha_kd,
+                                                       beta_feat=cfg.training.teacher_student.beta_feat,
+                                                       ce_loss_weight=cfg.training.teacher_student.ce_loss_weight,
                                                        ce_criterion=ce_loss,
                                                        use_mse_feat=True)
 
-            if cfg.training.kd_type == "RegressorMSE":
+            if cfg.training.teacher_student.kd_type == "RegressorMSE":
                 train_metrics = _train_one_epoch_regressor_mse(teacher=teacher, student=student, loader=train_loader,
                                                                device=device,
                                                                ce_loss=ce_loss,
                                                                optimizer=optimizer_student,
                                                                current_epoch=epoch,
                                                                epochs=cfg.training.epochs,
-                                                               hidden_rep_loss_weight=cfg.training.hidden_rep_loss_weight,
-                                                               ce_loss_weight=cfg.training.ce_loss_weight,
-                                                               soft_target_loss_weight=cfg.training.soft_target_loss_weight,
-                                                               T=cfg.training.T_param,
+                                                               hidden_rep_loss_weight=cfg.training.teacher_student.hidden_rep_loss_weight,
+                                                               ce_loss_weight=cfg.training.teacher_student.ce_loss_weight,
+                                                               soft_target_loss_weight=cfg.training.teacher_student.soft_target_loss_weight,
+                                                               T=cfg.training.teacher_student.T_param,
                                                                feat_regressor=getattr(student, "_fitnets_regressor", None)
                                                                )
 
@@ -189,6 +193,18 @@ def train(cfg, teacher, student, train_loader, val_loader, experiment_dir: Path,
     if config_path.exists():
         shutil.copy2(config_path, experiment_dir / "config.toml")
 
+
+def _adapt_student_kd_proj(student, teacher):
+    # student pooled feature dim AFTER surgery
+    s_dim = student.fc.in_features
+    # teacher KD target dim
+    if isinstance(teacher.kd_proj, nn.Linear):
+        t_dim = teacher.kd_proj.out_features
+    else:
+        t_dim = teacher.fc.in_features
+    # replace student's kd_proj to map s_dim -> t_dim
+    student.kd_proj = nn.Linear(s_dim, t_dim, bias=False)
+    nn.init.kaiming_normal_(student.kd_proj.weight, nonlinearity="linear")
 
 def _kd_loss(student_logits, teacher_logits, T: float):
     """

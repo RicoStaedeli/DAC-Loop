@@ -330,6 +330,8 @@ def build_loaders_from_hf(train_ds, val_ds, batch_size: int, image_size: int,
             std=(norm_std if normalize else None),
             selected_bands=selected_bands,
         )
+        g = torch.Generator()
+        g.manual_seed(42)
         val_loader = DataLoader(
             range(len(val_ds)),
             batch_size=batch_size,
@@ -337,6 +339,7 @@ def build_loaders_from_hf(train_ds, val_ds, batch_size: int, image_size: int,
             collate_fn=val_collate,
             num_workers=num_workers,
             pin_memory=pin_memory,
+            generator=g,
             persistent_workers=(num_workers > 0),
             prefetch_factor=(2 if num_workers > 0 else None),
         )
