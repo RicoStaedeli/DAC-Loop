@@ -223,8 +223,8 @@ def _plot_loss(series, cfg, path_base: Path, figsize=DEFAULT_FIGSIZE,
     ax.set_ylabel("Loss")
     if hasattr(cfg, "training") and getattr(cfg.training.teacher_student, "train_student", False):
         subtitle = (f"Model: {cfg.model.name}, "
-                    f"Teacher: {cfg.training.teacher_student.teacher_model_name} "
-                    f"KD: {cfg.training.kd_type}")
+                    f"Teacher: {cfg.training.teacher_student.teacher_model_name}"
+                    f", KD: {cfg.training.teacher_student.kd_type}") if hasattr(cfg.training.teacher_student, "kd_type") else ""
     else:
         subtitle = f"Model: {cfg.model.name}"
     ax.set_title(subtitle)
@@ -263,7 +263,8 @@ def _plot_val_accuracy(series, cfg, path_base: Path, figsize=DEFAULT_FIGSIZE,
     if hasattr(cfg, "training") and getattr(cfg.training.teacher_student, "train_student", False):
         subtitle = (f"Model: {cfg.model.name}, "
                     f"Teacher: {cfg.training.teacher_student.teacher_model_name} "
-                    f"KD: {cfg.training.kd_type}")
+                    f", KD: {cfg.training.teacher_student.kd_type}") if hasattr(cfg.training.teacher_student, "kd_type") else ""
+
     else:
         subtitle = (
             f"Experiment: {cfg.experiment.name}, Run: {cfg.experiment.run}, "
@@ -311,7 +312,7 @@ def _plot_train_vs_val_accuracy(series, cfg, path_base: Path, figsize=DEFAULT_FI
     if getattr(cfg.training.teacher_student, "train_student", False):
         subtitle = (f"Model: {cfg.model.name}, "
                     f"Teacher: {cfg.training.teacher_student.teacher_model_name} "
-                    f"KD: {cfg.training.kd_type}")
+                    f", KD: {cfg.training.teacher_student.kd_type}") if hasattr(cfg.training.teacher_student, "kd_type") else ""
     else:
         subtitle = f"Model: {cfg.model.name}"
     ax.set_title(subtitle)
@@ -356,7 +357,8 @@ def _plot_train_vs_val_loss(series, cfg, path_base: Path, figsize=DEFAULT_FIGSIZ
     if getattr(cfg.training.teacher_student, "train_student", False):
         subtitle = (f"Model: {cfg.model.name}, "
                     f"Teacher: {cfg.training.teacher_student.teacher_model_name} "
-                    f"KD: {cfg.training.kd_type}")
+                    f", KD: {cfg.training.teacher_student.kd_type}") if hasattr(cfg.training.teacher_student,"kd_type") else ""
+
     else:
         subtitle = f"Model: {cfg.model.name}"
     ax.set_title(subtitle)

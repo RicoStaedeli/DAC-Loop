@@ -17,11 +17,12 @@ def main():
     log.info(f"Config loaded from {logger_cfg_path}")
 
     # Generate plots for experiments
-    # _make_plots_for_experiment(experiment_name="Experiment_1", num_runs=12, only_overview=False)
-    # _make_plots_for_experiment(experiment_name="Experiment_3", num_runs=24, only_overview=False)
-    # _make_plots_for_experiment(experiment_name="Experiment_4", num_runs=24, only_overview=False)
-    # _make_plots_for_experiment(experiment_name="Experiment_5", num_runs=8, only_overview=False)
-    _make_plots_for_experiment(experiment_name="Experiment_6", num_runs=1, only_overview=False)
+    _make_plots_for_experiment(experiment_name="Experiment_1", num_runs=12, only_overview=False)
+    _make_plots_for_experiment(experiment_name="Experiment_3", num_runs=24, only_overview=False)
+    _make_plots_for_experiment(experiment_name="Experiment_4", num_runs=24, only_overview=False)
+    _make_plots_for_experiment(experiment_name="Experiment_5", num_runs=8, only_overview=False)
+    _make_plots_for_experiment(experiment_name="Experiment_6", num_runs=40, only_overview=False)
+    _make_plots_for_experiment(experiment_name="Experiment_7", num_runs=4, only_overview=False)
 
 
 def _make_plots_for_experiment(experiment_name: str, num_runs: int, only_overview: bool = False):
@@ -36,7 +37,7 @@ def _make_plots_for_experiment(experiment_name: str, num_runs: int, only_overvie
             cfg_path = base_dir / f"Run_{i}" / "config.toml"
             if cfg_path.exists():
                 print("Config file exists:", cfg_path)
-                plot_teacher_student_metrics(cfg_path, project_root=".", export_png=True, export_pdf=True, png_dpi=600, use_latex=True)
+                plot_teacher_student_metrics(cfg_path, project_root=".", export_png=True, export_pdf=False, png_dpi=600, use_latex=True)
             else:
                 print("Config file does not exist:", cfg_path)
 
