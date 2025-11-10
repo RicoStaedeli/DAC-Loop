@@ -46,6 +46,8 @@ class PruningConfig(BaseModel):
     method: str = "l1_unstructured"
     structured: bool = False
     dim: Optional[int] = None
+    layer_prune_ratio: Optional[float] = None
+    min_channels: Optional[int] = None
 
 class TeacherStudentConfig(BaseModel):
     train_student: bool = False

@@ -170,14 +170,14 @@ def main(gpu_id: str, experiment_number: str) -> None:
                 if not cfg.training.pruning.structured:
                     strategy = UnstructuredPruning(
                         amount=cfg.training.pruning.pruning_amount,
-                        method="l1"
+                        method=cfg.training.pruning.method,
                     )
                 else:
                     strategy = StructuredPruning(
                         amount=cfg.training.pruning.pruning_amount,
                         dim=cfg.training.pruning.dim,
-                        layer_prune_ratio=0.15,
-                        min_channels=8,
+                        layer_prune_ratio=cfg.training.pruning.layer_prune_ratio,
+                        min_channels=cfg.training.pruning.min_channels,
                     )
                     # Build dependency graph using a real example input
                     example = torch.randn(1, input_channels, cfg.data.image_size, cfg.data.image_size, device=pruning_orchestrator.device)

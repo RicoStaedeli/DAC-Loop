@@ -6,7 +6,7 @@ from typing import Literal
 from framework.pruning.services.pruning_utils import prunable_layers
 
 class UnstructuredPruning:
-    def __init__(self, amount: float, method: Literal["l1", "random"]="l1"):
+    def __init__(self, amount: float, method: str="l1"):
         self.amount = amount
         self.method = method
 
