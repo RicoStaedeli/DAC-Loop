@@ -4,6 +4,7 @@ import time
 from pathlib import Path
 
 import torch.nn as nn
+import torch
 
 from framework.training.factories import OptimizerFactory, SchedulerFactory, build_strategy
 from framework.training.io_ckpt import CheckpointIO
@@ -15,11 +16,11 @@ from framework.utils.evaluator import Evaluator
 log = logging.getLogger(__name__)
 
 
-def adapt_student_kd_proj(student: nn.Module, teacher: nn.Module):
+def adapt_student_kd_proj(student: nn.Module, teacher: nn.Module, device: torch.device) -> None:
     s_dim = student.fc.in_features
     t_dim = teacher.kd_proj.out_features if hasattr(teacher, "kd_proj") and isinstance(teacher.kd_proj,
                                                                                        nn.Linear) else teacher.fc.in_features
-    student.kd_proj = nn.Linear(s_dim, t_dim, bias=False)
+    student.kd_proj = nn.Linear(s_dim, t_dim, bias=False).to(device)
     nn.init.kaiming_normal_(student.kd_proj.weight, nonlinearity="linear")
 
 
@@ -81,7 +82,7 @@ class Trainer:
         self._maybe_resume(model_to_train, active_opt, device)
 
         if adapt_kd_proj_flag and student is not None:
-            adapt_student_kd_proj(student, teacher)
+            adapt_student_kd_proj(student, teacher, device)
 
         ce_loss = nn.CrossEntropyLoss()
         strategy = build_strategy(self.cfg, ce_loss)
