@@ -5,9 +5,9 @@ from pathlib import Path
 import logging
 import torch.nn as nn
 
-from ports import PruningStrategy
-from services.core import select_device, maybe_load, save_state_dict
-from services.metrics import evaluate_and_log, summarize, log_sparsity
+from framework.pruning.ports import PruningStrategy
+from framework.pruning.services.core import select_device, maybe_load, save_state_dict
+from framework.pruning.services.metrics import evaluate_and_log, summarize, log_sparsity
 from framework.training.trainer import train
 
 log = logging.getLogger(__name__)

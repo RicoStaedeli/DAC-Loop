@@ -1,8 +1,9 @@
 # strategies/unstructured.py
 import torch.nn.utils.prune as prune
 import torch.nn as nn
-from framework.pruning.services.pruning_utils import prunable_layers
 from typing import Literal
+
+from framework.pruning.services.pruning_utils import prunable_layers
 
 class UnstructuredPruning:
     def __init__(self, amount: float, method: Literal["l1", "random"]="l1"):

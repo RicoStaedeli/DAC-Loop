@@ -4,6 +4,7 @@ import logging
 from typing import Iterable, Tuple
 import torch
 import torch.nn as nn
+
 from framework.training.trainer import _evaluate
 from framework.utils.logger import print_model_summary
 
