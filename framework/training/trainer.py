@@ -19,7 +19,24 @@ from framework.utils.logger import log_section
 log = logging.getLogger(__name__)
 
 
-def train(cfg, teacher, student, train_loader, val_loader, experiment_dir: Path, config_path,adapt_kd_proj = False) -> None:
+def train(cfg, teacher, student, train_loader, val_loader, experiment_dir: Path, config_path,adapt_kd_proj = False) -> nn.Module:
+    """
+    Train a model using knowledge distillation from a teacher model to a student model.
+    Supports various knowledge distillation loss types including Cross Entropy Loss, Cosine Embedding Loss, KL Divergence Loss, and Regressor MSE Loss.
+    Args:
+        cfg: Configuration object containing training parameters.
+        teacher: Pre-trained teacher model (in eval mode).
+        student: Student model to be trained.
+        train_loader: DataLoader providing training data.
+        val_loader: DataLoader providing validation data.
+        experiment_dir: Directory path to save checkpoints and metrics.
+        config_path: Path to the configuration file to be copied to the experiment directory after training.
+        adapt_kd_proj: If True, adapt the student's kd_proj layer to match the teacher's output dimension.
+    Returns:
+        The best trained model (student or teacher if no student).
+    """
+
+    best_model = None
     ce_loss = nn.CrossEntropyLoss()
     cosine_loss = nn.CosineEmbeddingLoss()
 
@@ -183,6 +200,7 @@ def train(cfg, teacher, student, train_loader, val_loader, experiment_dir: Path,
                 "optimizer_state": optimizer_student.state_dict() if student is not None else optimizer_teacher.state_dict(),
                 "best_val_acc": best_val_acc,
             }, f"{save_dir_checkpoints}/best.pt")
+            best_model = student if student is not None else teacher
         else:
             epochs_no_improve += 1
             if epochs_no_improve >= cfg.training.early_stopping.patience and cfg.training.early_stopping.enabled:
@@ -192,7 +210,10 @@ def train(cfg, teacher, student, train_loader, val_loader, experiment_dir: Path,
     # After training finished add config file to HF upload path
     if config_path.exists():
         shutil.copy2(config_path, experiment_dir / "config.toml")
+    else:
+        log.warning("Config file %s not found, cannot copy to experiment dir", config_path)
 
+    return best_model
 
 def _adapt_student_kd_proj(student, teacher):
     # student pooled feature dim AFTER surgery

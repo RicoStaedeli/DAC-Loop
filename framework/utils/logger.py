@@ -1,10 +1,10 @@
 import logging
-from datetime import datetime
+from logging import Logger
 from pathlib import Path
 import torch
-import re
 from framework.config_parser.schemasBase import AppConfig
 from typing import Optional
+from torchinfo import summary
 
 section_logger = logging.getLogger("section")
 section_logger.propagate = False  # don’t pass to root logger
@@ -116,3 +116,25 @@ def log_config_summary(cfg: AppConfig, logger: logging.Logger, level: int = logg
         "Training: epochs=%s batch_size=%s lr=%s log_interval=%s",
         t.epochs, t.batch_size, t.learning_rate, t.log_interval,
     )
+
+def print_model_summary(cfg, model: Optional[torch.nn.Module], input_channels: int,
+                         description: str, experiment_dir: Path, log: Logger) -> None:
+    """Print and persist a torchinfo summary for a model."""
+    if model is None:
+        return
+
+    bs = cfg.training.batch_size
+    img = cfg.data.image_size
+    model_info = summary(
+        model,
+        input_size=(bs, input_channels, img, img),
+        col_names=("input_size", "output_size", "num_params", "trainable"),
+        depth=7,
+        verbose=0,
+    )
+
+    header = f"{description}:\n" + "-" * 27 + "\n"
+    text = f"{header}{model_info}\n\n"
+    log.info(text)
+
+    (experiment_dir / f"model_summary_{description}.log").write_text(text, encoding="utf-8")

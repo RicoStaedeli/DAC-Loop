@@ -10,17 +10,19 @@ from typing import Optional, Tuple
 import torch
 import torch.nn as nn
 from dotenv import load_dotenv
-from torchinfo import summary
 
 # Framework Imports
 from framework.dataset.load_for_training import load_hf_splits, build_loaders_from_hf
 from framework.models import MODEL_REGISTRY
 from framework.training.trainer import train, _evaluate
-from framework.utils.logger import setup_logging, log_meta_info
+from framework.utils.logger import setup_logging, log_meta_info, print_model_summary
 from framework.utils.plot_repository import plot_teacher_student_metrics
 from framework.utils.push_to_remote_repository import git_commit_and_push
 from framework.utils.utils import set_seed, load_config_toml
-from framework.compression.pruning_manager import PruningManager
+
+from framework.pruning.orchestrator import PruningOrchestrator
+from framework.pruning.strategies.unstructured import UnstructuredPruning
+from framework.pruning.strategies.structured import StructuredPruning
 
 
 log = logging.getLogger(__name__)
@@ -99,31 +101,9 @@ def _print_experiment_overview(cfg, input_channels: int, extra_channels: int) ->
     log.info("=" * 80)
 
 
-def _print_model_summary(cfg, model: Optional[torch.nn.Module], input_channels: int,
-                         description: str, experiment_dir: Path) -> None:
-    """Print and persist a torchinfo summary for a model."""
-    if model is None:
-        return
-
-    bs = cfg.training.batch_size
-    img = cfg.data.image_size
-    model_info = summary(
-        model,
-        input_size=(bs, input_channels, img, img),
-        col_names=("input_size", "output_size", "num_params", "trainable"),
-        depth=7,
-        verbose=0,
-    )
-
-    header = f"{description}:\n" + "-" * 27 + "\n"
-    text = f"{header}{model_info}\n\n"
-    log.info(text)
-
-    (experiment_dir / f"model_summary_{description}.log").write_text(text, encoding="utf-8")
-
-
 # -------------------- Models -------------------- #
 def _build_model(name: Optional[str], **kwargs) -> Optional[torch.nn.Module]:
+    """Build model by name from MODEL_REGISTRY with given kwargs."""
     if not name:
         return None
     try:
@@ -145,84 +125,6 @@ def _load_models(cfg, input_channels: int) -> Tuple[torch.nn.Module, Optional[to
     teacher = _build_model(teacher_name, **common)
     student = _build_model(student_name, **common)
     return teacher, student
-
-
-# -------------------- Training / Pruning flow -------------------- #
-def _select_device() -> torch.device:
-    if torch.backends.mps.is_available():
-        return torch.device("mps")
-    if torch.cuda.is_available():
-        return torch.device("cuda")
-    return torch.device("cpu")
-
-
-def _evaluate_and_log(model: torch.nn.Module, loader, device: torch.device,
-                      loss_fn: nn.Module, msg: str) -> None:
-    metrics = _evaluate(model, loader, device, loss_fn)
-    log.info("%s", msg)
-    log.info("Validation Loss=%.4f | Acc=%.2f%% | MSE=%.4f",
-             metrics["loss"], metrics["acc"], metrics["mse"])
-
-
-def _prune_and_finetune(cfg, model_student: torch.nn.Module, model_teacher: Optional[torch.nn.Module],
-                        train_loader, val_loader, input_channels: int, experiment_dir: Path) -> None:
-    device = _select_device()
-    ce_loss = nn.CrossEntropyLoss()
-    model_student.to(device)
-
-    pruner = PruningManager(
-        model=model_student,
-        prefix_path=cfg.training.base_path_ckpts,
-        ckpt_path=cfg.training.pruning.path_checkpoint_to_prune,
-    )
-
-    _print_model_summary(cfg, model_student, input_channels, "Student - Before Pruning", experiment_dir)
-    _evaluate_and_log(model_student, val_loader, device, ce_loss, "Evaluation BEFORE pruning completed.")
-    log.info("== Sparsity BEFORE pruning ==")
-    pruner.report_sparsity()
-
-    if not cfg.training.pruning.structured:
-        log.info("Pruning (unstructured, L1) amount=%.3f", cfg.training.pruning.pruning_amount)
-        pruner.apply_global_pruning(amount=cfg.training.pruning.pruning_amount, method="l1_unstructured")
-
-    else:
-        log.info("Pruning (structured) amount=%.3f dim=%s",
-                 cfg.training.pruning.pruning_amount, cfg.training.pruning.dim)
-        pruner.apply_structured_pruning(amount=cfg.training.pruning.pruning_amount,
-                                        dim=cfg.training.pruning.dim)
-        example = torch.randn(1, input_channels, cfg.data.image_size, cfg.data.image_size, device=device)
-        pruner.build_dependency(example)
-
-        # SURGERY: physically delete channels
-        pruner.structured_surgery(layer_prune_ratio=0.15, min_channels=8)
-
-        # Verify the model truly shrank
-        log.info(f"Params (trainable): {pruner.count_params(trainable_only=True):,}")
-        log.info(f"Params (total):     {pruner.count_params():,}")
-        _print_model_summary(cfg, pruner.get_model(), input_channels, "Student - After Surgery", experiment_dir)
-
-    log.info("== Sparsity AFTER pruning (with masks) ==")
-    pruner.report_sparsity()
-    _evaluate_and_log(model_student, val_loader, device, ce_loss,
-                      "Evaluation of PRUNED model before fine-tuning completed.")
-
-    # Fine-tune the pruned model
-    log.info("Starting fine-tuning of the pruned model...")
-    train(cfg, teacher=model_teacher, student=pruner.get_model(),
-          train_loader=train_loader, val_loader=val_loader,
-          experiment_dir=experiment_dir, config_path=experiment_dir / "config.toml", adapt_kd_proj=True if cfg.training.pruning.structured else False)
-
-    # Remove masks and evaluate
-    pruner.remove_pruning_reparam()
-    log.info("== After removing masks (permanent zeros) ==")
-    pruner.report_sparsity()
-    _evaluate_and_log(model_student, val_loader, device, ce_loss,
-                      "Evaluation of PRUNED + FINETUNED model completed.")
-    _print_model_summary(cfg, model_student, input_channels, "Student - Pruned and Fine-tuned", experiment_dir)
-
-    # Save the pruned model
-    pruned_path = Path(cfg.training.base_path_ckpts) / experiment_dir / "pruned_finetuned_model.pth"
-    pruner.save_pruned_model(str(pruned_path))
 
 
 # -------------------- Main -------------------- #
@@ -261,8 +163,8 @@ def main(gpu_id: str, experiment_number: str) -> None:
             model_teacher, model_student = _load_models(cfg, input_channels)
 
             if cfg.training.teacher_student.train_student:
-                _print_model_summary(cfg, model_student, input_channels, "Student", experiment_dir)
-            _print_model_summary(cfg, model_teacher, input_channels, "Teacher", experiment_dir)
+                print_model_summary(cfg, model_student, input_channels, "Student", experiment_dir, log)
+            print_model_summary(cfg, model_teacher, input_channels, "Teacher", experiment_dir, log)
 
             # Data
             train_ds, val_ds, test_ds = load_hf_splits(cfg.data.dataset_hf_repo_id)
@@ -283,26 +185,54 @@ def main(gpu_id: str, experiment_number: str) -> None:
                       train_loader=train_loader, val_loader=val_loader,
                       experiment_dir=experiment_dir, config_path=cfg_path)
 
-                plot_teacher_student_metrics(
-                    cfg_path=str(experiment_dir / "config.toml"),
-                    project_root=".",
-                    export_png=True, export_pdf=False, png_dpi=600, use_latex=False,
-                )
             else:
                 if model_student is None:
                     raise RuntimeError("Pruning requested but student model is None.")
-                _prune_and_finetune(
-                    cfg, model_student, model_teacher,
-                    train_loader, val_loader,
-                    input_channels, experiment_dir,
+
+                prefix_path = cfg.training.base_path_ckpts
+                ckpt_path = cfg.training.pruning.path_checkpoint_to_prune
+
+                pruning_orchestrator = PruningOrchestrator(model_student, ckpt_path=prefix_path + ckpt_path, strict=True)
+
+                if not cfg.training.pruning.structured:
+                    strategy = UnstructuredPruning(
+                        amount=cfg.training.pruning.pruning_amount,
+                        method="l1"
+                    )
+                else:
+                    strategy = StructuredPruning(
+                        amount=cfg.training.pruning.pruning_amount,
+                        dim=cfg.training.pruning.dim,
+                        layer_prune_ratio=0.15,
+                        min_channels=8,
+                    )
+                    # Build dependency graph using a real example input
+                    example = torch.randn(1, input_channels, cfg.data.image_size, cfg.data.image_size, device=pruning_orchestrator.device)
+                    strategy.build_dependency(pruning_orchestrator.model, example)
+
+                pruning_orchestrator.run(
+                    cfg=cfg,
+                    strategy=strategy,
+                    train_loader=train_loader,
+                    val_loader=val_loader,
+                    input_channels=input_channels,
+                    experiment_dir=experiment_dir,
+                    cfg_path=cfg_path,
+                    model_teacher=model_teacher,
                 )
 
+            plot_teacher_student_metrics(
+                cfg_path=str(experiment_dir / "config.toml"),
+                project_root=".",
+                export_png=True, export_pdf=False, png_dpi=600, use_latex=False,
+            )
+
             # Wrap-up
-            dur = time.perf_counter() - t0
+            duration = time.perf_counter() - t0
             log.info("Experiment %s --> end training", experiment_name)
             log.info("\n" + "=" * 88)
             log.info("RUN END | Experiment=%s | Run ID=%s | Duration=%.1fs",
-                     experiment_name, cfg.experiment.run, dur)
+                     experiment_name, cfg.experiment.run, duration)
             log.info("=" * 88)
 
             git_commit_and_push(f"Experiment={cfg.experiment.name} Run={cfg.experiment.run}")

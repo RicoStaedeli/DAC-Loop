@@ -15,7 +15,7 @@ rcParams.update({
     # LaTeX typesetting (toggle at runtime via use_latex flag)
     "text.usetex": True,
     "font.family": "serif",
-    "font.serif": ["Computer Modern Roman"],
+    "font.serif": ["CMU Serif", "Latin Modern Roman", "DejaVu Serif", "Times New Roman", "Times"],
 
     # Paper-friendly font sizes (points)
     "axes.titlesize": 10,
