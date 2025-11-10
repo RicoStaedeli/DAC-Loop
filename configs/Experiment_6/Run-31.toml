@@ -31,6 +31,12 @@ load_from_checkpoint = false                                    # (bool) default
 previous_checkpoint_path = ""                                   # (string) default: None | Path to a checkpoint file for resuming training. Only relevant if load_from_checkpoint = true.
 base_path_ckpts = ""                                            #(string) default: "" | this is used as basepath for the checkoint dir. Used in Colab to save Checkpoints to G-Drive, (/content/drive/MyDrive/HSG/DL)
 
+[training.teacher_student]
+train_student = true                                                   # (bool) default: false | Whether a student is trained or not. If false a teacher model is trained.
+teacher_model_path = "experiments/Experiment_5/Run_7/best.pt"          # (string) default: | Path to trained ResNet18 Model (Teacher)
+teacher_model_name = "ResNet50"                                        # Available: ['ResNet10', 'ResNet18', 'ResNet50','TinyCNN']
+baseline_student = "experiments/Experiment_5/Run_8/metrics.jsonl"      # (string) default: "" | Path to a pre-trained student model. If provided, the student model will be initialized with these weights before training.
+
 # (string) Available: ['CrossEntropyLoss', 'CosineEmbeddingLoss', 'KLDivLoss', 'RegressorMSE']
 kd_type = "KLDivLoss"
 
@@ -52,12 +58,6 @@ beta_feat = 0
 # (int) default: 2 | Temperature paramter used in CrossEntropyLoss, RegressorMSE and KLDivLoss during Knowledge Distillation.
 T_param = 2
 
-
-[training.teacher_student]
-train_student = true                                                   # (bool) default: false | Whether a student is trained or not. If false a teacher model is trained.
-teacher_model_path = "experiments/Experiment_5/Run_7/best.pt"          # (string) default: | Path to trained ResNet18 Model (Teacher)
-teacher_model_name = "ResNet50"                                        # Available: ['ResNet10', 'ResNet18', 'ResNet50','TinyCNN']
-baseline_student = "experiments/Experiment_5/Run_8/metrics.jsonl"      # (string) default: "" | Path to a pre-trained student model. If provided, the student model will be initialized with these weights before training.
 
 [training.early_stopping]
 enabled = false                         # (bool) default: False | Whether to use early stopping or not
