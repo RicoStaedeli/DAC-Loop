@@ -8,19 +8,17 @@ from pathlib import Path
 from typing import Optional, Tuple
 
 import torch
-import torch.nn as nn
 from dotenv import load_dotenv
 
 # Framework Imports
 from framework.dataset.load_for_training import load_hf_splits, build_loaders_from_hf
 from framework.models import MODEL_REGISTRY
-from framework.training.orchestrator import Trainer
-from framework.utils.logger import setup_logging, log_meta_info, print_model_summary
+from framework.training.training_orchestrator import Trainer
+from framework.utils.logger import setup_logging, log_meta_info, print_model_summary, print_experiment_overview
 from framework.utils.plot_repository import plot_teacher_student_metrics
 from framework.utils.push_to_remote_repository import git_commit_and_push
 from framework.utils.utils import set_seed, load_config_toml
-
-from framework.pruning.orchestrator import PruningOrchestrator
+from framework.pruning.pruning_orchestrator import PruningOrchestrator
 from framework.pruning.strategies.unstructured import UnstructuredPruning
 from framework.pruning.strategies.structured import StructuredPruning
 
@@ -69,38 +67,6 @@ def _create_log_directory(cfg) -> Path:
     return experiment_log_dir
 
 
-# -------------------- Logging helpers -------------------- #
-def _print_experiment_overview(cfg, input_channels: int, extra_channels: int) -> None:
-    log.info("Experiment name: %s", cfg.experiment.name)
-    log.info("Run ID: %s", cfg.experiment.run)
-    log.info("=" * 80)
-    log.info("Input channels: %d", input_channels)
-    log.info("Extra channels: %d", extra_channels)
-    log.info("Selected Bands: %s", cfg.data.indices.selected_bands)
-    log.info("Calculated Indices: %s", cfg.data.indices.calculated_indices)
-    log.info("Number of Classes: %d", cfg.model.args.classes)
-    log.info("Image Size: %dx%d", cfg.data.image_size, cfg.data.image_size)
-    log.info("=" * 80)
-    log.info("Number of Workers: %d", cfg.data.num_workers)
-    log.info("Pin Memory: %s", cfg.data.pin_memory)
-    log.info("Batch size: %d", cfg.training.batch_size)
-    log.info("=" * 80)
-    log.info("Dataset Name: %s", cfg.data.dataset_hf_repo_id)
-    log.info("Data Augmentation: %s", cfg.data.augment)
-    log.info("Data Normalization: %s", cfg.data.normalize)
-    log.info("=" * 80)
-
-    if cfg.training.teacher_student.train_student:
-        ts = cfg.training.teacher_student
-        log.info("Train with teacher-student knowledge distillation.")
-        log.info("Teacher: %s | Student: %s | KD: %s", ts.teacher_model_name, cfg.model.name, ts.kd_type)
-        log.info("HiddenRep=%.4f | CE=%.4f | SoftTarget=%.4f | T=%.4f",
-                 ts.hidden_rep_loss_weight, ts.ce_loss_weight, ts.soft_target_loss_weight, ts.T_param)
-    else:
-        log.info("No teacher knowledge distillation. Training teacher itself (%s).", cfg.model.name)
-    log.info("=" * 80)
-
-
 # -------------------- Models -------------------- #
 def _build_model(name: Optional[str], **kwargs) -> Optional[torch.nn.Module]:
     """Build model by name from MODEL_REGISTRY with given kwargs."""
@@ -118,6 +84,7 @@ def _load_models(cfg, input_channels: int) -> Tuple[torch.nn.Module, Optional[to
     log.info("Building models...")
     ts_cfg = cfg.training.teacher_student
     teacher_name = ts_cfg.teacher_model_name if ts_cfg.train_student else cfg.model.name
+
     # student if training student OR pruning enabled (pruning path expects student)
     student_name = cfg.model.name if (ts_cfg.train_student or cfg.training.pruning.prune) else None
 
@@ -157,7 +124,8 @@ def main(gpu_id: str, experiment_number: str) -> None:
             # Channels and overview
             extra_channels = len(cfg.data.indices.calculated_indices or [])
             input_channels = len(cfg.data.indices.selected_bands or []) + extra_channels
-            _print_experiment_overview(cfg, input_channels, extra_channels)
+
+            print_experiment_overview(cfg, input_channels, extra_channels, log)
 
             # Models
             model_teacher, model_student = _load_models(cfg, input_channels)
