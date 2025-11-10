@@ -14,7 +14,7 @@ from dotenv import load_dotenv
 # Framework Imports
 from framework.dataset.load_for_training import load_hf_splits, build_loaders_from_hf
 from framework.models import MODEL_REGISTRY
-from framework.training.trainer import train, _evaluate
+from framework.training.orchestrator import Trainer
 from framework.utils.logger import setup_logging, log_meta_info, print_model_summary
 from framework.utils.plot_repository import plot_teacher_student_metrics
 from framework.utils.push_to_remote_repository import git_commit_and_push
@@ -181,13 +181,18 @@ def main(gpu_id: str, experiment_number: str) -> None:
 
             # Train (with or without pruning)
             if not cfg.training.pruning.prune:
-                train(cfg, teacher=model_teacher, student=model_student,
-                      train_loader=train_loader, val_loader=val_loader,
-                      experiment_dir=experiment_dir, config_path=cfg_path)
+                trainer = Trainer(cfg, experiment_dir=experiment_dir, config_path=cfg_path)
+                trainer.train(
+                    teacher=model_teacher,
+                    student=model_student,
+                    train_loader=train_loader,
+                    val_loader=val_loader,
+                    adapt_kd_proj_flag=False,
+                )
 
             else:
-                if model_student is None:
-                    raise RuntimeError("Pruning requested but student model is None.")
+                if model_student is None or model_teacher is None:
+                    raise RuntimeError(f"Pruning requires both student and teacher models to be defined. But got student={model_student} and teacher={model_teacher}.")
 
                 prefix_path = cfg.training.base_path_ckpts
                 ckpt_path = cfg.training.pruning.path_checkpoint_to_prune
