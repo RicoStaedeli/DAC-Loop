@@ -207,15 +207,13 @@ def train(cfg, teacher, student, train_loader, val_loader, experiment_dir: Path,
                 log.info("Early stopping")
                 break
 
-    return best_model
-
     # After training finished add config file to HF upload path
     if config_path.exists():
         shutil.copy2(config_path, experiment_dir / "config.toml")
     else:
         log.warning("Config file %s not found, cannot copy to experiment dir", config_path)
 
-
+    return best_model
 
 def _adapt_student_kd_proj(student, teacher):
     # student pooled feature dim AFTER surgery
