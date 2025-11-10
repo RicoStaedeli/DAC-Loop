@@ -5,13 +5,14 @@ from typing import Iterable, Tuple
 import torch
 import torch.nn as nn
 
-from framework.training.trainer import _evaluate
+from framework.utils.evaluator import Evaluator
 from framework.utils.logger import print_model_summary
 
 log = logging.getLogger(__name__)
 
-def evaluate_and_log(model: nn.Module, loader, device: torch.device, loss_fn: nn.Module, msg: str) -> dict:
-    metrics = _evaluate(model, loader, device, loss_fn)
+def evaluate_and_log(model: nn.Module, loader, device: torch.device, msg: str) -> dict:
+    evaluator = Evaluator(nn.CrossEntropyLoss())
+    metrics = evaluator(model, loader, device)
     log.info("%s", msg)
     log.info("Validation Loss=%.4f | Acc=%.2f%% | MSE=%.4f",
              metrics.get("loss", float("nan")),

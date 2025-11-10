@@ -8,13 +8,6 @@ import torch.nn as nn
 
 log = logging.getLogger(__name__)
 
-def select_device() -> torch.device:
-    if torch.backends.mps.is_available():
-        return torch.device("mps")
-    if torch.cuda.is_available():
-        return torch.device("cuda")
-    return torch.device("cpu")
-
 def _strip_module_prefix(sd: Mapping[str, torch.Tensor]) -> dict:
     if sd and next(iter(sd)).startswith("module."):
         return {k.replace("module.", "", 1): v for k, v in sd.items()}
