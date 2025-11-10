@@ -8,7 +8,7 @@ import torch
 
 from framework.training.factories import OptimizerFactory, SchedulerFactory, build_strategy
 from framework.training.io_ckpt import CheckpointIO
-from framework.training.metrics import JsonlMetricsLogger
+from framework.training.metrics_writer import JsonlMetricsLogger
 from framework.training.strategies.plain import PlainSupervisedStrategy
 from framework.utils.device_resolver import DeviceResolver
 from framework.utils.evaluator import Evaluator

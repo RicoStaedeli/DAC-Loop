@@ -4,6 +4,13 @@ import torch
 
 class ConvFeatureRegressor(nn.Module):
     def __init__(self, in_ch, out_ch):
+        """
+        A convolutional feature regressor that maps features from in_ch to out_ch using a 1x1 convolution,
+        followed by batch normalization and ReLU activation.
+        Args:
+            in_ch (int): Number of input channels.
+            out_ch (int): Number of output channels.
+        """
         super().__init__()
         self.net = nn.Sequential(
             nn.Conv2d(in_ch, out_ch, 1, bias=False),
@@ -19,6 +26,13 @@ class ConvFeatureRegressor(nn.Module):
 
 class LinearFeatureRegressor(nn.Module):
     def __init__(self, in_dim, out_dim):
+        """
+        A linear feature regressor that maps features from in_dim to out_dim using a linear layer,
+        followed by ReLU activation.
+        Args:
+            in_dim (int): Input feature dimension.
+            out_dim (int): Output feature dimension.
+        """
         super().__init__()
         self.net = nn.Sequential(nn.Linear(in_dim, out_dim), nn.ReLU(True))
 

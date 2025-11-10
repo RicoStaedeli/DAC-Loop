@@ -138,3 +138,33 @@ def print_model_summary(cfg, model: Optional[torch.nn.Module], input_channels: i
     log.info(text)
 
     (experiment_dir / f"model_summary_{description}.log").write_text(text, encoding="utf-8")
+
+def print_experiment_overview(cfg, input_channels: int, extra_channels: int, log: Logger) -> None:
+    log.info("Experiment name: %s", cfg.experiment.name)
+    log.info("Run ID: %s", cfg.experiment.run)
+    log.info("=" * 80)
+    log.info("Input channels: %d", input_channels)
+    log.info("Extra channels: %d", extra_channels)
+    log.info("Selected Bands: %s", cfg.data.indices.selected_bands)
+    log.info("Calculated Indices: %s", cfg.data.indices.calculated_indices)
+    log.info("Number of Classes: %d", cfg.model.args.classes)
+    log.info("Image Size: %dx%d", cfg.data.image_size, cfg.data.image_size)
+    log.info("=" * 80)
+    log.info("Number of Workers: %d", cfg.data.num_workers)
+    log.info("Pin Memory: %s", cfg.data.pin_memory)
+    log.info("Batch size: %d", cfg.training.batch_size)
+    log.info("=" * 80)
+    log.info("Dataset Name: %s", cfg.data.dataset_hf_repo_id)
+    log.info("Data Augmentation: %s", cfg.data.augment)
+    log.info("Data Normalization: %s", cfg.data.normalize)
+    log.info("=" * 80)
+
+    if cfg.training.teacher_student.train_student:
+        ts = cfg.training.teacher_student
+        log.info("Train with teacher-student knowledge distillation.")
+        log.info("Teacher: %s | Student: %s | KD: %s", ts.teacher_model_name, cfg.model.name, ts.kd_type)
+        log.info("HiddenRep=%.4f | CE=%.4f | SoftTarget=%.4f | T=%.4f",
+                 ts.hidden_rep_loss_weight, ts.ce_loss_weight, ts.soft_target_loss_weight, ts.T_param)
+    else:
+        log.info("No teacher knowledge distillation. Training teacher itself (%s).", cfg.model.name)
+    log.info("=" * 80)
