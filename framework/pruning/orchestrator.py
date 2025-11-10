@@ -53,11 +53,8 @@ class PruningOrchestrator:
         Returns:
             nn.Module: The pruned and fine-tuned model.
         """
-
-        ce_loss = nn.CrossEntropyLoss()
-
         summarize(cfg, self.model, input_channels, "Student - Before Pruning", experiment_dir)
-        evaluate_and_log(self.model, val_loader, self.device, ce_loss, "BEFORE pruning.")
+        evaluate_and_log(self.model, val_loader, self.device, "BEFORE pruning.")
         log_sparsity(self.model)
 
         strategy.prepare(self.model)
@@ -65,7 +62,7 @@ class PruningOrchestrator:
 
         log.info("== AFTER pruning (with masks or surgery) ==")
         log_sparsity(self.model)
-        evaluate_and_log(self.model, val_loader, self.device, ce_loss, "PRUNED model before fine-tuning.")
+        evaluate_and_log(self.model, val_loader, self.device, "PRUNED model before fine-tuning.")
 
         trainer = Trainer(cfg, experiment_dir, cfg_path)
 
@@ -80,7 +77,7 @@ class PruningOrchestrator:
         strategy.finalize(self.model)
         log.info("== After removing masks / cleanup ==")
         log_sparsity(self.model)
-        evaluate_and_log(self.model, val_loader, self.device, ce_loss, "Pruned + fine-tuned.")
+        evaluate_and_log(self.model, val_loader, self.device, "Pruned + fine-tuned.")
 
         summarize(cfg, self.model, input_channels, "Student - Pruned and Fine-tuned", experiment_dir)
 
