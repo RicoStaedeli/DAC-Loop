@@ -1,12 +1,11 @@
 # strategies/unstructured.py
-import torch.nn.utils.prune as prune
 import torch.nn as nn
-from typing import Literal
+import torch.nn.utils.prune as prune
 
 from framework.pruning.services.pruning_utils import prunable_layers
 
 class UnstructuredPruning:
-    def __init__(self, amount: float, method: str="l1"):
+    def __init__(self, amount: float, method: str = "l1"):
         self.amount = amount
         self.method = method
 
@@ -23,5 +22,16 @@ class UnstructuredPruning:
             raise ValueError("Unknown method")
 
     def finalize(self, model: nn.Module) -> None:
-        # does not remove reparam; caller decides when to make pruning permanent
-        pass
+        """
+        Make unstructured pruning permanent by removing the pruning reparam.
+        This copies (weight_orig * weight_mask) into a plain `weight` parameter
+        and deletes the buffers.
+        """
+        for _, m in prunable_layers(model):
+            # Only remove if the module was pruned (has buffers like weight_mask)
+            try:
+                if prune.is_pruned(m):
+                    prune.remove(m, "weight")
+            except Exception:
+                # robust to layers that weren't pruned / don't have 'weight'
+                pass
