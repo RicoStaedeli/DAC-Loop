@@ -6,11 +6,22 @@ import re
 from pathlib import Path
 from typing import List, Dict, Optional
 import math
+import matplotlib.pyplot as plt
+from matplotlib.ticker import ScalarFormatter
 
 log = logging.getLogger(__name__)
 
 def main():
-    df = build_combined_table()
+    # Setup logging
+    logger_cfg_path = "configs/plot_config.toml"
+    cfg = load_config_toml(logger_cfg_path, validate=False)
+    setup_logging(cfg.model_dump(), Path(), False)
+    log.info(f"Config loaded from {logger_cfg_path}")
+
+
+    experiment_dir = "experiments/Experiment_7"
+    df = build_combined_table(experiment_dir, 20)
+    # save_size_accuracy_per_run(df, experiment_dir, log_x=False)
 
 
 #--------- 1) Extract relative metrics (returns dict, no printing) ---------
@@ -216,17 +227,17 @@ def print_markdown_stable(df: pd.DataFrame):
         print("| " + " | ".join(r[h] for h in headers) + " |")
 
 # --------- 3) Combine across runs into one DataFrame and print Markdown ---------
-def build_combined_table():
+def build_combined_table(experiment_dir, num_of_runs):
     combined_rows = []
 
-    for i in range(1,16):
+    for i in range(1,num_of_runs + 1):
         row: Dict[str, Optional[float]] = {"Run": i}
 
         # Paths as given in your snippet
-        base = f"experiments/Experiment_7/Run_{i}"
+        base = f"{experiment_dir}/Run_{i}"
 
         # a) Relative metrics
-        metrics_path = f"{base}/Experiment_7_{i}.log"
+        metrics_path = f"{base}/Experiment_log.log"
         try:
             metrics = extract_relative_metrics_from_file(metrics_path)
         except FileNotFoundError:
@@ -285,8 +296,112 @@ def build_combined_table():
 
     return df
 
-# ---------- Run it ----------
-# df = build_combined_table()
+def _fmt_int(n):
+    try:
+        return f"{int(n):,}"
+    except Exception:
+        return str(n)
+
+def _fmt_pct(x, nd=2):
+    try:
+        return f"{float(x):.{nd}f}%"
+    except Exception:
+        return str(x)
+
+def _collect_run_points(df: pd.DataFrame, run: int):
+    """Return list of (stage, params, acc) for a given run. Skips missing."""
+    row = df.loc[df["Run"] == run]
+    if row.empty:
+        return []
+
+    row = row.iloc[0]
+    points = [
+        ("Teacher",        row.get("Teacher Total Params"),          row.get("Accuracy Before Pruning (%)")),
+        ("Student Before", row.get("Student Before Total Params"),   row.get("Accuracy Before Pruning (%)")),
+        ("Student P+FT",   row.get("Student P+FT Total Params"),     row.get("Accuracy Pruned + Fine-Tuned (%)")),
+    ]
+    # keep only complete points
+    clean = [(s, p, a) for (s, p, a) in points if pd.notna(p) and pd.notna(a)]
+    return clean
+
+def save_size_accuracy_per_run(df: pd.DataFrame, out_dir: str, log_x: bool = False):
+    """
+    For each run, save a plot of Accuracy (%) vs Parameters.
+    - X axis: parameters (optionally log scale)
+    - Y axis: accuracy (%)
+    - Points: Teacher, Student Before, Student P+FT
+    - A line connects the stages in that order (Teacher -> Student Before -> Student P+FT)
+    """
+    out = Path(out_dir)
+    out.mkdir(parents=True, exist_ok=True)
+
+    runs = sorted(df["Run"].dropna().astype(int).unique().tolist())
+
+    for run in runs:
+        pts = _collect_run_points(df, run)
+        if not pts:
+            # nothing to plot for this run
+            continue
+
+        stages, params, accs = zip(*pts)
+
+        fig, ax = plt.subplots(figsize=(8, 5))
+
+        # connect points in their listed order
+        ax.plot(params, accs, marker="o")  # default style/colors
+
+        # add point labels
+        for s, p, a in pts:
+            ax.annotate(
+                s,
+                (p, a),
+                textcoords="offset points",
+                xytext=(5, 5),
+                fontsize=9,
+            )
+
+        # axis labels & title
+        ax.set_title(f"Run {run}: Accuracy vs. Parameters")
+        ax.set_xlabel("Parameters")
+        ax.set_ylabel("Accuracy (%)")
+
+        # formatting
+        if log_x:
+            ax.set_xscale("log")
+        else:
+            ax.xaxis.set_major_formatter(ScalarFormatter(useMathText=False))
+            ax.ticklabel_format(style='plain', axis='x')
+
+        ax.set_ylim(0, 100)
+        ax.grid(True, linestyle="--", alpha=0.3)
+
+        # optional helper text
+        # show exact values under the title
+        try:
+            teacher_p   = next(p for s, p, _ in pts if s == "Teacher")
+            student_b_p = next(p for s, p, _ in pts if s == "Student Before")
+            student_p_p = next(p for s, p, _ in pts if s == "Student P+FT")
+            # accuracy
+            teacher_a   = next(a for s, _, a in pts if s == "Teacher")
+            student_b_a = next(a for s, _, a in pts if s == "Student Before")
+            student_p_a = next(a for s, _, a in pts if s == "Student P+FT")
+            subtitle = (
+                f"Teacher: {_fmt_int(teacher_p)} / {_fmt_pct(teacher_a)}    |    "
+                f"Student Before: {_fmt_int(student_b_p)} / {_fmt_pct(student_b_a)}    |    "
+                f"Student P+FT: {_fmt_int(student_p_p)} / {_fmt_pct(student_p_a)}"
+            )
+            ax.text(0.5, 1.02, subtitle, transform=ax.transAxes, ha="center", va="bottom", fontsize=9)
+        except StopIteration:
+            pass
+
+        fig.tight_layout()
+        out_path = out / f"Run_{run}/plots" /f"size_vs_accuracy.png"
+        fig.savefig(out_path, dpi=300)
+        plt.close(fig)
+
+    print(f"✅ Saved size-vs-accuracy plots to: {Path(out_dir).resolve()}")
+
+
 
 if __name__ == "__main__":
     main()
