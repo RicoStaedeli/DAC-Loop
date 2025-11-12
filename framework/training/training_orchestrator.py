@@ -124,7 +124,6 @@ class Trainer:
                 best_val_acc = val_res["acc"]
                 patience_ctr = 0
                 self._save_best(trained_model, active_opt, epoch, best_val_acc)
-                best_model = trained_model
             else:
                 patience_ctr += 1
                 if self.cfg.training.early_stopping.enabled and patience_ctr >= self.cfg.training.early_stopping.patience:
@@ -132,4 +131,8 @@ class Trainer:
                     break
 
         self._copy_config()
-        return best_model if student is not None else teacher
+        model_to_return = student if student is not None else teacher
+
+        # Reload best weights into the trained object
+        CheckpointIO.load(model_to_return, active_opt, self.ckpt_dir / "best.pt", device)
+        return model_to_return
