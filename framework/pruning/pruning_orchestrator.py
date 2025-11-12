@@ -76,6 +76,8 @@ class PruningOrchestrator:
 
         strategy.finalize(self.model)
         log.info("== After removing masks / cleanup ==")
+
+        # TODO: Load the best model from the checkpoint to evaluate in the end
         log_sparsity(self.model)
         evaluate_and_log(self.model, val_loader, self.device, "Pruned + fine-tuned.")
 

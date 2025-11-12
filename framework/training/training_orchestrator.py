@@ -121,7 +121,7 @@ class Trainer:
             self._save_epoch(trained_model, active_opt, epoch)
 
             if val_res["acc"] > best_val_acc:
-                best_val_acc = val_res["acc"];
+                best_val_acc = val_res["acc"]
                 patience_ctr = 0
                 self._save_best(trained_model, active_opt, epoch, best_val_acc)
                 best_model = trained_model
