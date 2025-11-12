@@ -8,3 +8,7 @@ Make sure you are in the **root directory** of the project and have the necessar
 ```bash
 uv run python -m framework.utils.generate_plots
 ```
+
+```bash
+uv run python -m framework.utils.plots.markdown_tables
+```

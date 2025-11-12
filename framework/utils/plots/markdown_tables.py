@@ -20,7 +20,7 @@ def main():
 
 
     experiment_dir = "experiments/Experiment_7"
-    df = build_combined_table(experiment_dir, 20)
+    df = build_combined_table(experiment_dir, 18)
     # save_size_accuracy_per_run(df, experiment_dir, log_x=False)
 
 
@@ -191,7 +191,6 @@ def _fmt_percent(x, nd=2):
 
 def print_markdown_stable(df: pd.DataFrame):
     # Identify columns
-    pct_col = "P+FT Params (%) of Teacher"
     int_cols     = [c for c in df.columns if "Params" in c and "(%)" not in c and "Size (MB)" not in c]
     float2_cols  = [c for c in df.columns if ("Accuracy" in c or "Sparsity" in c)]
     percent_cols = [
@@ -200,7 +199,8 @@ def print_markdown_stable(df: pd.DataFrame):
         "Accuracy After Pruning (Before Fine-Tune) (%)",
         "Sparsity After Pruning (Post Fine-Tune) (%)",
         "Accuracy Pruned + Fine-Tuned (%)",
-        pct_col,  # the ratio column you already added
+        "Reduction Student to pruned Student (%)",
+        "Reduction Teacher to pruned Student (%)",
     ]
     float4_cols  = [c for c in df.columns if "Size (MB)" in c]
 
@@ -289,7 +289,8 @@ def build_combined_table(experiment_dir, num_of_runs):
     df = pd.DataFrame(combined_rows)
 
     # Ensure the ratio column exists and is float
-    df["P+FT Params (%) of Teacher"] = df["Student P+FT Total Params"] / df["Teacher Total Params"] * 100
+    df["Reduction Student to pruned Student (%)"] = (1 - df["Student P+FT Total Params"] / df["Student Before Total Params"]) * 100
+    df["Reduction Teacher to pruned Student (%)"] = (1 - df["Student P+FT Total Params"] / df["Teacher Total Params"]) * 100
 
     # Print with stable formatting (no sci-notation, % kept)
     print_markdown_stable(df)
