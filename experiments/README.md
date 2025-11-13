@@ -25,7 +25,7 @@ For each experiment and run, the following information should be recorded:
 ---
 
 
-## Experiment 1 - baselines
+## Experiment 1: Baselines Teacher & Students on EuroSAT
 
 **Goal:** Train a large teacher model with ResNet18. The training will be done with different combination of spectral bands.
 Also, every smaller model will be trained from scratch as a baseline.
@@ -50,7 +50,7 @@ Also, every smaller model will be trained from scratch as a baseline.
 | [8] | 2025-10-15 | Rico   | [Config.toml](Experiment_1/Run_8/config.toml) | TinyCNN  | Train/Val/Test split of blanchon/EuroSAT_MSI | DGX-7 Rico |  | [metrics.json](../experiments/Experiment_1/Run_8/metrics.json) | [plots](Experiment_1/Run_1/plots) |["B02", "B03", "B04"]|  | |
 | [9] | 2025-10-15 | Rico   | [Config.toml](Experiment_1/Run_9/config.toml) | TinyCNN  | Train/Val/Test split of blanchon/EuroSAT_MSI | DGX-7 Rico |  | [metrics.json](../experiments/Experiment_1/Run_9/metrics.json) | [plots](Experiment_1/Run_1/plots) |["NDVI", "NDWI", "NDMI"]["B02", "B03", "B04", "B07", "B08"] |  | |
 
-## Experiment 2 - students
+## Experiment 2: Teacher-Student learning (replaced by Experiment 3 and 4)
 
 **Goal:** Train the smaller models (ResNet10 and TiniCNN) with teacher-student training. Use the best teacher model (best validation loss) ResNet18 as a guiding teacher.
 This experiment was later replaced by Experiment 3 and 4 which include hyperparameter tuning.
@@ -71,7 +71,7 @@ This experiment was later replaced by Experiment 3 and 4 which include hyperpara
 | [6] | 2025-10-15 | Rico   | [Config.toml](Experiment_2/Run_6/config.toml) | TinyCNN | ResNet18      |Train/Val/Test split of blanchon/EuroSAT_MSI | DGX-7 Rico |  | [metrics.json](Experiment_2/Run_6/metrics.json) | [plots](Experiment_1/Run_1/plots) |["NDVI", "NDWI", "NDMI"]["B02", "B03", "B04", "B07", "B08"] |  | |
 
 
-## Experiment 3 - Hyperparameter tuning students ResNet18 Teacher
+## Experiment 3: Hyperparameter-tuning - EuroSAT, TinyCNN, ResNet18
 
 **Goal:** Train the smaller models (TinyCNN) with teacher-student training. Use the best teacher model (best validation loss) ResNet18 as a guiding teacher.
 In this experiment we will do hyperparameter tuning for the student model training. Also we use different knowledge distillation methods such as CosineEmbeddingLoss, CrossEntropyLoss and KLDivergenceLoss.
@@ -110,7 +110,7 @@ In this experiment we will do hyperparameter tuning for the student model traini
 | [24] | 2025-10-25 | Rico   | [Config.toml](Experiment_3/Run_24/config.toml)  |    TinyCNN    | ResNet18      | Train/Val/Test split of blanchon/EuroSAT_MSI | KLDivLoss | DGX-7 Rico |            | [metrics.json](Experiment_3/Run_24/metrics.jsonl) | [plots](Experiment_3/Run_24/plots)  | ['NDVI', 'NDWI', 'NDMI', 'B02', 'B03', 'B04', 'B07', 'B08']  |              |            |
 
 
-## Experiment 4 - Hyperparameter tuning students ResNet 50 Teacher
+## Experiment 4: Hyperparameter-tuning - EuroSAT, ResNet18, ResNet50
 
 **Goal:** Train the smaller model (ResNet18) with teacher-student training. Use the best teacher model (best validation loss) ResNet50 as a guiding teacher.
 In this experiment we will do hyperparameter tuning for the student model training. Also we use different knowledge distillation methods such as CosineEmbeddingLoss, CrossEntropyLoss and KLDivergenceLoss.
@@ -148,7 +148,7 @@ In this experiment we will do hyperparameter tuning for the student model traini
 | [23] | 2025-10-25 | Rico   | [Config.toml](Experiment_4/Run_23/config.toml)  |    ResNet18    | ResNet50      | Train/Val/Test split of blanchon/EuroSAT_MSI | CrossEntropyLoss | DGX-7 Rico |            | [metrics.json](Experiment_4/Run_23/metrics.jsonl) | [plots](Experiment_4/Run_23/plots)  | ['NDVI', 'NDWI', 'NDMI', 'B02', 'B03', 'B04', 'B07', 'B08']  |              |            |
 | [24] | 2025-10-25 | Rico   | [Config.toml](Experiment_4/Run_24/config.toml)  |    ResNet18    | ResNet50      | Train/Val/Test split of blanchon/EuroSAT_MSI | KLDivLoss | DGX-7 Rico |            | [metrics.json](Experiment_4/Run_24/metrics.jsonl) | [plots](Experiment_4/Run_24/plots)  | ['NDVI', 'NDWI', 'NDMI', 'B02', 'B03', 'B04', 'B07', 'B08']  |              |            |
 
-## Experiment 5 - Baseline with RESISC45 Dataset
+## Experiment 5: Baseline Teacher & Student on RESISC45
 
 **Goal:** In this experiment we will establish a baseline using the RESISC45 dataset. We will train different models (ResNet18, ResNet18, ResNet50, TinyCNN) on the RESISC45 dataset and evaluate their performance.
 <details>
@@ -168,7 +168,7 @@ In this experiment we will do hyperparameter tuning for the student model traini
 | [7] | 2025-10-25 | Rico   | [Config.toml](Experiment_5/Run_7/config.toml) | ResNet50      |               | Train/Val/Test split of `timm/resisc45` |  | DGX-7 Rico |            | [metrics.json](Experiment_5/Run_7/metrics.jsonl) | [plots](Experiment_5/Run_7/plots) | ['B01', 'B02', 'B03']  | Augmentation = True <br> Image Size = 256 <br> Learningrate = 0.0003 <br> Batch Size = 128    <br> 100 Epochen |            |
 | [8] | 2025-10-25 | Rico   | [Config.toml](Experiment_5/Run_8/config.toml) | ResNet18      |               | Train/Val/Test split of `timm/resisc45` |  | DGX-7 Rico |            | [metrics.json](Experiment_5/Run_8/metrics.jsonl) | [plots](Experiment_5/Run_8/plots) | ['B01', 'B02', 'B03']  | Augmentation = False <br> Image Size = 256 <br> Learningrate = 0.0003 <br> Batch Size = 128                    |            |
 
-## Experiment 6 - Hyperparameter Tuning with RESISC45 Dataset
+## Experiment 6: Hyperparameter-tuning - RESISC45, ResNet18, ResNet50
 
 **Goal:** Train the smaller model (ResNet18) with teacher-student training. Use the best teacher model (best validation loss) ResNet50 as a guiding teacher.
 In this experiment we will do hyperparameter tuning for the student model training. Also we use different knowledge distillation methods such as CosineEmbeddingLoss, CrossEntropyLoss and KLDivergenceLoss.
@@ -227,3 +227,12 @@ Dataset is the RESISC45 dataset.
 | [21]  | 2025-10-25 | Rico   |  [Config.toml](Experiment_6/Run_21/config.toml)   |    ResNet18    | ResNet50      | Train/Val/Test split of `timm/resisc45`  | CrossEntropyLoss | DGX-7 Rico |            | [metrics.json](Experiment_6/Run_21/metrics.jsonl) | [plots](Experiment_6/Run_21/plots)  | ['B01', 'B02', 'B03']  |     hidden_rep_loss_weight = 0.25 <br>    ce_loss_weight = 0.75 <br>  soft_target_loss_weight = 0.25 <br>  alpha_kd = 0.0 <br>  beta_feat = 0.0 <br>  T_param = 3      |            |
 | [22]  | 2025-10-25 | Rico   |  [Config.toml](Experiment_6/Run_22/config.toml)   |    ResNet18    | ResNet50      | Train/Val/Test split of `timm/resisc45`  | CrossEntropyLoss | DGX-7 Rico |            | [metrics.json](Experiment_6/Run_22/metrics.jsonl) | [plots](Experiment_6/Run_22/plots)  | ['B01', 'B02', 'B03']  |     hidden_rep_loss_weight = 0.25 <br>    ce_loss_weight = 0.75 <br>  soft_target_loss_weight = 0.25 <br>  alpha_kd = 0.0 <br>  beta_feat = 0.0 <br>  T_param = 5      |            |
 | [23]  | 2025-10-25 | Rico   |  [Config.toml](Experiment_6/Run_23/config.toml)   |    ResNet18    | ResNet50      | Train/Val/Test split of `timm/resisc45`  | CrossEntropyLoss | DGX-7 Rico |            | [metrics.json](Experiment_6/Run_23/metrics.jsonl) | [plots](Experiment_6/Run_23/plots)  | ['B01', 'B02', 'B03']  |     hidden_rep_loss_weight = 0.25 <br>    ce_loss_weight = 0.75 <br>  soft_target_loss_weight = 0.25 <br>  alpha_kd = 0.0 <br>  beta_feat = 0.0 <br>  T_param = 10      |            |
+
+
+## Experiment 7: Compression - RESISC45, ResNet18, ResNet50
+
+**Goal:** In this Experiment we will compress the ResNet18 model using pruning techniques. The compressed models will be fine-tuned with knowledge distillation using the ResNet50 as teacher model. This experiment was done using the best hyperparameters found in Experiment 5 and 6. Only Resic45 dataset is used.
+<details>
+    <summary>Experiment 7 – overview plot</summary>
+    <img src="Experiment_7/overview_plot_Experiment_7.png" alt="overview">
+</details>

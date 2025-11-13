@@ -2,11 +2,12 @@ import json
 import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib import rcParams
-from typing import Optional, List, Tuple
 from framework.utils.utils import load_config_toml
-import os
 import logging
 from pathlib import Path
+from PIL import Image, ImageDraw, ImageFont
+import os
+from typing import Dict, Tuple, Iterable, List, Union, Optional
 
 log = logging.getLogger(__name__)
 
@@ -367,3 +368,214 @@ def _plot_train_vs_val_loss(series, cfg, path_base: Path, figsize=DEFAULT_FIGSIZ
         _apply_axes_style(ax, cfg, "Train vs. Val Loss")
 
     return _save_figure(fig, path_base, export_pdf, export_png, png_dpi)
+
+def make_overview_png_per_experiment(
+    base_dir="experiments/Experiment_3",
+    run_indices=range(1, 25),
+    hpad=40,               # padding between Loss and ValAcc columns
+    vpad=60,               # padding between rows
+    margin=60,             # outer border
+    caption_width=400,     # left gutter for "Run i"
+    out_path="experiments/Experiment_3/overview_all_plots.png",
+    add_captions=False,
+    final_scale=0.6,       # 1.0 = no final resize; <1.0 downscales once at the end
+    set_png_dpi=400        # embeds DPI metadata (some viewers honor this)
+):
+    rows = []
+    labels = []
+    for i in run_indices:
+        pdir = os.path.join(base_dir, f"Run_{i}", "plots")
+        loss_p = os.path.join(pdir, "loss_per_epoch.png")
+        acc_p  = os.path.join(pdir, "val_accuracy_per_epoch.png")
+        if not (os.path.exists(loss_p) and os.path.exists(acc_p)):
+            continue
+        loss_im = Image.open(loss_p).convert("RGB")   # keep native size
+        acc_im  = Image.open(acc_p).convert("RGB")
+
+        # Equalize row height by padding the shorter one (no resampling)
+        h1, h2 = loss_im.size[1], acc_im.size[1]
+        row_h = max(h1, h2)
+        def pad_to_h(img, target_h):
+            if img.size[1] == target_h:
+                return img
+            padded = Image.new("RGB", (img.size[0], target_h), "white")
+            padded.paste(img, (0, 0))
+            return padded
+        loss_im = pad_to_h(loss_im, row_h)
+        acc_im  = pad_to_h(acc_im,  row_h)
+
+        rows.append((loss_im, acc_im, row_h))
+        labels.append(f"Run {i}")
+
+    if not rows:
+        raise FileNotFoundError("No runs with both plots found.")
+
+    # Compute natural canvas size (no resizes)
+    loss_w = rows[0][0].size[0]
+    acc_w  = rows[0][1].size[0]
+    col_w_total = loss_w + hpad + acc_w
+
+    nrows = len(rows)
+    canvas_w = margin + (caption_width if add_captions else 0) + col_w_total + margin
+    canvas_h = margin + sum(rh for _, _, rh in rows) + vpad * (nrows - 1) + margin
+
+    canvas = Image.new("RGB", (canvas_w, canvas_h), "white")
+    draw = ImageDraw.Draw(canvas)
+
+    try:
+        font = ImageFont.truetype("DejaVuSans.ttf", 28)
+        font_bold = ImageFont.truetype("DejaVuSans-Bold.ttf", 30)
+    except:
+        font = ImageFont.load_default()
+        font_bold = font
+
+    # Column headers
+    x0 = margin + (caption_width if add_captions else 0)
+    header_y = max(10, margin // 2)
+    draw.text((x0 + loss_w // 2 - 40, header_y), "Loss", font=font_bold, fill="black")
+    draw.text((x0 + loss_w + hpad + acc_w // 2 - 60, header_y), "Val Acc", font=font_bold, fill="black")
+
+    y = margin
+    for (loss_im, acc_im, row_h), label in zip(rows, labels):
+        if add_captions:
+            cap_x = margin
+            cap_y = y + row_h // 2 - 12
+            draw.text((cap_x, cap_y), label, font=font_bold, fill="black")
+        x = x0
+        canvas.paste(loss_im, (x, y))
+        x += loss_w + hpad
+        canvas.paste(acc_im, (x, y))
+        y += row_h + vpad
+
+    # Optional single downscale at the end (best quality if needed)
+    if final_scale != 1.0:
+        new_w = int(canvas.size[0] * final_scale)
+        new_h = int(canvas.size[1] * final_scale)
+        canvas = canvas.resize((new_w, new_h), Image.Resampling.LANCZOS)
+
+    os.makedirs(os.path.dirname(out_path), exist_ok=True)
+    # PNG is lossless; compression level affects size, not quality.
+    # Embed DPI metadata (viewers may use it for print scaling).
+    canvas.save(out_path, format="PNG", optimize=True, compress_level=3, dpi=(set_png_dpi, set_png_dpi))
+    print(f"Saved overview: {out_path}")
+
+
+
+################################################################################################################
+############################ Plots with different experiments ##################################################
+################################################################################################################
+def _normalize_models_arg(
+    models: Dict[str, Union[str, Dict[str, str]]]
+) -> List[Tuple[str, str]]:
+    """Accepts {name: path} OR {key: {'name': name, 'path': path}}."""
+    pairs: List[Tuple[str, str]] = []
+    for k, v in models.items():
+        if isinstance(v, str):
+            pairs.append((k, v))
+        elif isinstance(v, dict):
+            name = v.get("name", k)
+            path = v.get("path")
+            if not path:
+                continue
+            pairs.append((name, path))
+    return pairs
+
+def _load_valacc_jsonl(path: Union[str, Path]) -> pd.DataFrame:
+    rows = []
+    with open(path, "r") as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                obj = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            if "epoch" in obj and "val_accuracy" in obj:
+                rows.append({"epoch": obj["epoch"], "val_accuracy": obj["val_accuracy"]})
+    if not rows:
+        return pd.DataFrame(columns=["epoch", "val_accuracy"])
+    df = pd.DataFrame(rows)
+    df["epoch"] = pd.to_numeric(df["epoch"], errors="coerce")
+    df["val_accuracy"] = pd.to_numeric(df["val_accuracy"], errors="coerce")
+    df = df.dropna(subset=["epoch", "val_accuracy"]).sort_values("epoch").reset_index(drop=True)
+    return df
+
+def _is_fractional_accuracy(series: pd.Series) -> bool:
+    """Heuristic: treat as fraction if values mostly <= 1.5."""
+    if series.empty:
+        return True
+    s = series.dropna()
+    if s.empty:
+        return True
+    return (s.quantile(0.95) <= 1.5)  # robust to a stray outlier
+
+def _fmt_acc(value: float, as_percent: bool) -> str:
+    if as_percent:
+        return f"{value:.2f}\\%"  # LaTeX-friendly percent
+    return f"{value:.4f}"
+
+def plot_val_accuracy_over_epochs(
+    models: Dict[str, Union[str, Dict[str, str]]],
+    out_path_base: Union[str, Path] = "val_accuracy_over_epochs",
+    *,
+    title: str = "Validation Accuracy over Epochs",
+    use_latex: bool = True,
+    figsize: Tuple[float, float] = DEFAULT_FIGSIZE,
+    export_pdf: bool = True,
+    export_png: bool = True,
+    png_dpi: int = 600,
+) -> dict:
+    """
+    Plot val_accuracy vs. epoch for multiple runs and save as PDF/PNG.
+    """
+    rcParams.update({"text.usetex": use_latex, "savefig.dpi": png_dpi})
+
+    pairs = _normalize_models_arg(models)
+    if not pairs:
+        raise ValueError("No valid models provided. Expected {name: path} or {key: {'name','path'}}.")
+
+    fig, ax = plt.subplots(figsize=figsize)
+    ax.grid(True, linestyle=":", linewidth=0.4, alpha=0.8)
+    ax.tick_params(length=3, width=0.6, which="both")
+    ax.set_xlabel("Epoch")
+
+    as_percent = None
+    any_plotted = False
+
+    for label, path in pairs:
+        if not os.path.exists(path):
+            print(f"⚠️ Skipping missing file: {path}")
+            continue
+        df = _load_valacc_jsonl(path)
+        if df.empty:
+            print(f"⚠️ No usable val_accuracy in: {path}")
+            continue
+
+        if as_percent is None:
+            as_percent = _is_fractional_accuracy(df["val_accuracy"])
+
+        y = df["val_accuracy"].to_numpy()
+        if as_percent:
+            y = y * 100.0
+
+        best_idx = int(df["val_accuracy"].idxmax())
+        best_epoch = int(df.loc[best_idx, "epoch"])
+        best_val = float(df.loc[best_idx, "val_accuracy"])
+        best_disp = best_val * 100.0 if as_percent else best_val
+
+        disp_label = rf"{label} (best={_fmt_acc(best_disp, as_percent)}@{best_epoch})"
+        ax.plot(df["epoch"].to_numpy(), y, linestyle="-", marker=None, label=disp_label)
+        any_plotted = True
+
+    if not any_plotted:
+        raise RuntimeError("No series plotted (no files found or they lacked val_accuracy/epoch).")
+
+    ax.set_ylabel("Validation Accuracy (%)" if as_percent else "Validation Accuracy")
+    ax.set_title(title)
+    ax.legend(frameon=False, handlelength=1.2, borderaxespad=0.2, loc="best")
+
+    out_base = Path(out_path_base)
+    out_base.parent.mkdir(parents=True, exist_ok=True)
+    saved = _save_figure(fig, out_base, export_pdf, export_png, png_dpi)
+    return saved

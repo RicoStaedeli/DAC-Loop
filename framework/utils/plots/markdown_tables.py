@@ -8,6 +8,8 @@ from typing import List, Dict, Optional
 import math
 import matplotlib.pyplot as plt
 from matplotlib.ticker import ScalarFormatter
+import tomllib
+import json
 
 log = logging.getLogger(__name__)
 
@@ -18,10 +20,29 @@ def main():
     setup_logging(cfg.model_dump(), Path(), False)
     log.info(f"Config loaded from {logger_cfg_path}")
 
+    ################################################################################################################
+    ############################ Tables for Teacher - Student KD Experiments    ####################################
+    ################################################################################################################
+    summarize_experiment_group_to_markdown(
+        experiment_dir="experiments/Experiment_3",
+        output_md_path="experiments/Experiment_3/results_summary.md",
+    )
+    summarize_experiment_group_to_markdown(
+        experiment_dir="experiments/Experiment_4",
+        output_md_path="experiments/Experiment_4/results_summary.md",
+    )
+    summarize_experiment_group_to_markdown(
+        experiment_dir="experiments/Experiment_6",
+        output_md_path="experiments/Experiment_6/results_summary.md",
+    )
 
+    ################################################################################################################
+    ############################ Tables for Pruning/Compression Experiments     ####################################
+    ################################################################################################################
     experiment_dir = "experiments/Experiment_7"
-    df = build_combined_table(experiment_dir, 18)
-    # save_size_accuracy_per_run(df, experiment_dir, log_x=False)
+    build_combined_table(experiment_dir, 21)
+
+
 
 
 #--------- 1) Extract relative metrics (returns dict, no printing) ---------
@@ -401,6 +422,242 @@ def save_size_accuracy_per_run(df: pd.DataFrame, out_dir: str, log_x: bool = Fal
         plt.close(fig)
 
     print(f"✅ Saved size-vs-accuracy plots to: {Path(out_dir).resolve()}")
+
+
+
+
+################################################################################################################
+############################ Tables for Teacher - Student Experiments    #######################################
+################################################################################################################
+def _get_best_val_accuracy_from_jsonl(metrics_path: Path, val_key: str = "val_accuracy"):
+    """
+    Scan a JSONL metrics file and return (best_val_accuracy, epoch).
+
+    Assumes each line is a JSON object with keys:
+      - val_key  (e.g. "val_accuracy")
+      - "epoch"
+    """
+    best_val_acc = None
+    best_epoch = None
+
+    with metrics_path.open("r", encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            record = json.loads(line)
+
+            val_acc = record.get(val_key)
+            epoch = record.get("epoch")
+
+            if val_acc is None or epoch is None:
+                continue
+
+            if (best_val_acc is None) or (val_acc > best_val_acc):
+                best_val_acc = val_acc
+                best_epoch = epoch
+
+    if best_val_acc is None or best_epoch is None:
+        raise ValueError(
+            f"Could not find any valid (epoch, {val_key}) pairs in metrics file: {metrics_path}"
+        )
+
+    return best_val_acc, best_epoch
+
+def _summarize_single_run(run_dir: Path):
+    """
+    Given a run directory like experiments/Experiment_3/Run_1, extract:
+      - config.toml
+      - metrics.jsonl
+      - teacher metrics
+      - baseline student metrics
+
+    Returns a dict with all values needed for one markdown row.
+    """
+    metrics_path = run_dir / "metrics.jsonl"
+    config_path = run_dir / "config.toml"
+
+    if not metrics_path.is_file():
+        raise FileNotFoundError(f"No metrics.jsonl found in {run_dir}")
+    if not config_path.is_file():
+        raise FileNotFoundError(f"No config.toml found in {run_dir}")
+
+    # --- Student (this run) ---
+    student_best_val_acc, student_best_epoch = _get_best_val_accuracy_from_jsonl(
+        metrics_path
+    )
+
+    # --- Config ---
+    with config_path.open("rb") as f:
+        config = tomllib.load(f)
+
+    training_cfg = config.get("training", {})
+    teacher_student_cfg = training_cfg.get("teacher_student", {})
+
+    teacher_model = teacher_student_cfg.get("teacher_model_name","")
+    student_model = config.get("model").get("name","")
+
+    def _get_param(training_cfg, teacher_student_cfg, key, default=""):
+        if key in training_cfg:
+            return training_cfg[key]
+        if key in teacher_student_cfg:
+            return teacher_student_cfg[key]
+        return default
+
+    kd_type = _get_param(training_cfg, teacher_student_cfg, "kd_type")
+    hidden_rep_loss_weight = _get_param(training_cfg, teacher_student_cfg, "hidden_rep_loss_weight")
+    ce_loss_weight = _get_param(training_cfg, teacher_student_cfg, "ce_loss_weight")
+    soft_target_loss_weight = _get_param(training_cfg, teacher_student_cfg, "soft_target_loss_weight")
+    T_param = _get_param(training_cfg, teacher_student_cfg, "T_param")
+    alpha_kd = _get_param(training_cfg, teacher_student_cfg, "alpha_kd")
+    beta_feat = _get_param(training_cfg, teacher_student_cfg, "beta_feat")
+
+    dataset = config.get("data").get("dataset_hf_repo_id","")
+
+    # --- Teacher ---
+    teacher_model_path = teacher_student_cfg.get("teacher_model_path","")
+    if not teacher_model_path:
+        raise KeyError(
+            f"{config_path}: missing 'training.teacher_student.teacher_model_path'"
+        )
+
+    teacher_ckpt_path = Path(teacher_model_path)
+    if not teacher_ckpt_path.is_absolute():
+        # treat as relative to project root (cwd)
+        teacher_ckpt_path = teacher_ckpt_path.resolve()
+
+    teacher_metrics_path = teacher_ckpt_path.parent / "metrics.jsonl"
+    if not teacher_metrics_path.is_file():
+        raise FileNotFoundError(
+            f"Teacher metrics file not found at expected location: {teacher_metrics_path}"
+        )
+
+    teacher_best_val_acc, _ = _get_best_val_accuracy_from_jsonl(teacher_metrics_path)
+
+    # --- Baseline student ---
+    baseline_student_path = teacher_student_cfg.get("baseline_student")
+    if not baseline_student_path:
+        raise KeyError(
+            f"{config_path}: missing 'training.teacher_student.baseline_student'"
+        )
+
+    baseline_metrics_path = Path(baseline_student_path)
+    if not baseline_metrics_path.is_absolute():
+        baseline_metrics_path = baseline_metrics_path.resolve()
+
+    if not baseline_metrics_path.is_file():
+        raise FileNotFoundError(
+            f"Baseline student metrics file not found at expected location: {baseline_metrics_path}"
+        )
+
+    baseline_best_val_acc, _ = _get_best_val_accuracy_from_jsonl(
+        baseline_metrics_path
+    )
+
+    return {
+        "run_name": run_dir.name,
+        "teacher_model": teacher_model,
+        "student_model": student_model,
+        "dataset": dataset,
+        "kd_type": kd_type,
+        "hidden_rep_loss_weight": hidden_rep_loss_weight,
+        "ce_loss_weight": ce_loss_weight,
+        "soft_target_loss_weight": soft_target_loss_weight,
+        "alpha_kd": alpha_kd,
+        "beta_feat": beta_feat,
+        "T_param": T_param,
+        "teacher_best_val_accuracy (%)": f"{teacher_best_val_acc:.4f}",
+        "student_best_val_accuracy (%)": f"{student_best_val_acc:.4f}",
+        "baseline_student_best_val_accuracy (%)": f"{baseline_best_val_acc:.4f}",
+        "improvement_over_baseline (%)": f"{student_best_val_acc - baseline_best_val_acc:.4f}",
+    }
+
+def _extract_run_number(name: str) -> int:
+    """
+    Extract integer suffix from folder names like:
+      Run_1 → 1
+      Run_12 → 12
+    Returns 0 if not found.
+    """
+    import re
+    m = re.search(r"(\d+)$", name)
+    return int(m.group(1)) if m else 0
+
+def summarize_experiment_group_to_markdown(
+    experiment_dir: str,
+    output_md_path: str,
+) -> None:
+    """
+    Combine multiple runs inside an experiment directory into a single markdown table.
+
+    Example:
+        summarize_experiment_group_to_markdown(
+            experiment_dir="experiments/Experiment_3",
+            output_md_path="docs/results/experiment_3_summary.md",
+        )
+
+    Expected structure:
+      experiments/Experiment_3/
+        Run_1/
+          metrics.jsonl
+          config.toml
+        Run_2/
+          metrics.jsonl
+          config.toml
+        ...
+    """
+    experiment_path = Path(experiment_dir)
+    output_path = Path(output_md_path)
+
+    if not experiment_path.is_dir():
+        raise NotADirectoryError(f"{experiment_dir} is not a directory")
+
+    # --- numeric sort of Run_X folders ---
+    run_dirs = sorted(
+        (d for d in experiment_path.iterdir() if d.is_dir()),
+        key=lambda d: _extract_run_number(d.name)
+    )
+
+    rows = []
+    for run_dir in run_dirs:
+        row = _summarize_single_run(run_dir)
+        rows.append(row)
+
+    if not rows:
+        raise RuntimeError(f"No valid runs found in {experiment_dir}")
+
+    # --- Build markdown table ---
+    headers = [
+        "run_name",
+        "teacher_model",
+        "student_model",
+        "dataset",
+        "kd_type",
+        "hidden_rep_loss_weight",
+        "ce_loss_weight",
+        "soft_target_loss_weight",
+        "alpha_kd",
+        "beta_feat",
+        "T_param",
+        "teacher_best_val_accuracy (%)",
+        "student_best_val_accuracy (%)",
+        "baseline_student_best_val_accuracy (%)",
+        "improvement_over_baseline (%)",
+    ]
+
+    header_line = "| " + " | ".join(headers) + " |"
+    separator_line = "| " + " | ".join(["---"] * len(headers)) + " |"
+
+    row_lines = []
+    for row in rows:
+        row_values = [str(row[h]) for h in headers]
+        row_lines.append("| " + " | ".join(row_values) + " |")
+
+    markdown_content = "\n".join([header_line, separator_line] + row_lines) + "\n"
+
+    # --- Write output ---
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path.write_text(markdown_content, encoding="utf-8")
 
 
 
