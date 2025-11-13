@@ -126,6 +126,5 @@ def main():
     print(_create_ex_desc_table_teacher_student(experiment_name = "Experiment_6",runs=40))
 
 
-
 if __name__ == "__main__":
     main()

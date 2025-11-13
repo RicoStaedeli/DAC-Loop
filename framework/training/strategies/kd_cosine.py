@@ -1,36 +1,50 @@
 import torch
 import torch.nn as nn
 from tqdm import tqdm
-from .base import EpochResult, top1_accuracy
+from framework.training.strategies.base import EpochResult, top1_accuracy
 
 class CosineEmbeddingKDStrategy:
     def __init__(self, ce_loss, w_rep: float, w_ce: float):
-        self.ce = ce_loss
-        self.cos = nn.CosineEmbeddingLoss()
-        self.w_rep = w_rep; self.w_ce = w_ce
+        """
+        Cosine Embedding based Knowledge Distillation Strategy.
+        Args:
+            ce_loss: Cross-entropy loss function.
+            w_rep (float): Weight for the representation loss component.
+            w_ce (float): Weight for the cross-entropy loss component.
+        """
+        self.cross_entropy_loss = ce_loss
+        self.cosine_embedding_loss = nn.CosineEmbeddingLoss()
+        self.weight_representation_loss = w_rep
+        self.weight_cross_entropy_loss = w_ce
 
     def train_one_epoch(self, *, teacher, student, loader, device, optimizer, epoch, total_epochs) -> EpochResult:
-        teacher.eval(); student.train()
+        teacher.eval()
+        student.train()
         tot_loss = tot_acc = tot_n = 0.0
 
-        for x, y in tqdm(loader, desc=f"Epoch {epoch}/{total_epochs}"):
-            x, y = x.to(device), y.to(device)
+        for inputs, labels in tqdm(loader, desc=f"Epoch {epoch}/{total_epochs}"):
+            inputs, labels = inputs.to(device), labels.to(device)
             optimizer.zero_grad(set_to_none=True)
 
             with torch.no_grad():
-                _, t_feat = teacher(x)
-            s_logits, s_feat = student(x)
+                _, teacher_features = teacher(inputs)
 
-            rep = self.cos(s_feat, t_feat, target=torch.ones(x.size(0), device=device))
-            ce = self.ce(s_logits, y)
-            loss = self.w_rep * rep + self.w_ce * ce
+            student_logits, student_features = student(inputs)
 
-            loss.backward(); optimizer.step()
+            loss_cosine_embedding = self.cosine_embedding_loss(student_features, teacher_features, target=torch.ones(inputs.size(0), device=device))
+
+            loss_cross_entropy = self.cross_entropy_loss(student_logits, labels)
+
+            loss = self.weight_representation_loss * loss_cosine_embedding + self.weight_cross_entropy_loss * loss_cross_entropy
+
+            loss.backward()
+
+            optimizer.step()
 
             with torch.no_grad():
-                b = x.size(0)
-                tot_n += b
-                tot_loss += loss.item() * b
-                tot_acc += top1_accuracy(s_logits, y).item() * b
+                batch_size = inputs.size(0)
+                tot_n += batch_size
+                tot_loss += loss.item() * batch_size
+                tot_acc += top1_accuracy(student_logits, labels).item() * batch_size
 
         return EpochResult(tot_loss / tot_n, 100.0 * tot_acc / tot_n)

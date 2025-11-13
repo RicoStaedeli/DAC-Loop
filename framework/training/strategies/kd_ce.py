@@ -1,36 +1,54 @@
 import torch
 import torch.nn.functional as F
 from tqdm import tqdm
-from .base import EpochResult, top1_accuracy
+from framework.training.strategies.base import EpochResult, top1_accuracy
 
 class CrossEntropyKDStrategy:
     def __init__(self, ce_loss, T: float, w_soft: float, w_ce: float):
-        self.ce = ce_loss; self.T = T; self.w_soft = w_soft; self.w_ce = w_ce
+        """
+        Cross-Entropy based Knowledge Distillation Strategy.
+        Args:
+            ce_loss: Cross-entropy loss function.
+            T (float): Temperature parameter for softening logits.
+            w_soft (float): Weight for the soft target loss component.
+            w_ce (float): Weight for the cross-entropy loss component.
+        """
+        self.cross_entropy_loss = ce_loss
+        self.temperature = T
+        self.weight_soft_target = w_soft
+        self.weight_cross_entropy = w_ce
+
 
     def train_one_epoch(self, *, teacher, student, loader, device, optimizer, epoch, total_epochs) -> EpochResult:
         teacher.eval(); student.train()
         tot_loss = tot_acc = tot_n = 0.0
 
-        for x, y in tqdm(loader, desc=f"Epoch {epoch}/{total_epochs}"):
-            x, y = x.to(device), y.to(device)
+        for image, label in tqdm(loader, desc=f"Epoch {epoch}/{total_epochs}"):
+            image, label = image.to(device), label.to(device)
             optimizer.zero_grad(set_to_none=True)
 
             with torch.no_grad():
-                t_logits, _ = teacher(x)
-            s_logits, _ = student(x)
+                teacher_logits, _ = teacher(image)
 
-            s_logp_T = F.log_softmax(s_logits / self.T, dim=1)
-            t_logp_T = F.log_softmax(t_logits / self.T, dim=1)
-            soft = F.kl_div(s_logp_T, t_logp_T, reduction="batchmean", log_target=True) * (self.T ** 2)
-            ce = self.ce(s_logits, y)
-            loss = self.w_soft * soft + self.w_ce * ce
+            student_logits, _ = student(image)
 
-            loss.backward(); optimizer.step()
+            student_logp_temperature = F.log_softmax(student_logits / self.temperature, dim=1)
+            teacher_logp_temperature = F.log_softmax(teacher_logits / self.temperature, dim=1)
+
+            soft = F.kl_div(student_logp_temperature, teacher_logp_temperature, reduction="batchmean", log_target=True) * (self.temperature ** 2)
+
+            ce = self.cross_entropy_loss(student_logits, label)
+
+            loss = self.weight_soft_target * soft + self.weight_cross_entropy * ce
+
+            loss.backward()
+
+            optimizer.step()
 
             with torch.no_grad():
-                b = x.size(0)
-                tot_n += b
-                tot_loss += loss.item() * b
-                tot_acc += top1_accuracy(s_logits, y).item() * b
+                batch_size = image.size(0)
+                tot_n += batch_size
+                tot_loss += loss.item() * batch_size
+                tot_acc += top1_accuracy(student_logits, label).item() * batch_size
 
         return EpochResult(tot_loss / tot_n, 100.0 * tot_acc / tot_n)
