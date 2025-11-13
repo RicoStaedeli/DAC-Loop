@@ -26,8 +26,7 @@ Also, every smaller model will be trained from scratch as a baseline.
 
 **Outcomes**
 - Baseline results for all models and band combinations
-- Even the smallest model (TinyCNN) achieves accuracy ~90.00% when trained with all bands 
-- The biggest model (ResNet50) achieves less accuracy than ResNet18
+- Even the smallest model (TinyCNN) achieves accuracy ~90.00% when trained with all bands
 
 **Next Steps**
 - Try to use this big teacher model (ResNet18) to guide the smaller models with teacher-student learning (Experiment 2)

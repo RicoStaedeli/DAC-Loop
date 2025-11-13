@@ -33,7 +33,7 @@ def main():
 
     ########## Plot Validation Accuracy over Epochs for different models on EuroSAT ##########
     models = {
-        "ResNet50": "experiments/Experiment_1/Run_12/metrics.jsonl",
+        "ResNet50": "experiments/Experiment_1/Run_10/metrics.jsonl",
         "ResNet18": "experiments/Experiment_1/Run_1/metrics.jsonl",
         "ResNet10": "experiments/Experiment_1/Run_4/metrics.jsonl",
         "TinyCNN": "experiments/Experiment_1/Run_7/metrics.jsonl",
