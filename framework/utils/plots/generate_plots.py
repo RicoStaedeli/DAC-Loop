@@ -41,10 +41,40 @@ def main():
 
     plot_val_accuracy_over_epochs(
         models,
-        out_path_base="docs/plots/acc_ts_baseline_eurosat",
-        title="Validation Accuracy over Epochs EuroSAT",
+        out_path_base="docs/plots/acc_ts_baseline_eurosat_ab",
+        title="Validation Accuracy over Epochs EuroSAT - All Bands",
         use_latex=True,
         figsize = (6,4)
+    )
+
+    models = {
+        "ResNet50": "experiments/Experiment_1/Run_11/metrics.jsonl",
+        "ResNet18": "experiments/Experiment_1/Run_2/metrics.jsonl",
+        "ResNet10": "experiments/Experiment_1/Run_5/metrics.jsonl",
+        "TinyCNN": "experiments/Experiment_1/Run_8/metrics.jsonl",
+    }
+
+    plot_val_accuracy_over_epochs(
+        models,
+        out_path_base="docs/plots/acc_ts_baseline_eurosat_rgb",
+        title="Validation Accuracy over Epochs EuroSAT - RGB Bands",
+        use_latex=True,
+        figsize=(6, 4)
+    )
+
+    models = {
+        "ResNet50": "experiments/Experiment_1/Run_12/metrics.jsonl",
+        "ResNet18": "experiments/Experiment_1/Run_3/metrics.jsonl",
+        "ResNet10": "experiments/Experiment_1/Run_6/metrics.jsonl",
+        "TinyCNN": "experiments/Experiment_1/Run_9/metrics.jsonl",
+    }
+
+    plot_val_accuracy_over_epochs(
+        models,
+        out_path_base="docs/plots/acc_ts_baseline_eurosat_sb",
+        title="Validation Accuracy over Epochs EuroSAT - Special Bands",
+        use_latex=True,
+        figsize=(6, 4)
     )
 
     models = {
