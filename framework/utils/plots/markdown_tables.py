@@ -1,56 +1,332 @@
+from pathlib import Path
+from typing import Dict, List, Optional
+import json
+import logging
+import math
+import re
+import tomllib
+
+import matplotlib.pyplot as plt
+import pandas as pd
+from matplotlib.ticker import ScalarFormatter
+
 from framework.utils.logger import setup_logging
 from framework.utils.utils import load_config_toml
-import logging
-import pandas as pd
-import re
-from pathlib import Path
-from typing import List, Dict, Optional
-import math
-import matplotlib.pyplot as plt
-from matplotlib.ticker import ScalarFormatter
-import tomllib
-import json
 
 log = logging.getLogger(__name__)
 
-def main():
-    # Setup logging
-    logger_cfg_path = "configs/plot_config.toml"
-    cfg = load_config_toml(logger_cfg_path, validate=False)
-    setup_logging(cfg.model_dump(), Path(), False)
-    log.info(f"Config loaded from {logger_cfg_path}")
 
-    ################################################################################################################
-    ############################ Tables for Teacher - Student KD Experiments    ####################################
-    ################################################################################################################
-    summarize_experiment_group_to_markdown(
-        experiment_dir="experiments/Experiment_3",
-        output_md_path="experiments/Experiment_3/results_summary.md",
-    )
-    summarize_experiment_group_to_markdown(
-        experiment_dir="experiments/Experiment_4",
-        output_md_path="experiments/Experiment_4/results_summary.md",
-    )
-    summarize_experiment_group_to_markdown(
-        experiment_dir="experiments/Experiment_6",
-        output_md_path="experiments/Experiment_6/results_summary.md",
-    )
+# ======================================================================
+# Shared helpers
+# ======================================================================
 
-    ################################################################################################################
-    ############################ Tables for Pruning/Compression Experiments     ####################################
-    ################################################################################################################
-    experiment_dir = "experiments/Experiment_7"
-    build_combined_table(experiment_dir, 21)
+def _extract_run_number(name: str) -> int:
+    """
+    Extract integer suffix from folder names like:
+      Run_1 → 1
+      Run_12 → 12
+    Returns 0 if not found.
+    """
+    m = re.search(r"(\d+)$", name)
+    return int(m.group(1)) if m else 0
 
 
+def _ensure_parent_dir(path: Path) -> None:
+    """Ensure the parent directory of a path exists."""
+    path.parent.mkdir(parents=True, exist_ok=True)
 
 
-#--------- 1) Extract relative metrics (returns dict, no printing) ---------
+def _read_toml(path: Path) -> Dict:
+    """Read a TOML file into a dict."""
+    with path.open("rb") as f:
+        return tomllib.load(f)
+
+
+def _build_markdown_from_rows(headers: List[str], rows: List[Dict[str, str]]) -> str:
+    """
+    Build a markdown table from headers and list of dict rows.
+    Missing keys are treated as empty strings.
+    """
+    header_line = "| " + " | ".join(headers) + " |"
+    separator_line = "| " + " | ".join(["---"] * len(headers)) + " |"
+
+    row_lines = []
+    for row in rows:
+        row_values = [str(row.get(h, "")) for h in headers]
+        row_lines.append("| " + " | ".join(row_values) + " |")
+
+    return "\n".join([header_line, separator_line] + row_lines) + "\n"
+
+
+def _get_best_val_record_from_jsonl(metrics_path: Path, val_key: str = "val_accuracy") -> Dict:
+    """
+    Scan a JSONL metrics file and return the full record (dict) for the epoch
+    with the best validation value for 'val_key'.
+
+    Expected keys per JSON line:
+      - train_loss
+      - train_accuracy
+      - val_loss
+      - val_accuracy
+      - val_MSE
+      - epoch
+      - time_per_epoch
+    """
+    best_record = None
+    best_val = None
+
+    with metrics_path.open("r", encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                record = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+
+            if val_key not in record:
+                continue
+
+            val = record[val_key]
+            if val is None:
+                continue
+
+            if (best_val is None) or (val > best_val):
+                best_val = val
+                best_record = record
+
+    if best_record is None:
+        raise ValueError(
+            f"Could not find any valid '{val_key}' entries in metrics file: {metrics_path}"
+        )
+
+    return best_record
+
+
+def _get_best_val_accuracy_from_jsonl(
+    metrics_path: Path,
+    val_key: str = "val_accuracy",
+) -> tuple[float, int]:
+    """
+    Return (best_val_accuracy, best_epoch) from a JSONL metrics file.
+    Uses _get_best_val_record_from_jsonl under the hood.
+    """
+    best_record = _get_best_val_record_from_jsonl(metrics_path, val_key)
+    best_val = best_record.get(val_key)
+    best_epoch = best_record.get("epoch")
+
+    if best_val is None or best_epoch is None:
+        raise ValueError(
+            f"Could not find any valid (epoch, {val_key}) pairs in metrics file: {metrics_path}"
+        )
+
+    return best_val, best_epoch
+
+
+def _fmt_int(n):
+    try:
+        return f"{int(n):,}"
+    except Exception:
+        return str(n)
+
+
+def _fmt_float(x, nd: int = 2):
+    if x is None or (isinstance(x, float) and math.isnan(x)):
+        return ""
+    try:
+        return f"{float(x):.{nd}f}"
+    except Exception:
+        return str(x)
+
+
+def _fmt_percent(x, nd: int = 2):
+    try:
+        return f"{float(x):.{nd}f}%"
+    except Exception:
+        return str(x)
+
+
+# ======================================================================
+# Baseline experiments
+# ======================================================================
+
+def summarize_baseline_experiment_group_to_markdown(
+    experiment_dir: str,
+    output_md_path: str,
+) -> None:
+    """
+    Summarize one or more *baseline* runs in an experiment directory into a
+    single markdown table.
+
+    Expected structures:
+
+      Case 1: multiple runs
+        experiments/Experiment_1/
+          Run_1/
+            metrics.jsonl
+            config.toml
+          Run_2/
+            metrics.jsonl
+            config.toml
+          ...
+
+      Case 2: single run, no Run_X subfolders
+        experiments/Experiment_1/
+          metrics.jsonl
+          config.toml
+    """
+    experiment_path = Path(experiment_dir)
+    output_path = Path(output_md_path)
+
+    if not experiment_path.is_dir():
+        raise NotADirectoryError(f"{experiment_dir} is not a directory")
+
+    # All subdirectories (Run_1, Run_2, ...)
+    run_dirs = [d for d in experiment_path.iterdir() if d.is_dir()]
+
+    # If there are no subdirs but we do have metrics.jsonl/config.toml,
+    # treat the folder itself as a single run.
+    if not run_dirs and (experiment_path / "metrics.jsonl").is_file():
+        run_dirs = [experiment_path]
+
+    run_dirs = sorted(run_dirs, key=lambda d: _extract_run_number(d.name))
+
+    rows: List[Dict[str, str]] = [
+        _summarize_single_baseline_run(run_dir) for run_dir in run_dirs
+    ]
+
+    if not rows:
+        raise RuntimeError(f"No valid baseline runs found in {experiment_dir}")
+
+    headers = [
+        "run_name",
+        "experiment_name",
+        "run_id",
+        "model",
+        "dataset",
+        "augmentation",
+        "indices_config",
+        "epochs",
+        "learning_rate",
+        "batch_size",
+        "weight_decay",
+        "scheduler",
+        "seed",
+        "best_epoch",
+        "best_train_loss",
+        "best_val_loss",
+        "best_train_accuracy (%)",
+        "best_val_accuracy (%)",
+        "best_val_MSE",
+    ]
+
+    markdown_content = _build_markdown_from_rows(headers, rows)
+    _ensure_parent_dir(output_path)
+    output_path.write_text(markdown_content, encoding="utf-8")
+
+
+def _summarize_single_baseline_run(run_dir: Path) -> Dict[str, str]:
+    """
+    Given a baseline run directory (e.g. experiments/Experiment_1/Run_1), extract:
+      - config.toml
+      - metrics.jsonl
+
+    and return a dict with the values needed for one markdown row.
+    """
+    metrics_path = run_dir / "metrics.jsonl"
+    config_path = run_dir / "config.toml"
+
+    if not metrics_path.is_file():
+        raise FileNotFoundError(f"No metrics.jsonl found in {run_dir}")
+    if not config_path.is_file():
+        raise FileNotFoundError(f"No config.toml found in {run_dir}")
+
+    # --- Metrics: take the record with best val_accuracy ---
+    best_record = _get_best_val_record_from_jsonl(metrics_path)
+    best_epoch = best_record.get("epoch", "")
+    best_train_loss = best_record.get("train_loss", "")
+    best_train_accuracy = best_record.get("train_accuracy", "")
+    best_val_loss = best_record.get("val_loss", "")
+    best_val_accuracy = best_record.get("val_accuracy", "")
+    best_val_mse = best_record.get("val_MSE", "")
+    best_time_per_epoch = best_record.get("time_per_epoch", "")
+
+    # --- Config ---
+    config = _read_toml(config_path)
+    training_cfg = config.get("training", {})
+    model_cfg = config.get("model", {})
+    data_cfg = config.get("data", {})
+    experiment_cfg = config.get("experiment", {})
+
+    model_name = model_cfg.get("name", "")
+    dataset = data_cfg.get("dataset_hf_repo_id", "")
+    epochs = training_cfg.get("epochs", "")
+    lr = training_cfg.get("learning_rate", "")
+    batch_size = training_cfg.get("batch_size", "")
+    weight_decay = training_cfg.get("weight_decay", "")
+    scheduler = training_cfg.get("scheduler", "")
+    seed = training_cfg.get("seed", "")
+    experiment_name = experiment_cfg.get("name", "")
+    run_id = experiment_cfg.get("run", "")
+    indices_cfg = data_cfg.get("indices", {})
+    augmentation = data_cfg.get("augment", "")
+
+    calculated_indices = indices_cfg.get("calculated_indices")
+    selected_bands = indices_cfg.get("selected_bands")
+
+    def _to_list_str(v):
+        if v is None or v == "":
+            return ""
+        if isinstance(v, (list, tuple)):
+            return "[" + ", ".join(map(str, v)) + "]"
+        return str(v)
+
+    parts = []
+    if calculated_indices is not None:
+        parts.append(f"calc={_to_list_str(calculated_indices)}")
+    if selected_bands is not None:
+        parts.append(f"bands={_to_list_str(selected_bands)}")
+    indices_summary = " - ".join(parts) if parts else ""
+
+    def _fmt(v, fmt):
+        if v == "" or v is None:
+            return ""
+        return fmt.format(v)
+
+    return {
+        "run_name": run_dir.name,
+        "experiment_name": str(experiment_name),
+        "run_id": str(run_id),
+        "model": str(model_name),
+        "dataset": str(dataset),
+        "augmentation": str(augmentation),
+        "indices_config": indices_summary,
+        "epochs": str(epochs),
+        "learning_rate": str(lr),
+        "batch_size": str(batch_size),
+        "weight_decay": str(weight_decay),
+        "scheduler": str(scheduler),
+        "seed": str(seed),
+        "best_epoch": str(best_epoch),
+        "best_train_loss": _fmt(best_train_loss, "{:.6f}"),
+        "best_train_accuracy (%)": _fmt(best_train_accuracy, "{:.4f}"),
+        "best_val_loss": _fmt(best_val_loss, "{:.6f}"),
+        "best_val_accuracy (%)": _fmt(best_val_accuracy, "{:.4f}"),
+        "best_val_MSE": _fmt(best_val_mse, "{:.6f}"),
+        "time_per_epoch (s)": _fmt(best_time_per_epoch, "{:.4f}"),
+    }
+
+
+# ======================================================================
+# Pruning / compression experiments
+# ======================================================================
+
 def extract_relative_metrics_from_file(log_path: str) -> Dict[str, Optional[float]]:
     text = Path(log_path).read_text(encoding="utf-8", errors="ignore")
     lines = text.splitlines()
 
-    def find_indices(needle: str):
+    def find_indices(needle: str) -> List[int]:
         pat = re.compile(re.escape(needle), re.IGNORECASE)
         return [i for i, ln in enumerate(lines) if pat.search(ln)]
 
@@ -61,17 +337,20 @@ def extract_relative_metrics_from_file(log_path: str) -> Dict[str, Optional[floa
     }
 
     acc_re = re.compile(r"\bAcc\s*=?\s*([0-9]+(?:\.[0-9]+)?)\s*%")
-    sparsity_re = re.compile(r"Overall\s+sparsity\s*:\s*([0-9]+(?:\.[0-9]+)?)\s*%", re.IGNORECASE)
+    sparsity_re = re.compile(
+        r"Overall\s+sparsity\s*:\s*([0-9]+(?:\.[0-9]+)?)\s*%",
+        re.IGNORECASE,
+    )
 
-    def parse_accuracy(s: str):
+    def parse_accuracy(s: str) -> Optional[float]:
         m = acc_re.search(s)
         return float(m.group(1)) if m else None
 
-    def parse_sparsity(s: str):
+    def parse_sparsity(s: str) -> Optional[float]:
         m = sparsity_re.search(s)
         return float(m.group(1)) if m else None
 
-    metrics = {
+    metrics: Dict[str, Optional[float]] = {
         "Accuracy Before Pruning (%)": None,
         "Sparsity (Pruned, Before Fine-Tune) (%)": None,
         "Accuracy After Pruning (Before Fine-Tune) (%)": None,
@@ -121,7 +400,7 @@ def extract_relative_metrics_from_file(log_path: str) -> Dict[str, Optional[floa
 
     return metrics
 
-# --------- 2) Extract model params (starts-with exact phrases; returns LAST block) ---------
+
 def extract_params_last_block(log_path: str) -> Dict[str, Optional[float]]:
     """
     Looks for lines that START with:
@@ -140,16 +419,16 @@ def extract_params_last_block(log_path: str) -> Dict[str, Optional[float]]:
     def lstarts(line: str, prefix: str) -> bool:
         return line.lstrip().startswith(prefix)
 
-    def extract_int(s: str):
+    def extract_int(s: str) -> Optional[int]:
         m = int_re.search(s)
         return int(m.group(0).replace(",", "")) if m else None
 
-    def extract_float(s: str):
+    def extract_float(s: str) -> Optional[float]:
         m = float_re.search(s)
         return float(m.group(0)) if m else None
 
     rows: List[Dict[str, Optional[float]]] = []
-    current = None
+    current: Optional[Dict[str, Optional[float]]] = None
 
     for raw in lines:
         line = raw.rstrip("\n")
@@ -157,63 +436,57 @@ def extract_params_last_block(log_path: str) -> Dict[str, Optional[float]]:
         if lstarts(line, "Total params:"):
             if current and any(v is not None for v in current.values()):
                 rows.append(current)
-            current = {"Total Params": extract_int(line),
-                       "Trainable Params": None,
-                       "Estimated Total Size (MB)": None}
+            current = {
+                "Total Params": extract_int(line),
+                "Trainable Params": None,
+                "Estimated Total Size (MB)": None,
+            }
             continue
 
         if lstarts(line, "Trainable params:"):
             if current is None:
-                current = {"Total Params": None,
-                           "Trainable Params": None,
-                           "Estimated Total Size (MB)": None}
+                current = {
+                    "Total Params": None,
+                    "Trainable Params": None,
+                    "Estimated Total Size (MB)": None,
+                }
             current["Trainable Params"] = extract_int(line)
             continue
 
         if lstarts(line, "Estimated Total Size"):
             if current is None:
-                current = {"Total Params": None,
-                           "Trainable Params": None,
-                           "Estimated Total Size (MB)": None}
+                current = {
+                    "Total Params": None,
+                    "Trainable Params": None,
+                    "Estimated Total Size (MB)": None,
+                }
             current["Estimated Total Size (MB)"] = extract_float(line)
             continue
 
     if current and any(v is not None for v in current.values()):
         rows.append(current)
 
-    # Return the LAST block if present, else empty dict with keys
     if rows:
         return rows[-1]
-    return {"Total Params": None, "Trainable Params": None, "Estimated Total Size (MB)": None}
+    return {
+        "Total Params": None,
+        "Trainable Params": None,
+        "Estimated Total Size (MB)": None,
+    }
 
-def _fmt_int(x):
-    if x is None or (isinstance(x, float) and math.isnan(x)):
-        return ""
-    try:
-        return f"{int(x):,}"
-    except Exception:
-        return str(x)
 
-def _fmt_float(x, nd=2):
-    if x is None or (isinstance(x, float) and math.isnan(x)):
-        return ""
-    try:
-        return f"{float(x):.{nd}f}"
-    except Exception:
-        return str(x)
-
-def _fmt_percent(x, nd=2):
-    if x is None or (isinstance(x, float) and math.isnan(x)):
-        return ""
-    try:
-        return f"{float(x):.{nd}f}%"
-    except Exception:
-        return str(x)
-
-def print_markdown_stable(df: pd.DataFrame):
+def df_to_markdown_stable(df: pd.DataFrame) -> str:
+    """
+    Convert a DataFrame to a Markdown table string with stable formatting.
+    (Integer formatting, percentages, etc. same as before.)
+    """
     # Identify columns
-    int_cols     = [c for c in df.columns if "Params" in c and "(%)" not in c and "Size (MB)" not in c]
-    float2_cols  = [c for c in df.columns if ("Accuracy" in c or "Sparsity" in c)]
+    int_cols = [
+        c
+        for c in df.columns
+        if "Params" in c and "(%)" not in c and "Size (MB)" not in c
+    ]
+    float2_cols = [c for c in df.columns if ("Accuracy" in c or "Sparsity" in c)]
     percent_cols = [
         "Accuracy Before Pruning (%)",
         "Sparsity (Pruned, Before Fine-Tune) (%)",
@@ -223,9 +496,8 @@ def print_markdown_stable(df: pd.DataFrame):
         "Reduction Student to pruned Student (%)",
         "Reduction Teacher to pruned Student (%)",
     ]
-    float4_cols  = [c for c in df.columns if "Size (MB)" in c]
+    float4_cols = [c for c in df.columns if "Size (MB)" in c]
 
-    # Build a fully-string DataFrame for display
     df_disp = pd.DataFrame(index=df.index, columns=df.columns, dtype=object)
 
     for c in df.columns:
@@ -238,24 +510,64 @@ def print_markdown_stable(df: pd.DataFrame):
         elif c in float4_cols:
             df_disp[c] = df[c].apply(lambda v: _fmt_float(v, 4))
         else:
-            df_disp[c] = df[c].apply(lambda v: "" if (isinstance(v, float) and math.isnan(v)) else str(v))
+            df_disp[c] = df[c].apply(
+                lambda v: "" if (isinstance(v, float) and math.isnan(v)) else str(v)
+            )
 
-    # Manual Markdown printing (no external deps, no dtype surprises)
     headers = list(df_disp.columns)
-    print("| " + " | ".join(headers) + " |")
-    print("| " + " | ".join(["---"] * len(headers)) + " |")
+    lines = [
+        "| " + " | ".join(headers) + " |",
+        "| " + " | ".join(["---"] * len(headers)) + " |",
+    ]
     for _, r in df_disp.iterrows():
-        print("| " + " | ".join(r[h] for h in headers) + " |")
+        lines.append("| " + " | ".join(r[h] for h in headers) + " |")
 
-# --------- 3) Combine across runs into one DataFrame and print Markdown ---------
-def build_combined_table(experiment_dir, num_of_runs):
-    combined_rows = []
+    return "\n".join(lines)
 
-    for i in range(1,num_of_runs + 1):
-        row: Dict[str, Optional[float]] = {"Run": i}
 
-        # Paths as given in your snippet
-        base = f"{experiment_dir}/Run_{i}"
+def print_markdown_stable(df: pd.DataFrame) -> None:
+    """Backwards-compatible helper: print the Markdown table to stdout."""
+    print(df_to_markdown_stable(df))
+
+
+def build_combined_table(
+    experiment_dir: str,
+    num_of_runs: Optional[int] = None,
+    output_md_path: Optional[str] = None,
+) -> pd.DataFrame:
+    """
+    Build a combined pruning/compression table across multiple runs.
+
+    Similar in spirit to summarize_experiment_group_to_markdown:
+      - Takes an experiment_dir with Run_X subfolders.
+      - Collects one row per run.
+      - Optionally writes a Markdown table to output_md_path.
+    """
+    experiment_path = Path(experiment_dir)
+
+    if not experiment_path.is_dir():
+        raise NotADirectoryError(f"{experiment_dir} is not a directory")
+
+    combined_rows: List[Dict[str, Optional[float]]] = []
+
+    # determine run directories
+    if num_of_runs is not None:
+        run_dirs = [
+            experiment_path / f"Run_{i}"
+            for i in range(1, num_of_runs + 1)
+            if (experiment_path / f"Run_{i}").is_dir()
+        ]
+    else:
+        run_dirs = [d for d in experiment_path.iterdir() if d.is_dir()]
+
+    run_dirs = sorted(run_dirs, key=lambda d: _extract_run_number(d.name))
+
+    for run_dir in run_dirs:
+        m = re.search(r"(\d+)$", run_dir.name)
+        run_idx = int(m.group(1)) if m else None
+
+        row: Dict[str, Optional[float]] = {"Run": run_idx}
+        base = str(run_dir)
 
         # a) Relative metrics
         metrics_path = f"{base}/Experiment_log.log"
@@ -275,60 +587,90 @@ def build_combined_table(experiment_dir, num_of_runs):
         try:
             teacher = extract_params_last_block(f"{base}/model_summary_Teacher.log")
         except FileNotFoundError:
-            teacher = {"Total Params": None, "Trainable Params": None, "Estimated Total Size (MB)": None}
-        row.update({
-            "Teacher Total Params": teacher.get("Total Params"),
-            "Teacher Trainable Params": teacher.get("Trainable Params"),
-            "Teacher Estimated Total Size (MB)": teacher.get("Estimated Total Size (MB)"),
-        })
+            teacher = {
+                "Total Params": None,
+                "Trainable Params": None,
+                "Estimated Total Size (MB)": None,
+            }
+        row.update(
+            {
+                "Teacher Total Params": teacher.get("Total Params"),
+                "Teacher Trainable Params": teacher.get("Trainable Params"),
+                "Teacher Estimated Total Size (MB)": teacher.get(
+                    "Estimated Total Size (MB)"
+                ),
+            }
+        )
 
         # c) Student Pruned + Fine-tuned params
         try:
-            student_pft = extract_params_last_block(f"{base}/model_summary_Student - Pruned and Fine-tuned.log")
+            student_pft = extract_params_last_block(
+                f"{base}/model_summary_Student - Pruned and Fine-tuned.log"
+            )
         except FileNotFoundError:
-            student_pft = {"Total Params": None, "Trainable Params": None, "Estimated Total Size (MB)": None}
-        row.update({
-            "Student P+FT Total Params": student_pft.get("Total Params"),
-            "Student P+FT Trainable Params": student_pft.get("Trainable Params"),
-            "Student P+FT Estimated Total Size (MB)": student_pft.get("Estimated Total Size (MB)"),
-        })
+            student_pft = {
+                "Total Params": None,
+                "Trainable Params": None,
+                "Estimated Total Size (MB)": None,
+            }
+        row.update(
+            {
+                "Student P+FT Total Params": student_pft.get("Total Params"),
+                "Student P+FT Trainable Params": student_pft.get("Trainable Params"),
+                "Student P+FT Estimated Total Size (MB)": student_pft.get(
+                    "Estimated Total Size (MB)"
+                ),
+            }
+        )
 
         # d) Student Before Pruning params
         try:
-            student_before = extract_params_last_block(f"{base}/model_summary_Student - Before Pruning.log")
+            student_before = extract_params_last_block(
+                f"{base}/model_summary_Student - Before Pruning.log"
+            )
         except FileNotFoundError:
-            student_before = {"Total Params": None, "Trainable Params": None, "Estimated Total Size (MB)": None}
-        row.update({
-            "Student Before Total Params": student_before.get("Total Params"),
-            "Student Before Trainable Params": student_before.get("Trainable Params"),
-            "Student Before Estimated Total Size (MB)": student_before.get("Estimated Total Size (MB)"),
-        })
+            student_before = {
+                "Total Params": None,
+                "Trainable Params": None,
+                "Estimated Total Size (MB)": None,
+            }
+        row.update(
+            {
+                "Student Before Total Params": student_before.get("Total Params"),
+                "Student Before Trainable Params": student_before.get(
+                    "Trainable Params"
+                ),
+                "Student Before Estimated Total Size (MB)": student_before.get(
+                    "Estimated Total Size (MB)"
+                ),
+            }
+        )
 
         combined_rows.append(row)
 
-    # Build DataFrame
+    if not combined_rows:
+        raise RuntimeError(f"No valid runs found in {experiment_dir}")
+
     df = pd.DataFrame(combined_rows)
 
-    # Ensure the ratio column exists and is float
-    df["Reduction Student to pruned Student (%)"] = (1 - df["Student P+FT Total Params"] / df["Student Before Total Params"]) * 100
-    df["Reduction Teacher to pruned Student (%)"] = (1 - df["Student P+FT Total Params"] / df["Teacher Total Params"]) * 100
+    df["Reduction Student to pruned Student (%)"] = (
+        1 - df["Student P+FT Total Params"] / df["Student Before Total Params"]
+    ) * 100
+    df["Reduction Teacher to pruned Student (%)"] = (
+        1 - df["Student P+FT Total Params"] / df["Teacher Total Params"]
+    ) * 100
 
-    # Print with stable formatting (no sci-notation, % kept)
-    print_markdown_stable(df)
+    markdown = df_to_markdown_stable(df)
+
+    if output_md_path is not None:
+        out_path = Path(output_md_path)
+        _ensure_parent_dir(out_path)
+        out_path.write_text(markdown + "\n", encoding="utf-8")
+    else:
+        print(markdown)
 
     return df
 
-def _fmt_int(n):
-    try:
-        return f"{int(n):,}"
-    except Exception:
-        return str(n)
-
-def _fmt_pct(x, nd=2):
-    try:
-        return f"{float(x):.{nd}f}%"
-    except Exception:
-        return str(x)
 
 def _collect_run_points(df: pd.DataFrame, run: int):
     """Return list of (stage, params, acc) for a given run. Skips missing."""
@@ -338,13 +680,28 @@ def _collect_run_points(df: pd.DataFrame, run: int):
 
     row = row.iloc[0]
     points = [
-        ("Teacher",        row.get("Teacher Total Params"),          row.get("Accuracy Before Pruning (%)")),
-        ("Student Before", row.get("Student Before Total Params"),   row.get("Accuracy Before Pruning (%)")),
-        ("Student P+FT",   row.get("Student P+FT Total Params"),     row.get("Accuracy Pruned + Fine-Tuned (%)")),
+        (
+            "Teacher",
+            row.get("Teacher Total Params"),
+            row.get("Accuracy Before Pruning (%)"),
+        ),
+        (
+            "Student Before",
+            row.get("Student Before Total Params"),
+            row.get("Accuracy Before Pruning (%)"),
+        ),
+        (
+            "Student P+FT",
+            row.get("Student P+FT Total Params"),
+            row.get("Accuracy Pruned + Fine-Tuned (%)"),
+        ),
     ]
-    # keep only complete points
-    clean = [(s, p, a) for (s, p, a) in points if pd.notna(p) and pd.notna(a)]
-    return clean
+    return [
+        (s, p, a)
+        for (s, p, a) in points
+        if pd.notna(p) and pd.notna(a)
+    ]
+
 
 def save_size_accuracy_per_run(df: pd.DataFrame, out_dir: str, log_x: bool = False):
     """
@@ -362,17 +719,14 @@ def save_size_accuracy_per_run(df: pd.DataFrame, out_dir: str, log_x: bool = Fal
     for run in runs:
         pts = _collect_run_points(df, run)
         if not pts:
-            # nothing to plot for this run
             continue
 
         stages, params, accs = zip(*pts)
 
         fig, ax = plt.subplots(figsize=(8, 5))
 
-        # connect points in their listed order
-        ax.plot(params, accs, marker="o")  # default style/colors
+        ax.plot(params, accs, marker="o")
 
-        # add point labels
         for s, p, a in pts:
             ax.annotate(
                 s,
@@ -382,89 +736,58 @@ def save_size_accuracy_per_run(df: pd.DataFrame, out_dir: str, log_x: bool = Fal
                 fontsize=9,
             )
 
-        # axis labels & title
         ax.set_title(f"Run {run}: Accuracy vs. Parameters")
         ax.set_xlabel("Parameters")
         ax.set_ylabel("Accuracy (%)")
 
-        # formatting
         if log_x:
             ax.set_xscale("log")
         else:
             ax.xaxis.set_major_formatter(ScalarFormatter(useMathText=False))
-            ax.ticklabel_format(style='plain', axis='x')
+            ax.ticklabel_format(style="plain", axis="x")
 
         ax.set_ylim(0, 100)
         ax.grid(True, linestyle="--", alpha=0.3)
 
-        # optional helper text
-        # show exact values under the title
         try:
-            teacher_p   = next(p for s, p, _ in pts if s == "Teacher")
+            teacher_p = next(p for s, p, _ in pts if s == "Teacher")
             student_b_p = next(p for s, p, _ in pts if s == "Student Before")
             student_p_p = next(p for s, p, _ in pts if s == "Student P+FT")
-            # accuracy
-            teacher_a   = next(a for s, _, a in pts if s == "Teacher")
+            teacher_a = next(a for s, _, a in pts if s == "Teacher")
             student_b_a = next(a for s, _, a in pts if s == "Student Before")
             student_p_a = next(a for s, _, a in pts if s == "Student P+FT")
             subtitle = (
-                f"Teacher: {_fmt_int(teacher_p)} / {_fmt_pct(teacher_a)}    |    "
-                f"Student Before: {_fmt_int(student_b_p)} / {_fmt_pct(student_b_a)}    |    "
-                f"Student P+FT: {_fmt_int(student_p_p)} / {_fmt_pct(student_p_a)}"
+                f"Teacher: {_fmt_int(teacher_p)} / {_fmt_percent(teacher_a)}    |    "
+                f"Student Before: {_fmt_int(student_b_p)} / {_fmt_percent(student_b_a)}    |    "
+                f"Student P+FT: {_fmt_int(student_p_p)} / {_fmt_percent(student_p_a)}"
             )
-            ax.text(0.5, 1.02, subtitle, transform=ax.transAxes, ha="center", va="bottom", fontsize=9)
+            ax.text(
+                0.5,
+                1.02,
+                subtitle,
+                transform=ax.transAxes,
+                ha="center",
+                va="bottom",
+                fontsize=9,
+            )
         except StopIteration:
             pass
 
         fig.tight_layout()
-        out_path = out / f"Run_{run}/plots" /f"size_vs_accuracy.png"
+        plot_dir = out / f"Run_{run}/plots"
+        plot_dir.mkdir(parents=True, exist_ok=True)
+        out_path = plot_dir / "size_vs_accuracy.png"
         fig.savefig(out_path, dpi=300)
         plt.close(fig)
 
     print(f"✅ Saved size-vs-accuracy plots to: {Path(out_dir).resolve()}")
 
 
+# ======================================================================
+# Teacher–student KD experiments
+# ======================================================================
 
-
-################################################################################################################
-############################ Tables for Teacher - Student Experiments    #######################################
-################################################################################################################
-def _get_best_val_accuracy_from_jsonl(metrics_path: Path, val_key: str = "val_accuracy"):
-    """
-    Scan a JSONL metrics file and return (best_val_accuracy, epoch).
-
-    Assumes each line is a JSON object with keys:
-      - val_key  (e.g. "val_accuracy")
-      - "epoch"
-    """
-    best_val_acc = None
-    best_epoch = None
-
-    with metrics_path.open("r", encoding="utf-8") as f:
-        for line in f:
-            line = line.strip()
-            if not line:
-                continue
-            record = json.loads(line)
-
-            val_acc = record.get(val_key)
-            epoch = record.get("epoch")
-
-            if val_acc is None or epoch is None:
-                continue
-
-            if (best_val_acc is None) or (val_acc > best_val_acc):
-                best_val_acc = val_acc
-                best_epoch = epoch
-
-    if best_val_acc is None or best_epoch is None:
-        raise ValueError(
-            f"Could not find any valid (epoch, {val_key}) pairs in metrics file: {metrics_path}"
-        )
-
-    return best_val_acc, best_epoch
-
-def _summarize_single_run(run_dir: Path):
+def _summarize_single_run(run_dir: Path) -> Dict[str, str]:
     """
     Given a run directory like experiments/Experiment_3/Run_1, extract:
       - config.toml
@@ -488,34 +811,31 @@ def _summarize_single_run(run_dir: Path):
     )
 
     # --- Config ---
-    with config_path.open("rb") as f:
-        config = tomllib.load(f)
-
+    config = _read_toml(config_path)
     training_cfg = config.get("training", {})
     teacher_student_cfg = training_cfg.get("teacher_student", {})
 
-    teacher_model = teacher_student_cfg.get("teacher_model_name","")
-    student_model = config.get("model").get("name","")
+    teacher_model = teacher_student_cfg.get("teacher_model_name", "")
+    student_model = config.get("model", {}).get("name", "")
+    dataset = config.get("data", {}).get("dataset_hf_repo_id", "")
 
-    def _get_param(training_cfg, teacher_student_cfg, key, default=""):
+    def _get_param(key: str, default=""):
         if key in training_cfg:
             return training_cfg[key]
         if key in teacher_student_cfg:
             return teacher_student_cfg[key]
         return default
 
-    kd_type = _get_param(training_cfg, teacher_student_cfg, "kd_type")
-    hidden_rep_loss_weight = _get_param(training_cfg, teacher_student_cfg, "hidden_rep_loss_weight")
-    ce_loss_weight = _get_param(training_cfg, teacher_student_cfg, "ce_loss_weight")
-    soft_target_loss_weight = _get_param(training_cfg, teacher_student_cfg, "soft_target_loss_weight")
-    T_param = _get_param(training_cfg, teacher_student_cfg, "T_param")
-    alpha_kd = _get_param(training_cfg, teacher_student_cfg, "alpha_kd")
-    beta_feat = _get_param(training_cfg, teacher_student_cfg, "beta_feat")
-
-    dataset = config.get("data").get("dataset_hf_repo_id","")
+    kd_type = _get_param("kd_type")
+    hidden_rep_loss_weight = _get_param("hidden_rep_loss_weight")
+    ce_loss_weight = _get_param("ce_loss_weight")
+    soft_target_loss_weight = _get_param("soft_target_loss_weight")
+    T_param = _get_param("T_param")
+    alpha_kd = _get_param("alpha_kd")
+    beta_feat = _get_param("beta_feat")
 
     # --- Teacher ---
-    teacher_model_path = teacher_student_cfg.get("teacher_model_path","")
+    teacher_model_path = teacher_student_cfg.get("teacher_model_path", "")
     if not teacher_model_path:
         raise KeyError(
             f"{config_path}: missing 'training.teacher_student.teacher_model_path'"
@@ -523,7 +843,6 @@ def _summarize_single_run(run_dir: Path):
 
     teacher_ckpt_path = Path(teacher_model_path)
     if not teacher_ckpt_path.is_absolute():
-        # treat as relative to project root (cwd)
         teacher_ckpt_path = teacher_ckpt_path.resolve()
 
     teacher_metrics_path = teacher_ckpt_path.parent / "metrics.jsonl"
@@ -572,16 +891,6 @@ def _summarize_single_run(run_dir: Path):
         "improvement_over_baseline (%)": f"{student_best_val_acc - baseline_best_val_acc:.4f}",
     }
 
-def _extract_run_number(name: str) -> int:
-    """
-    Extract integer suffix from folder names like:
-      Run_1 → 1
-      Run_12 → 12
-    Returns 0 if not found.
-    """
-    import re
-    m = re.search(r"(\d+)$", name)
-    return int(m.group(1)) if m else 0
 
 def summarize_experiment_group_to_markdown(
     experiment_dir: str,
@@ -595,16 +904,6 @@ def summarize_experiment_group_to_markdown(
             experiment_dir="experiments/Experiment_3",
             output_md_path="docs/results/experiment_3_summary.md",
         )
-
-    Expected structure:
-      experiments/Experiment_3/
-        Run_1/
-          metrics.jsonl
-          config.toml
-        Run_2/
-          metrics.jsonl
-          config.toml
-        ...
     """
     experiment_path = Path(experiment_dir)
     output_path = Path(output_md_path)
@@ -612,21 +911,16 @@ def summarize_experiment_group_to_markdown(
     if not experiment_path.is_dir():
         raise NotADirectoryError(f"{experiment_dir} is not a directory")
 
-    # --- numeric sort of Run_X folders ---
     run_dirs = sorted(
         (d for d in experiment_path.iterdir() if d.is_dir()),
-        key=lambda d: _extract_run_number(d.name)
+        key=lambda d: _extract_run_number(d.name),
     )
 
-    rows = []
-    for run_dir in run_dirs:
-        row = _summarize_single_run(run_dir)
-        rows.append(row)
+    rows = [_summarize_single_run(run_dir) for run_dir in run_dirs]
 
     if not rows:
         raise RuntimeError(f"No valid runs found in {experiment_dir}")
 
-    # --- Build markdown table ---
     headers = [
         "run_name",
         "teacher_model",
@@ -645,20 +939,57 @@ def summarize_experiment_group_to_markdown(
         "improvement_over_baseline (%)",
     ]
 
-    header_line = "| " + " | ".join(headers) + " |"
-    separator_line = "| " + " | ".join(["---"] * len(headers)) + " |"
-
-    row_lines = []
-    for row in rows:
-        row_values = [str(row[h]) for h in headers]
-        row_lines.append("| " + " | ".join(row_values) + " |")
-
-    markdown_content = "\n".join([header_line, separator_line] + row_lines) + "\n"
-
-    # --- Write output ---
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    markdown_content = _build_markdown_from_rows(headers, rows)
+    _ensure_parent_dir(output_path)
     output_path.write_text(markdown_content, encoding="utf-8")
 
+
+# ======================================================================
+# Main
+# ======================================================================
+
+def main():
+    # Setup logging
+    logger_cfg_path = "configs/plot_config.toml"
+    cfg = load_config_toml(logger_cfg_path, validate=False)
+    setup_logging(cfg.model_dump(), Path(), False)
+    log.info(f"Config loaded from {logger_cfg_path}")
+
+    # ------------------------------------------------------------------
+    # Tables for Baseline Experiments
+    # ------------------------------------------------------------------
+    summarize_baseline_experiment_group_to_markdown(
+        experiment_dir="experiments/Experiment_1",
+        output_md_path="experiments/Experiment_1/experiment_summary.md",
+    )
+    summarize_baseline_experiment_group_to_markdown(
+        experiment_dir="experiments/Experiment_5",
+        output_md_path="experiments/Experiment_5/experiment_summary.md",
+    )
+
+    # ------------------------------------------------------------------
+    # Tables for Teacher - Student KD Experiments
+    # ------------------------------------------------------------------
+    summarize_experiment_group_to_markdown(
+        experiment_dir="experiments/Experiment_3",
+        output_md_path="experiments/Experiment_3/experiment_summary.md",
+    )
+    summarize_experiment_group_to_markdown(
+        experiment_dir="experiments/Experiment_4",
+        output_md_path="experiments/Experiment_4/experiment_summary.md",
+    )
+    summarize_experiment_group_to_markdown(
+        experiment_dir="experiments/Experiment_6",
+        output_md_path="experiments/Experiment_6/experiment_summary.md",
+    )
+
+    # ------------------------------------------------------------------
+    # Tables for Pruning/Compression Experiments
+    # ------------------------------------------------------------------
+    build_combined_table(
+        experiment_dir="experiments/Experiment_7",
+        output_md_path="experiments/Experiment_7/experiment_summary.md",
+    )
 
 
 if __name__ == "__main__":
