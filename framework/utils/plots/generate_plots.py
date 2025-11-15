@@ -32,7 +32,6 @@ def main():
     ################################################################################################################
 
     ########## Plot Validation Accuracy over Epochs for different models on EuroSAT ##########
-    '''
     models = {
         "ResNet50": "experiments/Experiment_1/Run_10/metrics.jsonl",
         "ResNet18": "experiments/Experiment_1/Run_1/metrics.jsonl",
@@ -89,9 +88,9 @@ def main():
         models,
         out_path_base="docs/plots/acc_ts_baseline_resisc",
         title="Validation Accuracy over Epochs Resisc45",
-        use_latex=True
+        use_latex=True,
+        figsize=(6, 4)
     )
-    '''
 
     ########## Plot Validation Accuracy over Epochs for Student vs Baseline on EuroSAT ##########
     models = {
