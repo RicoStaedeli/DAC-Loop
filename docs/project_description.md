@@ -48,3 +48,16 @@ The baseline for teacher-student learning are the models trained from scratch wi
 | Run_6    | Experiment_5    | 6      | ResNet50 | timm/resisc45 | True         | calc=[] - bands=[B01, B02, B03] | 50     | 0.003         | 256        | 1e-05        | cosine    | 42   | 49         | 0.517164        | 1.220733      | 83.5767                 | 81.6190               | 0.005890     |
 | Run_7    | Experiment_5    | 7      | ResNet50 | timm/resisc45 | True         | calc=[] - bands=[B01, B02, B03] | 100    | 0.0003        | 128        | 1e-05        | cosine    | 42   | 93         | 0.056677        | 0.283054      | 98.2275                 | 92.6825               | 0.002625     |
 | Run_8    | Experiment_5    | 8      | ResNet18 | timm/resisc45 | False        | calc=[] - bands=[B01, B02, B03] | 50     | 0.0003        | 128        | 1e-05        | cosine    | 42   | 49         | 0.006621        | 0.345476      | 99.9947                 | 89.9683               | 0.003377     |
+
+**Additional baselines are found through research:**
+- They had around the same accuracy training ResNet18 from scratch on RESISC45 with similar hyperparameters. [Source](https://arxiv.org/pdf/2507.10381)
+
+| Model       | Dataset  | Accuracy Theirs(%) | Accuracy Ours Baselines(%) | Source |
+|-------------|----------|--------------------|----------------------------|--------|
+| ResNet18    | RESISC45 | 92.10              | 91.33                      | [Source](https://arxiv.org/pdf/2507.10381) |
+| ResNet18    | EuroSAT  | 98.06              | 98.44                      |[Source](https://arxiv.org/pdf/2507.10381) |
+| ResNet50 -  | RESISC45 | 96.80              | 92.68                      |[Source](https://arxiv.org/pdf/2507.10381) |
+| ResNet50    | EuroSAT  | 99.20              | 98.50                      |[Source](https://arxiv.org/pdf/2507.10381) |
+| ResNet50    | EuroSAT  | 99.57              | 98.50                      |[Source](https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=8736785) |
+
+- 
