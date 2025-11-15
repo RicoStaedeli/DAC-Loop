@@ -32,6 +32,7 @@ def main():
     ################################################################################################################
 
     ########## Plot Validation Accuracy over Epochs for different models on EuroSAT ##########
+    '''
     models = {
         "ResNet50": "experiments/Experiment_1/Run_10/metrics.jsonl",
         "ResNet18": "experiments/Experiment_1/Run_1/metrics.jsonl",
@@ -90,6 +91,58 @@ def main():
         title="Validation Accuracy over Epochs Resisc45",
         use_latex=True
     )
+    '''
+
+    ########## Plot Validation Accuracy over Epochs for Student vs Baseline on EuroSAT ##########
+    models = {
+        "TinyCNN-Student": "experiments/Experiment_3/Run_24/metrics.jsonl",
+        "TinyCNN-Student-Baseline": "experiments/Experiment_1/Run_9/metrics.jsonl",
+    }
+    plot_val_accuracy_over_epochs(
+        models,
+        out_path_base="docs/plots/eurosat_tinycnn_student_vs_baseline",
+        title="TinyCNN - Validation Accuracy over Epochs on EuroSAT",
+        use_latex=True,
+        figsize = (6,3)
+    )
+
+    models = {
+        "ResNet18-Student": "experiments/Experiment_4/Run_24/metrics.jsonl",
+        "ResNet18-Student-Baseline": "experiments/Experiment_1/Run_6/metrics.jsonl",
+    }
+    plot_val_accuracy_over_epochs(
+        models,
+        out_path_base="docs/plots/eurosat_resnet18_student_vs_baseline",
+        title="ResNet18 - Validation Accuracy over Epochs on EuroSAT",
+        use_latex=True,
+        figsize = (6,3)
+    )
+
+    ########## Plot Validation Accuracy over Epochs for Student vs Baseline on RESISC45 ##########
+    models = {
+        "ResNet18-Student": "experiments/Experiment_6/Run_23/metrics.jsonl",
+        "ResNet18-Student-Baseline": "experiments/Experiment_5/Run_8/metrics.jsonl",
+    }
+    plot_val_accuracy_over_epochs(
+        models,
+        out_path_base="docs/plots/resisc_resnet18_student_vs_baseline",
+        title="ResNet18 - Validation Accuracy over Epochs on RESISC45",
+        use_latex=True,
+        figsize = (6,3)
+    )
+
+    models = {
+        "ResNet10-Student": "experiments/Experiment_6_a/Run_40/metrics.jsonl",
+        "ResNet10-Student-Baseline": "experiments/Experiment_5/Run_2/metrics.jsonl",
+    }
+    plot_val_accuracy_over_epochs(
+        models,
+        out_path_base="docs/plots/resisc_resnet10_student_vs_baseline",
+        title="ResNet10 - Validation Accuracy over Epochs on RESISC45",
+        use_latex=True,
+        figsize = (6,3)
+    )
+
 
 
 
