@@ -982,6 +982,10 @@ def main():
         experiment_dir="experiments/Experiment_6",
         output_md_path="experiments/Experiment_6/experiment_summary.md",
     )
+    summarize_experiment_group_to_markdown(
+        experiment_dir="experiments/Experiment_6_a",
+        output_md_path="experiments/Experiment_6_a/experiment_summary.md",
+    )
 
     # ------------------------------------------------------------------
     # Tables for Pruning/Compression Experiments
