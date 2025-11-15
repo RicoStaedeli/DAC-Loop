@@ -95,7 +95,7 @@ def main():
     ########## Plot Validation Accuracy over Epochs for Student vs Baseline on EuroSAT ##########
     models = {
         "TinyCNN-Student": "experiments/Experiment_3/Run_24/metrics.jsonl",
-        "TinyCNN-Student-Baseline": "experiments/Experiment_1/Run_9/metrics.jsonl",
+        "TinyCNN-Student-Baseline": "experiments/Experiment_1/Run_7/metrics.jsonl",
     }
     plot_val_accuracy_over_epochs(
         models,
