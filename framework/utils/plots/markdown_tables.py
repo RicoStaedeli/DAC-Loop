@@ -978,12 +978,12 @@ def main():
         experiment_dir="experiments/Experiment_4",
         output_md_path="experiments/Experiment_4/experiment_summary.md",
     )
-'''    
+
     summarize_experiment_group_to_markdown(
         experiment_dir="experiments/Experiment_4a",
         output_md_path="experiments/Experiment_4a/experiment_summary.md",
     )
-
+'''
 
     summarize_experiment_group_to_markdown(
         experiment_dir="experiments/Experiment_6",

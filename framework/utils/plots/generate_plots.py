@@ -125,7 +125,7 @@ def _plots_for_different_experiments():
         figsize = (6,3)
     )
 
-    '''
+
     models = {
         "ResNet18-Student": "experiments/Experiment_4a/Run_24/metrics.jsonl",
         "ResNet18-Student-Baseline": "experiments/Experiment_1/Run_6/metrics.jsonl",
@@ -137,7 +137,7 @@ def _plots_for_different_experiments():
         use_latex=True,
         figsize = (6,3)
     )
-    '''
+
 
     ########## Plot Validation Accuracy over Epochs for Student vs Baseline on RESISC45 ##########
     models = {
