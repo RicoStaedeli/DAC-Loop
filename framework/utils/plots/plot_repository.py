@@ -572,7 +572,7 @@ def plot_val_accuracy_over_epochs(
         raise RuntimeError("No series plotted (no files found or they lacked val_accuracy/epoch).")
 
     ax.set_ylabel("Validation Accuracy (%)" if as_percent else "Validation Accuracy")
-    ax.set_title(title)
+    ax.set_title(rf"\textbf{{{title}}}")
     ax.legend(frameon=False, handlelength=1.2, borderaxespad=0.2, loc="best")
 
     out_base = Path(out_path_base)
