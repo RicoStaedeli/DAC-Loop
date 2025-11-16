@@ -20,9 +20,10 @@ def main():
     ################################################################################################################
 
     # Generate plots for experiments
-    # _make_plots_for_experiment(experiment_name="Experiment_1", num_runs=12, only_overview=False)
+    _make_plots_for_experiment(experiment_name="Experiment_1", num_runs=12, only_overview=False)
     # _make_plots_for_experiment(experiment_name="Experiment_3", num_runs=24, only_overview=False)
-    # _make_plots_for_experiment(experiment_name="Experiment_4", num_runs=24, only_overview=False)
+    _make_plots_for_experiment(experiment_name="Experiment_4", num_runs=40, only_overview=False)
+    _make_plots_for_experiment(experiment_name="Experiment_4a", num_runs=40, only_overview=False)
     # _make_plots_for_experiment(experiment_name="Experiment_5", num_runs=8, only_overview=False)
     # _make_plots_for_experiment(experiment_name="Experiment_6", num_runs=40, only_overview=False)
     # _make_plots_for_experiment(experiment_name="Experiment_7", num_runs=21, only_overview=False)
@@ -31,6 +32,12 @@ def main():
     ############################ Plots with different experiments ##################################################
     ################################################################################################################
 
+    # _plots_for_different_experiments()
+
+
+
+
+def _plots_for_different_experiments():
     ########## Plot Validation Accuracy over Epochs for different models on EuroSAT ##########
     models = {
         "ResNet50": "experiments/Experiment_1/Run_10/metrics.jsonl",

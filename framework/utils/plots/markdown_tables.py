@@ -966,7 +966,7 @@ def main():
         experiment_dir="experiments/Experiment_5",
         output_md_path="experiments/Experiment_5/experiment_summary.md",
     )
-
+'''
     # ------------------------------------------------------------------
     # Tables for Teacher - Student KD Experiments
     # ------------------------------------------------------------------
@@ -994,7 +994,7 @@ def main():
         experiment_dir="experiments/Experiment_7",
         output_md_path="experiments/Experiment_7/experiment_summary.md",
     )
-
+'''
 
 if __name__ == "__main__":
     main()
