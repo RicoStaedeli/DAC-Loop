@@ -24,15 +24,11 @@ learning_rate = 0.0003                                          # (float) defaul
 weight_decay = 0.00001
 scheduler = "cosine"                                            # "cosine", "step", "none" --> only cosine implemented yet
 batch_size = 256                                                # (int) default: 128 | Number of samples per training batch.
+save_only_best = true                                                   # (bool) default: False | Whether to save only the best model according to validation metric.
 do_not_log_steps = false                                        # (bool) default: False | Whether to log metrics per step or not
 seed = 42                                                       # (int) default: 42 | Random seed for reproducibility.
 load_from_checkpoint = false                                    # (bool) default: False | Resume training from a saved checkpoint if true.
 previous_checkpoint_path = ""                                   # (string) default: None | Path to a checkpoint file for resuming training. Only relevant if load_from_checkpoint = true.
-kd_type = "KLDivLoss"                                           # (string) Available: ['CrossEntropyLoss', 'CosineEmbeddingLoss', 'KLDivLoss']
-hidden_rep_loss_weight = 0.25                                   # (float) default: 0.25 | weight to multiply the loss during KD with CosineEmbeddingLoss
-ce_loss_weight = 0.75                                           # (float) default: 0.75 | weight to multiply the cross entropy loss of the labels used in 'CrossEntropyLoss', 'CosineEmbeddingLoss'
-soft_target_loss_weight = 0.25                                  # (float) default: 0.25 | weight to multiply the loss during KD with CrossEntropyLoss
-T_param = 2
 base_path_ckpts = ""                                            #(string) default: "" | this is used as basepath for the checkoint dir. Used in Colab to save Checkpoints to G-Drive (/content/drive/MyDrive/HSG/DL)
 
 [training.teacher_student]
@@ -40,6 +36,11 @@ train_student = false                                                  # (bool) 
 teacher_model_path = ""      # (string) default: | Path to trained ResNet18 Model (Teacher)
 teacher_model_name = ""
 baseline_student = ""        # (string) default: "" | Path to a pre-trained student model. If provided, the student model will be initialized with these weights before training.
+kd_type = "KLDivLoss"                                           # (string) Available: ['CrossEntropyLoss', 'CosineEmbeddingLoss', 'KLDivLoss']
+hidden_rep_loss_weight = 0.25                                   # (float) default: 0.25 | weight to multiply the loss during KD with CosineEmbeddingLoss
+ce_loss_weight = 0.75                                           # (float) default: 0.75 | weight to multiply the cross entropy loss of the labels used in 'CrossEntropyLoss', 'CosineEmbeddingLoss'
+soft_target_loss_weight = 0.25                                  # (float) default: 0.25 | weight to multiply the loss during KD with CrossEntropyLoss
+T_param = 2
 
 [training.early_stopping]
 enabled = false                         # (bool) default: False | Whether to use early stopping or not
