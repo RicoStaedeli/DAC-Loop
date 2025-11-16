@@ -20,15 +20,15 @@ def main():
     ################################################################################################################
 
     # Generate plots for experiments
-    _make_plots_for_experiment(experiment_name="Experiment_1", num_runs=12, only_overview=False)
-    _make_plots_for_experiment(experiment_name="Experiment_3", num_runs=24, only_overview=False)
-    _make_plots_for_experiment(experiment_name="Experiment_4", num_runs=40, only_overview=False)
-    _make_plots_for_experiment(experiment_name="Experiment_4a", num_runs=40, only_overview=False)
-    _make_plots_for_experiment(experiment_name="Experiment_5", num_runs=8, only_overview=False)
-    _make_plots_for_experiment(experiment_name="Experiment_6", num_runs=40, only_overview=False)
-    _make_plots_for_experiment(experiment_name="Experiment_6_a", num_runs=40, only_overview=False)
-    _make_plots_for_experiment(experiment_name="Experiment_7", num_runs=21, only_overview=False)
-    _make_plots_for_experiment(experiment_name="Experiment_7a", num_runs=21, only_overview=False)
+    # _make_plots_for_experiment(experiment_name="Experiment_1", num_runs=12, only_overview=False)
+    # _make_plots_for_experiment(experiment_name="Experiment_3", num_runs=24, only_overview=False)
+    # _make_plots_for_experiment(experiment_name="Experiment_4", num_runs=40, only_overview=False)
+    # _make_plots_for_experiment(experiment_name="Experiment_4a", num_runs=40, only_overview=False)
+    # _make_plots_for_experiment(experiment_name="Experiment_5", num_runs=8, only_overview=False)
+    # _make_plots_for_experiment(experiment_name="Experiment_6", num_runs=40, only_overview=False)
+    # _make_plots_for_experiment(experiment_name="Experiment_6_a", num_runs=40, only_overview=False)
+    # _make_plots_for_experiment(experiment_name="Experiment_7", num_runs=21, only_overview=False)
+    # _make_plots_for_experiment(experiment_name="Experiment_7a", num_runs=21, only_overview=False)
 
     ################################################################################################################
     ############################ Plots with different experiments ##################################################
@@ -129,8 +129,8 @@ def _plots_for_different_experiments():
 
 
     models = {
-        "ResNet18-Student": "experiments/Experiment_4a/Run_24/metrics.jsonl",
-        "ResNet18-Student-Baseline": "experiments/Experiment_1/Run_6/metrics.jsonl",
+        "ResNet10-Student": "experiments/Experiment_4a/Run_6/metrics.jsonl",
+        "ResNet10-Student-Baseline": "experiments/Experiment_1/Run_4/metrics.jsonl",
     }
     plot_val_accuracy_over_epochs(
         models,
