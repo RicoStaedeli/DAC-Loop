@@ -228,7 +228,7 @@ def _plot_loss(series, cfg, path_base: Path, figsize=DEFAULT_FIGSIZE,
                     f", KD: {cfg.training.teacher_student.kd_type}" if hasattr(cfg.training.teacher_student,"kd_type") else f", KD: {cfg.training.kd_type}" if hasattr(cfg.training,"kd_type") else "" )
     else:
         subtitle = f"Model: {cfg.model.name}"
-    ax.set_title(subtitle)
+    ax.set_title(rf"\textbf{{{subtitle}}}")
 
     if any_plotted:
         _apply_axes_style(ax, cfg, "Loss")
@@ -271,7 +271,7 @@ def _plot_val_accuracy(series, cfg, path_base: Path, figsize=DEFAULT_FIGSIZE,
             f"Experiment: {cfg.experiment.name}, Run: {cfg.experiment.run}, "
             f"Model: {cfg.model.name}"
         )
-    ax.set_title(subtitle)
+    ax.set_title(rf"\textbf{{{subtitle}}}")
 
     if any_plotted:
         _apply_axes_style(ax, cfg, "Accuracy")
@@ -316,7 +316,7 @@ def _plot_train_vs_val_accuracy(series, cfg, path_base: Path, figsize=DEFAULT_FI
                     f", KD: {cfg.training.teacher_student.kd_type}" if hasattr(cfg.training.teacher_student,"kd_type") else f", KD: {cfg.training.kd_type}" if hasattr(cfg.training,"kd_type") else "" )
     else:
         subtitle = f"Model: {cfg.model.name}"
-    ax.set_title(subtitle)
+    ax.set_title(rf"\textbf{{{subtitle}}}")
 
     if any_plotted:
         _apply_axes_style(ax, cfg, "Train vs. Val Accuracy")
@@ -362,7 +362,7 @@ def _plot_train_vs_val_loss(series, cfg, path_base: Path, figsize=DEFAULT_FIGSIZ
 
     else:
         subtitle = f"Model: {cfg.model.name}"
-    ax.set_title(subtitle)
+    ax.set_title(rf"\textbf{{{subtitle}}}")
 
     if any_plotted:
         _apply_axes_style(ax, cfg, "Train vs. Val Loss")

@@ -983,7 +983,7 @@ def main():
         experiment_dir="experiments/Experiment_4a",
         output_md_path="experiments/Experiment_4a/experiment_summary.md",
     )
-'''
+
 
     summarize_experiment_group_to_markdown(
         experiment_dir="experiments/Experiment_6",
@@ -1001,7 +1001,11 @@ def main():
         experiment_dir="experiments/Experiment_7",
         output_md_path="experiments/Experiment_7/experiment_summary.md",
     )
-'''
+    build_combined_table(
+        experiment_dir="experiments/Experiment_7a",
+        output_md_path="experiments/Experiment_7a/experiment_summary.md",
+    )
+
 
 if __name__ == "__main__":
     main()
