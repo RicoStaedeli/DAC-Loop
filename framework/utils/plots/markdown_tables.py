@@ -966,7 +966,6 @@ def main():
         experiment_dir="experiments/Experiment_5",
         output_md_path="experiments/Experiment_5/experiment_summary.md",
     )
-
     # ------------------------------------------------------------------
     # Tables for Teacher - Student KD Experiments
     # ------------------------------------------------------------------
@@ -974,15 +973,18 @@ def main():
         experiment_dir="experiments/Experiment_3",
         output_md_path="experiments/Experiment_3/experiment_summary.md",
     )
+
     summarize_experiment_group_to_markdown(
         experiment_dir="experiments/Experiment_4",
         output_md_path="experiments/Experiment_4/experiment_summary.md",
     )
+'''    
     summarize_experiment_group_to_markdown(
         experiment_dir="experiments/Experiment_4a",
         output_md_path="experiments/Experiment_4a/experiment_summary.md",
     )
-'''
+
+
     summarize_experiment_group_to_markdown(
         experiment_dir="experiments/Experiment_6",
         output_md_path="experiments/Experiment_6/experiment_summary.md",

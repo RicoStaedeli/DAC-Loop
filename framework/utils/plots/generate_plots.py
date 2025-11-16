@@ -21,7 +21,7 @@ def main():
 
     # Generate plots for experiments
     _make_plots_for_experiment(experiment_name="Experiment_1", num_runs=12, only_overview=False)
-    # _make_plots_for_experiment(experiment_name="Experiment_3", num_runs=24, only_overview=False)
+    _make_plots_for_experiment(experiment_name="Experiment_3", num_runs=24, only_overview=False)
     _make_plots_for_experiment(experiment_name="Experiment_4", num_runs=40, only_overview=False)
     _make_plots_for_experiment(experiment_name="Experiment_4a", num_runs=40, only_overview=False)
     # _make_plots_for_experiment(experiment_name="Experiment_5", num_runs=8, only_overview=False)
@@ -84,6 +84,7 @@ def _plots_for_different_experiments():
         figsize=(6, 4)
     )
 
+    ########## Plot Validation Accuracy over Epochs for different models on RESISC45 ##########
     models = {
         "ResNet50": "experiments/Experiment_5/Run_7/metrics.jsonl",
         "ResNet18": "experiments/Experiment_5/Run_8/metrics.jsonl",
@@ -101,7 +102,7 @@ def _plots_for_different_experiments():
 
     ########## Plot Validation Accuracy over Epochs for Student vs Baseline on EuroSAT ##########
     models = {
-        "TinyCNN-Student": "experiments/Experiment_3/Run_24/metrics.jsonl",
+        "TinyCNN-Student": "experiments/Experiment_3/Run_1/metrics.jsonl",
         "TinyCNN-Student-Baseline": "experiments/Experiment_1/Run_7/metrics.jsonl",
     }
     plot_val_accuracy_over_epochs(
