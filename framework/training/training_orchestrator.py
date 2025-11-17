@@ -102,10 +102,10 @@ class Trainer:
 
             else:
                 train_res = strategy.train_one_epoch(
-                    teacher=teacher, student=opt_model_to_train, loader=train_loader, device=device, optimizer=opt_model_to_train,
+                    teacher=teacher, student=model_to_train, loader=train_loader, device=device, optimizer=opt_model_to_train,
                     epoch=epoch, total_epochs=self.cfg.training.epochs)
                 val_res = self.evaluator(model_to_train, val_loader, device)
-                trained_model, active_opt = opt_model_to_train, opt_model_to_train
+                trained_model, active_opt = model_to_train, opt_model_to_train
 
             if scheduler: scheduler.step()
 
@@ -134,6 +134,6 @@ class Trainer:
         self._copy_config_file()
 
         # Reload best weights into the trained object
-        CheckpointIO.load(opt_model_to_train, opt_model_to_train, self.ckpt_dir / "best.pt", device)
+        CheckpointIO.load(model_to_train, opt_model_to_train, self.ckpt_dir / "best.pt", device)
 
-        return opt_model_to_train
+        return model_to_train
