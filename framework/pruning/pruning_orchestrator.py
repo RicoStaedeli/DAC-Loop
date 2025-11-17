@@ -10,7 +10,6 @@ from framework.pruning.services.core import maybe_load, save_state_dict
 from framework.pruning.services.metrics import evaluate_and_log, summarize, log_sparsity
 from framework.training.training_orchestrator import Trainer
 from framework.utils.device_resolver import DeviceResolver
-from framework.training.io_ckpt import CheckpointIO
 
 
 log = logging.getLogger(__name__)
@@ -79,7 +78,6 @@ class PruningOrchestrator:
         strategy.finalize(self.model)
         log.info("== After removing masks / cleanup ==")
 
-        # TODO: Load the best model from the checkpoint to evaluate in the end
         log_sparsity(self.model)
         evaluate_and_log(self.model, val_loader, self.device, "Pruned + fine-tuned.")
 
