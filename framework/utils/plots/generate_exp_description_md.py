@@ -208,7 +208,91 @@ def _create_ex_desc_table_teacher_student(experiment_name: str, runs: int) -> st
     return "\n".join(lines)
 
 
-# ---------- MAIN ----------
+def _create_ex_desc_table_compression(experiment_name: str, runs: int) -> str:
+    """
+    Create a markdown section (## title + table) for teacher-student experiments.
+    """
+    lines: list[str] = []
+
+    # Section title
+    lines.append(f"## {experiment_name}")
+    lines.append("")
+
+    # Table header
+    lines.append(
+        "| Run | Config | Model | Model Teacher | Dataset | KD-Type  | Compression"
+        "| Metrics | Plots | Bands | Best Accuracy | Baseline Accuracy | Improvement to Baseline |"
+    )
+    lines.append(
+        "|-----|--------|-------|---------------|---------|--------|---------"
+        "|---------|-------|-------|---------------|-------------------|-------------------------|"
+    )
+
+    # Table body
+    for run_idx in range(1, runs + 1):
+        cfg_path = _config_path(experiment_name, run_idx)
+        cfg = load_config_toml(str(cfg_path), validate=True)
+
+        student_name = cfg.model.name
+        teacher_name = cfg.training.teacher_student.teacher_model_name
+        dataset_name = cfg.data.dataset_hf_repo_id
+        indices = cfg.data.indices.calculated_indices + cfg.data.indices.selected_bands
+        pruning_method = cfg.training.pruning.method
+
+        ts_cfg = cfg.training.teacher_student
+        kd_type = ts_cfg.kd_type if ts_cfg.train_student else "N/A"
+
+        result_metrics_path = _metrics_path(experiment_name, run_idx)
+        baseline_metrics_path = Path(ts_cfg.baseline_student)
+
+        # Result metrics
+        if result_metrics_path.exists():
+            try:
+                best_val_acc, best_epoch = _get_best_val_accuracy_from_jsonl(
+                    result_metrics_path,
+                    val_key="val_accuracy",
+                )
+            except ValueError as e:
+                print(f"[Warning] {e}")
+                best_val_acc, best_epoch = 0.0, -1
+        else:
+            print(f"[Warning] Missing result metrics file: {result_metrics_path}")
+            best_val_acc, best_epoch = 0.0, -1
+
+        # Baseline metrics
+        if baseline_metrics_path.exists():
+            try:
+                baseline_val_acc, _ = _get_best_val_accuracy_from_jsonl(
+                    baseline_metrics_path,
+                    val_key="val_accuracy",
+                )
+            except ValueError as e:
+                print(f"[Warning] {e}")
+                baseline_val_acc = 0.0
+        else:
+            print(f"[Warning] Missing baseline metrics file: {baseline_metrics_path}")
+            baseline_val_acc = 0.0
+
+        improvement = best_val_acc - baseline_val_acc
+
+        lines.append(
+            f"| [{run_idx}] "
+            f"| [Config.toml]({_config_path_md(experiment_name, run_idx)}) "
+            f"| {student_name} "
+            f"| {teacher_name} "
+            f"| `{dataset_name}` "
+            f"| {kd_type} "
+            f"| {pruning_method} "
+            f"| [metrics.json]({_metrics_path_md(experiment_name, run_idx)}) "
+            f"| [plots]({_plots_path_md(experiment_name, run_idx)}) "
+            f"| {indices} "
+            f"| {best_val_acc:.2f}% @ {best_epoch} "
+            f"| {baseline_val_acc:.2f}% "
+            f"| {improvement:.2f}% |"
+        )
+
+    lines.append("")
+    return "\n".join(lines)
 
 
 def main(output_path: Path = DEFAULT_OUTPUT_PATH) -> None:
@@ -225,6 +309,9 @@ def main(output_path: Path = DEFAULT_OUTPUT_PATH) -> None:
         _create_ex_desc_table_only_teacher("Experiment_5", runs=8),
         _create_ex_desc_table_teacher_student("Experiment_6", runs=40),
         _create_ex_desc_table_teacher_student("Experiment_6a", runs=40),
+        _create_ex_desc_table_compression("Experiment_7", runs=21),
+        _create_ex_desc_table_compression("Experiment_7a", runs=21),
+        _create_ex_desc_table_compression("Experiment_8", runs=4),
     ]
 
     markdown_content = "\n".join(sections)

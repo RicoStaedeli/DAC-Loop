@@ -1010,6 +1010,10 @@ def main():
         experiment_dir="experiments/Experiment_7a",
         output_md_path="experiments/Experiment_7a/experiment_summary.md",
     )
+    build_combined_table(
+        experiment_dir="experiments/Experiment_8",
+        output_md_path="experiments/Experiment_8/experiment_summary.md",
+    )
 
 
 if __name__ == "__main__":
