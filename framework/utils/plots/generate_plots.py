@@ -27,7 +27,7 @@ def main():
     _make_plots_for_experiment(experiment_name="Experiment_4a", num_runs=40, only_overview=False)
     _make_plots_for_experiment(experiment_name="Experiment_5", num_runs=8, only_overview=False)
     _make_plots_for_experiment(experiment_name="Experiment_6", num_runs=40, only_overview=False)
-    _make_plots_for_experiment(experiment_name="Experiment_6_a", num_runs=40, only_overview=False)
+    _make_plots_for_experiment(experiment_name="Experiment_6a", num_runs=40, only_overview=False)
     _make_plots_for_experiment(experiment_name="Experiment_7", num_runs=21, only_overview=False)
     _make_plots_for_experiment(experiment_name="Experiment_7a", num_runs=21, only_overview=False)
 
@@ -156,7 +156,7 @@ def _plots_for_different_experiments():
     )
 
     models = {
-        "ResNet10-Student": "experiments/Experiment_6_a/Run_40/metrics.jsonl",
+        "ResNet10-Student": "experiments/Experiment_6a/Run_40/metrics.jsonl",
         "ResNet10-Student-Baseline": "experiments/Experiment_5/Run_2/metrics.jsonl",
     }
     plot_val_accuracy_over_epochs(

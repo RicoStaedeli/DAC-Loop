@@ -224,7 +224,7 @@ def main(output_path: Path = DEFAULT_OUTPUT_PATH) -> None:
         _create_ex_desc_table_teacher_student("Experiment_4a", runs=40),
         _create_ex_desc_table_only_teacher("Experiment_5", runs=8),
         _create_ex_desc_table_teacher_student("Experiment_6", runs=40),
-        _create_ex_desc_table_teacher_student("Experiment_6_a", runs=40),
+        _create_ex_desc_table_teacher_student("Experiment_6a", runs=40),
     ]
 
     markdown_content = "\n".join(sections)
