@@ -1,6 +1,6 @@
 | Run | Accuracy Before Pruning (%) | Sparsity (Pruned, Before Fine-Tune) (%) | Accuracy After Pruning (Before Fine-Tune) (%) | Sparsity After Pruning (Post Fine-Tune) (%) | Accuracy Pruned + Fine-Tuned (%) | Teacher Total Params | Teacher Trainable Params | Teacher Estimated Total Size (MB) | Student P+FT Total Params | Student P+FT Trainable Params | Student P+FT Estimated Total Size (MB) | Student Before Total Params | Student Before Trainable Params | Student Before Estimated Total Size (MB) | Reduction Student to pruned Student (%) | Reduction Teacher to pruned Student (%) |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 1 | nan% | nan% | nan% | nan% | nan% | 24,648,813 | 24,648,813 | 59759.5200 | nan | nan |  | nan | nan |  | nan% | nan% |
+| 1 | 90.98% | 42.98% | 2.29% | 25.64% | 89.60% | 24,648,813 | 24,648,813 | 59759.5200 | 3,219,996 | 3,219,996 | 28334.2500 | 4,921,197 | 4,921,197 | 37265.2000 | 34.57% | 86.94% |
 | 2 | 90.98% | 6.54% | 2.67% | 2.26% | 91.54% | 24,648,813 | 24,648,813 | 59759.5200 | 3,219,996 | 3,219,996 | 28334.2500 | 4,921,197 | 4,921,197 | 37265.2000 | 34.57% | 86.94% |
 | 3 | 90.98% | 25.27% | 2.73% | 12.05% | 90.78% | 24,648,813 | 24,648,813 | 59759.5200 | 3,219,996 | 3,219,996 | 28334.2500 | 4,921,197 | 4,921,197 | 37265.2000 | 34.57% | 86.94% |
 | 4 | 90.98% | 59.54% | 2.29% | 42.26% | 85.40% | 24,648,813 | 24,648,813 | 59759.5200 | 3,219,996 | 3,219,996 | 28334.2500 | 4,921,197 | 4,921,197 | 37265.2000 | 34.57% | 86.94% |
