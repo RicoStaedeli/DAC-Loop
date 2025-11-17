@@ -97,14 +97,14 @@ class Trainer:
                 train_res = PlainSupervisedStrategy(ce_loss).train_one_epoch(
                     teacher=None, student=model_to_train, loader=train_loader, device=device, optimizer=opt_model_to_train,
                     epoch=epoch, total_epochs=self.cfg.training.epochs)
-                val_res = self.evaluator(teacher, val_loader, device)
+                val_res = self.evaluator(model_to_train, val_loader, device)
                 trained_model, active_opt = model_to_train, opt_model_to_train
 
             else:
                 train_res = strategy.train_one_epoch(
                     teacher=teacher, student=opt_model_to_train, loader=train_loader, device=device, optimizer=opt_model_to_train,
                     epoch=epoch, total_epochs=self.cfg.training.epochs)
-                val_res = self.evaluator(student, val_loader, device)
+                val_res = self.evaluator(model_to_train, val_loader, device)
                 trained_model, active_opt = opt_model_to_train, opt_model_to_train
 
             if scheduler: scheduler.step()
