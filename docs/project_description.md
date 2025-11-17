@@ -8,9 +8,14 @@ Make sure you are in the **root directory** of the project and have the necessar
 ```bash
 uv run python -m framework.utils.generate_plots
 ```
-
+Create the experiment summary markdown tables with:
 ```bash
 uv run python -m framework.utils.plots.markdown_tables
+```
+
+Create the Experiment Description Table with:
+```bash
+uv run python -m framework.utils.plots.create_Ex_Desc_Table
 ```
 
 ## Baselines
