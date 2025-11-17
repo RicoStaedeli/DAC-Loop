@@ -338,7 +338,7 @@ Dataset is the `RESISC45` dataset.
 
 <details>
     <summary>Experiment 6a – overview plot</summary>
-    <img src="Experiment_6a/overview_plot_Experiment_6_a.png" alt="overview">
+    <img src="Experiment_6a/overview_plot_Experiment_6a.png" alt="overview">
 </details>
 
 

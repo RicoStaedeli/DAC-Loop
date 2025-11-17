@@ -6,7 +6,7 @@ from framework.utils.utils import load_config_toml
 
 
 EXPERIMENTS_ROOT = Path("experiments")
-DEFAULT_OUTPUT_PATH = Path("docs/_experiment_tables.md")
+DEFAULT_OUTPUT_PATH = Path("experiments/_generated_experiment_tables.md")
 
 
 def _get_best_val_accuracy_from_jsonl(
