@@ -299,3 +299,12 @@
 | [19] | [Config.toml](Experiment_7a/Run_19/config.toml) | ResNet10 | ResNet50 | `timm/resisc45` | KLDivLoss | l1 | [metrics.json](Experiment_7a/Run_19/metrics.jsonl) | [plots](Experiment_7a/Run_19/plots) | ['B01', 'B02', 'B03'] | 91.38% @ 41 | 88.32% | 3.06% |
 | [20] | [Config.toml](Experiment_7a/Run_20/config.toml) | ResNet10 | ResNet50 | `timm/resisc45` | KLDivLoss | random | [metrics.json](Experiment_7a/Run_20/metrics.jsonl) | [plots](Experiment_7a/Run_20/plots) | ['B01', 'B02', 'B03'] | 88.52% @ 46 | 88.32% | 0.21% |
 | [21] | [Config.toml](Experiment_7a/Run_21/config.toml) | ResNet10 | ResNet50 | `timm/resisc45` | KLDivLoss | l1 | [metrics.json](Experiment_7a/Run_21/metrics.jsonl) | [plots](Experiment_7a/Run_21/plots) | ['B01', 'B02', 'B03'] | 90.08% @ 45 | 88.32% | 1.76% |
+
+## Experiment_8
+
+| Run | Config | Model | Model Teacher | Dataset | KD-Type  | Compression| Metrics | Plots | Bands | Best Accuracy | Baseline Accuracy | Improvement to Baseline |
+|-----|--------|-------|---------------|---------|--------|---------|---------|-------|-------|---------------|-------------------|-------------------------|
+| [1] | [Config.toml](Experiment_8/Run_1/config.toml) | ResNet10 |  | `timm/resisc45` | N/A | l1 | [metrics.json](Experiment_8/Run_1/metrics.jsonl) | [plots](Experiment_8/Run_1/plots) | ['B01', 'B02', 'B03'] | 90.41% @ 39 | 88.32% | 2.10% |
+| [2] | [Config.toml](Experiment_8/Run_2/config.toml) | ResNet10 |  | `timm/resisc45` | N/A | l1 | [metrics.json](Experiment_8/Run_2/metrics.jsonl) | [plots](Experiment_8/Run_2/plots) | ['B01', 'B02', 'B03'] | 89.54% @ 44 | 88.32% | 1.22% |
+| [3] | [Config.toml](Experiment_8/Run_3/config.toml) | ResNet18 |  | `timm/resisc45` | N/A | l1 | [metrics.json](Experiment_8/Run_3/metrics.jsonl) | [plots](Experiment_8/Run_3/plots) | ['B01', 'B02', 'B03'] | 90.51% @ 41 | 89.97% | 0.54% |
+| [4] | [Config.toml](Experiment_8/Run_4/config.toml) | ResNet18 |  | `timm/resisc45` | N/A | l1 | [metrics.json](Experiment_8/Run_4/metrics.jsonl) | [plots](Experiment_8/Run_4/plots) | ['B01', 'B02', 'B03'] | 88.48% @ 48 | 89.97% | -1.49% |
