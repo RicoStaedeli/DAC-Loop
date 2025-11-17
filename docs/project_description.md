@@ -57,12 +57,12 @@ The baseline for teacher-student learning are the models trained from scratch wi
 **Additional baselines are found through research:**
 - They had around the same accuracy training ResNet18 from scratch on RESISC45 with similar hyperparameters. [Source](https://arxiv.org/pdf/2507.10381)
 
-| Model               | Dataset  | Accuracy Theirs(%) | Accuracy Ours Baselines(%) | Source |
-|---------------------|----------|--------------------|----------------------------|--------|
-| ResNet18            | RESISC45 | 92.10              | 91.33                      | [Source](https://arxiv.org/pdf/2507.10381) |
-| ResNet18            | EuroSAT  | 98.06              | 98.44                      |[Source](https://arxiv.org/pdf/2507.10381) |
-| ResNet50 - InDomain | RESISC45 | 96.80              | 92.68                      |[Source](http://arxiv.org/abs/1911.06721) |
-| ResNet50 - InDomain | EuroSAT  | 99.20              | 98.50                      |[Source](http://arxiv.org/abs/1911.06721) |
-| ResNet50            | EuroSAT  | 99.57              | 98.50                      |[Source](https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=8736785) |
+| Model               | Dataset  | Accuracy Theirs(%) | Accuracy Ours Baselines(%) | Source                                                                     |
+|---------------------|----------|--------------------|----------------------------|----------------------------------------------------------------------------|
+| ResNet18            | RESISC45 | 92.10              | 91.33                      | [Source](https://arxiv.org/pdf/2507.10381)                                 |
+| ResNet18            | EuroSAT  | 98.06              | 98.44                      | [Source](https://arxiv.org/pdf/2507.10381)                                 |
+| ResNet50 - InDomain | RESISC45 | 96.80              | 92.68                      | [Source](http://arxiv.org/abs/1911.06721)                                  |
+| ResNet50 - InDomain | EuroSAT  | 99.20              | 98.50                      | [Source](http://arxiv.org/abs/1911.06721)                                  |
+| ResNet50            | EuroSAT  | 99.57              | 98.50                      | [Source](https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=8736785) |
 
 - 
