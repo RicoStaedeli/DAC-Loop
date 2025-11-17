@@ -101,7 +101,7 @@ def main(gpu_id: str, experiment_number: str) -> None:
     os.environ["CUDA_VISIBLE_DEVICES"] = gpu_id
 
     # If experiment_number is used to pick orchestrator, wire it here.
-    orchestrator_path = Path("configs") / "Experiment_7a" / "Experiment_Orchestrator_Config.toml"
+    orchestrator_path = Path("configs") / "Experiment_2" / "Experiment_Orchestrator_Config.toml"
 
     for cfg_path in _load_manifest(orchestrator_path):
         t0 = time.perf_counter()
