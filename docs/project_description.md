@@ -5,17 +5,19 @@ bla bla
 To generate plots for R-L Net, you can use the following code snippet:
 Make sure you are in the **root directory** of the project and have the necessary dependencies installed.
 
+Generate the plots with:
 ```bash
-uv run python -m framework.utils.generate_plots
+uv run python -m framework.utils.plots.generate_plots
 ```
+
 Create the experiment summary markdown tables with:
 ```bash
-uv run python -m framework.utils.plots.markdown_tables
+uv run python -m framework.utils.plots.generate_exp_results_md
 ```
 
 Create the Experiment Description Table with:
 ```bash
-uv run python -m framework.utils.plots.create_Ex_Desc_Table
+uv run python -m framework.utils.plots.generate_exp_description_md
 ```
 
 ## Baselines
