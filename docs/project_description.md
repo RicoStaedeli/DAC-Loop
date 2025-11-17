@@ -73,9 +73,11 @@ The baseline for teacher-student learning are the models trained from scratch wi
 ## Pruning results
 The following table summarizes the pruning results obtained using the R-L Net framework:
 
-| Model    | Dataset       | Initial Accuracy (%) | Pruned + Fine-tuned Accuracy (%) | Parameter Reduction to Basemodel (%) | Parameter Reduction to Teacher (%) | Trainable Parameters |
-|----------|---------------|----------------------|----------------------------------|--------------------------------------|------------------------------------|----------------------|
-| ResNet10 | timm/resisc45 | 90.98                | 91.13                            | 34.57%                               | 86.94%                             | 3,219,996            |
-| ResNet10 | timm/resisc45 | 90.98                | 90.10                            | 63.09%                               | 92.36%                             | 1,816,587            |
-| ResNet18 | timm/resisc45 | 92.98                | 93.00                            | 46.03%                               | 75.49%                             | 6,040,725            |
-| ResNet18 | timm/resisc45 | 92.98                | 91.06                            | 74.99%                               | 88.65%                             | 2,798,648            |
+| Model    | Dataset       | Initial Accuracy (%) | Accuracy without KD-Aware Pruning | Pruned + Fine-tuned Accuracy (%) | Parameter Reduction to Basemodel (%) | Parameter Reduction to Teacher (%) | Trainable Parameters |
+|----------|---------------|----------------------|-----------------------------------|----------------------------------|--------------------------------------|------------------------------------|----------------------|
+| ResNet10 | timm/resisc45 | 90.98                | 90.41                             | **91.13**                        | 34.57%                               | 86.94%                             | 3,219,996            |
+| ResNet10 | timm/resisc45 | 90.98                | 89.54                             | **90.10**                        | 63.09%                               | 92.36%                             | 1,816,587            |
+| ResNet18 | timm/resisc45 | 92.98                | 90.51                             | **93.00**                        | 46.03%                               | 75.49%                             | 6,040,725            |
+| ResNet18 | timm/resisc45 | 92.98                | 88.48                             | **91.06**                        | 74.99%                               | 88.65%                             | 2,798,648            |
+
+KD-Aware Pruning consistently outperforms standard pruning methods, achieving higher accuracy with significant parameter reductions.
