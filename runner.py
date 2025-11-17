@@ -101,7 +101,7 @@ def main(gpu_id: str, experiment_number: str) -> None:
     os.environ["CUDA_VISIBLE_DEVICES"] = gpu_id
 
     # If experiment_number is used to pick orchestrator, wire it here.
-    orchestrator_path = Path("configs") / "Experiment_7a" / "Experiment_Orchestrator_Config.toml"
+    orchestrator_path = Path("configs") / "Experiment_8" / "Experiment_Orchestrator_Config.toml"
 
     for cfg_path in _load_manifest(orchestrator_path):
         t0 = time.perf_counter()
@@ -159,8 +159,8 @@ def main(gpu_id: str, experiment_number: str) -> None:
                 )
 
             else:
-                if model_student is None or model_teacher is None:
-                    raise RuntimeError(f"Pruning requires both student and teacher models to be defined. But got student={model_student} and teacher={model_teacher}.")
+                if model_student is None:
+                    raise RuntimeError(f"Pruning requires student model to be defined.")
 
                 prefix_path = cfg.training.base_path_ckpts
                 ckpt_path = cfg.training.pruning.path_checkpoint_to_prune
