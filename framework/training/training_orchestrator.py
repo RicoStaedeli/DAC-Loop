@@ -67,7 +67,6 @@ class Trainer:
         device = DeviceResolver.get()
         log.info("Using device: %s", device)
 
-        teacher.to(device)
         model_to_train = student
         model_to_train.to(device)
 
@@ -75,6 +74,7 @@ class Trainer:
         scheduler = SchedulerFactory.make(opt_model_to_train, self.cfg)
 
         if teacher is not None:
+            teacher.to(device)
             opt_teacher = OptimizerFactory.make(teacher, self.cfg)
             self._maybe_load_teacher(teacher, opt_teacher, device)
 
