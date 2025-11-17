@@ -83,10 +83,10 @@ def _load_models(cfg, input_channels: int) -> Tuple[torch.nn.Module, Optional[to
     """Create teacher (always) and student (optional) models based on the config."""
     log.info("Building models...")
     ts_cfg = cfg.training.teacher_student
-    teacher_name = ts_cfg.teacher_model_name if ts_cfg.train_student else cfg.model.name
+    teacher_name = ts_cfg.teacher_model_name if ts_cfg.train_student else None
 
     # student if training student OR pruning enabled (pruning path expects student)
-    student_name = cfg.model.name if (ts_cfg.train_student or cfg.training.pruning.prune) else None
+    student_name = cfg.model.name
 
     common = {"input_channels": input_channels, "num_classes": cfg.model.args.classes}
     teacher = _build_model(teacher_name, **common)
@@ -101,7 +101,7 @@ def main(gpu_id: str, experiment_number: str) -> None:
     os.environ["CUDA_VISIBLE_DEVICES"] = gpu_id
 
     # If experiment_number is used to pick orchestrator, wire it here.
-    orchestrator_path = Path("configs") / "Experiment_8" / "Experiment_Orchestrator_Config.toml"
+    orchestrator_path = Path("configs") / "Experiment_XY" / "Experiment_Orchestrator_Config.toml"
 
     for cfg_path in _load_manifest(orchestrator_path):
         t0 = time.perf_counter()

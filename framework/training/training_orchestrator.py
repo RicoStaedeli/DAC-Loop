@@ -57,29 +57,29 @@ class Trainer:
                            "optimizer_state": optimizer.state_dict(), "best_val_acc": best_val_acc},
                           self.ckpt_dir / "best.pt")
 
-    def _copy_config(self):
+    def _copy_config_file(self):
         if self.config_path.exists():
             shutil.copy2(self.config_path, self.experiment_dir / "config.toml")
         else:
             log.warning("Config file %s not found; skipping copy", self.config_path)
 
     def train(self, teacher, student, train_loader, val_loader, adapt_kd_proj_flag: bool = False):
-        best_model = None
         device = DeviceResolver.get()
         log.info("Using device: %s", device)
 
         teacher.to(device)
-        model_to_train = student if student is not None else teacher
+        model_to_train = student
         model_to_train.to(device)
 
-        opt_teacher = OptimizerFactory.make(teacher, self.cfg)
-        opt_student = OptimizerFactory.make(student, self.cfg) if student is not None else None
-        active_opt = opt_student or opt_teacher
-        scheduler = SchedulerFactory.make(active_opt, self.cfg)
+        opt_model_to_train = OptimizerFactory.make(student, self.cfg)
+        scheduler = SchedulerFactory.make(opt_model_to_train, self.cfg)
 
-        if student is not None:
+        if teacher is not None:
+            opt_teacher = OptimizerFactory.make(teacher, self.cfg)
             self._maybe_load_teacher(teacher, opt_teacher, device)
-        self._maybe_resume(model_to_train, active_opt, device)
+
+        self._maybe_resume(model_to_train, opt_model_to_train, device)
+
 
         if adapt_kd_proj_flag and student is not None:
             adapt_student_kd_proj(student, teacher, device)
@@ -92,19 +92,20 @@ class Trainer:
 
         for epoch in range(1, self.cfg.training.epochs + 1):
             t0 = time.time()
-            if student is None:
-                # teacher-only, reuse plain strategy
+            if teacher is None:
+                # train without teacher
                 train_res = PlainSupervisedStrategy(ce_loss).train_one_epoch(
-                    teacher=None, student=teacher, loader=train_loader, device=device, optimizer=opt_teacher,
+                    teacher=None, student=model_to_train, loader=train_loader, device=device, optimizer=opt_model_to_train,
                     epoch=epoch, total_epochs=self.cfg.training.epochs)
                 val_res = self.evaluator(teacher, val_loader, device)
-                trained_model, active_opt = teacher, opt_teacher
+                trained_model, active_opt = model_to_train, opt_model_to_train
+
             else:
                 train_res = strategy.train_one_epoch(
-                    teacher=teacher, student=student, loader=train_loader, device=device, optimizer=opt_student,
+                    teacher=teacher, student=opt_model_to_train, loader=train_loader, device=device, optimizer=opt_model_to_train,
                     epoch=epoch, total_epochs=self.cfg.training.epochs)
                 val_res = self.evaluator(student, val_loader, device)
-                trained_model, active_opt = student, opt_student
+                trained_model, active_opt = opt_model_to_train, opt_model_to_train
 
             if scheduler: scheduler.step()
 
@@ -130,9 +131,9 @@ class Trainer:
                     log.info("Early stopping at epoch %d", epoch)
                     break
 
-        self._copy_config()
-        model_to_return = student if student is not None else teacher
+        self._copy_config_file()
 
         # Reload best weights into the trained object
-        CheckpointIO.load(model_to_return, active_opt, self.ckpt_dir / "best.pt", device)
-        return model_to_return
+        CheckpointIO.load(opt_model_to_train, opt_model_to_train, self.ckpt_dir / "best.pt", device)
+
+        return opt_model_to_train
