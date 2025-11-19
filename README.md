@@ -74,7 +74,7 @@ uv install
 ```
 
 3. **Run Experiments**:
-   The experiments are defined in the `configs/` directory. Each Experiments consist of an
+   The experiments are defined in the [configs](configs) directory. Each Experiments consist of an
    `Experiment_Orchestrator_Config.toml`
    file and the corresponding `Run-xy.toml` files. The orchestrator config defines which runs to execute. The parameters
    of the specific run are in the run config files.
