@@ -64,6 +64,17 @@ class Trainer:
             log.warning("Config file %s not found; skipping copy", self.config_path)
 
     def train(self, teacher, student, train_loader, val_loader, adapt_kd_proj_flag: bool = False):
+        """
+        Trains the student model, optionally using a teacher model for knowledge distillation.
+        Args:
+            teacher (nn.Module): The teacher model for knowledge distillation. Can be None.
+            student (nn.Module): The student model to be trained.
+            train_loader: DataLoader for training data.
+            val_loader: DataLoader for validation data.
+            adapt_kd_proj_flag (bool): If True, adapts the student's KD projection layer to match the teacher's output dimension.
+        Returns:
+            nn.Module: The trained student model.
+        """
         device = DeviceResolver.get()
         log.info("Using device: %s", device)
 

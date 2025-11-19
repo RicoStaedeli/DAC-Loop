@@ -45,8 +45,20 @@ class LinearFeatureRegressor(nn.Module):
 class FeatureRegressorFactory:
     @staticmethod
     def make(student_feat: torch.Tensor, teacher_feat: torch.Tensor) -> nn.Module:
+        """
+        Factory method to create an appropriate feature regressor based on the dimensions of student and teacher features.
+        Args:
+            student_feat (torch.Tensor): Feature tensor from the student model.
+            teacher_feat (torch.Tensor): Feature tensor from the teacher model.
+        Returns:
+            nn.Module: An instance of ConvFeatureRegressor or LinearFeatureRegressor.
+        Raises:
+            RuntimeError: If the feature shapes are unsupported.
+        """
         if student_feat.dim() == 4 and teacher_feat.dim() == 4:
             return ConvFeatureRegressor(student_feat.size(1), teacher_feat.size(1))
+
         if student_feat.dim() == 2 and teacher_feat.dim() == 2:
             return LinearFeatureRegressor(student_feat.size(1), teacher_feat.size(1))
+
         raise RuntimeError(f"Unsupported feature shapes: s={tuple(student_feat.shape)}, t={tuple(teacher_feat.shape)}")

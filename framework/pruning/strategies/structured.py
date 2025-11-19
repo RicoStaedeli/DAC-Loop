@@ -12,10 +12,12 @@ class StructuredPruning:
     Structured pruning strategy that prunes entire channels from convolutional layers
     based on L2 norm. It uses a dependency graph to ensure that pruning is consistent
     across the model.
+    This class follows the PruningStrategy protocol.
     """
 
     def __init__(self, amount: float, dim: int, layer_prune_ratio: float, min_channels: int):
         """
+        Structured pruning initializer.
         Args:
             amount (float): The fraction of weights to prune in each convolutional layer.
             dim (int): The dimension along which to prune (0 for output channels, 1 for input channels).

@@ -36,7 +36,7 @@ def _parse_args() -> argparse.Namespace:
 
 
 def _load_manifest(p: Path) -> list[Path]:
-    """Load experiment manifest (.toml) and return a list of config paths."""
+    """Load experiment orchestrator (.toml) and return a list of run paths."""
     with p.open("rb") as f:
         cfg = tomllib.load(f)
     return [Path(x) for x in cfg["experiments"]["paths"]]
@@ -79,12 +79,12 @@ def _build_model(name: Optional[str], **kwargs) -> Optional[torch.nn.Module]:
 
 
 def _load_models(cfg, input_channels: int) -> Tuple[torch.nn.Module, Optional[torch.nn.Module]]:
-    """Create teacher (always) and student (optional) models based on the config."""
+    """Create teacher (optional) and student (always) models based on the config."""
     log.info("Building models...")
     ts_cfg = cfg.training.teacher_student
     teacher_name = ts_cfg.teacher_model_name if ts_cfg.train_student else None
 
-    # student if training student OR pruning enabled (pruning path expects student)
+    # the student model is the model to be trained (either standalone or via KD)
     student_name = cfg.model.name
 
     common = {"input_channels": input_channels, "num_classes": cfg.model.args.classes}

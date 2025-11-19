@@ -19,7 +19,6 @@ section_logger.setLevel(logging.INFO)
 def _format_run_spec(config: dict) -> str:
     """
     Build string from config to include in run_id.
-    Example: 'gpt2_c32_e64_h8_l1_bs4_lr3e-4'
     """
     m = config.get("model", {}) or {}
     a = m.get("args", {}) or {}
@@ -89,8 +88,6 @@ def log_meta_info(config: dict, experiment_dir: Path, seed: Optional[int] = None
     exp_run = (config.get("experiment", {}) or {}).get("run", "default")
     device = "cuda" if torch.cuda.is_available() else ("mps" if torch.backends.mps.is_available() else "cpu")
     seed_str = str(seed) if seed is not None else "not-set"
-    log_dir = "logs/"
-    save_dir = (config.get("training", {}) or {}).get("save_dir", "saved_models/checkpoints/")
     log.info(
         "Experiment=%s | Run ID=%s | Device=%s | Seed=%s | Experiment Directory=%s",
         exp_name, exp_run, device, seed_str, experiment_dir

@@ -7,10 +7,25 @@ import torch.nn.functional as F
 
 class Evaluator:
     def __init__(self, ce_loss: nn.Module):
+        """
+        Evaluator for classification models that computes cross-entropy loss, mean squared error (MSE) between
+        predicted probabilities and one-hot encoded labels, and accuracy.
+        Args:
+            ce_loss (nn.Module): Cross-entropy loss function.
+        """
         self.ce_loss = ce_loss
 
     @torch.inference_mode()
     def __call__(self, model, loader, device) -> Dict[str, float]:
+        """
+        Evaluate the model on the given data loader.
+        Args:
+            model: The classification model to evaluate.
+            loader: DataLoader providing the evaluation data.
+            device: Device to perform evaluation on.
+        Returns:
+            Dict[str, float]: Dictionary containing evaluation metrics: loss, mse, and accuracy.
+        """
         model.eval()
         total_loss = total_mse = total = correct = 0.0
 

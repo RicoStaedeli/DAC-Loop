@@ -2,18 +2,27 @@
 from __future__ import annotations
 
 import logging
-from typing import Iterable, Tuple
-
 import torch
 import torch.nn as nn
 
 from framework.utils.evaluator import Evaluator
 from framework.utils.logger import print_model_summary
+from framework.pruning.services.pruning_utils import prunable_layers
 
 log = logging.getLogger(__name__)
 
 
 def evaluate_and_log(model: nn.Module, loader, device: torch.device, msg: str) -> dict:
+    """
+    Evaluate the model on the given data loader and log the results.
+    Args:
+        model (nn.Module): The model to evaluate.
+        loader: DataLoader providing the evaluation data.
+        device (torch.device): Device to perform evaluation on.
+        msg (str): Message to log before the results.
+    Returns:
+        dict: Dictionary containing evaluation metrics.
+    """
     evaluator = Evaluator(nn.CrossEntropyLoss())
     metrics = evaluator(model, loader, device)
     log.info("%s", msg)
@@ -25,16 +34,27 @@ def evaluate_and_log(model: nn.Module, loader, device: torch.device, msg: str) -
 
 
 def summarize(cfg, model: nn.Module, input_channels: int, title: str, experiment_dir, log_obj=log) -> None:
+    """
+    Print a summary of the model architecture.
+    Args:
+        cfg: Configuration object.
+        model (nn.Module): The model to summarize.
+        input_channels (int): Number of input channels for the model.
+        title (str): Title for the summary.
+        experiment_dir: Directory to save the summary.
+        log_obj: Logger object to use for logging.
+    """
     print_model_summary(cfg, model, input_channels, title, experiment_dir, log_obj)
 
 
-def prunable_layers(model: nn.Module) -> Iterable[Tuple[str, nn.Module]]:
-    for name, m in model.named_modules():
-        if isinstance(m, (nn.Conv2d, nn.Linear)):
-            yield name, m
-
-
 def log_sparsity(model: nn.Module) -> float:
+    """
+    Log the sparsity of each prunable layer in the model and the overall sparsity.
+    Args:
+        model (nn.Module): The model to analyze.
+    Returns:
+        float: Overall sparsity percentage of the model.
+    """
     total_zeros = 0
     total_params = 0
     log.info("== Layer-wise sparsity ==")
