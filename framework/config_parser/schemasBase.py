@@ -44,6 +44,7 @@ class SavingConfig(BaseModel):
 
 class PruningConfig(BaseModel):
     prune: bool = False
+    repeat: PositiveInt = 1
     pruning_amount: float = 0.5
     path_checkpoint_to_prune: Optional[str] = None
     method: str = "l1_unstructured"
