@@ -164,29 +164,12 @@ def main(gpu_id: str, experiment_folder: str) -> None:
                 prefix_path = cfg.training.base_path_ckpts
                 ckpt_path = cfg.training.pruning.path_checkpoint_to_prune
 
-                pruning_orchestrator = PruningOrchestrator(model_student, ckpt_path=prefix_path + ckpt_path,
+                pruning_orchestrator = PruningOrchestrator(model=model_student,
+                                                           ckpt_path=prefix_path + ckpt_path,
                                                            strict=True)
-
-                if not cfg.training.pruning.structured:
-                    strategy = UnstructuredPruning(
-                        amount=cfg.training.pruning.pruning_amount,
-                        method=cfg.training.pruning.method,
-                    )
-                else:
-                    strategy = StructuredPruning(
-                        amount=cfg.training.pruning.pruning_amount,
-                        dim=cfg.training.pruning.dim,
-                        layer_prune_ratio=cfg.training.pruning.layer_prune_ratio,
-                        min_channels=cfg.training.pruning.min_channels,
-                    )
-                    # Build dependency graph using a real example input
-                    example = torch.randn(1, input_channels, cfg.data.image_size, cfg.data.image_size,
-                                          device=pruning_orchestrator.device)
-                    strategy.build_dependency(pruning_orchestrator.model, example)
 
                 pruning_orchestrator.run(
                     cfg=cfg,
-                    strategy=strategy,
                     train_loader=train_loader,
                     val_loader=val_loader,
                     input_channels=input_channels,
