@@ -41,17 +41,27 @@ class ExperimentConfig(BaseModel):
 class SavingConfig(BaseModel):
     overwrite_run: bool = False
 
-
-class PruningConfig(BaseModel):
-    prune: bool = False
-    repeat: PositiveInt = 1
+class PruningScheduleEntry(BaseModel):
+    iteration: PositiveInt
     pruning_amount: float = 0.5
-    path_checkpoint_to_prune: Optional[str] = None
-    method: str = "l1_unstructured"
+    method: str = "l1"
     structured: bool = False
     dim: Optional[int] = None
     layer_prune_ratio: Optional[float] = None
     min_channels: Optional[int] = None
+
+    @field_validator("pruning_amount")
+    @classmethod
+    def validate_amount(cls, v):
+        if not (0 <= v <= 1):
+            raise ValueError("pruning_amount must be between 0 and 1")
+        return v
+
+class PruningConfig(BaseModel):
+    prune: bool = False
+    iterations: PositiveInt = 1
+    path_checkpoint_to_prune: Optional[str] = None
+    schedule: List[PruningScheduleEntry] = Field(default_factory=list)
 
 
 class TeacherStudentConfig(BaseModel):
