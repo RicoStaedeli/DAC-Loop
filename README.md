@@ -1,49 +1,55 @@
-# Knowledge Distillation in Model Zoos – Variance and Compression Robustness
+# DISTILLATION-AWARE PRUNING LOOP: ENHANCING CNN COMPRESSION WITH TEACHER-STUDENT LEARNING FOR REMOTE SENSING
 
-## 📌 Project Overview
-This project investigates whether **Teacher–Student Knowledge Distillation (KD)** produces robust, smaller models with comparable performance to large networks. We focus on building **model zoos** of distilled and sparsified models to statistically assess **variance, robustness, and efficiency**.  
+## Project Overview
 
-Our target application is **on-board satellite image classification**, where energy and memory resources are highly constrained.  
+This project implements a distillation-aware pruning loop designed to enhance the compression of Convolutional Neural
+Networks (CNNs) using teacher-student learning techniques. The primary goal is to reduce the model size while
+maintaining high performance, making it suitable for deployment in resource-constrained environments, particularly in
+remote sensing applications.
 
-## 🚀 Objectives
-- Train large **teacher models** on EuroSAT as baselines  
-- Distill **smaller student models** guided by teachers  
-- Build **model zoos** of students to analyze robustness across random seeds  
-- Apply **sparsification** (magnitude pruning, variational dropout) for additional compression  
-- Benchmark models on **accuracy, robustness (variance), and efficiency** (FLOPs, parameters, inference time)  
+## Project Structure
+The directory structure of **R-L-Net** is organized as follows:
 
-## 📊 Dataset
-- **EuroSAT RGB** (3 bands, 64×64, 10 classes)  
-- **EuroSAT Multispectral** (13 Sentinel-2 bands, 64×64, 10 classes)  
-- ~27k images, balanced across classes  
-- Augmentations: flips, rotations, resized crops, Gaussian noise, MixUp, CutMix  
+```
+R-L-Net/
+├── configs/                            # Configuration files for the experiments
+├── docs/                               # Documentation
+├── experiments/                        # Experiment logs and outputs
+├── framework/                          # Core application logic
+│   ├── config_parser/                  # Configuration parsing utilities
+│   ├── dataset/                        # Data loading and processing
+│   ├── models/                         # Neural network architecture definitions
+│   │   ├── ResNet10.py
+│   │   ├── ResNet18.py
+│   │   ├── ResNet50.py
+│   │   └── TinyCNN.py
+│   ├── pruning/                        # Pruning algorithms and logic
+│   │   ├── services/
+│   │   └── strategies/
+│   │       ├── ports.py
+│   │       └── pruning_orchestrator.py
+│   ├── training/                       # Training loop handlers
+│   │   ├── **strategies/**
+│   │   │   ├── factories.py
+│   │   │   ├── fitnets.py
+│   │   │   ├── io_ckpt.py
+│   │   │   └── metrics_writer.py
+│   │   └── training_orchestrator.py
+│   └── utils/                          # General utility functions
+├── notebooks/                          # Jupyter notebooks for data analysis
+├── .gitignore
+├── pyproject.toml                      # Python project settings (Poetry/PEP 621)
+└── runner.py                           # Main entry point for training and pruning
+```
 
-## 🛠️ Approach
-1. **Train Teacher Models** (over-parameterized CNNs/ResNets)  
-2. **Distill Student Models** (e.g., ResNet-10) using cross-entropy + KL divergence loss  
-3. **Model Zoos**: Train many student instances with different seeds → analyze robustness  
-4. **Sparsification**: Apply pruning and variational dropout to distilled students  
-5. **Evaluation**: Compare all models against teachers and non-distilled baselines  
+---
 
-## 📅 Roadmap
-- [x] Train teacher models  
-- [ ] Train student models (with & without KD)  
-- [ ] Build distilled model zoo → analyze variance  
-- [ ] Apply sparsification → second zoo  
-- [ ] Compare against baselines  
+### Module Overview
 
-## 🔍 Novelty
-- Combines **distillation + sparsification** under a **robustness framework**  
-- Uses **model zoos** to statistically analyze performance variance  
-
-## 🌍 Impact
-Reliable, efficient small models are crucial for:  
-- On-board **satellite data processing**  
-- **Edge AI applications** in resource-constrained environments  
-- Geospatial monitoring, disaster response, climate observation  
-
-## 📚 Key References
-- Hinton et al. (2015) – Distilling the Knowledge in a Neural Network  
-- Wenzel et al. (2020) – Model Zoo: Generalization & Robustness  
-- Furlanello et al. (2018) – Born-Again Networks  
-- Honegger et al. (2023) – EuroSAT Model Zoo  
+| Directory              | Description                                                                        |
+|------------------------|------------------------------------------------------------------------------------|
+| **framework/models**   | Contains model architectures including various ResNet implementations and TinyCNN. |
+| **framework/pruning**  | Handles model pruning strategies and orchestration logic.                          |
+| **framework/training** | Manages training loops with KD methods                                             |
+| **notebooks**          | Notebooks for data exploration                                                     |
+| **runner.py**          | The primary script to execute training or pruning tasks.                           |
