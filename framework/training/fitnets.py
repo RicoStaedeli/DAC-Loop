@@ -1,6 +1,7 @@
+import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import torch
+
 
 class ConvFeatureRegressor(nn.Module):
     def __init__(self, in_ch, out_ch):
@@ -24,6 +25,7 @@ class ConvFeatureRegressor(nn.Module):
             y = F.adaptive_avg_pool2d(y, target_hw)
         return y
 
+
 class LinearFeatureRegressor(nn.Module):
     def __init__(self, in_dim, out_dim):
         """
@@ -38,6 +40,7 @@ class LinearFeatureRegressor(nn.Module):
 
     def forward(self, x, target_hw=None):
         return self.net(x)
+
 
 class FeatureRegressorFactory:
     @staticmethod

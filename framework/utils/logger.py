@@ -1,10 +1,12 @@
 import logging
 from logging import Logger
 from pathlib import Path
-import torch
-from framework.config_parser.schemasBase import AppConfig
 from typing import Optional
+
+import torch
 from torchinfo import summary
+
+from framework.config_parser.schemasBase import AppConfig
 
 section_logger = logging.getLogger("section")
 section_logger.propagate = False  # don’t pass to root logger
@@ -12,6 +14,7 @@ handler = logging.StreamHandler()
 handler.setFormatter(logging.Formatter("%(message)s"))  # only the message
 section_logger.addHandler(handler)
 section_logger.setLevel(logging.INFO)
+
 
 def _format_run_spec(config: dict) -> str:
     """
@@ -34,7 +37,7 @@ def _format_run_spec(config: dict) -> str:
     return "_".join(parts)
 
 
-def setup_logging(config: dict, experiment_dir: Path, save_to_file: bool=True):
+def setup_logging(config: dict, experiment_dir: Path, save_to_file: bool = True):
     """
     Setup logging based on validated config (cfg.model_dump()).
       - logging.default_level
@@ -46,8 +49,6 @@ def setup_logging(config: dict, experiment_dir: Path, save_to_file: bool=True):
     raw_level = config.get("logging", {}).get("default_level", logging.INFO)
     log_level_str = raw_level.upper() if isinstance(raw_level, str) else "INFO"
     log_level = getattr(logging, log_level_str, logging.INFO)
-
-
 
     # Always include console output
     handlers = [logging.StreamHandler()]
@@ -81,7 +82,6 @@ def setup_logging(config: dict, experiment_dir: Path, save_to_file: bool=True):
             logging.getLogger().info(f"[Logger] Set {module} to {level_str.upper()}")
 
 
-
 def log_meta_info(config: dict, experiment_dir: Path, seed: Optional[int] = None) -> None:
     """Log run metadata (ID, device, seed, paths) in one line."""
     log = logging.getLogger(__name__)
@@ -96,8 +96,10 @@ def log_meta_info(config: dict, experiment_dir: Path, seed: Optional[int] = None
         exp_name, exp_run, device, seed_str, experiment_dir
     )
 
+
 def log_section(title: str, char: str = "-") -> None:
     section_logger.info("\n%s\n%s\n%s", char * 72, title, char * 72)
+
 
 def log_config_summary(cfg: AppConfig, logger: logging.Logger, level: int = logging.INFO) -> None:
     """Compact summary of model/training settings"""
@@ -114,8 +116,9 @@ def log_config_summary(cfg: AppConfig, logger: logging.Logger, level: int = logg
         t.epochs, t.batch_size, t.learning_rate, t.log_interval,
     )
 
+
 def print_model_summary(cfg, model: Optional[torch.nn.Module], input_channels: int,
-                         description: str, experiment_dir: Path, log: Logger) -> None:
+                        description: str, experiment_dir: Path, log: Logger) -> None:
     """Print and persist a torchinfo summary for a model."""
     if model is None:
         return
@@ -135,6 +138,7 @@ def print_model_summary(cfg, model: Optional[torch.nn.Module], input_channels: i
     log.info(text)
 
     (experiment_dir / f"model_summary_{description}.log").write_text(text, encoding="utf-8")
+
 
 def print_experiment_overview(cfg, input_channels: int, extra_channels: int, log: Logger) -> None:
     log.info("Experiment name: %s", cfg.experiment.name)

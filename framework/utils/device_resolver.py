@@ -1,5 +1,6 @@
 import torch
 
+
 class DeviceResolver:
     @staticmethod
     def get() -> torch.device:

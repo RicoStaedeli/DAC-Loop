@@ -1,14 +1,15 @@
-from framework.utils.plots.plot_repository import plot_teacher_student_metrics, make_overview_png_per_experiment, plot_val_accuracy_over_epochs
-from framework.utils.logger import setup_logging
-from framework.utils.utils import load_config_toml
+import logging
 from pathlib import Path
 
-import logging
+from framework.utils.logger import setup_logging
+from framework.utils.plots.plot_repository import plot_teacher_student_metrics, make_overview_png_per_experiment, \
+    plot_val_accuracy_over_epochs
+from framework.utils.utils import load_config_toml
 
 log = logging.getLogger(__name__)
 
-def main():
 
+def main():
     # Setup logging
     logger_cfg_path = "configs/plot_config.toml"
     cfg = load_config_toml(logger_cfg_path, validate=False)
@@ -39,8 +40,6 @@ def main():
     _plots_for_different_experiments()
 
 
-
-
 def _plots_for_different_experiments():
     ########## Plot Validation Accuracy over Epochs for different models on EuroSAT ##########
     # 1 - EuroSAT Baseline training runs
@@ -55,7 +54,7 @@ def _plots_for_different_experiments():
         out_path_base="docs/plots/1_baseline_eurosat_all_bands",
         title="Validation Accuracy over Epochs EuroSAT - All Bands",
         use_latex=True,
-        figsize = (6,4)
+        figsize=(6, 4)
     )
 
     # 2 - EuroSAT RGB and Special Bands training runs
@@ -115,7 +114,7 @@ def _plots_for_different_experiments():
         out_path_base="docs/plots/5_eurosat_tinycnn_student_vs_baseline",
         title="TinyCNN - Validation Accuracy over Epochs on EuroSAT",
         use_latex=True,
-        figsize = (6,3)
+        figsize=(6, 3)
     )
 
     # 6 - EuroSAT ResNet18 Student vs Baseline training runs
@@ -128,7 +127,7 @@ def _plots_for_different_experiments():
         out_path_base="docs/plots/6_eurosat_resnet18_student_vs_baseline",
         title="ResNet18 - Validation Accuracy over Epochs on EuroSAT",
         use_latex=True,
-        figsize = (6,3)
+        figsize=(6, 3)
     )
 
     # 7 - EuroSAT ResNet10 Student vs Baseline training runs
@@ -141,9 +140,8 @@ def _plots_for_different_experiments():
         out_path_base="docs/plots/7_eurosat_resnet10_student_vs_baseline",
         title="ResNet10 - Validation Accuracy over Epochs on EuroSAT",
         use_latex=True,
-        figsize = (6,3)
+        figsize=(6, 3)
     )
-
 
     ########## Plot Validation Accuracy over Epochs for Student vs Baseline on RESISC45 ##########
     # 8 - RESISC45 ResNet18 Student vs Baseline training runs
@@ -156,7 +154,7 @@ def _plots_for_different_experiments():
         out_path_base="docs/plots/8_resisc_resnet18_student_vs_baseline",
         title="ResNet18 - Validation Accuracy over Epochs on RESISC45",
         use_latex=True,
-        figsize = (6,3)
+        figsize=(6, 3)
     )
 
     # 9 - RESISC45 ResNet10 Student vs Baseline training runs
@@ -169,12 +167,8 @@ def _plots_for_different_experiments():
         out_path_base="docs/plots/9_resisc_resnet10_student_vs_baseline",
         title="ResNet10 - Validation Accuracy over Epochs on RESISC45",
         use_latex=True,
-        figsize = (6,3)
+        figsize=(6, 3)
     )
-
-
-
-
 
 
 def _make_plots_for_experiment(experiment_name: str, num_runs: int, only_overview: bool = False):
@@ -189,10 +183,10 @@ def _make_plots_for_experiment(experiment_name: str, num_runs: int, only_overvie
             cfg_path = base_dir / f"Run_{i}" / "config.toml"
             if cfg_path.exists():
                 log.info("Config file exists: %s", cfg_path)
-                plot_teacher_student_metrics(cfg_path, project_root=".", export_png=True, export_pdf=False, png_dpi=600, use_latex=True)
+                plot_teacher_student_metrics(cfg_path, project_root=".", export_png=True, export_pdf=False, png_dpi=600,
+                                             use_latex=True)
             else:
                 log.info("Config file does not exist:", cfg_path)
-
 
     make_overview_png_per_experiment(
         base_dir=str(base_dir),
@@ -200,7 +194,6 @@ def _make_plots_for_experiment(experiment_name: str, num_runs: int, only_overvie
         out_path=str(base_dir / f"overview_plot_{experiment_name}.png"),
         set_png_dpi=350,
     )
-
 
 
 if __name__ == "__main__":

@@ -2,7 +2,6 @@ import subprocess
 import sys
 
 
-
 def _run_command(command, capture_output=False):
     """Run a shell command and optionally capture output."""
     result = subprocess.run(
@@ -13,6 +12,7 @@ def _run_command(command, capture_output=False):
         sys.exit(result.returncode)
     if capture_output:
         return result.stdout.strip()
+
 
 def git_commit_and_push(commit_message):
     # Check current branch

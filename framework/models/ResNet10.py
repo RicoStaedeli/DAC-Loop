@@ -1,5 +1,6 @@
 import torch.nn as nn
 
+
 class BasicBlock(nn.Module):
     """
     A basic residual block used in ResNet architectures.
@@ -31,6 +32,7 @@ class BasicBlock(nn.Module):
         4. Apply ReLU activation to the summed output.
 
     """
+
     def __init__(self, in_channels, out_channels, stride=1):
         super(BasicBlock, self).__init__()
         self.conv1 = nn.Conv2d(in_channels, out_channels, kernel_size=3, stride=stride, padding=1, bias=False)

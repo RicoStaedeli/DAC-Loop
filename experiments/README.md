@@ -1,23 +1,24 @@
 # Experiment Descriptions
 
-This document provides an overview of the experiments conducted, including their goals, configurations, and results. 
+This document provides an overview of the experiments conducted, including their goals, configurations, and results.
 Each experiment is organized in a table format for easy reference.
 
 ---
 
-
 ## Experiment 1: Baselines Teacher & Students on EuroSAT
 
-**Goal:** Train baseline models on EuroSAT dataset with different band combinations to establish performance benchmarks for subsequent experiments.
+**Goal:** Train baseline models on EuroSAT dataset with different band combinations to establish performance benchmarks
+for subsequent experiments.
 ResNet50 and ResNet18 are used as teacher models, while ResNet10 and TinyCNN serve as student models.
 
-**Description** 
+**Description**
+
 - Models: ResNet50 ResNet18 (teacher), ResNet10, TinyCNN (students)
 - Dataset: EuroSAT (`blanchon/EuroSAT_MSI`)
 - Baseline were generated for different Band combinations:
-  1. All bands: ["B01", "B02", "B03", "B04", "B05", "B06", "B07", "B08", "B8A", "B09", "B11", "B12"]
-  2. RGB bands: ["B02", "B03", "B04"]
-  3. Vegetation indices + RGB bands: ["NDVI", "NDWI", "NDMI"]["B02", "B03", "B04", "B07", "B08"]
+    1. All bands: ["B01", "B02", "B03", "B04", "B05", "B06", "B07", "B08", "B8A", "B09", "B11", "B12"]
+    2. RGB bands: ["B02", "B03", "B04"]
+    3. Vegetation indices + RGB bands: ["NDVI", "NDWI", "NDMI"]["B02", "B03", "B04", "B07", "B08"]
 
 <details>
   <summary><strong>Experiment 1 – overview plot</strong></summary>
@@ -25,14 +26,18 @@ ResNet50 and ResNet18 are used as teacher models, while ResNet10 and TinyCNN ser
 </details>
 
 **Outcomes**
+
 - Baseline results for all models and band combinations
 - Even the smallest model (TinyCNN) achieves accuracy ~90.00% when trained with all bands
 - The best band comination is using all bands, followed by vegetation indices + RGB bands, and finally RGB bands only.
 
 **Next Steps**
-- Try to use this big teacher model (ResNet50 and ResNet18) to guide the smaller models with teacher-student learning (Experiment 2)
+
+- Try to use this big teacher model (ResNet50 and ResNet18) to guide the smaller models with teacher-student learning (
+  Experiment 2)
 
 ### Runs
+
 | Run  | Config                                         | Model    | Dataset                | Metrics                                           | Plots                              | Bands                                                                                | Best Accuracy | 
 |------|------------------------------------------------|----------|------------------------|---------------------------------------------------|------------------------------------|--------------------------------------------------------------------------------------|---------------|
 | [1]  | [Config.toml](Experiment_1/Run_1/config.toml)  | ResNet18 | `blanchon/EuroSAT_MSI` | [metrics.json](Experiment_1/Run_1/metrics.jsonl)  | [plots](Experiment_1/Run_1/plots)  | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 98.28% @ 47   |
@@ -48,11 +53,10 @@ ResNet50 and ResNet18 are used as teacher models, while ResNet10 and TinyCNN ser
 | [11] | [Config.toml](Experiment_1/Run_11/config.toml) | ResNet50 | `blanchon/EuroSAT_MSI` | [metrics.json](Experiment_1/Run_11/metrics.jsonl) | [plots](Experiment_1/Run_11/plots) | ['B02', 'B03', 'B04']                                                                | 90.91% @ 45   |
 | [12] | [Config.toml](Experiment_1/Run_12/config.toml) | ResNet50 | `blanchon/EuroSAT_MSI` | [metrics.json](Experiment_1/Run_12/metrics.jsonl) | [plots](Experiment_1/Run_12/plots) | ['NDVI', 'NDWI', 'NDMI', 'B02', 'B03', 'B04', 'B07', 'B08']                          | 96.13% @ 43   |
 
-
-
-
 ## Experiment 2: Teacher-Student learning (replaced by Experiment 3 and 4)
-**Goal:** Train the smaller models (ResNet10 and TiniCNN) with teacher-student training. Use the best teacher model (best validation loss) ResNet18 as a guiding teacher.
+
+**Goal:** Train the smaller models (ResNet10 and TiniCNN) with teacher-student training. Use the best teacher model (
+best validation loss) ResNet18 as a guiding teacher.
 This experiment was later replaced by Experiment 3 and 4 which include hyperparameter tuning.
 <details>
 <summary>Experiment 1– extra notes & insights</summary>
@@ -60,14 +64,17 @@ This experiment was later replaced by Experiment 3 and 4 which include hyperpara
 </details>
 
 **Outcomes**
+
 - Teacher-Student learning works in theory but did not improve the baseline results in practice
 
 **Next Steps**
+
 - Hyperparameter tuning for the student model training (Experiment 3 and 4)
 - Try bigger models as teachers --> Do Baseline for ResNet50 (done in Experiment 1, Runs 10-12)
 - Try ResNet18 as student and ResNet50 as teacher (Experiment 4)
 
 ### Runs
+
 | Run | Config                                        | Model    | Model Teacher | Dataset                | KD-Type          | Metrics                                          | Plots                             | Bands                                                                                | Best Accuracy | Baseline Accuracy | Improvement to Baseline |
 |-----|-----------------------------------------------|----------|---------------|------------------------|------------------|--------------------------------------------------|-----------------------------------|--------------------------------------------------------------------------------------|---------------|-------------------|-------------------------|
 | [1] | [Config.toml](Experiment_2/Run_1/config.toml) | ResNet10 | ResNet18      | `blanchon/EuroSAT_MSI` | CrossEntropyLoss | [metrics.json](Experiment_2/Run_1/metrics.jsonl) | [plots](Experiment_2/Run_1/plots) | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 0.00% @ -1    | 0.00%             | 0.00%                   |
@@ -77,12 +84,12 @@ This experiment was later replaced by Experiment 3 and 4 which include hyperpara
 | [5] | [Config.toml](Experiment_2/Run_5/config.toml) | TinyCNN  | ResNet18      | `blanchon/EuroSAT_MSI` | CrossEntropyLoss | [metrics.json](Experiment_2/Run_5/metrics.jsonl) | [plots](Experiment_2/Run_5/plots) | ['B02', 'B03', 'B04']                                                                | 0.00% @ -1    | 0.00%             | 0.00%                   |
 | [6] | [Config.toml](Experiment_2/Run_6/config.toml) | TinyCNN  | ResNet18      | `blanchon/EuroSAT_MSI` | CrossEntropyLoss | [metrics.json](Experiment_2/Run_6/metrics.jsonl) | [plots](Experiment_2/Run_6/plots) | ['NDVI', 'NDWI', 'NDMI', 'B02', 'B03', 'B04', 'B07', 'B08']                          | 0.00% @ -1    | 0.00%             | 0.00%                   |
 
-
-
-
 ## Experiment 3: Hyperparameter-tuning - EuroSAT, TinyCNN, ResNet18
-**Goal:** Train the smaller models (TinyCNN) with teacher-student training. Use the best teacher model (best validation loss) ResNet18 as a guiding teacher.
-In this experiment we will do hyperparameter tuning for the student model training. Also we use different knowledge distillation methods such as CosineEmbeddingLoss, CrossEntropyLoss and KLDivergenceLoss.
+
+**Goal:** Train the smaller models (TinyCNN) with teacher-student training. Use the best teacher model (best validation
+loss) ResNet18 as a guiding teacher.
+In this experiment we will do hyperparameter tuning for the student model training. Also we use different knowledge
+distillation methods such as CosineEmbeddingLoss, CrossEntropyLoss and KLDivergenceLoss.
 
 [Results](Experiment_3/results_summary.md)
 
@@ -92,12 +99,15 @@ In this experiment we will do hyperparameter tuning for the student model traini
 </details>
 
 **Outcomes**
+
 - No Hyperparameter combination was able to outperform the baseline TinyCNN model trained from scratch
 
 **Next Steps**
+
 - Try bigger models as students and Teacher (Experiment 4)
 
 ### Runs
+
 | Run  | Config                                         | Model   | Model Teacher | Dataset                | KD-Type             | Metrics                                           | Plots                              | Bands                                                                                | Best Accuracy | Baseline Accuracy | Improvement to Baseline |
 |------|------------------------------------------------|---------|---------------|------------------------|---------------------|---------------------------------------------------|------------------------------------|--------------------------------------------------------------------------------------|---------------|-------------------|-------------------------|
 | [1]  | [Config.toml](Experiment_3/Run_1/config.toml)  | TinyCNN | ResNet50      | `blanchon/EuroSAT_MSI` | CosineEmbeddingLoss | [metrics.json](Experiment_3/Run_1/metrics.jsonl)  | [plots](Experiment_3/Run_1/plots)  | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 90.04% @ 46   | 89.22%            | 0.81%                   |
@@ -125,10 +135,12 @@ In this experiment we will do hyperparameter tuning for the student model traini
 | [23] | [Config.toml](Experiment_3/Run_23/config.toml) | TinyCNN | ResNet50      | `blanchon/EuroSAT_MSI` | CrossEntropyLoss    | [metrics.json](Experiment_3/Run_23/metrics.jsonl) | [plots](Experiment_3/Run_23/plots) | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 86.50% @ 40   | 89.22%            | -2.72%                  |
 | [24] | [Config.toml](Experiment_3/Run_24/config.toml) | TinyCNN | ResNet50      | `blanchon/EuroSAT_MSI` | KLDivLoss           | [metrics.json](Experiment_3/Run_24/metrics.jsonl) | [plots](Experiment_3/Run_24/plots) | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 88.85% @ 48   | 89.22%            | -0.37%                  |
 
-
 ## Experiment 4: Hyperparameter-tuning - EuroSAT, ResNet18, ResNet50
-**Goal:** Train the smaller model (ResNet18) with teacher-student training. Use the best teacher model ( the best validation accuracy) ResNet50 as a guiding teacher.
-In this experiment we will do hyperparameter tuning for the student model training. Also, we use different knowledge distillation methods such as CosineEmbeddingLoss, CrossEntropyLoss and KLDivergenceLoss.
+
+**Goal:** Train the smaller model (ResNet18) with teacher-student training. Use the best teacher model ( the best
+validation accuracy) ResNet50 as a guiding teacher.
+In this experiment we will do hyperparameter tuning for the student model training. Also, we use different knowledge
+distillation methods such as CosineEmbeddingLoss, CrossEntropyLoss and KLDivergenceLoss.
 
 [Results](Experiment_4/results_summary.md)
 
@@ -138,11 +150,14 @@ In this experiment we will do hyperparameter tuning for the student model traini
 </details>
 
 **Outcomes**
+
 - The baseline of the Student model (ResNet18) could be beaten with Teacher-Student learning using ResNet50 as teacher.
-- The student model achieved better performance than the teacher model. --> Dataset could be to simple and therefore we change it to a more complex one in future experiments.
+- The student model achieved better performance than the teacher model. --> Dataset could be to simple and therefore we
+  change it to a more complex one in future experiments.
 - Build Baseline for models on `RESISC45` Dataset (Experiment 5)
 
 ### Runs
+
 | Run  | Config                                         | Model    | Model Teacher | Dataset                | KD-Type             | Metrics                                           | Plots                              | Bands                                                                                | Best Accuracy | Baseline Accuracy | Improvement to Baseline |
 |------|------------------------------------------------|----------|---------------|------------------------|---------------------|---------------------------------------------------|------------------------------------|--------------------------------------------------------------------------------------|---------------|-------------------|-------------------------|
 | [1]  | [Config.toml](Experiment_4/Run_1/config.toml)  | ResNet18 | ResNet50      | `blanchon/EuroSAT_MSI` | CosineEmbeddingLoss | [metrics.json](Experiment_4/Run_1/metrics.jsonl)  | [plots](Experiment_4/Run_1/plots)  | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 98.46% @ 48   | 98.28%            | 0.19%                   |
@@ -186,11 +201,12 @@ In this experiment we will do hyperparameter tuning for the student model traini
 | [39] | [Config.toml](Experiment_4/Run_39/config.toml) | ResNet10 | ResNet50      | `blanchon/EuroSAT_MSI` | KLDivLoss           | [metrics.json](Experiment_4/Run_39/metrics.jsonl) | [plots](Experiment_4/Run_39/plots) | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 98.39% @ 40   | 98.28%            | 0.11%                   |
 | [40] | [Config.toml](Experiment_4/Run_40/config.toml) | ResNet18 | ResNet50      | `blanchon/EuroSAT_MSI` | KLDivLoss           | [metrics.json](Experiment_4/Run_40/metrics.jsonl) | [plots](Experiment_4/Run_40/plots) | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 98.26% @ 37   | 98.28%            | -0.02%                  |
 
-
-
 ## Experiment 4a: Hyperparameter-tuning - EuroSAT, ResNet10, ResNet50
-**Goal:** Train the smaller model (ResNet10) with teacher-student training. Use the best teacher model ( the best validation accuracy) ResNet50 as a guiding teacher.
-In this experiment we will do hyperparameter tuning for the student model training. Also, we use different knowledge distillation methods such as CosineEmbeddingLoss, CrossEntropyLoss and KLDivergenceLoss.
+
+**Goal:** Train the smaller model (ResNet10) with teacher-student training. Use the best teacher model ( the best
+validation accuracy) ResNet50 as a guiding teacher.
+In this experiment we will do hyperparameter tuning for the student model training. Also, we use different knowledge
+distillation methods such as CosineEmbeddingLoss, CrossEntropyLoss and KLDivergenceLoss.
 
 [Results](Experiment_4a/results_summary.md)
 
@@ -200,11 +216,14 @@ In this experiment we will do hyperparameter tuning for the student model traini
 </details>
 
 **Outcomes**
+
 - The baseline of the Student model (ResNet10) could be beaten with Teacher-Student learning using ResNet50 as teacher.
-- The student model achieved better performance than the teacher model. --> Dataset could be to simple and therefore we change it to a more complex one in future experiments.
+- The student model achieved better performance than the teacher model. --> Dataset could be to simple and therefore we
+  change it to a more complex one in future experiments.
 - Build Baseline for models on `RESISC45` Dataset (Experiment 5)
 
 ### Runs
+
 | Run  | Config                                          | Model    | Model Teacher | Dataset                | KD-Type             | Metrics                                            | Plots                               | Bands                                                                                | Best Accuracy | Baseline Accuracy | Improvement to Baseline |
 |------|-------------------------------------------------|----------|---------------|------------------------|---------------------|----------------------------------------------------|-------------------------------------|--------------------------------------------------------------------------------------|---------------|-------------------|-------------------------|
 | [1]  | [Config.toml](Experiment_4a/Run_1/config.toml)  | ResNet10 | ResNet50      | `blanchon/EuroSAT_MSI` | CosineEmbeddingLoss | [metrics.json](Experiment_4a/Run_1/metrics.jsonl)  | [plots](Experiment_4a/Run_1/plots)  | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 98.30% @ 36   | 98.41%            | -0.11%                  |
@@ -248,16 +267,17 @@ In this experiment we will do hyperparameter tuning for the student model traini
 | [39] | [Config.toml](Experiment_4a/Run_39/config.toml) | ResNet10 | ResNet50      | `blanchon/EuroSAT_MSI` | KLDivLoss           | [metrics.json](Experiment_4a/Run_39/metrics.jsonl) | [plots](Experiment_4a/Run_39/plots) | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 98.39% @ 40   | 98.41%            | -0.02%                  |
 | [40] | [Config.toml](Experiment_4a/Run_40/config.toml) | ResNet10 | ResNet50      | `blanchon/EuroSAT_MSI` | KLDivLoss           | [metrics.json](Experiment_4a/Run_40/metrics.jsonl) | [plots](Experiment_4a/Run_40/plots) | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 98.39% @ 40   | 98.41%            | -0.02%                  |
 
-
-
 ## Experiment 5: Baseline Teacher & Student on RESISC45
-**Goal:** In this experiment we will establish a baseline using the `RESISC45` dataset. We will train different models (ResNet18, ResNet18, ResNet50, TinyCNN) on the RESISC45 dataset and evaluate their performance.
+
+**Goal:** In this experiment we will establish a baseline using the `RESISC45` dataset. We will train different models (
+ResNet18, ResNet18, ResNet50, TinyCNN) on the RESISC45 dataset and evaluate their performance.
 <details>
   <summary>Experiment 5 – overview plot</summary>
   <img src="Experiment_5/overview_plot_Experiment_5.png" alt="overview">
 </details>
 
 ### Runs
+
 | Run | Config                                        | Model    | Dataset         | Metrics                                          | Plots                             | Bands                 | Best Accuracy | 
 |-----|-----------------------------------------------|----------|-----------------|--------------------------------------------------|-----------------------------------|-----------------------|---------------|
 | [1] | [Config.toml](Experiment_5/Run_1/config.toml) | ResNet18 | `timm/resisc45` | [metrics.json](Experiment_5/Run_1/metrics.jsonl) | [plots](Experiment_5/Run_1/plots) | ['B01', 'B02', 'B03'] | 91.33% @ 47   |
@@ -269,12 +289,12 @@ In this experiment we will do hyperparameter tuning for the student model traini
 | [7] | [Config.toml](Experiment_5/Run_7/config.toml) | ResNet50 | `timm/resisc45` | [metrics.json](Experiment_5/Run_7/metrics.jsonl) | [plots](Experiment_5/Run_7/plots) | ['B01', 'B02', 'B03'] | 92.68% @ 93   |
 | [8] | [Config.toml](Experiment_5/Run_8/config.toml) | ResNet18 | `timm/resisc45` | [metrics.json](Experiment_5/Run_8/metrics.jsonl) | [plots](Experiment_5/Run_8/plots) | ['B01', 'B02', 'B03'] | 89.97% @ 49   |
 
-
-
-
 ## Experiment 6: Hyperparameter-tuning - RESISC45, ResNet18, ResNet50
-**Goal:** Train the smaller model (ResNet18) with teacher-student training. Use the best teacher model ( the best validation accuracy) ResNet50 as a guiding teacher.
-In this experiment we will do hyperparameter tuning for the student model training. Also we use different knowledge distillation methods such as CosineEmbeddingLoss, CrossEntropyLoss and KLDivergenceLoss.
+
+**Goal:** Train the smaller model (ResNet18) with teacher-student training. Use the best teacher model ( the best
+validation accuracy) ResNet50 as a guiding teacher.
+In this experiment we will do hyperparameter tuning for the student model training. Also we use different knowledge
+distillation methods such as CosineEmbeddingLoss, CrossEntropyLoss and KLDivergenceLoss.
 Dataset is the `RESISC45` dataset.
 
 [Results](Experiment_6/results_summary.md)
@@ -284,8 +304,8 @@ Dataset is the `RESISC45` dataset.
     <img src="Experiment_6/overview_plot_Experiment_6.png" alt="overview">
 </details>
 
-
 ### Runs
+
 | Run  | Config                                         | Model    | Model Teacher | Dataset         | KD-Type             | Metrics                                           | Plots                              | Bands                 | Best Accuracy | Baseline Accuracy | Improvement to Baseline |
 |------|------------------------------------------------|----------|---------------|-----------------|---------------------|---------------------------------------------------|------------------------------------|-----------------------|---------------|-------------------|-------------------------|
 | [1]  | [Config.toml](Experiment_6/Run_1/config.toml)  | ResNet18 | ResNet50      | `timm/resisc45` | CosineEmbeddingLoss | [metrics.json](Experiment_6/Run_1/metrics.jsonl)  | [plots](Experiment_6/Run_1/plots)  | ['B01', 'B02', 'B03'] | 90.54% @ 42   | 89.97%            | 0.57%                   |
@@ -330,8 +350,11 @@ Dataset is the `RESISC45` dataset.
 | [40] | [Config.toml](Experiment_6/Run_40/config.toml) | ResNet18 | ResNet50      | `timm/resisc45` | KLDivLoss           | [metrics.json](Experiment_6/Run_40/metrics.jsonl) | [plots](Experiment_6/Run_40/plots) | ['B01', 'B02', 'B03'] | 92.75% @ 50   | 89.97%            | 2.78%                   |
 
 ## Experiment 6a: Hyperparameter-tuning - RESISC45, ResNet10, ResNet50
-**Goal:** Train the smaller model (ResNet10) with teacher-student training. Use the best teacher model ( the best validation accuracy) ResNet50 as a guiding teacher.
-In this experiment we will do hyperparameter tuning for the student model training. Also we use different knowledge distillation methods such as CosineEmbeddingLoss, CrossEntropyLoss and KLDivergenceLoss.
+
+**Goal:** Train the smaller model (ResNet10) with teacher-student training. Use the best teacher model ( the best
+validation accuracy) ResNet50 as a guiding teacher.
+In this experiment we will do hyperparameter tuning for the student model training. Also we use different knowledge
+distillation methods such as CosineEmbeddingLoss, CrossEntropyLoss and KLDivergenceLoss.
 Dataset is the `RESISC45` dataset.
 
 [Results](Experiment_6a/results_summary.md)
@@ -341,10 +364,10 @@ Dataset is the `RESISC45` dataset.
     <img src="Experiment_6a/overview_plot_Experiment_6a.png" alt="overview">
 </details>
 
-
 ### Runs
-| Run  | Config                                           | Model    | Model Teacher | Dataset         | KD-Type             | Metrics                                             | Plots                                | Bands                 | Best Accuracy | Baseline Accuracy | Improvement to Baseline |
-|------|--------------------------------------------------|----------|---------------|-----------------|---------------------|-----------------------------------------------------|--------------------------------------|-----------------------|---------------|-------------------|-------------------------|
+
+| Run  | Config                                          | Model    | Model Teacher | Dataset         | KD-Type             | Metrics                                            | Plots                               | Bands                 | Best Accuracy | Baseline Accuracy | Improvement to Baseline |
+|------|-------------------------------------------------|----------|---------------|-----------------|---------------------|----------------------------------------------------|-------------------------------------|-----------------------|---------------|-------------------|-------------------------|
 | [1]  | [Config.toml](Experiment_6a/Run_1/config.toml)  | ResNet10 | ResNet50      | `timm/resisc45` | CosineEmbeddingLoss | [metrics.json](Experiment_6a/Run_1/metrics.jsonl)  | [plots](Experiment_6a/Run_1/plots)  | ['B01', 'B02', 'B03'] | 89.51% @ 50   | 88.32%            | 1.19%                   |
 | [2]  | [Config.toml](Experiment_6a/Run_2/config.toml)  | ResNet10 | ResNet50      | `timm/resisc45` | CosineEmbeddingLoss | [metrics.json](Experiment_6a/Run_2/metrics.jsonl)  | [plots](Experiment_6a/Run_2/plots)  | ['B01', 'B02', 'B03'] | 89.65% @ 50   | 88.32%            | 1.33%                   |
 | [3]  | [Config.toml](Experiment_6a/Run_3/config.toml)  | ResNet10 | ResNet50      | `timm/resisc45` | CosineEmbeddingLoss | [metrics.json](Experiment_6a/Run_3/metrics.jsonl)  | [plots](Experiment_6a/Run_3/plots)  | ['B01', 'B02', 'B03'] | 89.84% @ 50   | 88.32%            | 1.52%                   |
@@ -386,26 +409,30 @@ Dataset is the `RESISC45` dataset.
 | [39] | [Config.toml](Experiment_6a/Run_39/config.toml) | ResNet10 | ResNet50      | `timm/resisc45` | KLDivLoss           | [metrics.json](Experiment_6a/Run_39/metrics.jsonl) | [plots](Experiment_6a/Run_39/plots) | ['B01', 'B02', 'B03'] | 89.21% @ 48   | 88.32%            | 0.89%                   |
 | [40] | [Config.toml](Experiment_6a/Run_40/config.toml) | ResNet10 | ResNet50      | `timm/resisc45` | KLDivLoss           | [metrics.json](Experiment_6a/Run_40/metrics.jsonl) | [plots](Experiment_6a/Run_40/plots) | ['B01', 'B02', 'B03'] | 90.98% @ 47   | 88.32%            | 2.67%                   |
 
-
 ## Experiment 7: Compression - RESISC45, ResNet18, ResNet50
 
-**Goal:** In this Experiment we will compress the ResNet18 model using pruning techniques. The compressed models will be fine-tuned with knowledge distillation using the ResNet50 as teacher model. This experiment was done using the best hyperparameters found in Experiment 5 and 6. Only Resic45 dataset is used.
+**Goal:** In this Experiment we will compress the ResNet18 model using pruning techniques. The compressed models will be
+fine-tuned with knowledge distillation using the ResNet50 as teacher model. This experiment was done using the best
+hyperparameters found in Experiment 5 and 6. Only Resic45 dataset is used.
 <details>
     <summary>Experiment 7 – overview plot</summary>
     <img src="Experiment_7/overview_plot_Experiment_7.png" alt="overview">
 </details>
 
 ### Runs
-fg
 
+fg
 
 ## Experiment 7a: Compression - RESISC45, ResNet18, ResNet50
 
-**Goal:** In this Experiment we will compress the ResNet18 model using pruning techniques. The compressed models will be fine-tuned with knowledge distillation using the ResNet50 as teacher model. This experiment was done using the best hyperparameters found in Experiment 5 and 6. Only Resic45 dataset is used.
+**Goal:** In this Experiment we will compress the ResNet18 model using pruning techniques. The compressed models will be
+fine-tuned with knowledge distillation using the ResNet50 as teacher model. This experiment was done using the best
+hyperparameters found in Experiment 5 and 6. Only Resic45 dataset is used.
 <details>
     <summary>Experiment 7 – overview plot</summary>
     <img src="Experiment_7/overview_plot_Experiment_7.png" alt="overview">
 </details>
 
 ### Runs
+
 df

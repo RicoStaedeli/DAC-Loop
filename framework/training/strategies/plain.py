@@ -1,6 +1,8 @@
 import torch
 from tqdm import tqdm
+
 from .base import EpochResult, top1_accuracy
+
 
 class PlainSupervisedStrategy:
     def __init__(self, ce_loss):
@@ -16,7 +18,8 @@ class PlainSupervisedStrategy:
             optimizer.zero_grad()
             logits, _ = model(x)
             loss = self.ce(logits, y)
-            loss.backward(); optimizer.step()
+            loss.backward();
+            optimizer.step()
 
             with torch.no_grad():
                 b = x.size(0)

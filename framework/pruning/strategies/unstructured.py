@@ -4,6 +4,7 @@ import torch.nn.utils.prune as prune
 
 from framework.pruning.services.pruning_utils import prunable_layers
 
+
 class UnstructuredPruning:
     def __init__(self, amount: float, method: str = "l1"):
         self.amount = amount

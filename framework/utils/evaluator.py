@@ -1,7 +1,9 @@
 from typing import Dict
+
 import torch
-import torch.nn.functional as F
 import torch.nn as nn
+import torch.nn.functional as F
+
 
 class Evaluator:
     def __init__(self, ce_loss: nn.Module):

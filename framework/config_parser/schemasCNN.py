@@ -1,6 +1,6 @@
-import warnings
-from typing import Literal, Optional
-from pydantic import BaseModel, PositiveInt, model_validator, NonNegativeInt
+from typing import Literal
+
+from pydantic import BaseModel
 
 
 # Per-architecture args with defaults
@@ -13,13 +13,16 @@ class ResNet10Config(BaseModel):
     name: Literal["ResNet10"]
     args: CNNArgs = CNNArgs()
 
+
 class ResNet18Config(BaseModel):
     name: Literal["ResNet18"]
     args: CNNArgs = CNNArgs()
 
+
 class ResNet50Config(BaseModel):
     name: Literal["ResNet50"]
     args: CNNArgs = CNNArgs()
+
 
 class TinyCNNConfig(BaseModel):
     name: Literal["TinyCNN"]

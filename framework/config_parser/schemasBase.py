@@ -2,7 +2,7 @@ from enum import Enum
 from pathlib import Path
 from typing import Dict, Optional, Union, Annotated, List
 
-from pydantic import BaseModel, Field, PositiveInt, field_validator, model_validator, conint
+from pydantic import BaseModel, Field, PositiveInt, field_validator, conint
 
 from .schemasCNN import ResNet10Config, ResNet18Config, TinyCNNConfig, ResNet50Config
 
@@ -32,12 +32,15 @@ class ArtifactsConfig(BaseModel):
 class HFUploadConfig(BaseModel):
     enabled: bool = False
 
+
 class ExperimentConfig(BaseModel):
     name: str
     run: PositiveInt
 
+
 class SavingConfig(BaseModel):
     overwrite_run: bool = False
+
 
 class PruningConfig(BaseModel):
     prune: bool = False
@@ -48,6 +51,7 @@ class PruningConfig(BaseModel):
     dim: Optional[int] = None
     layer_prune_ratio: Optional[float] = None
     min_channels: Optional[int] = None
+
 
 class TeacherStudentConfig(BaseModel):
     train_student: bool = False
@@ -70,16 +74,19 @@ class TeacherStudentConfig(BaseModel):
             raise ValueError(f"kd_type must be one of {allowed}")
         return v
 
+
 class EarlyStoppingConfig(BaseModel):
     enabled: bool = False
     patience: int = 0
     min_delta: float = 0.0
     keep_last: int = 1
 
+
 VALID_INDICES = [
     "NDVI", "NDWI", "NDMI", "EVI", "SAVI", "NDRE", "GNDVI",
     "BNDVI", "NBR", "MSI", "NDSI", "NDCI", "ARI", "BUI"
 ]
+
 
 class IndicesConfig(BaseModel):
     calculated_indices: List[str]
@@ -95,6 +102,7 @@ class IndicesConfig(BaseModel):
                 f"Valid options are: {', '.join(VALID_INDICES)}"
             )
         return v
+
 
 class TrainingConfig(BaseModel):
     epochs: PositiveInt = 1
@@ -114,7 +122,6 @@ class TrainingConfig(BaseModel):
     base_path_ckpts: str = ""
     save_only_best: bool = True
 
-
     @field_validator("learning_rate")
     @classmethod
     def lr_in_range(cls, v: float) -> float:
@@ -125,8 +132,8 @@ class TrainingConfig(BaseModel):
 
 class DataConfig(BaseModel):
     dataset_hf_repo_id: str
-    num_used_entries_train:  conint(ge=0)
-    num_used_entries_validation:  conint(ge=0)
+    num_used_entries_train: conint(ge=0)
+    num_used_entries_validation: conint(ge=0)
     image_size: PositiveInt = 64
     augment: bool = False
     normalize: bool = True

@@ -1,8 +1,10 @@
 # orchestrator.py
 from __future__ import annotations
-from typing import Optional
-from pathlib import Path
+
 import logging
+from pathlib import Path
+from typing import Optional
+
 import torch.nn as nn
 
 from framework.pruning.ports import PruningStrategy
@@ -11,8 +13,8 @@ from framework.pruning.services.metrics import evaluate_and_log, summarize, log_
 from framework.training.training_orchestrator import Trainer
 from framework.utils.device_resolver import DeviceResolver
 
-
 log = logging.getLogger(__name__)
+
 
 class PruningOrchestrator:
     def __init__(self, model: nn.Module, ckpt_path: Optional[str] = None, strict: bool = True):
@@ -27,17 +29,16 @@ class PruningOrchestrator:
         self.model = model.to(self.device)
         maybe_load(self.model, ckpt_path, self.device, strict)
 
-
     def run(
-        self,
-        cfg,
-        strategy: PruningStrategy,
-        train_loader,
-        val_loader,
-        input_channels: int,
-        experiment_dir: Path,
-        cfg_path,
-        model_teacher: Optional[nn.Module] = None,
+            self,
+            cfg,
+            strategy: PruningStrategy,
+            train_loader,
+            val_loader,
+            input_channels: int,
+            experiment_dir: Path,
+            cfg_path,
+            model_teacher: Optional[nn.Module] = None,
     ) -> nn.Module:
         """
         Orchestrates the pruning process: prepares the model, applies pruning,

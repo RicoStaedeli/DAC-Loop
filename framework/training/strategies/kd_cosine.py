@@ -1,7 +1,9 @@
 import torch
 import torch.nn as nn
 from tqdm import tqdm
+
 from framework.training.strategies.base import EpochResult, top1_accuracy
+
 
 class CosineEmbeddingKDStrategy:
     def __init__(self, ce_loss, w_rep: float, w_ce: float):
@@ -31,7 +33,8 @@ class CosineEmbeddingKDStrategy:
 
             student_logits, student_features = student(inputs)
 
-            loss_cosine_embedding = self.cosine_embedding_loss(student_features, teacher_features, target=torch.ones(inputs.size(0), device=device))
+            loss_cosine_embedding = self.cosine_embedding_loss(student_features, teacher_features,
+                                                               target=torch.ones(inputs.size(0), device=device))
 
             loss_cross_entropy = self.cross_entropy_loss(student_logits, labels)
 

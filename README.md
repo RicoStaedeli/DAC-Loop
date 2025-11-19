@@ -8,6 +8,7 @@ maintaining high performance, making it suitable for deployment in resource-cons
 remote sensing applications.
 
 ## Project Structure
+
 The directory structure of **R-L-Net** is organized as follows:
 
 ```
@@ -53,3 +54,34 @@ R-L-Net/
 | **framework/training** | Manages training loops with KD methods                                             |
 | **notebooks**          | Notebooks for data exploration                                                     |
 | **runner.py**          | The primary script to execute training or pruning tasks.                           |
+
+## Getting Started
+
+The project uses UV as the main dependency manager. To set up the environment, follow these steps:
+
+1. **Clone the Repository**:
+
+```bash
+git clone https://github.com/RicoStaedeli/R-L-Net.git
+cd R-L-Net
+```
+
+2. **Install Dependencies**:
+
+```bash
+pip install uv
+uv install
+```
+
+3. **Run Experiments**:
+   The experiments are defined in the `configs/` directory. Each Experiments consist of an
+   `Experiment_Orchestrator_Config.toml`
+   file and the corresponding `Run-xy.toml` files. The orchestrator config defines which runs to execute. The parameters
+   of the specific run are in the run config files.
+   An example experiment can be found in [Experiment_XY](configs/Experiment_XY). The name of the experiment folder is
+   passed as an argument to the `runner.py` script.
+4. To execute an experiment, use the following command:
+
+```bash
+uv run runner.py --gpu 0 --experiment Experiment_XY
+```

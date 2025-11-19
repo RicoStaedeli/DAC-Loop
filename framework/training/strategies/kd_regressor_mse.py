@@ -1,8 +1,9 @@
 import torch
 import torch.nn.functional as F
 from tqdm import tqdm
-from framework.training.strategies.base import EpochResult, top1_accuracy
+
 from framework.training.fitnets import FeatureRegressorFactory
+from framework.training.strategies.base import EpochResult, top1_accuracy
 
 
 def _ensure_regressor(student, device, s_feat, t_feat, optimizer):
@@ -31,13 +32,12 @@ class RegressorMSEKDStrategy:
         self.weight_cross_entropy_loss = w_ce
         self.weight_kd_loss = w_kd
 
-
     def train_one_epoch(self, *, teacher, student, loader, device, optimizer, epoch, total_epochs) -> EpochResult:
-        teacher.eval(); student.train()
+        teacher.eval();
+        student.train()
         tot_loss = tot_acc = tot_n = 0.0
 
         for inputs, labels in tqdm(loader, desc=f"Epoch {epoch}/{total_epochs}"):
-
             inputs, labels = inputs.to(device), labels.to(device)
 
             optimizer.zero_grad(set_to_none=True)
@@ -59,7 +59,7 @@ class RegressorMSEKDStrategy:
             teacher_logp_temperature = F.log_softmax(teacher_logits / self.temperature, dim=1)
 
             loss_kd = F.kl_div(student_logp_temperature, teacher_logp_temperature, reduction="batchmean",
-                                        log_target=True) * (self.temperature ** 2)
+                               log_target=True) * (self.temperature ** 2)
 
             loss = self.weight_representation_loss * mse_loss + self.weight_cross_entropy_loss * ce_loss + self.weight_kd_loss * loss_kd
 

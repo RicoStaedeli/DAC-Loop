@@ -4,14 +4,13 @@ from typing import Tuple
 
 from framework.utils.utils import load_config_toml
 
-
 EXPERIMENTS_ROOT = Path("experiments")
 DEFAULT_OUTPUT_PATH = Path("experiments/_generated_experiment_tables.md")
 
 
 def _get_best_val_accuracy_from_jsonl(
-    metrics_path: Path,
-    val_key: str = "val_accuracy",
+        metrics_path: Path,
+        val_key: str = "val_accuracy",
 ) -> Tuple[float, int]:
     """
     Scan a JSONL metrics file and return (best_val_accuracy, epoch).

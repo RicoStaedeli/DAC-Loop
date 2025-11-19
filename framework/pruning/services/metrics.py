@@ -1,7 +1,9 @@
 # services/metrics.py
 from __future__ import annotations
+
 import logging
 from typing import Iterable, Tuple
+
 import torch
 import torch.nn as nn
 
@@ -9,6 +11,7 @@ from framework.utils.evaluator import Evaluator
 from framework.utils.logger import print_model_summary
 
 log = logging.getLogger(__name__)
+
 
 def evaluate_and_log(model: nn.Module, loader, device: torch.device, msg: str) -> dict:
     evaluator = Evaluator(nn.CrossEntropyLoss())
@@ -20,13 +23,16 @@ def evaluate_and_log(model: nn.Module, loader, device: torch.device, msg: str) -
              metrics.get("mse", float("nan")))
     return metrics
 
+
 def summarize(cfg, model: nn.Module, input_channels: int, title: str, experiment_dir, log_obj=log) -> None:
     print_model_summary(cfg, model, input_channels, title, experiment_dir, log_obj)
+
 
 def prunable_layers(model: nn.Module) -> Iterable[Tuple[str, nn.Module]]:
     for name, m in model.named_modules():
         if isinstance(m, (nn.Conv2d, nn.Linear)):
             yield name, m
+
 
 def log_sparsity(model: nn.Module) -> float:
     total_zeros = 0

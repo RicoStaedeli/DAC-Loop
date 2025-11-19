@@ -1,13 +1,15 @@
 import json
-import pandas as pd
-import matplotlib.pyplot as plt
-from matplotlib import rcParams
-from framework.utils.utils import load_config_toml
 import logging
-from pathlib import Path
-from PIL import Image, ImageDraw, ImageFont
 import os
-from typing import Dict, Tuple, Iterable, List, Union, Optional
+from pathlib import Path
+from typing import Dict, Tuple, List, Union, Optional
+
+import matplotlib.pyplot as plt
+import pandas as pd
+from PIL import Image, ImageDraw, ImageFont
+from matplotlib import rcParams
+
+from framework.utils.utils import load_config_toml
 
 log = logging.getLogger(__name__)
 
@@ -35,8 +37,8 @@ rcParams.update({
     "ytick.major.width": 0.6,
 
     # Save/export defaults
-    "savefig.dpi": 600,              # high-DPI for PNGs
-    "figure.dpi": 150,               # canvas dpi (not critical if we pass dpi in savefig)
+    "savefig.dpi": 600,  # high-DPI for PNGs
+    "figure.dpi": 150,  # canvas dpi (not critical if we pass dpi in savefig)
     "savefig.bbox": "tight",
     "savefig.pad_inches": 0.02,
 
@@ -51,18 +53,19 @@ rcParams.update({
 # Recommended default: single-column figure for most journals (~3.25 in)
 DEFAULT_FIGSIZE: Tuple[float, float] = (6, 3.5)  # (width, height) inches
 
+
 def plot_teacher_student_metrics(
-    cfg_path,
-    project_root=".",
-    # Export controls
-    export_pdf: bool = True,
-    export_png: bool = True,
-    png_dpi: int = 600,
-    use_latex: bool = True,
-    # Figure geometry
-    figsize: Tuple[float, float] = DEFAULT_FIGSIZE,
-    # Optional columns width presets (ignored if figsize provided)
-    # single ~3.25in, 1.5-column ~5in, double ~6.75-7in
+        cfg_path,
+        project_root=".",
+        # Export controls
+        export_pdf: bool = True,
+        export_png: bool = True,
+        png_dpi: int = 600,
+        use_latex: bool = True,
+        # Figure geometry
+        figsize: Tuple[float, float] = DEFAULT_FIGSIZE,
+        # Optional columns width presets (ignored if figsize provided)
+        # single ~3.25in, 1.5-column ~5in, double ~6.75-7in
 ):
     """
     Generate compact, paper-ready plots (PDF + optional high-DPI PNG).
@@ -225,7 +228,9 @@ def _plot_loss(series, cfg, path_base: Path, figsize=DEFAULT_FIGSIZE,
     if hasattr(cfg, "training") and getattr(cfg.training.teacher_student, "train_student", False):
         subtitle = (f"Model: {cfg.model.name}, "
                     f"Teacher: {cfg.training.teacher_student.teacher_model_name}"
-                    f", KD: {cfg.training.teacher_student.kd_type}" if hasattr(cfg.training.teacher_student,"kd_type") else f", KD: {cfg.training.kd_type}" if hasattr(cfg.training,"kd_type") else "" )
+                    f", KD: {cfg.training.teacher_student.kd_type}" if hasattr(cfg.training.teacher_student,
+                                                                               "kd_type") else f", KD: {cfg.training.kd_type}" if hasattr(
+            cfg.training, "kd_type") else "")
     else:
         subtitle = f"Model: {cfg.model.name}"
     ax.set_title(rf"\textbf{{{subtitle}}}")
@@ -264,7 +269,9 @@ def _plot_val_accuracy(series, cfg, path_base: Path, figsize=DEFAULT_FIGSIZE,
     if hasattr(cfg, "training") and getattr(cfg.training.teacher_student, "train_student", False):
         subtitle = (f"Model: {cfg.model.name}, "
                     f"Teacher: {cfg.training.teacher_student.teacher_model_name} "
-                    f", KD: {cfg.training.teacher_student.kd_type}" if hasattr(cfg.training.teacher_student,"kd_type") else f", KD: {cfg.training.kd_type}" if hasattr(cfg.training,"kd_type") else "" )
+                    f", KD: {cfg.training.teacher_student.kd_type}" if hasattr(cfg.training.teacher_student,
+                                                                               "kd_type") else f", KD: {cfg.training.kd_type}" if hasattr(
+            cfg.training, "kd_type") else "")
 
     else:
         subtitle = (
@@ -313,7 +320,9 @@ def _plot_train_vs_val_accuracy(series, cfg, path_base: Path, figsize=DEFAULT_FI
     if getattr(cfg.training.teacher_student, "train_student", False):
         subtitle = (f"Model: {cfg.model.name}, "
                     f"Teacher: {cfg.training.teacher_student.teacher_model_name} "
-                    f", KD: {cfg.training.teacher_student.kd_type}" if hasattr(cfg.training.teacher_student,"kd_type") else f", KD: {cfg.training.kd_type}" if hasattr(cfg.training,"kd_type") else "" )
+                    f", KD: {cfg.training.teacher_student.kd_type}" if hasattr(cfg.training.teacher_student,
+                                                                               "kd_type") else f", KD: {cfg.training.kd_type}" if hasattr(
+            cfg.training, "kd_type") else "")
     else:
         subtitle = f"Model: {cfg.model.name}"
     ax.set_title(rf"\textbf{{{subtitle}}}")
@@ -358,7 +367,9 @@ def _plot_train_vs_val_loss(series, cfg, path_base: Path, figsize=DEFAULT_FIGSIZ
     if getattr(cfg.training.teacher_student, "train_student", False):
         subtitle = (f"Model: {cfg.model.name}, "
                     f"Teacher: {cfg.training.teacher_student.teacher_model_name} "
-                    f", KD: {cfg.training.teacher_student.kd_type}" if hasattr(cfg.training.teacher_student,"kd_type") else f", KD: {cfg.training.kd_type}" if hasattr(cfg.training,"kd_type") else "" )
+                    f", KD: {cfg.training.teacher_student.kd_type}" if hasattr(cfg.training.teacher_student,
+                                                                               "kd_type") else f", KD: {cfg.training.kd_type}" if hasattr(
+            cfg.training, "kd_type") else "")
 
     else:
         subtitle = f"Model: {cfg.model.name}"
@@ -369,40 +380,43 @@ def _plot_train_vs_val_loss(series, cfg, path_base: Path, figsize=DEFAULT_FIGSIZ
 
     return _save_figure(fig, path_base, export_pdf, export_png, png_dpi)
 
+
 def make_overview_png_per_experiment(
-    base_dir="experiments/Experiment_3",
-    run_indices=range(1, 25),
-    hpad=40,               # padding between Loss and ValAcc columns
-    vpad=60,               # padding between rows
-    margin=60,             # outer border
-    caption_width=400,     # left gutter for "Run i"
-    out_path="experiments/Experiment_3/overview_all_plots.png",
-    add_captions=False,
-    final_scale=0.6,       # 1.0 = no final resize; <1.0 downscales once at the end
-    set_png_dpi=400        # embeds DPI metadata (some viewers honor this)
+        base_dir="experiments/Experiment_3",
+        run_indices=range(1, 25),
+        hpad=40,  # padding between Loss and ValAcc columns
+        vpad=60,  # padding between rows
+        margin=60,  # outer border
+        caption_width=400,  # left gutter for "Run i"
+        out_path="experiments/Experiment_3/overview_all_plots.png",
+        add_captions=False,
+        final_scale=0.6,  # 1.0 = no final resize; <1.0 downscales once at the end
+        set_png_dpi=400  # embeds DPI metadata (some viewers honor this)
 ):
     rows = []
     labels = []
     for i in run_indices:
         pdir = os.path.join(base_dir, f"Run_{i}", "plots")
         loss_p = os.path.join(pdir, "loss_per_epoch.png")
-        acc_p  = os.path.join(pdir, "val_accuracy_per_epoch.png")
+        acc_p = os.path.join(pdir, "val_accuracy_per_epoch.png")
         if not (os.path.exists(loss_p) and os.path.exists(acc_p)):
             continue
-        loss_im = Image.open(loss_p).convert("RGB")   # keep native size
-        acc_im  = Image.open(acc_p).convert("RGB")
+        loss_im = Image.open(loss_p).convert("RGB")  # keep native size
+        acc_im = Image.open(acc_p).convert("RGB")
 
         # Equalize row height by padding the shorter one (no resampling)
         h1, h2 = loss_im.size[1], acc_im.size[1]
         row_h = max(h1, h2)
+
         def pad_to_h(img, target_h):
             if img.size[1] == target_h:
                 return img
             padded = Image.new("RGB", (img.size[0], target_h), "white")
             padded.paste(img, (0, 0))
             return padded
+
         loss_im = pad_to_h(loss_im, row_h)
-        acc_im  = pad_to_h(acc_im,  row_h)
+        acc_im = pad_to_h(acc_im, row_h)
 
         rows.append((loss_im, acc_im, row_h))
         labels.append(f"Run {i}")
@@ -412,7 +426,7 @@ def make_overview_png_per_experiment(
 
     # Compute natural canvas size (no resizes)
     loss_w = rows[0][0].size[0]
-    acc_w  = rows[0][1].size[0]
+    acc_w = rows[0][1].size[0]
     col_w_total = loss_w + hpad + acc_w
 
     nrows = len(rows)
@@ -460,12 +474,11 @@ def make_overview_png_per_experiment(
     print(f"Saved overview: {out_path}")
 
 
-
 ################################################################################################################
 ############################ Plots with different experiments ##################################################
 ################################################################################################################
 def _normalize_models_arg(
-    models: Dict[str, Union[str, Dict[str, str]]]
+        models: Dict[str, Union[str, Dict[str, str]]]
 ) -> List[Tuple[str, str]]:
     """Accepts {name: path} OR {key: {'name': name, 'path': path}}."""
     pairs: List[Tuple[str, str]] = []
@@ -479,6 +492,7 @@ def _normalize_models_arg(
                 continue
             pairs.append((name, path))
     return pairs
+
 
 def _load_valacc_jsonl(path: Union[str, Path]) -> pd.DataFrame:
     rows = []
@@ -501,6 +515,7 @@ def _load_valacc_jsonl(path: Union[str, Path]) -> pd.DataFrame:
     df = df.dropna(subset=["epoch", "val_accuracy"]).sort_values("epoch").reset_index(drop=True)
     return df
 
+
 def _is_fractional_accuracy(series: pd.Series) -> bool:
     """Heuristic: treat as fraction if values mostly <= 1.5."""
     if series.empty:
@@ -510,21 +525,23 @@ def _is_fractional_accuracy(series: pd.Series) -> bool:
         return True
     return (s.quantile(0.95) <= 1.5)  # robust to a stray outlier
 
+
 def _fmt_acc(value: float, as_percent: bool) -> str:
     if as_percent:
         return f"{value:.2f}\\%"  # LaTeX-friendly percent
     return f"{value:.4f}"
 
+
 def plot_val_accuracy_over_epochs(
-    models: Dict[str, Union[str, Dict[str, str]]],
-    out_path_base: Union[str, Path] = "val_accuracy_over_epochs",
-    *,
-    title: str = "Validation Accuracy over Epochs",
-    use_latex: bool = True,
-    figsize: Tuple[float, float] = DEFAULT_FIGSIZE,
-    export_pdf: bool = True,
-    export_png: bool = True,
-    png_dpi: int = 600,
+        models: Dict[str, Union[str, Dict[str, str]]],
+        out_path_base: Union[str, Path] = "val_accuracy_over_epochs",
+        *,
+        title: str = "Validation Accuracy over Epochs",
+        use_latex: bool = True,
+        figsize: Tuple[float, float] = DEFAULT_FIGSIZE,
+        export_pdf: bool = True,
+        export_png: bool = True,
+        png_dpi: int = 600,
 ) -> dict:
     """
     Plot val_accuracy vs. epoch for multiple runs and save as PDF/PNG.

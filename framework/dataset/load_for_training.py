@@ -1,6 +1,7 @@
 import logging
-from typing import List, Optional
 from functools import partial
+from typing import List, Optional
+
 import numpy as np
 import torch
 import torch.nn.functional as F
@@ -137,6 +138,7 @@ def _assemble_channels(cube: np.ndarray,
         return np.concatenate([base, extra], axis=0)
     return base
 
+
 def _color_jitter_rgb(x: torch.Tensor, rgb_idx: Optional[List[int]],
                       brightness=0.4, contrast=0.4, saturation=0.4, hue=0.1, p=0.8):
     if rgb_idx is None or torch.rand(1).item() > p:
@@ -150,6 +152,7 @@ def _color_jitter_rgb(x: torch.Tensor, rgb_idx: Optional[List[int]],
     x[rgb_idx, :, :] = rgb
     return x
 
+
 def _gaussian_blur(x: torch.Tensor, kernel_size=3, sigma=(0.1, 2.0), p=0.2):
     if torch.rand(1).item() > p:
         return x
@@ -157,14 +160,15 @@ def _gaussian_blur(x: torch.Tensor, kernel_size=3, sigma=(0.1, 2.0), p=0.2):
     # Depthwise conv for blur
     C, H, W = x.shape
     radius = kernel_size // 2
-    coords = torch.arange(-radius, radius+1, dtype=x.dtype, device=x.device)
-    g = torch.exp(-(coords**2) / (2 * sig * sig))
+    coords = torch.arange(-radius, radius + 1, dtype=x.dtype, device=x.device)
+    g = torch.exp(-(coords ** 2) / (2 * sig * sig))
     g = (g / g.sum()).reshape(1, 1, -1)
     k = g.transpose(2, 1) @ g  # 2D kernel
     k = k.expand(C, 1, kernel_size, kernel_size)
     x = F.pad(x.unsqueeze(0), (radius, radius, radius, radius), mode='reflect')
     x = F.conv2d(x, k, groups=C)
     return x.squeeze(0)
+
 
 def _random_90_rot(x: torch.Tensor, p=0.75):
     if torch.rand(1).item() > p:
@@ -174,6 +178,7 @@ def _random_90_rot(x: torch.Tensor, p=0.75):
         return x
     return torch.rot90(x, k, dims=(-2, -1))
 
+
 def _random_affine_light(x: torch.Tensor, max_translate=0.07, scale_range=(0.9, 1.1), p=0.5):
     if torch.rand(1).item() > p:
         return x
@@ -182,9 +187,10 @@ def _random_affine_light(x: torch.Tensor, max_translate=0.07, scale_range=(0.9, 
     scale = float(torch.empty(1).uniform_(scale_range[0], scale_range[1]).item())
     angle = float(torch.empty(1).uniform_(-5.0, 5.0).item())
     shear = [float(torch.empty(1).uniform_(-3.0, 3.0).item()), 0.0]
-    return TF.affine(x, angle=angle, translate=(torch.randint(-translate[0], translate[0]+1, (1,)).item(),
-                                                torch.randint(-translate[1], translate[1]+1, (1,)).item()),
+    return TF.affine(x, angle=angle, translate=(torch.randint(-translate[0], translate[0] + 1, (1,)).item(),
+                                                torch.randint(-translate[1], translate[1] + 1, (1,)).item()),
                      scale=scale, shear=shear, interpolation=TF.InterpolationMode.BILINEAR)
+
 
 def _preprocess_sample(sample: dict, image_size: int,
                        indices: Optional[List[str]], augment: bool,
@@ -231,7 +237,7 @@ def _collate_hf(ds, batch_indices, image_size: int,
     return torch.stack(xs, 0), torch.stack(ys, 0)
 
 
-def _calculate_mean_std(loader,desc):
+def _calculate_mean_std(loader, desc):
     """
     Calculates the mean and std of the given dataset.
     """
@@ -312,7 +318,8 @@ def build_loaders_from_hf(train_ds, val_ds, batch_size: int, image_size: int,
 
     # Log after normalization only in DEBUG mode because it is time intensive
     if logging.getLevelName(log.getEffectiveLevel()) == "DEBUG":
-        mean_after_normalization, std_after_normalization = _calculate_mean_std(train_loader, desc="Training Dataset after Normalization")
+        mean_after_normalization, std_after_normalization = _calculate_mean_std(train_loader,
+                                                                                desc="Training Dataset after Normalization")
         log.info(f"After normalization (Train) --> "
                  f"norm_mean: {mean_after_normalization.tolist()!r}\n"
                  f"norm_std: {std_after_normalization.tolist()!r}"
@@ -347,7 +354,8 @@ def build_loaders_from_hf(train_ds, val_ds, batch_size: int, image_size: int,
     # Log after normalization only in DEBUG mode because it is time intensive
     if logging.getLevelName(log.getEffectiveLevel()) == "DEBUG":
         # mean and std of validation dataset are not perfectly normalized since the used std and mean is only as good as the train dataset generalizes
-        mean_after_normalization, std_after_normalization = _calculate_mean_std(val_loader, desc="Validation Dataset after Normalization")
+        mean_after_normalization, std_after_normalization = _calculate_mean_std(val_loader,
+                                                                                desc="Validation Dataset after Normalization")
         log.info(f"After normalization (Validation) --> "
                  f"norm_mean: {mean_after_normalization.tolist()!r}\n"
                  f"norm_std: {std_after_normalization.tolist()!r}"

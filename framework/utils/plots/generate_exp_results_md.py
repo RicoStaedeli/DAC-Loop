@@ -1,10 +1,10 @@
-from pathlib import Path
-from typing import Dict, List, Optional
 import json
 import logging
 import math
 import re
 import tomllib
+from pathlib import Path
+from typing import Dict, List, Optional
 
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -105,8 +105,8 @@ def _get_best_val_record_from_jsonl(metrics_path: Path, val_key: str = "val_accu
 
 
 def _get_best_val_accuracy_from_jsonl(
-    metrics_path: Path,
-    val_key: str = "val_accuracy",
+        metrics_path: Path,
+        val_key: str = "val_accuracy",
 ) -> tuple[float, int]:
     """
     Return (best_val_accuracy, best_epoch) from a JSONL metrics file.
@@ -152,8 +152,8 @@ def _fmt_percent(x, nd: int = 2):
 # ======================================================================
 
 def summarize_baseline_experiment_group_to_markdown(
-    experiment_dir: str,
-    output_md_path: str,
+        experiment_dir: str,
+        output_md_path: str,
 ) -> None:
     """
     Summarize one or more *baseline* runs in an experiment directory into a
@@ -531,9 +531,9 @@ def print_markdown_stable(df: pd.DataFrame) -> None:
 
 
 def build_combined_table(
-    experiment_dir: str,
-    num_of_runs: Optional[int] = None,
-    output_md_path: Optional[str] = None,
+        experiment_dir: str,
+        num_of_runs: Optional[int] = None,
+        output_md_path: Optional[str] = None,
 ) -> pd.DataFrame:
     """
     Build a combined pruning/compression table across multiple runs.
@@ -654,11 +654,13 @@ def build_combined_table(
     df = pd.DataFrame(combined_rows)
 
     df["Reduction Student to pruned Student (%)"] = (
-        1 - df["Student P+FT Total Params"] / df["Student Before Total Params"]
-    ) * 100
+                                                            1 - df["Student P+FT Total Params"] / df[
+                                                        "Student Before Total Params"]
+                                                    ) * 100
     df["Reduction Teacher to pruned Student (%)"] = (
-        1 - df["Student P+FT Total Params"] / df["Teacher Total Params"]
-    ) * 100
+                                                            1 - df["Student P+FT Total Params"] / df[
+                                                        "Teacher Total Params"]
+                                                    ) * 100
 
     markdown = df_to_markdown_stable(df)
 
@@ -893,8 +895,8 @@ def _summarize_single_run(run_dir: Path) -> Dict[str, str]:
 
 
 def summarize_experiment_group_to_markdown(
-    experiment_dir: str,
-    output_md_path: str,
+        experiment_dir: str,
+        output_md_path: str,
 ) -> None:
     """
     Combine multiple runs inside an experiment directory into a single markdown table.
@@ -988,7 +990,6 @@ def main():
         experiment_dir="experiments/Experiment_4a",
         output_md_path="experiments/Experiment_4a/experiment_summary.md",
     )
-
 
     summarize_experiment_group_to_markdown(
         experiment_dir="experiments/Experiment_6",

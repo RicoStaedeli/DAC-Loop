@@ -1,7 +1,9 @@
 import torch
 import torch.nn.functional as F
 from tqdm import tqdm
+
 from framework.training.strategies.base import EpochResult, top1_accuracy
+
 
 class KLDivergenceKDStrategy:
     def __init__(self, ce_loss, T: float, alpha_kd: float, beta_feat: float, w_ce: float, use_mse_feat: bool = True):
@@ -23,7 +25,8 @@ class KLDivergenceKDStrategy:
         self.use_mse_feat = use_mse_feat
 
     def train_one_epoch(self, *, teacher, student, loader, device, optimizer, epoch, total_epochs) -> EpochResult:
-        teacher.eval(); student.train()
+        teacher.eval();
+        student.train()
         tot_loss = tot_acc = tot_n = 0.0
 
         for inputs, labels in tqdm(loader, desc=f"Epoch {epoch}/{total_epochs}"):
@@ -41,7 +44,7 @@ class KLDivergenceKDStrategy:
             teacher_logp_temperature = F.log_softmax(teacher_logits / self.temperature, dim=1)
 
             loss_kd = F.kl_div(student_logp_temperature, teacher_logp_temperature, reduction="batchmean",
-                            log_target=True) * (self.temperature ** 2)
+                               log_target=True) * (self.temperature ** 2)
 
             loss_ce = self.cross_entropy_loss(student_logits, labels)
 
@@ -54,7 +57,9 @@ class KLDivergenceKDStrategy:
                 if self.use_mse_feat:
                     loss_features = F.mse_loss(student_features_normalized, teacher_features_normalized)
                 else:
-                    loss_features = (1.0 - torch.cosine_similarity(student_features_normalized, teacher_features_normalized, dim=1).mean())
+                    loss_features = (
+                                1.0 - torch.cosine_similarity(student_features_normalized, teacher_features_normalized,
+                                                              dim=1).mean())
 
             loss = self.alpha * loss_kd + self.weight_cross_entropy_loss * loss_ce + self.beta * loss_features
 

@@ -11,11 +11,11 @@ from framework.training.strategies.kd_regressor_mse import RegressorMSEKDStrateg
 from framework.training.strategies.plain import PlainSupervisedStrategy
 
 
-
 class OptimizerFactory:
     @staticmethod
     def make(model, cfg) -> Optimizer:
         return AdamW(model.parameters(), lr=cfg.training.learning_rate, weight_decay=cfg.training.weight_decay)
+
 
 class SchedulerFactory:
     @staticmethod
@@ -24,9 +24,9 @@ class SchedulerFactory:
             return CosineAnnealingLR(optimizer, T_max=cfg.training.epochs)
         return None
 
+
 # Strategy selection is imported late to avoid circulars
 def build_strategy(cfg, ce_loss):
-
     ts = getattr(cfg.training, "teacher_student", None)
     if ts is None:
         return PlainSupervisedStrategy(ce_loss)

@@ -11,13 +11,13 @@ class Bottleneck(nn.Module):
         width = out_channels  # base width before expansion
 
         self.conv1 = nn.Conv2d(in_channels, width, kernel_size=1, bias=False)
-        self.bn1   = nn.BatchNorm2d(width)
+        self.bn1 = nn.BatchNorm2d(width)
 
         self.conv2 = nn.Conv2d(width, width, kernel_size=3, stride=stride, padding=1, bias=False)
-        self.bn2   = nn.BatchNorm2d(width)
+        self.bn2 = nn.BatchNorm2d(width)
 
         self.conv3 = nn.Conv2d(width, out_channels * self.expansion, kernel_size=1, bias=False)
-        self.bn3   = nn.BatchNorm2d(out_channels * self.expansion)
+        self.bn3 = nn.BatchNorm2d(out_channels * self.expansion)
 
         self.relu = nn.ReLU(inplace=True)
 
@@ -42,15 +42,14 @@ class ResNet50(nn.Module):
         super().__init__()
         self.in_channels = 64
 
-
         # ImageNet-style stem
         self.conv1 = nn.Conv2d(input_channels, 64, kernel_size=7, stride=2, padding=3, bias=False)
-        self.bn1   = nn.BatchNorm2d(64)
-        self.relu  = nn.ReLU(inplace=True)
+        self.bn1 = nn.BatchNorm2d(64)
+        self.relu = nn.ReLU(inplace=True)
         self.maxpool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
 
         # ResNet-50 layers: [3, 4, 6, 3]
-        self.layer1 = self._make_layer(Bottleneck, 64,  3, stride=1)
+        self.layer1 = self._make_layer(Bottleneck, 64, 3, stride=1)
         self.layer2 = self._make_layer(Bottleneck, 128, 4, stride=2)
         self.layer3 = self._make_layer(Bottleneck, 256, 6, stride=2)
         self.layer4 = self._make_layer(Bottleneck, 512, 3, stride=2)

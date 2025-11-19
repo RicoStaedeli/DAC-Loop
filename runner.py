@@ -13,15 +13,14 @@ from dotenv import load_dotenv
 # Framework Imports
 from framework.dataset.load_for_training import load_hf_splits, build_loaders_from_hf
 from framework.models import MODEL_REGISTRY
+from framework.pruning.pruning_orchestrator import PruningOrchestrator
+from framework.pruning.strategies.structured import StructuredPruning
+from framework.pruning.strategies.unstructured import UnstructuredPruning
 from framework.training.training_orchestrator import Trainer
 from framework.utils.logger import setup_logging, log_meta_info, print_model_summary, print_experiment_overview
 from framework.utils.plots.plot_repository import plot_teacher_student_metrics
 from framework.utils.push_to_remote_repository import git_commit_and_push
 from framework.utils.utils import set_seed, load_config_toml
-from framework.pruning.pruning_orchestrator import PruningOrchestrator
-from framework.pruning.strategies.unstructured import UnstructuredPruning
-from framework.pruning.strategies.structured import StructuredPruning
-
 
 log = logging.getLogger(__name__)
 load_dotenv()
@@ -32,7 +31,7 @@ def _parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Run experiment with specified GPU device.")
     parser.add_argument("--gpu", type=str, default="0",
                         help="GPU device IDs (e.g. '0', '1', or '0,1').")
-    parser.add_argument("--exp", type=str, default="XY", help="Experiment Number")
+    parser.add_argument("--exp", type=str, required=True, help="Name of the experiment directory eg. 'Experiment_XY'")
     return parser.parse_args()
 
 
@@ -95,13 +94,13 @@ def _load_models(cfg, input_channels: int) -> Tuple[torch.nn.Module, Optional[to
 
 
 # -------------------- Main -------------------- #
-def main(gpu_id: str, experiment_number: str) -> None:
+def main(gpu_id: str, experiment_folder: str) -> None:
     # Make CUDA selection visible to child processes (if any)
     # Note: multi-GPU strings like "0,1" are respected by CUDA_VISIBLE_DEVICES
     os.environ["CUDA_VISIBLE_DEVICES"] = gpu_id
 
     # If experiment_number is used to pick orchestrator, wire it here.
-    orchestrator_path = Path("configs") / "Experiment_8" / "Experiment_Orchestrator_Config.toml"
+    orchestrator_path = Path("configs") / experiment_folder / "Experiment_Orchestrator_Config.toml"
 
     for cfg_path in _load_manifest(orchestrator_path):
         t0 = time.perf_counter()
@@ -165,7 +164,8 @@ def main(gpu_id: str, experiment_number: str) -> None:
                 prefix_path = cfg.training.base_path_ckpts
                 ckpt_path = cfg.training.pruning.path_checkpoint_to_prune
 
-                pruning_orchestrator = PruningOrchestrator(model_student, ckpt_path=prefix_path + ckpt_path, strict=True)
+                pruning_orchestrator = PruningOrchestrator(model_student, ckpt_path=prefix_path + ckpt_path,
+                                                           strict=True)
 
                 if not cfg.training.pruning.structured:
                     strategy = UnstructuredPruning(
@@ -180,7 +180,8 @@ def main(gpu_id: str, experiment_number: str) -> None:
                         min_channels=cfg.training.pruning.min_channels,
                     )
                     # Build dependency graph using a real example input
-                    example = torch.randn(1, input_channels, cfg.data.image_size, cfg.data.image_size, device=pruning_orchestrator.device)
+                    example = torch.randn(1, input_channels, cfg.data.image_size, cfg.data.image_size,
+                                          device=pruning_orchestrator.device)
                     strategy.build_dependency(pruning_orchestrator.model, example)
 
                 pruning_orchestrator.run(

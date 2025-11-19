@@ -1,14 +1,17 @@
+import logging
+import os
 import random
+import tomllib
+from pathlib import Path
+
 import numpy as np
 import torch
-import logging
-from framework.config_parser.schemasBase import AppConfig
-import tomllib
 from pydantic import ValidationError
-from pathlib import Path
-import os
+
+from framework.config_parser.schemasBase import AppConfig
 
 log = logging.getLogger(__name__)
+
 
 def set_seed(seed: int) -> None:
     """Set random seed for reproducibility across Python, NumPy, and PyTorch."""
@@ -20,7 +23,7 @@ def set_seed(seed: int) -> None:
         torch.cuda.manual_seed_all(seed)
         torch.backends.cudnn.deterministic = True
         torch.backends.cudnn.benchmark = False
-    os.environ["CUBLAS_WORKSPACE_CONFIG"] = ":4096:8" 
+    os.environ["CUBLAS_WORKSPACE_CONFIG"] = ":4096:8"
 
 
 def load_config_toml(path: str | Path, validate: bool = True) -> AppConfig:

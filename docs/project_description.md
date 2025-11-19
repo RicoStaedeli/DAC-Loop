@@ -1,29 +1,36 @@
 # R-L Net
+
 bla bla
 
 ## Generate Plots
+
 To generate plots for R-L Net, you can use the following code snippet:
 Make sure you are in the **root directory** of the project and have the necessary dependencies installed.
 
 Generate the plots with:
+
 ```bash
 uv run python -m framework.utils.plots.generate_plots
 ```
 
 Create the experiment summary markdown tables with:
+
 ```bash
 uv run python -m framework.utils.plots.generate_exp_results_md
 ```
 
 Create the Experiment Description Table with:
+
 ```bash
 uv run python -m framework.utils.plots.generate_exp_description_md
 ```
 
 ## Baselines
+
 In this section we provide baseline results for various tasks using the R-L Net framework.
 
 ### Baselines for Teacher-Student Learning
+
 The baseline for teacher-student learning are the models trained from scratch without any teacher supervision.
 
 **Results for Teacher-Student Learning on the EuroSAT dataset:**
@@ -56,9 +63,10 @@ The baseline for teacher-student learning are the models trained from scratch wi
 | Run_7    | Experiment_5    | 7      | ResNet50 | timm/resisc45 | True         | calc=[] - bands=[B01, B02, B03] | 100    | 0.0003        | 128        | 1e-05        | cosine    | 42   | 93         | 0.056677        | 0.283054      | 98.2275                 | 92.6825               | 0.002625     |
 | Run_8    | Experiment_5    | 8      | ResNet18 | timm/resisc45 | False        | calc=[] - bands=[B01, B02, B03] | 50     | 0.0003        | 128        | 1e-05        | cosine    | 42   | 49         | 0.006621        | 0.345476      | 99.9947                 | 89.9683               | 0.003377     |
 
-
 **Additional baselines are found through research:**
-- They had around the same accuracy training ResNet18 from scratch on RESISC45 with similar hyperparameters. [Source](https://arxiv.org/pdf/2507.10381)
+
+- They had around the same accuracy training ResNet18 from scratch on RESISC45 with similar
+  hyperparameters. [Source](https://arxiv.org/pdf/2507.10381)
 
 | Model                         | Parameters (M) | Dataset  | Accuracy Theirs(%) | Accuracy Ours Baselines(%) | Source                                                                     |
 |-------------------------------|----------------|----------|--------------------|----------------------------|----------------------------------------------------------------------------|
@@ -71,8 +79,8 @@ The baseline for teacher-student learning are the models trained from scratch wi
 | EfficientNetB0 + Distillation | 4.7            | RESISC45 | 94.8               |                            | [Source](https://arxiv.org/pdf/2302.13028)                                 |
 | EfficientNetB0 + Attention    | 9.4            | RESISC45 | 93.8               |                            | [Source](https://arxiv.org/pdf/2211.02820)                                 |
 
-
 ## Pruning results
+
 The following table summarizes the pruning results obtained using the R-L Net framework:
 
 | Model    | Dataset       | Initial Accuracy (%) | Accuracy without KD-Aware Pruning | Pruned + Fine-tuned Accuracy (%) | Parameter Reduction to Basemodel (%) | Parameter Reduction to Teacher (%) | Trainable Parameters |
@@ -82,4 +90,5 @@ The following table summarizes the pruning results obtained using the R-L Net fr
 | ResNet18 | timm/resisc45 | 92.98                | 90.51                             | **93.00**                        | 46.03%                               | 75.49%                             | 6,040,725            |
 | ResNet18 | timm/resisc45 | 92.98                | 88.48                             | **91.06**                        | 74.99%                               | 88.65%                             | 2,798,648            |
 
-KD-Aware Pruning consistently outperforms standard pruning methods, achieving higher accuracy with significant parameter reductions.
+KD-Aware Pruning consistently outperforms standard pruning methods, achieving higher accuracy with significant parameter
+reductions.

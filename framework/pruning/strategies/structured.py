@@ -6,12 +6,14 @@ import torch_pruning as tp
 
 from framework.pruning.services.pruning_utils import prunable_layers
 
+
 class StructuredPruning:
     """
     Structured pruning strategy that prunes entire channels from convolutional layers
     based on L2 norm. It uses a dependency graph to ensure that pruning is consistent
     across the model.
     """
+
     def __init__(self, amount: float, dim: int, layer_prune_ratio: float, min_channels: int):
         """
         Args:
@@ -57,7 +59,7 @@ class StructuredPruning:
                     continue
                 # simplest heuristic: prune smallest-L2 output channels
                 W = m.weight.detach()
-                l2 = W.pow(2).sum(dim=(1,2,3))
+                l2 = W.pow(2).sum(dim=(1, 2, 3))
                 idx = torch.argsort(l2)[:n_prune].tolist()
                 group = self._DG.get_pruning_group(m, tp.prune_conv_out_channels, idx)
                 group.prune()

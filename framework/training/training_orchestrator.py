@@ -3,8 +3,8 @@ import shutil
 import time
 from pathlib import Path
 
-import torch.nn as nn
 import torch
+import torch.nn as nn
 
 from framework.training.factories import OptimizerFactory, SchedulerFactory, build_strategy
 from framework.training.io_ckpt import CheckpointIO
@@ -80,7 +80,6 @@ class Trainer:
 
         self._maybe_resume(model_to_train, opt_model_to_train, device)
 
-
         if adapt_kd_proj_flag and teacher is not None:
             adapt_student_kd_proj(student, teacher, device)
 
@@ -95,14 +94,16 @@ class Trainer:
             if teacher is None:
                 # train without teacher
                 train_res = PlainSupervisedStrategy(ce_loss).train_one_epoch(
-                    teacher=None, student=model_to_train, loader=train_loader, device=device, optimizer=opt_model_to_train,
+                    teacher=None, student=model_to_train, loader=train_loader, device=device,
+                    optimizer=opt_model_to_train,
                     epoch=epoch, total_epochs=self.cfg.training.epochs)
                 val_res = self.evaluator(model_to_train, val_loader, device)
                 trained_model, active_opt = model_to_train, opt_model_to_train
 
             else:
                 train_res = strategy.train_one_epoch(
-                    teacher=teacher, student=model_to_train, loader=train_loader, device=device, optimizer=opt_model_to_train,
+                    teacher=teacher, student=model_to_train, loader=train_loader, device=device,
+                    optimizer=opt_model_to_train,
                     epoch=epoch, total_epochs=self.cfg.training.epochs)
                 val_res = self.evaluator(model_to_train, val_loader, device)
                 trained_model, active_opt = model_to_train, opt_model_to_train

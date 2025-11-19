@@ -1,8 +1,11 @@
-from pathlib import Path
-import torch
-from typing import Dict
 import logging
+from pathlib import Path
+from typing import Dict
+
+import torch
+
 log = logging.getLogger(__name__)
+
 
 class CheckpointIO:
     @staticmethod
