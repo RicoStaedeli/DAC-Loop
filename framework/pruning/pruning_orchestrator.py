@@ -4,6 +4,7 @@ from __future__ import annotations
 import logging
 from pathlib import Path
 from typing import Optional
+import json
 
 import torch
 import torch.nn as nn
@@ -162,6 +163,7 @@ class PruningOrchestrator:
                 train_loader=train_loader,
                 val_loader=val_loader,
                 adapt_kd_proj_flag=getattr(cfg.training.pruning, "structured", False),
+                iteration=iteration,
             )
 
             # Cleanup / finalize pruning for this iteration (e.g., remove masks)
@@ -178,14 +180,14 @@ class PruningOrchestrator:
             json_line = {
                 "iteration": iteration,
                 "before_pruning": {
-                    "val_acc": before_metrics["val_acc"],
-                    "val_mse": before_metrics["val_mse"],
-                    "val_loss": before_metrics["val_loss"],
+                    "val_acc": before_metrics["acc"],
+                    "val_mse": before_metrics["mse"],
+                    "val_loss": before_metrics["loss"],
                 },
                 "after_pruning_finetuning": {
-                    "val_acc": after_metrics["val_acc"],
-                    "val_mse": after_metrics["val_mse"],
-                    "val_loss": after_metrics["val_loss"],
+                    "val_acc": after_metrics["acc"],
+                    "val_mse": after_metrics["mse"],
+                    "val_loss": after_metrics["loss"],
                 },
             }
             metrics_file.write(json.dumps(json_line) + "\n")

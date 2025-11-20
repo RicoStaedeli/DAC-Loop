@@ -31,7 +31,6 @@ class Trainer:
         self.config_path = Path(config_path)
         self.ckpt_dir = Path(f"{cfg.training.base_path_ckpts}{self.experiment_dir}")
         self.ckpt_dir.mkdir(parents=True, exist_ok=True)
-        self.metrics_logger = JsonlMetricsLogger(self.experiment_dir / "metrics.jsonl")
         self.evaluator = Evaluator(nn.CrossEntropyLoss())
 
     def _maybe_load_teacher(self, teacher, opt_teacher, device):
@@ -63,7 +62,7 @@ class Trainer:
         else:
             log.warning("Config file %s not found; skipping copy", self.config_path)
 
-    def train(self, teacher, student, train_loader, val_loader, adapt_kd_proj_flag: bool = False):
+    def train(self, teacher, student, train_loader, val_loader, adapt_kd_proj_flag: bool = False, iteration: int = 0) -> nn.Module:
         """
         Trains the student model, optionally using a teacher model for knowledge distillation.
         Args:
@@ -75,6 +74,10 @@ class Trainer:
         Returns:
             nn.Module: The trained student model.
         """
+
+        metrics_logger = JsonlMetricsLogger(self.experiment_dir / "metrics.jsonl" if iteration == 0 else f"metrics_iteration_{iteration}.jsonl")
+
+
         device = DeviceResolver.get()
         log.info("Using device: %s", device)
 
@@ -125,7 +128,9 @@ class Trainer:
                      f"val_loss {val_res['loss']:.4f} val_acc {val_res['acc']:.2f}% val_MSE {val_res['mse']:.4f}")
             elapsed = time.time() - t0
 
-            self.metrics_logger.write({
+
+
+            metrics_logger.write({
                 "train_loss": float(train_res.loss), "train_accuracy": float(train_res.acc),
                 "val_loss": float(val_res["loss"]), "val_accuracy": float(val_res["acc"]),
                 "val_MSE": float(val_res["mse"]), "epoch": epoch, "time_per_epoch": elapsed
