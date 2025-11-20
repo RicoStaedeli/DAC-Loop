@@ -59,20 +59,19 @@ class BasicBlock(nn.Module):
 
 class ResNet10mini(nn.Module):
     """
-    A lighter ResNet-10 style network with ~2M parameters (for ~100 classes)
-    by reducing the channel widths.
-
-    base_channels=40  -> stages (40, 80, 160, 320)
+    Lightweight ResNet-10 variant (~2M parameters)
     """
 
-    def __init__(self, num_classes=100, base_channels=40, block=BasicBlock):
+    def __init__(self, input_channels=3, num_classes=10):
         super().__init__()
 
+        # Fixed width that gives ~2M params
+        base_channels = 40
         self.in_channels = base_channels
 
-        # Stem: 3x3 or 7x7 both fine – here 7x7 like standard ResNet
+        # Stem
         self.conv1 = nn.Conv2d(
-            in_channels=3,
+            in_channels=input_channels,
             out_channels=base_channels,
             kernel_size=7,
             stride=2,
@@ -83,28 +82,22 @@ class ResNet10mini(nn.Module):
         self.relu = nn.ReLU(inplace=True)
         self.maxpool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
 
-        # Four stages, 1 block each (ResNet-10 style)
-        self.layer1 = self._make_layer(block, base_channels,  blocks=1, stride=1)  # 40
-        self.layer2 = self._make_layer(block, base_channels * 2, blocks=1, stride=2)  # 80
-        self.layer3 = self._make_layer(block, base_channels * 4, blocks=1, stride=2)  # 160
-        self.layer4 = self._make_layer(block, base_channels * 8, blocks=1, stride=2)  # 320
+        # ResNet-10: 1 block per stage
+        self.layer1 = self._make_layer(BasicBlock, base_channels,      blocks=1, stride=1)
+        self.layer2 = self._make_layer(BasicBlock, base_channels * 2,  blocks=1, stride=2)
+        self.layer3 = self._make_layer(BasicBlock, base_channels * 4,  blocks=1, stride=2)
+        self.layer4 = self._make_layer(BasicBlock, base_channels * 8,  blocks=1, stride=2)
 
+        # Classifier
         self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
-        final_feat_dim = base_channels * 8  # 320 if base_channels=40
-        self.fc = nn.Linear(final_feat_dim, num_classes)
+        final_dim = base_channels * 8  # 320
+        self.fc = nn.Linear(final_dim, num_classes)
 
     def _make_layer(self, block, out_channels, blocks, stride):
-        """
-        Make one ResNet stage.
-
-        block: your BasicBlock(in_channels, out_channels, stride=1)
-        blocks: number of BasicBlocks in this stage
-        stride: stride of the first block in the stage
-        """
-        strides = [stride] + [1] * (blocks - 1)
         layers = []
+        strides = [stride] + [1] * (blocks - 1)
         for s in strides:
-            layers.append(block(self.in_channels, out_channels, stride=s))
+            layers.append(block(self.in_channels, out_channels, s))
             self.in_channels = out_channels
         return nn.Sequential(*layers)
 
@@ -120,6 +113,7 @@ class ResNet10mini(nn.Module):
         out = self.layer4(out)
 
         out = self.avgpool(out)
-        feat = out.view(out.size(0), -1)  # N, base_channels*8 (e.g. 320)
+        feat = out.view(out.size(0), -1)
         logits = self.fc(feat)
+
         return (logits, feat) if return_features else logits
