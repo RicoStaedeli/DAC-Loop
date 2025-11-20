@@ -115,10 +115,7 @@ class PruningOrchestrator:
         Returns:
             nn.Module: The pruned and fine-tuned model.
         """
-        # Initial evaluation before any pruning
-        summarize(cfg, self.model, input_channels, "Student - Before Pruning", experiment_dir)
-        evaluate_and_log(self.model, val_loader, self.device, "BEFORE pruning.")
-        log_sparsity(self.model)
+
 
         # Path for JSONL metrics
         metrics_path = experiment_dir / "metrics_pruning.jsonl"
@@ -140,6 +137,11 @@ class PruningOrchestrator:
         for iteration in range(1, iterations + 1):
             log.info(f"== PRUNING ITERATION {iteration}/{iterations} ==")
 
+            # Initial evaluation before any pruning
+            summarize(cfg, self.model, input_channels, f"Student - Before Pruning iteration {iteration}", experiment_dir)
+            metrics_before_pruning = evaluate_and_log(self.model, val_loader, self.device, "BEFORE pruning.")
+            log_sparsity(self.model)
+
             # Build strategy from schedule / defaults
             strategy = self._build_strategy(cfg, iteration, input_channels)
 
@@ -149,7 +151,7 @@ class PruningOrchestrator:
 
             log.info("== AFTER pruning (with masks or surgery) ==")
             log_sparsity(self.model)
-            before_metrics = evaluate_and_log(
+            metrics_after_pruning = evaluate_and_log(
                 self.model,
                 val_loader,
                 self.device,
@@ -170,7 +172,7 @@ class PruningOrchestrator:
             strategy.finalize(self.model)
             log.info("== After removing masks / cleanup ==")
             log_sparsity(self.model)
-            after_metrics = evaluate_and_log(
+            metrics_after_finetuning = evaluate_and_log(
                 self.model,
                 val_loader,
                 self.device,
@@ -180,14 +182,19 @@ class PruningOrchestrator:
             json_line = {
                 "iteration": iteration,
                 "before_pruning": {
-                    "val_acc": before_metrics["acc"],
-                    "val_mse": before_metrics["mse"],
-                    "val_loss": before_metrics["loss"],
+                    "val_acc": metrics_before_pruning["acc"],
+                    "val_mse": metrics_before_pruning["mse"],
+                    "val_loss": metrics_before_pruning["loss"],
                 },
-                "after_pruning_finetuning": {
-                    "val_acc": after_metrics["acc"],
-                    "val_mse": after_metrics["mse"],
-                    "val_loss": after_metrics["loss"],
+                "after_pruning": {
+                    "val_acc": metrics_after_pruning["acc"],
+                    "val_mse": metrics_after_pruning["mse"],
+                    "val_loss": metrics_after_pruning["loss"],
+                },
+                "after_finetuning": {
+                    "val_acc": metrics_after_finetuning["acc"],
+                    "val_mse": metrics_after_finetuning["mse"],
+                    "val_loss": metrics_after_finetuning["loss"],
                 },
             }
             metrics_file.write(json.dumps(json_line) + "\n")
