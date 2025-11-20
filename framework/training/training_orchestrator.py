@@ -71,6 +71,7 @@ class Trainer:
             train_loader: DataLoader for training data.
             val_loader: DataLoader for validation data.
             adapt_kd_proj_flag (bool): If True, adapts the student's KD projection layer to match the teacher's output dimension.
+            iteration (int): The current training iteration, used for logging purposes.
         Returns:
             nn.Module: The trained student model.
         """
@@ -127,7 +128,6 @@ class Trainer:
             log.info(f"Epoch {epoch:03d} | train_loss {train_res.loss:.4f} train_acc {train_res.acc:.2f}% | "
                      f"val_loss {val_res['loss']:.4f} val_acc {val_res['acc']:.2f}% val_MSE {val_res['mse']:.4f}")
             elapsed = time.time() - t0
-
 
 
             metrics_logger.write({
