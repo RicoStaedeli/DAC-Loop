@@ -74,8 +74,8 @@ class Trainer:
         Returns:
             nn.Module: The trained student model.
         """
-
-        metrics_logger = JsonlMetricsLogger(self.experiment_dir / "metrics.jsonl" if iteration == 0 else f"metrics_iteration_{iteration}.jsonl")
+        name_metrics_file = "metrics.jsonl" if iteration == 0 else f"metrics_iteration_{iteration}.jsonl"
+        metrics_logger = JsonlMetricsLogger(self.experiment_dir / name_metrics_file)
 
 
         device = DeviceResolver.get()
