@@ -90,5 +90,29 @@ The following table summarizes the pruning results obtained using the R-L Net fr
 | ResNet18 | timm/resisc45 | 92.98                | 90.51                             | **93.00**                        | 46.03%                               | 75.49%                             | 6,040,725            |
 | ResNet18 | timm/resisc45 | 92.98                | 88.48                             | **91.06**                        | 74.99%                               | 88.65%                             | 2,798,648            |
 
+## Ablation Study
+The teacher was in all stages end experiments the same: ResNet50 trained on RESISC45 for 50 epochs with a best validation accuracy of 92.68%. [Experiment 5, Run_7](../experiments/Experiment_5/Run_7)
+
+### ResNet10 on RESISC45
+| Model                              | Validation Accuracy (%) | Run ID                                                       | Notes                                                       |
+|------------------------------------|-------------------------|--------------------------------------------------------------|-------------------------------------------------------------|
+| ResNet10 - Baseline                | 88.31                   | [Experiment 5, Run_2](../experiments/Experiment_5/Run_2)     | Train from scratch without a teacher for 50 epochs          |
+| ResNet10 + KD                      | 90.98                   | [Experiment 6a, Run_40](../experiments/Experiment_6a/Run_40) | Train from scratch with a teacher for 50 epochs             |
+| ResNet10 - No KD + Pruning - No KD | 90.41                   | [Experiment 8, Run_1](../experiments/Experiment_8/Run_1)     | Compress model ResNet10 - Baseline and fine-tune without KD |
+| ResNet10 - No KD + Pruning + KD    | **91.16**               | [Experiment 8, Run_9](../experiments/Experiment_8/Run_9)     | Compress model ResNet10 - No KD and fine-tune with KD       |
+| ResNet10 + KD + Pruning - No KD    | 89.35                   | [Experiment 8, Run_5](../experiments/Experiment_8/Run_5)     | Compress model ResNet10 - KD and fine-tune without KD       |
+| ResNet10 + KD + Pruning + KD       | 91.13                   | [Experiment 7a, Run_10](../experiments/Experiment_7a/Run_10) | Compress model ResNet10 - KD and fine-tune with KD          |
+
+### ResNet18 on RESISC45
+| Model                              | Validation Accuracy (%) | Run ID                                                     | Notes                                                       |
+|------------------------------------|-------------------------|------------------------------------------------------------|-------------------------------------------------------------|
+| ResNet18 - Baseline                | 89.96                   | [Experiment 5, Run_8](../experiments/Experiment_5/Run_8)   | Train from scratch without a teacher for 50 epochs          |
+| ResNet18 + KD                      | 92.98                   | [Experiment 6, Run_23](../experiments/Experiment_6/Run_23) | Train from scratch with a teacher for 50 epochs             |
+| ResNet18 - No KD + Pruning - No KD | 90.51                   | [Experiment 8, Run_3](../experiments/Experiment_8/Run_3)   | Compress model ResNet18 - Baseline and fine-tune without KD |
+| ResNet18 - No KD + Pruning + KD    | 91.89                   | [Experiment 8, Run_11](../experiments/Experiment_8/Run_11) | Compress model ResNet18 - No KD and fine-tune with KD       |
+| ResNet18 + KD + Pruning - No KD    | 91.54                   | [Experiment 8, Run_7](../experiments/Experiment_8/Run_7)   | Compress model ResNet18 - KD and fine-tune without KD       |
+| ResNet18 + KD + Pruning + KD       | **93.00**               | [Experiment 7, Run_10](../experiments/Experiment_7/Run_10) | Compress model ResNet18 - KD and fine-tune with KD          |
+
+
 KD-Aware Pruning consistently outperforms standard pruning methods, achieving higher accuracy with significant parameter
 reductions.
