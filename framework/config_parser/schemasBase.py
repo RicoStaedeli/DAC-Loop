@@ -2,7 +2,7 @@ from enum import Enum
 from pathlib import Path
 from typing import Dict, Optional, Union, Annotated, List
 
-from pydantic import BaseModel, Field, PositiveInt, field_validator, conint
+from pydantic import BaseModel, Field, PositiveInt, field_validator, conint, model_validator
 
 from .schemasCNN import ResNet10Config, ResNet18Config, TinyCNNConfig, ResNet50Config
 
@@ -41,16 +41,67 @@ class ExperimentConfig(BaseModel):
 class SavingConfig(BaseModel):
     overwrite_run: bool = False
 
-
-class PruningConfig(BaseModel):
-    prune: bool = False
+class PruningScheduleEntry(BaseModel):
+    iteration: PositiveInt
     pruning_amount: float = 0.5
-    path_checkpoint_to_prune: Optional[str] = None
-    method: str = "l1_unstructured"
+    method: str = "l1"
     structured: bool = False
     dim: Optional[int] = None
     layer_prune_ratio: Optional[float] = None
     min_channels: Optional[int] = None
+
+    @field_validator("pruning_amount")
+    @classmethod
+    def validate_amount(cls, v):
+        if not (0 <= v <= 1):
+            raise ValueError("pruning_amount must be between 0 and 1")
+        return v
+
+class PruningConfig(BaseModel):
+    prune: bool = False
+    iterations: PositiveInt = 1
+    path_checkpoint_to_prune: Optional[str] = None
+    schedule: List[PruningScheduleEntry] = Field(default_factory=list)
+
+
+    @model_validator(mode="after")
+    def validate_schedule_iterations(self):
+        # If pruning is disabled, we don't care about the schedule
+        if not self.prune:
+            return self
+
+        defined_iterations = [entry.iteration for entry in self.schedule]
+        unique_iterations = set(defined_iterations)
+
+        # 1) Check for duplicates
+        if len(unique_iterations) != len(defined_iterations):
+            dupes = []
+            seen = set()
+            for it in defined_iterations:
+                if it in seen and it not in dupes:
+                    dupes.append(it)
+                seen.add(it)
+            raise ValueError(
+                f"Duplicate pruning schedule entries for iteration(s): {sorted(dupes)}"
+            )
+
+        # 2) Check for missing iterations 1..iterations
+        missing = [i for i in range(1, self.iterations + 1) if i not in unique_iterations]
+        if missing:
+            raise ValueError(
+                f"Pruning schedule is missing entries for iteration(s): {missing}. "
+                f"iterations={self.iterations}, defined={sorted(unique_iterations)}"
+            )
+
+        # 3) (Optional) Disallow iterations > self.iterations
+        extra = [i for i in unique_iterations if i > self.iterations]
+        if extra:
+            raise ValueError(
+                f"Pruning schedule defines iteration(s) {sorted(extra)} "
+                f"which exceed iterations={self.iterations}"
+            )
+
+        return self
 
 
 class TeacherStudentConfig(BaseModel):
