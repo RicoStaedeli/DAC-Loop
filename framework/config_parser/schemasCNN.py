@@ -13,6 +13,11 @@ class ResNet10Config(BaseModel):
     name: Literal["ResNet10"]
     args: CNNArgs = CNNArgs()
 
+class ResNet10miniConfig(BaseModel):
+    name: Literal["ResNet10mini"]
+    args: CNNArgs = CNNArgs()
+
+
 
 class ResNet18Config(BaseModel):
     name: Literal["ResNet18"]

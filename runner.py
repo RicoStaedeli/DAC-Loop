@@ -130,8 +130,10 @@ def main(gpu_id: str, experiment_folder: str) -> None:
             model_teacher, model_student = _load_models(cfg, input_channels)
 
             if cfg.training.teacher_student.train_student:
-                print_model_summary(cfg, model_student, input_channels, "Student", experiment_dir, log)
-            print_model_summary(cfg, model_teacher, input_channels, "Teacher", experiment_dir, log)
+                print_model_summary(cfg, model_teacher, input_channels, "Teacher", experiment_dir, log)
+
+            print_model_summary(cfg, model_student, input_channels, "Student", experiment_dir, log)
+
 
             # Data
             train_ds, val_ds, test_ds = load_hf_splits(cfg.data.dataset_hf_repo_id)
