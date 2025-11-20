@@ -64,12 +64,8 @@ class ResNet10mini(nn.Module):
 
     def __init__(self, input_channels=3, num_classes=10):
         super().__init__()
-
-        # Fixed width that gives ~2M params
-        base_channels = 40
+        base_channels = 40      # Fixed width that gives ~2M params
         self.in_channels = base_channels
-
-        # Stem
         self.conv1 = nn.Conv2d(
             in_channels=input_channels,
             out_channels=base_channels,
@@ -88,10 +84,8 @@ class ResNet10mini(nn.Module):
         self.layer3 = self._make_layer(BasicBlock, base_channels * 4,  blocks=1, stride=2)
         self.layer4 = self._make_layer(BasicBlock, base_channels * 8,  blocks=1, stride=2)
 
-        # Classifier
         self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
-        final_dim = base_channels * 8  # 320
-        self.fc = nn.Linear(final_dim, num_classes)
+        self.fc = nn.Linear(base_channels * 8, num_classes)
 
     def _make_layer(self, block, out_channels, blocks, stride):
         layers = []
@@ -115,5 +109,4 @@ class ResNet10mini(nn.Module):
         out = self.avgpool(out)
         feat = out.view(out.size(0), -1)
         logits = self.fc(feat)
-
         return (logits, feat) if return_features else logits
