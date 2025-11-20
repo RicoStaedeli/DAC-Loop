@@ -119,6 +119,12 @@ class PruningOrchestrator:
         evaluate_and_log(self.model, val_loader, self.device, "BEFORE pruning.")
         log_sparsity(self.model)
 
+        # Path for JSONL metrics
+        metrics_path = experiment_dir / "metrics_pruning.jsonl"
+        # overwrite on each run (use "a" if you prefer appending)
+        metrics_file = metrics_path.open("w")
+
+
         # How many pruning iterations to run
         iterations = getattr(getattr(cfg.training, "pruning", cfg.training), "iterations", 0)
         if iterations < 1:
@@ -142,7 +148,7 @@ class PruningOrchestrator:
 
             log.info("== AFTER pruning (with masks or surgery) ==")
             log_sparsity(self.model)
-            evaluate_and_log(
+            before_metrics = evaluate_and_log(
                 self.model,
                 val_loader,
                 self.device,
@@ -162,15 +168,31 @@ class PruningOrchestrator:
             strategy.finalize(self.model)
             log.info("== After removing masks / cleanup ==")
             log_sparsity(self.model)
-            evaluate_and_log(
+            after_metrics = evaluate_and_log(
                 self.model,
                 val_loader,
                 self.device,
                 f"Pruned + fine-tuned (iteration {iteration}/{iterations})."
             )
 
-        # Final summary after the last pruning + fine-tuning iteration
-        summarize(cfg, self.model, input_channels, "Student - Pruned and Fine-tuned", experiment_dir)
+            json_line = {
+                "iteration": iteration,
+                "before_pruning": {
+                    "val_acc": before_metrics["val_acc"],
+                    "val_mse": before_metrics["val_mse"],
+                    "val_loss": before_metrics["val_loss"],
+                },
+                "after_pruning_finetuning": {
+                    "val_acc": after_metrics["val_acc"],
+                    "val_mse": after_metrics["val_mse"],
+                    "val_loss": after_metrics["val_loss"],
+                },
+            }
+            metrics_file.write(json.dumps(json_line) + "\n")
+            metrics_file.flush()
+
+            # Final summary after the last pruning + fine-tuning iteration
+            summarize(cfg, self.model, input_channels, f"Student - Pruned and Fine-tuned iteration {iteration}", experiment_dir)
 
         pruned_path = Path(cfg.training.base_path_ckpts) / experiment_dir / "compressed_model.pt"
         save_state_dict(self.model, pruned_path)
