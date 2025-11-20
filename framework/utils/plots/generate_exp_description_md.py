@@ -101,7 +101,9 @@ def _create_ex_desc_table_only_teacher(experiment_name: str, runs: int) -> str:
         dataset_name = cfg.data.dataset_hf_repo_id
         indices = cfg.data.indices.calculated_indices + cfg.data.indices.selected_bands
 
+
         metrics_path = _metrics_path(experiment_name, run_idx)
+        print(f"Loading metrics from {metrics_path}")
         best_val_acc, best_epoch = _get_best_val_accuracy_from_jsonl(
             metrics_path,
             val_key="val_accuracy",
@@ -231,12 +233,11 @@ def _create_ex_desc_table_compression(experiment_name: str, runs: int) -> str:
     for run_idx in range(1, runs + 1):
         cfg_path = _config_path(experiment_name, run_idx)
         cfg = load_config_toml(str(cfg_path), validate=True)
-
         student_name = cfg.model.name
         teacher_name = cfg.training.teacher_student.teacher_model_name
         dataset_name = cfg.data.dataset_hf_repo_id
         indices = cfg.data.indices.calculated_indices + cfg.data.indices.selected_bands
-        pruning_method = cfg.training.pruning.method
+        pruning_method = cfg.training.pruning.schedule[0].method
 
         ts_cfg = cfg.training.teacher_student
         kd_type = ts_cfg.kd_type if ts_cfg.train_student else "N/A"
@@ -310,7 +311,7 @@ def main(output_path: Path = DEFAULT_OUTPUT_PATH) -> None:
         _create_ex_desc_table_teacher_student("Experiment_6a", runs=40),
         _create_ex_desc_table_compression("Experiment_7", runs=21),
         _create_ex_desc_table_compression("Experiment_7a", runs=21),
-        _create_ex_desc_table_compression("Experiment_8", runs=4),
+        _create_ex_desc_table_compression("Experiment_8", runs=12),
     ]
 
     markdown_content = "\n".join(sections)
