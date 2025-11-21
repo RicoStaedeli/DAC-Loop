@@ -58,15 +58,10 @@ class BasicBlock(nn.Module):
         return out
 
 class ResNet10mini(nn.Module):
-    """
-    Lightweight ResNet-10 variant (~2M parameters)
-    """
-
-    def __init__(self, input_channels=3, num_classes=10, feature_dim=512):
+    def __init__(self, input_channels=3, num_classes=10, kd_dim=512):
         super().__init__()
-        base_channels = 40      # Fixed width that gives ~2M params
+        base_channels = 40
         self.in_channels = base_channels
-        self.feature_dim = feature_dim
 
         self.conv1 = nn.Conv2d(
             in_channels=input_channels,
@@ -80,7 +75,6 @@ class ResNet10mini(nn.Module):
         self.relu = nn.ReLU(inplace=True)
         self.maxpool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
 
-        # ResNet-10: 1 block per stage
         self.layer1 = self._make_layer(BasicBlock, base_channels,      blocks=1, stride=1)
         self.layer2 = self._make_layer(BasicBlock, base_channels * 2,  blocks=1, stride=2)
         self.layer3 = self._make_layer(BasicBlock, base_channels * 4,  blocks=1, stride=2)
@@ -88,12 +82,13 @@ class ResNet10mini(nn.Module):
 
         self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
 
-        # 320 -> 512 projection
-        in_feat_dim = base_channels * 8          # 40 * 8 = 320
-        self.feat_proj = nn.Linear(in_feat_dim, self.feature_dim)
+        backbone_dim = base_channels * 8  # 40 * 8 = 320
 
-        # Classifier now uses 512-d features
-        self.fc = nn.Linear(self.feature_dim, num_classes)
+        # Classifier uses 320-d backbone features
+        self.fc = nn.Linear(backbone_dim, num_classes)
+
+        # KD projection: 320 -> 512
+        self.feat_proj = nn.Linear(backbone_dim, kd_dim)
 
     def _make_layer(self, block, out_channels, blocks, stride):
         layers = []
@@ -116,7 +111,8 @@ class ResNet10mini(nn.Module):
 
         out = self.avgpool(out)
         feat = out.view(out.size(0), -1)  # (B, 320)
-        feat_kd = self.feat_proj(feat)  # (B, 512)
+
         logits = self.fc(feat)  # classifier uses 320-d feature
+        feat_kd = self.feat_proj(feat)  # (B, 512) for distillation
 
         return (logits, feat_kd) if return_features else logits
