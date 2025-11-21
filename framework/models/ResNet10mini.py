@@ -62,10 +62,12 @@ class ResNet10mini(nn.Module):
     Lightweight ResNet-10 variant (~2M parameters)
     """
 
-    def __init__(self, input_channels=3, num_classes=10):
+    def __init__(self, input_channels=3, num_classes=10, feature_dim=512):
         super().__init__()
         base_channels = 40      # Fixed width that gives ~2M params
         self.in_channels = base_channels
+        self.feature_dim = feature_dim
+
         self.conv1 = nn.Conv2d(
             in_channels=input_channels,
             out_channels=base_channels,
@@ -85,7 +87,13 @@ class ResNet10mini(nn.Module):
         self.layer4 = self._make_layer(BasicBlock, base_channels * 8,  blocks=1, stride=2)
 
         self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
-        self.fc = nn.Linear(base_channels * 8, num_classes)
+
+        # 320 -> 512 projection
+        in_feat_dim = base_channels * 8          # 40 * 8 = 320
+        self.feat_proj = nn.Linear(in_feat_dim, self.feature_dim)
+
+        # Classifier now uses 512-d features
+        self.fc = nn.Linear(self.feature_dim, num_classes)
 
     def _make_layer(self, block, out_channels, blocks, stride):
         layers = []
@@ -107,6 +115,8 @@ class ResNet10mini(nn.Module):
         out = self.layer4(out)
 
         out = self.avgpool(out)
-        feat = out.view(out.size(0), -1)
-        logits = self.fc(feat)
+        feat = out.view(out.size(0), -1)   # (B, 320)
+        feat = self.feat_proj(feat)        # (B, 512)
+        logits = self.fc(feat)             # (B, num_classes)
+
         return (logits, feat) if return_features else logits
