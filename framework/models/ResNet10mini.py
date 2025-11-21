@@ -115,8 +115,8 @@ class ResNet10mini(nn.Module):
         out = self.layer4(out)
 
         out = self.avgpool(out)
-        feat = out.view(out.size(0), -1)   # (B, 320)
-        feat = self.feat_proj(feat)        # (B, 512)
-        logits = self.fc(feat)             # (B, num_classes)
+        feat = out.view(out.size(0), -1)  # (B, 320)
+        feat_kd = self.feat_proj(feat)  # (B, 512)
+        logits = self.fc(feat)  # classifier uses 320-d feature
 
-        return (logits, feat) if return_features else logits
+        return (logits, feat_kd) if return_features else logits
