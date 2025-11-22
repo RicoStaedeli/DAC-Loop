@@ -1,5 +1,6 @@
 import torch.nn as nn
 
+
 class BasicBlock(nn.Module):
     """
     A basic residual block used in ResNet architectures.
@@ -57,32 +58,22 @@ class BasicBlock(nn.Module):
         out = self.relu(out)
         return out
 
-class ResNet10(nn.Module):
-    """
-    A ResNet-10 architecture for image classification.
-    """
 
+class ResNet10(nn.Module):
     def __init__(self, input_channels=3, num_classes=10):
         super(ResNet10, self).__init__()
-
         self.in_channels = 64
-        self.conv1 = nn.Conv2d(
-            in_channels=input_channels,
-            out_channels=64,
-            kernel_size=3,
-            stride=1,
-            padding=1,
-            bias=False
-        )
+        # keep same stem as your ResNet18
+        self.conv1 = nn.Conv2d(input_channels, 64, kernel_size=3, stride=1, padding=1, bias=False)
         self.bn1 = nn.BatchNorm2d(64)
         self.relu = nn.ReLU(inplace=True)
         self.maxpool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
 
         # one BasicBlock per stage
-        self.layer1 = self._make_layer(BasicBlock, self.in_channels, 1, stride=1)
-        self.layer2 = self._make_layer(BasicBlock, self.in_channels * 2, 1, stride=2)
-        self.layer3 = self._make_layer(BasicBlock, self.in_channels * 4, 1, stride=2)
-        self.layer4 = self._make_layer(BasicBlock, self.in_channels * 8, 1, stride=2)
+        self.layer1 = self._make_layer(BasicBlock, 64, 1, stride=1)
+        self.layer2 = self._make_layer(BasicBlock, 128, 1, stride=2)
+        self.layer3 = self._make_layer(BasicBlock, 256, 1, stride=2)
+        self.layer4 = self._make_layer(BasicBlock, 512, 1, stride=2)
 
         self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
         self.fc = nn.Linear(512, num_classes)
