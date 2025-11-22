@@ -306,11 +306,12 @@ def main(output_path: Path = DEFAULT_OUTPUT_PATH) -> None:
         _create_ex_desc_table_teacher_student("Experiment_3", runs=24),
         _create_ex_desc_table_teacher_student("Experiment_4", runs=40),
         _create_ex_desc_table_teacher_student("Experiment_4a", runs=40),
-        _create_ex_desc_table_only_teacher("Experiment_5", runs=8),
+        _create_ex_desc_table_only_teacher("Experiment_5", runs=9),
         _create_ex_desc_table_teacher_student("Experiment_6", runs=40),
         _create_ex_desc_table_teacher_student("Experiment_6a", runs=40),
-        _create_ex_desc_table_compression("Experiment_7", runs=21),
-        _create_ex_desc_table_compression("Experiment_7a", runs=21),
+        _create_ex_desc_table_teacher_student("Experiment_6b", runs=20),
+        _create_ex_desc_table_compression("Experiment_7", runs=5),
+        _create_ex_desc_table_compression("Experiment_7a", runs=18),
         _create_ex_desc_table_compression("Experiment_8", runs=12),
     ]
 
