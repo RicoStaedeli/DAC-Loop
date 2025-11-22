@@ -973,7 +973,7 @@ def main():
     cfg = load_config_toml(logger_cfg_path, validate=False)
     setup_logging(cfg.model_dump(), Path(), False)
     log.info(f"Config loaded from {logger_cfg_path}")
-    '''
+
     # ------------------------------------------------------------------
     # Tables for Baseline Experiments
     # ------------------------------------------------------------------
@@ -1016,7 +1016,11 @@ def main():
         experiment_dir="experiments/Experiment_6a",
         output_md_path="experiments/Experiment_6a/experiment_summary.md",
     )
-    '''
+    summarize_experiment_group_to_markdown(
+        experiment_dir="experiments/Experiment_6b",
+        output_md_path="experiments/Experiment_6b/experiment_summary.md",
+    )
+
     # ------------------------------------------------------------------
     # Tables for Pruning/Compression Experiments
     # ------------------------------------------------------------------
