@@ -4,7 +4,7 @@ import math
 import re
 import tomllib
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Any
 
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -530,25 +530,64 @@ def print_markdown_stable(df: pd.DataFrame) -> None:
     print(df_to_markdown_stable(df))
 
 
+
+
+TOTAL_PARAMS_RE = re.compile(r"Total params:\s*([\d,]+)")
+
+
+def _extract_total_params(log_path: Path) -> Optional[int]:
+    """
+    Given a path to a model summary log file, extract the integer after 'Total params:'.
+    Returns None if the file does not exist or the pattern is not found.
+    """
+    if not log_path.is_file():
+        return None
+
+    for line in log_path.read_text(encoding="utf-8", errors="ignore").splitlines():
+        match = TOTAL_PARAMS_RE.search(line)
+        if match:
+            # Remove thousands separators
+            return int(match.group(1).replace(",", ""))
+    return None
+
+
+def _get_val_acc_from_candidates(d: Dict[str, Any], *candidate_keys: str) -> Optional[float]:
+    """
+    Try several possible keys (e.g. 'after_pruning', 'pruned') to find a dict
+    containing 'val_acc'. Returns the float or None.
+    """
+    for key in candidate_keys:
+        sub = d.get(key)
+        if isinstance(sub, dict) and "val_acc" in sub:
+            return sub["val_acc"]
+    return None
+
+
 def build_combined_table(
-        experiment_dir: str,
-        num_of_runs: Optional[int] = None,
-        output_md_path: Optional[str] = None,
+    experiment_dir: str,
+    num_of_runs: Optional[int] = None,
+    output_md_path: Optional[str] = None,
 ) -> pd.DataFrame:
     """
-    Build a combined pruning/compression table across multiple runs.
+    Build a combined pruning/compression table across multiple runs and iterations.
 
-    Similar in spirit to summarize_experiment_group_to_markdown:
-      - Takes an experiment_dir with Run_X subfolders.
-      - Collects one row per run.
-      - Optionally writes a Markdown table to output_md_path.
+    For each Run_X:
+      - Read metrics_pruning.jsonl
+      - For each line (iteration):
+          * extract accuracies before/after pruning and after fine-tuning
+          * load the corresponding model summary logs to get total params
+
+    Final DataFrame columns:
+
+      | Run ID | Iteration | Acc. before Pruning | Acc. after Pruning |
+      | Acc. after fine tuning | Parameter Before pruning | Parameter after pruning |
     """
     experiment_path = Path(experiment_dir)
 
     if not experiment_path.is_dir():
         raise NotADirectoryError(f"{experiment_dir} is not a directory")
 
-    combined_rows: List[Dict[str, Optional[float]]] = []
+    combined_rows: List[Dict[str, Any]] = []
 
     # determine run directories
     if num_of_runs is not None:
@@ -560,107 +599,82 @@ def build_combined_table(
     else:
         run_dirs = [d for d in experiment_path.iterdir() if d.is_dir()]
 
+    # You already have this helper somewhere:
     run_dirs = sorted(run_dirs, key=lambda d: _extract_run_number(d.name))
 
     for run_dir in run_dirs:
-        m = re.search(r"(\d+)$", run_dir.name)
-        run_idx = int(m.group(1)) if m else None
+        metrics_path = run_dir / "metrics_pruning.jsonl"
+        if not metrics_path.is_file():
+            # skip runs without metrics
+            continue
 
-        row: Dict[str, Optional[float]] = {"Run": run_idx}
-        base = str(run_dir)
+        with metrics_path.open("r", encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if not line:
+                    continue
 
-        # a) Relative metrics
-        metrics_path = f"{base}/Experiment_log.log"
-        try:
-            metrics = extract_relative_metrics_from_file(metrics_path)
-        except FileNotFoundError:
-            metrics = {
-                "Accuracy Before Pruning (%)": None,
-                "Sparsity (Pruned, Before Fine-Tune) (%)": None,
-                "Accuracy After Pruning (Before Fine-Tune) (%)": None,
-                "Sparsity After Pruning (Post Fine-Tune) (%)": None,
-                "Accuracy Pruned + Fine-Tuned (%)": None,
-            }
-        row.update(metrics)
+                try:
+                    record = json.loads(line)
+                except json.JSONDecodeError:
+                    # skip malformed lines
+                    continue
 
-        # b) Teacher params
-        try:
-            teacher = extract_params_last_block(f"{base}/model_summary_Teacher.log")
-        except FileNotFoundError:
-            teacher = {
-                "Total Params": None,
-                "Trainable Params": None,
-                "Estimated Total Size (MB)": None,
-            }
-        row.update(
-            {
-                "Teacher Total Params": teacher.get("Total Params"),
-                "Teacher Trainable Params": teacher.get("Trainable Params"),
-                "Teacher Estimated Total Size (MB)": teacher.get(
-                    "Estimated Total Size (MB)"
-                ),
-            }
-        )
+                iteration = record.get("iteration")
+                if iteration is None:
+                    continue
 
-        # c) Student Pruned + Fine-tuned params
-        try:
-            student_pft = extract_params_last_block(
-                f"{base}/model_summary_Student - Pruned and Fine-tuned.log"
-            )
-        except FileNotFoundError:
-            student_pft = {
-                "Total Params": None,
-                "Trainable Params": None,
-                "Estimated Total Size (MB)": None,
-            }
-        row.update(
-            {
-                "Student P+FT Total Params": student_pft.get("Total Params"),
-                "Student P+FT Trainable Params": student_pft.get("Trainable Params"),
-                "Student P+FT Estimated Total Size (MB)": student_pft.get(
-                    "Estimated Total Size (MB)"
-                ),
-            }
-        )
+                # --- accuracies (nested dicts) ---
+                acc_before = _get_val_acc_from_candidates(record, "before_pruning")
+                acc_after_pruning = _get_val_acc_from_candidates(
+                    record,
+                    "after_pruning",
+                    "pruned",
+                    "after_prune",
+                )
+                acc_after_ft = _get_val_acc_from_candidates(
+                    record,
+                    "after_finetuning",
+                    "after_fine_tuning",
+                    "pruned_and_finetuned",
+                    "pruned_finetuned",
+                )
 
-        # d) Student Before Pruning params
-        try:
-            student_before = extract_params_last_block(
-                f"{base}/model_summary_Student - Before Pruning.log"
-            )
-        except FileNotFoundError:
-            student_before = {
-                "Total Params": None,
-                "Trainable Params": None,
-                "Estimated Total Size (MB)": None,
-            }
-        row.update(
-            {
-                "Student Before Total Params": student_before.get("Total Params"),
-                "Student Before Trainable Params": student_before.get(
-                    "Trainable Params"
-                ),
-                "Student Before Estimated Total Size (MB)": student_before.get(
-                    "Estimated Total Size (MB)"
-                ),
-            }
-        )
+                # round to 2 decimals if present
+                acc_before = round(acc_before, 2) if acc_before is not None else None
+                acc_after_pruning = (
+                    round(acc_after_pruning, 2) if acc_after_pruning is not None else None
+                )
+                acc_after_ft = round(acc_after_ft, 2) if acc_after_ft is not None else None
 
-        combined_rows.append(row)
+                # --- parameter counts from log files (per iteration) ---
+                before_log = run_dir / f"model_summary_Student - Before Pruning iteration {iteration}.log"
+                after_log = run_dir / f"model_summary_Student - Pruned and Fine-tuned iteration {iteration}.log"
+
+                params_before = _extract_total_params(before_log)
+                params_after = _extract_total_params(after_log)
+
+                row: Dict[str, Any] = {
+                    "Run ID": _extract_run_number(run_dir.name),
+                    "Iteration": iteration,
+                    "Acc. before Pruning": acc_before,
+                    "Acc. after Pruning": acc_after_pruning,
+                    "Acc. after fine tuning": acc_after_ft,
+                    "Parameter Before pruning": params_before,
+                    "Parameter after pruning": params_after,
+                }
+
+                combined_rows.append(row)
 
     if not combined_rows:
-        raise RuntimeError(f"No valid runs found in {experiment_dir}")
+        raise RuntimeError(f"No valid runs or iterations found in {experiment_dir}")
 
     df = pd.DataFrame(combined_rows)
 
-    df["Reduction Student to pruned Student (%)"] = (
-                                                            1 - df["Student P+FT Total Params"] / df[
-                                                        "Student Before Total Params"]
-                                                    ) * 100
-    df["Reduction Teacher to pruned Student (%)"] = (
-                                                            1 - df["Student P+FT Total Params"] / df[
-                                                        "Teacher Total Params"]
-                                                    ) * 100
+    if "Parameter Before pruning" in df.columns and "Parameter after pruning" in df.columns:
+        df["Reduction params (%)"] = (
+            100 * (1 - df["Parameter after pruning"] / df["Parameter Before pruning"])
+        ).round(2)
 
     markdown = df_to_markdown_stable(df)
 
@@ -672,6 +686,9 @@ def build_combined_table(
         print(markdown)
 
     return df
+
+
+
 
 
 def _collect_run_points(df: pd.DataFrame, run: int):
@@ -999,7 +1016,7 @@ def main():
         experiment_dir="experiments/Experiment_6a",
         output_md_path="experiments/Experiment_6a/experiment_summary.md",
     )
-
+    '''
     # ------------------------------------------------------------------
     # Tables for Pruning/Compression Experiments
     # ------------------------------------------------------------------
@@ -1007,16 +1024,17 @@ def main():
         experiment_dir="experiments/Experiment_7",
         output_md_path="experiments/Experiment_7/experiment_summary.md",
     )
+
     build_combined_table(
         experiment_dir="experiments/Experiment_7a",
         output_md_path="experiments/Experiment_7a/experiment_summary.md",
     )
     '''
-
+    
     build_combined_table(
         experiment_dir="experiments/Experiment_8",
         output_md_path="experiments/Experiment_8/experiment_summary.md",
-    )
+    )'''
 
 
 if __name__ == "__main__":
