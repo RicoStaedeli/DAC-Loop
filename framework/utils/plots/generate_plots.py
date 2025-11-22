@@ -29,6 +29,7 @@ def main():
     # _make_plots_for_experiment(experiment_name="Experiment_5", num_runs=8, only_overview=False)
     # _make_plots_for_experiment(experiment_name="Experiment_6", num_runs=40, only_overview=False)
     # _make_plots_for_experiment(experiment_name="Experiment_6a", num_runs=40, only_overview=False)
+    # _make_plots_for_experiment(experiment_name="Experiment_6b", num_runs=40, only_overview=False)
     # _make_plots_for_experiment(experiment_name="Experiment_7", num_runs=21, only_overview=False)
     # _make_plots_for_experiment(experiment_name="Experiment_7a", num_runs=21, only_overview=False)
     _make_plots_for_experiment(experiment_name="Experiment_8", num_runs=12, only_overview=False)
@@ -93,7 +94,9 @@ def _plots_for_different_experiments():
         "ResNet50": "experiments/Experiment_5/Run_7/metrics.jsonl",
         "ResNet18": "experiments/Experiment_5/Run_8/metrics.jsonl",
         "ResNet10": "experiments/Experiment_5/Run_2/metrics.jsonl",
+        "ResNet10small": "experiments/Experiment_5/Run_9/metrics.jsonl",
         "TinyCNN": "experiments/Experiment_5/Run_3/metrics.jsonl",
+
     }
     plot_val_accuracy_over_epochs(
         models,
