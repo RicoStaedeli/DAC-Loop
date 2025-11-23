@@ -20,6 +20,8 @@
 | Run_18 | ResNet50 | ResNet10mini | timm/resisc45 | CrossEntropyLoss | 0.25 | 0.75 | 0.5 | 0 | 0 | 2 | 92.6825 | 84.3016 | 83.3016 | 1.0000 |
 | Run_19 | ResNet50 | ResNet10mini | timm/resisc45 | CrossEntropyLoss | 0.25 | 0.75 | 0.7 | 0 | 0 | 2 | 92.6825 | 84.3175 | 83.3016 | 1.0159 |
 | Run_20 | ResNet50 | ResNet10mini | timm/resisc45 | CrossEntropyLoss | 0.25 | 0.75 | 0.9 | 0 | 0 | 2 | 92.6825 | 84.4921 | 83.3016 | 1.1905 |
+| Run_21 | ResNet50 | ResNet10mini | timm/resisc45 | CrossEntropyLoss | 0.25 | 0.75 | 0.25 | 0 | 0 | 3 | 92.6825 | 85.3492 | 83.3016 | 2.0476 |
+| Run_22 | ResNet50 | ResNet10mini | timm/resisc45 | CrossEntropyLoss | 0.25 | 0.75 | 0.25 | 0 | 0 | 5 | 92.6825 | 85.7778 | 83.3016 | 2.4762 |
 | Run_23 | ResNet50 | ResNet10mini | timm/resisc45 | CrossEntropyLoss | 0.25 | 0.75 | 0.25 | 0 | 0 | 10 | 92.6825 | 86.0794 | 83.3016 | 2.7778 |
 | Run_24 | ResNet50 | ResNet10mini | timm/resisc45 | RegressorMSE | 0.25 | 0.75 | 0.25 | 0 | 0 | 4 | 92.6825 | 85.7778 | 83.3016 | 2.4762 |
 | Run_25 | ResNet50 | ResNet10mini | timm/resisc45 | RegressorMSE | 0.1 | 0.6 | 0.4 | 0 | 0 | 4 | 92.6825 | 86.0000 | 83.3016 | 2.6984 |

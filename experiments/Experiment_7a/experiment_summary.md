@@ -1,4 +1,4 @@
-| Run ID | Iteration | Acc. before Pruning | Acc. after Pruning | Acc. after fine tuning | Parameter Before pruning | Parameter after pruning | Reduction params (%) |
+| Run ID | Iteration | Acc. before Pruning | Acc. after Pruning | Acc. after fine tuning | Parameter Before pruning | Parameter after pruning | Param Reduction (%) |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | 1 | 1 | 90.98 | 2.29 | 89.65 | 4921197 | 3030044 | 38.43 |
 | 2 | 1 | 90.98 | 2.67 | 91.51 | 4921197 | 3030044 | 38.43 |
@@ -18,5 +18,6 @@
 | 16 | 1 | 90.98 | 2.52 | 76.63 | 4921197 | 317290 | 93.55 |
 | 17 | 1 | 90.98 | 2.52 | 74.41 | 4921197 | 317290 | 93.55 |
 | 18 | 1 | 90.98 | 2.16 | 91.48 | 4921197 | 4921197 | 0.0 |
+| 19 | 1 | 90.98 | 87.13 | 91.38 | 4921197 | 4921197 | 0.0 |
 | 20 | 1 | 90.98 | 2.27 | 88.67 | 4921197 | 1687563 | 65.71 |
 | 21 | 1 | 90.98 | 2.41 | 90.14 | 4921197 | 3030044 | 38.43 |

@@ -563,7 +563,7 @@ def _get_val_acc_from_candidates(d: Dict[str, Any], *candidate_keys: str) -> Opt
     return None
 
 
-def build_combined_table(
+def summarize_pruning_experiment(
     experiment_dir: str,
     num_of_runs: Optional[int] = None,
     output_md_path: Optional[str] = None,
@@ -672,7 +672,7 @@ def build_combined_table(
     df = pd.DataFrame(combined_rows)
 
     if "Parameter Before pruning" in df.columns and "Parameter after pruning" in df.columns:
-        df["Reduction params (%)"] = (
+        df["Param Reduction (%)"] = (
             100 * (1 - df["Parameter after pruning"] / df["Parameter Before pruning"])
         ).round(2)
 
@@ -1024,17 +1024,17 @@ def main():
     # ------------------------------------------------------------------
     # Tables for Pruning/Compression Experiments
     # ------------------------------------------------------------------
-    build_combined_table(
+    summarize_pruning_experiment(
         experiment_dir="experiments/Experiment_7",
         output_md_path="experiments/Experiment_7/experiment_summary.md",
     )
 
-    build_combined_table(
+    summarize_pruning_experiment(
         experiment_dir="experiments/Experiment_7a",
         output_md_path="experiments/Experiment_7a/experiment_summary.md",
     )
     
-    build_combined_table(
+    summarize_pruning_experiment(
         experiment_dir="experiments/Experiment_8",
         output_md_path="experiments/Experiment_8/experiment_summary.md",
     )

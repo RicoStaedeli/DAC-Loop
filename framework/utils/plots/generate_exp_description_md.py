@@ -1,6 +1,7 @@
 import json
 from pathlib import Path
 from typing import Tuple
+import re
 
 from framework.utils.utils import load_config_toml
 
@@ -103,7 +104,6 @@ def _create_ex_desc_table_only_teacher(experiment_name: str, runs: int) -> str:
 
 
         metrics_path = _metrics_path(experiment_name, run_idx)
-        print(f"Loading metrics from {metrics_path}")
         best_val_acc, best_epoch = _get_best_val_accuracy_from_jsonl(
             metrics_path,
             val_key="val_accuracy",
@@ -121,6 +121,7 @@ def _create_ex_desc_table_only_teacher(experiment_name: str, runs: int) -> str:
         )
 
     lines.append("")  # blank line after table to separate from next section
+    print(f"Generated table for {experiment_name} with {runs} runs.")
     return "\n".join(lines)
 
 
@@ -206,33 +207,82 @@ def _create_ex_desc_table_teacher_student(experiment_name: str, runs: int) -> st
         )
 
     lines.append("")
+    print(f"Generated table for {experiment_name} with {runs} runs.")
     return "\n".join(lines)
 
 
 def _create_ex_desc_table_compression(experiment_name: str, runs: int) -> str:
     """
-    Create a markdown section (## title + table) for teacher-student experiments.
+    Create a markdown section (## title + table) for compression experiments
+    that may have multiple metrics files per run:
+
+        metrics_iteration_1.jsonl
+        metrics_iteration_2.jsonl
+        ...
+
+    For each iteration, we create a dedicated column with the best accuracy
+    of that iteration (val_accuracy). We still report the baseline accuracy
+    and the improvement vs. the best accuracy over all iterations.
     """
     lines: list[str] = []
 
-    # Section title
+    # ---------- First pass: collect all iteration indices across runs ----------
+    iteration_indices: set[int] = set()
+
+    for run_idx in range(1, runs + 1):
+        run_dir = _run_dir(experiment_name, run_idx)
+        if not run_dir.exists():
+            continue
+
+        for p in run_dir.glob("metrics_iteration_*.jsonl"):
+            m = re.search(r"metrics_iteration_(\d+)\.jsonl$", p.name)
+            if m:
+                iteration_indices.add(int(m.group(1)))
+
+    # Sort iteration indices so columns are in a stable order
+    sorted_iterations = sorted(iteration_indices)
+
+    # ---------- Section title ----------
     lines.append(f"## {experiment_name}")
     lines.append("")
 
-    # Table header
-    lines.append(
-        "| Run | Config | Model | Model Teacher | Dataset | KD-Type  | Compression"
-        "| Metrics | Plots | Bands | Best Accuracy | Baseline Accuracy | Improvement to Baseline |"
-    )
-    lines.append(
-        "|-----|--------|-------|---------------|---------|--------|---------"
-        "|---------|-------|-------|---------------|-------------------|-------------------------|"
-    )
+    # ---------- Table header (dynamic, based on iterations) ----------
+    base_header_cols = [
+        "Run",
+        "Config",
+        "Model",
+        "Model Teacher",
+        "Dataset",
+        "KD-Type",
+        "Compression",
+        "Metrics",
+        "Plots",
+        "Bands",
+    ]
 
-    # Table body
+    iteration_header_cols = [f"Best Acc Iter {i}" for i in sorted_iterations]
+
+    tail_header_cols = [
+        "Baseline Accuracy",
+        "Improvement to Baseline",
+    ]
+
+    header_cols = base_header_cols + iteration_header_cols + tail_header_cols
+
+    # Header line
+    lines.append("| " + " | ".join(header_cols) + " |")
+    # Separator line
+    lines.append("|" + "|".join(["-----"] * len(header_cols)) + "|")
+
+    # ---------- Table body ----------
     for run_idx in range(1, runs + 1):
         cfg_path = _config_path(experiment_name, run_idx)
+        if not cfg_path.exists():
+            print(f"[Warning] Missing config for {experiment_name} Run_{run_idx}: {cfg_path}")
+            continue
+
         cfg = load_config_toml(str(cfg_path), validate=True)
+
         student_name = cfg.model.name
         teacher_name = cfg.training.teacher_student.teacher_model_name
         dataset_name = cfg.data.dataset_hf_repo_id
@@ -242,24 +292,10 @@ def _create_ex_desc_table_compression(experiment_name: str, runs: int) -> str:
         ts_cfg = cfg.training.teacher_student
         kd_type = ts_cfg.kd_type if ts_cfg.train_student else "N/A"
 
-        result_metrics_path = _metrics_path(experiment_name, run_idx)
+        run_dir = _run_dir(experiment_name, run_idx)
+
+        # ----- Baseline metrics (unchanged logic) -----
         baseline_metrics_path = Path(ts_cfg.baseline_student)
-
-        # Result metrics
-        if result_metrics_path.exists():
-            try:
-                best_val_acc, best_epoch = _get_best_val_accuracy_from_jsonl(
-                    result_metrics_path,
-                    val_key="val_accuracy",
-                )
-            except ValueError as e:
-                print(f"[Warning] {e}")
-                best_val_acc, best_epoch = 0.0, -1
-        else:
-            print(f"[Warning] Missing result metrics file: {result_metrics_path}")
-            best_val_acc, best_epoch = 0.0, -1
-
-        # Baseline metrics
         if baseline_metrics_path.exists():
             try:
                 baseline_val_acc, _ = _get_best_val_accuracy_from_jsonl(
@@ -273,25 +309,68 @@ def _create_ex_desc_table_compression(experiment_name: str, runs: int) -> str:
             print(f"[Warning] Missing baseline metrics file: {baseline_metrics_path}")
             baseline_val_acc = 0.0
 
-        improvement = best_val_acc - baseline_val_acc
+        # ----- Per-iteration metrics -----
+        iter_results: dict[int, tuple[float, int]] = {}
+        best_overall_acc = 0.0
+        has_any_metrics = False
 
-        lines.append(
-            f"| [{run_idx}] "
-            f"| [Config.toml]({_config_path_md(experiment_name, run_idx)}) "
-            f"| {student_name} "
-            f"| {teacher_name} "
-            f"| `{dataset_name}` "
-            f"| {kd_type} "
-            f"| {pruning_method} "
-            f"| [metrics.json]({_metrics_path_md(experiment_name, run_idx)}) "
-            f"| [plots]({_plots_path_md(experiment_name, run_idx)}) "
-            f"| {indices} "
-            f"| {best_val_acc:.2f}% @ {best_epoch} "
-            f"| {baseline_val_acc:.2f}% "
-            f"| {improvement:.2f}% |"
-        )
+        for p in run_dir.glob("metrics_iteration_*.jsonl"):
+            m = re.search(r"metrics_iteration_(\d+)\.jsonl$", p.name)
+            if not m:
+                continue
+            iter_idx = int(m.group(1))
+
+            try:
+                val_acc, epoch = _get_best_val_accuracy_from_jsonl(
+                    p,
+                    val_key="val_accuracy",
+                )
+                iter_results[iter_idx] = (val_acc, epoch)
+                has_any_metrics = True
+
+                if val_acc > best_overall_acc:
+                    best_overall_acc = val_acc
+            except ValueError as e:
+                print(f"[Warning] {e}")
+
+        if not has_any_metrics:
+            print(f"[Warning] No metrics_iteration_*.jsonl files found for {run_dir}")
+
+        # Improvement vs. best overall iteration accuracy
+        improvement = best_overall_acc - baseline_val_acc
+
+        # ----- Build row -----
+        row_cols: list[str] = [
+            f"[{run_idx}]",
+            f"[Config.toml]({_config_path_md(experiment_name, run_idx)})",
+            student_name,
+            teacher_name,
+            f"`{dataset_name}`",
+            kd_type,
+            pruning_method,
+            # Link metrics to the run directory (where all iteration files live)
+            f"[metrics]({experiment_name}/Run_{run_idx})",
+            f"[plots]({_plots_path_md(experiment_name, run_idx)})",
+            str(indices),
+        ]
+
+        # Add one cell per iteration column
+        for iter_idx in sorted_iterations:
+            if iter_idx in iter_results:
+                acc, epoch = iter_results[iter_idx]
+                row_cols.append(f"{acc:.2f}% @ {epoch}")
+            else:
+                # No metrics file for this iteration in this run
+                row_cols.append("-")
+
+        # Baseline + improvement
+        row_cols.append(f"{baseline_val_acc:.2f}%")
+        row_cols.append(f"{improvement:.2f}%")
+
+        lines.append("| " + " | ".join(row_cols) + " |")
 
     lines.append("")
+    print(f"Generated table for {experiment_name} with {runs} runs.")
     return "\n".join(lines)
 
 
@@ -309,9 +388,9 @@ def main(output_path: Path = DEFAULT_OUTPUT_PATH) -> None:
         _create_ex_desc_table_only_teacher("Experiment_5", runs=9),
         _create_ex_desc_table_teacher_student("Experiment_6", runs=40),
         _create_ex_desc_table_teacher_student("Experiment_6a", runs=40),
-        _create_ex_desc_table_teacher_student("Experiment_6b", runs=20),
-        _create_ex_desc_table_compression("Experiment_7", runs=5),
-        _create_ex_desc_table_compression("Experiment_7a", runs=18),
+        _create_ex_desc_table_teacher_student("Experiment_6b", runs=40),
+        _create_ex_desc_table_compression("Experiment_7", runs=21),
+        _create_ex_desc_table_compression("Experiment_7a", runs=21),
         _create_ex_desc_table_compression("Experiment_8", runs=12),
     ]
 
