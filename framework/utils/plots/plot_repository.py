@@ -381,24 +381,31 @@ def _plot_train_vs_val_loss(series, cfg, path_base: Path, figsize=DEFAULT_FIGSIZ
     return _save_figure(fig, path_base, export_pdf, export_png, png_dpi)
 
 
-def make_overview_png_per_experiment(
+def make_overview_per_experiment(
         base_dir="experiments/results/Experiment_3",
         run_indices=range(1, 25),
         hpad=40,  # padding between Loss and ValAcc columns
         vpad=60,  # padding between rows
         margin=60,  # outer border
         caption_width=400,  # left gutter for "Run i"
-        out_path="experiments/results/Experiment_3/overview_all_plots.png",
+        out_path="experiments/results/Experiment_3/overview_all_plots.pdf",
         add_captions=False,
         final_scale=0.6,  # 1.0 = no final resize; <1.0 downscales once at the end
-        set_png_dpi=400  # embeds DPI metadata (some viewers honor this)
+        set_dpi=400,  # logical DPI / resolution hint
+        compression: bool = False
 ):
+    """
+    Create an overview of Loss / Val Acc per run and save as a single image.
+    The output format is inferred from `out_path` extension:
+    - .png -> PNG (lossless, with DPI metadata)
+    - .pdf -> PDF (single-page bitmap)
+    """
     rows = []
     labels = []
     for i in run_indices:
         pdir = os.path.join(base_dir, f"Run_{i}", "plots")
         loss_p = os.path.join(pdir, "loss_per_epoch.png")
-        acc_p = os.path.join(pdir, "val_accuracy_per_epoch.png")
+        acc_p = os.path.join(pdir, "val_accuracy_per_epoch.png" if not compression else "val_accuracy_per_epoch_and_iteration.png")
         if not (os.path.exists(loss_p) and os.path.exists(acc_p)):
             continue
         loss_im = Image.open(loss_p).convert("RGB")  # keep native size
@@ -439,7 +446,7 @@ def make_overview_png_per_experiment(
     try:
         font = ImageFont.truetype("DejaVuSans.ttf", 28)
         font_bold = ImageFont.truetype("DejaVuSans-Bold.ttf", 30)
-    except:
+    except Exception:
         font = ImageFont.load_default()
         font_bold = font
 
@@ -468,10 +475,28 @@ def make_overview_png_per_experiment(
         canvas = canvas.resize((new_w, new_h), Image.Resampling.LANCZOS)
 
     os.makedirs(os.path.dirname(out_path), exist_ok=True)
-    # PNG is lossless; compression level affects size, not quality.
-    # Embed DPI metadata (viewers may use it for print scaling).
-    canvas.save(out_path, format="PNG", optimize=True, compress_level=3, dpi=(set_png_dpi, set_png_dpi))
-    print(f"Saved overview: {out_path}")
+    ext = os.path.splitext(out_path)[1].lower()
+
+    if ext == ".png":
+        # PNG is lossless; compression level affects size, not quality.
+        canvas.save(
+            out_path,
+            format="PNG",
+            optimize=True,
+            compress_level=3,
+            dpi=(set_dpi, set_dpi),
+        )
+    elif ext == ".pdf":
+        # Single-page bitmap PDF; `resolution` acts as DPI hint.
+        canvas.save(
+            out_path,
+            format="PDF",
+            resolution=set_dpi,
+        )
+    else:
+        raise ValueError(f"Unsupported output extension for overview: {ext}")
+
+    log.info(f"Saved overview: {out_path}")
 
 
 ################################################################################################################
@@ -562,11 +587,11 @@ def plot_val_accuracy_over_epochs(
 
     for label, path in pairs:
         if not os.path.exists(path):
-            print(f"⚠️ Skipping missing file: {path}")
+            log.info(f"-> Skipping missing file: {path}")
             continue
         df = _load_valacc_jsonl(path)
         if df.empty:
-            print(f"⚠️ No usable val_accuracy in: {path}")
+            log.info(f"No usable val_accuracy in: {path}")
             continue
 
         if as_percent is None:
@@ -593,6 +618,100 @@ def plot_val_accuracy_over_epochs(
     ax.legend(frameon=False, handlelength=1.2, borderaxespad=0.2, loc="best")
 
     out_base = Path(out_path_base)
+    out_base.parent.mkdir(parents=True, exist_ok=True)
+    saved = _save_figure(fig, out_base, export_pdf, export_png, png_dpi)
+    return saved
+
+def plot_compression_experiment(
+        base_dir: Union[str, Path],
+        cfg_path: Union[str, Path],
+        *,
+        title: str = "Compression Experiment – Validation Accuracy per Iteration",
+        use_latex: bool = True,
+        figsize: Tuple[float, float] = DEFAULT_FIGSIZE,
+        export_pdf: bool = True,
+        export_png: bool = True,
+        png_dpi: int = 600,
+) -> dict:
+    """
+    Plot val_accuracy vs. epoch for each compression iteration in a single figure.
+
+    Expects files named 'metrics_iteration_*.jsonl' in `base_dir`, e.g.:
+        metrics_iteration_1.jsonl
+        metrics_iteration_2.jsonl
+        ...
+
+    Each curve's label contains the best validation accuracy and the epoch where
+    it occurs, e.g. "iter 1 (best=92.50\\%@37)".
+    """
+    # Runtime plotting options
+    rcParams.update({"text.usetex": use_latex, "savefig.dpi": png_dpi})
+
+    base_dir = Path(base_dir)
+    metric_files = sorted(base_dir.glob("metrics_iteration_*.jsonl"))
+
+    cfg = load_config_toml(cfg_path)
+
+    if not metric_files:
+        raise FileNotFoundError(f"No metrics_iteration_*.jsonl files found in {base_dir}")
+
+    fig, ax = plt.subplots(figsize=figsize)
+    ax.grid(True, linestyle=":", linewidth=0.4, alpha=0.8)
+    ax.tick_params(length=3, width=0.6, which="both")
+    ax.set_xlabel("Epoch")
+
+    as_percent: Optional[bool] = None
+    any_plotted = False
+
+    for path in metric_files:
+        df = _load_valacc_jsonl(path)
+        if df.empty:
+            log.warning(f"No usable val_accuracy data in {path}, skipping.")
+            continue
+
+        # Decide once whether to treat accuracy as fraction or percent
+        if as_percent is None:
+            as_percent = _is_fractional_accuracy(df["val_accuracy"])
+
+        y = df["val_accuracy"].to_numpy()
+        if as_percent:
+            y = y * 100.0
+
+        # Find best epoch by validation accuracy
+        best_idx = int(df["val_accuracy"].idxmax())
+        best_epoch = int(df.loc[best_idx, "epoch"])
+        best_val = float(df.loc[best_idx, "val_accuracy"])
+        best_disp = best_val * 100.0 if as_percent else best_val
+
+        # Extract iteration number from file name: metrics_iteration_3.jsonl -> 3
+        stem = path.stem  # "metrics_iteration_3"
+        iter_str = stem.split("metrics_iteration_")[-1]
+        try:
+            iteration = int(iter_str)
+        except ValueError:
+            iteration = iter_str  # fallback if name is weird
+
+        label = rf"iter {iteration} (best={_fmt_acc(best_disp, as_percent)}@{best_epoch})"
+
+        ax.plot(df["epoch"].to_numpy(), y, linestyle="-", marker=None, label=label)
+        any_plotted = True
+
+    if not any_plotted:
+        raise RuntimeError("No series plotted for compression experiment (all files empty?).")
+
+    ax.set_ylabel("Validation Accuracy (%)" if as_percent else "Validation Accuracy")
+    try:
+        exp_name = cfg.experiment.name
+        run_id = cfg.experiment.run
+        model_name = cfg.model.name
+        title = rf"\textbf{{Experiment: {exp_name}, Run: {run_id}, Model: {model_name}}}"
+    except Exception:
+        title = r"\textbf{Compression Experiment}"
+
+    ax.set_title(rf"\textbf{{{title}}}")
+    ax.legend(frameon=False, handlelength=1.2, borderaxespad=0.2, loc="best")
+
+    out_base = Path(base_dir/"plots"/"val_accuracy_per_epoch_and_iteration")
     out_base.parent.mkdir(parents=True, exist_ok=True)
     saved = _save_figure(fig, out_base, export_pdf, export_png, png_dpi)
     return saved
