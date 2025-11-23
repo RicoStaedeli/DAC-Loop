@@ -8,7 +8,7 @@ class CNNArgs(BaseModel):
     classes: int = 10
 
 
-# Per-architecture model configs by 'model_version' name)
+# Per-architecture model configurations by 'model_version' name)
 class ResNet10Config(BaseModel):
     name: Literal["ResNet10"]
     args: CNNArgs = CNNArgs()

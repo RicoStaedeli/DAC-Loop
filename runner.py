@@ -44,7 +44,7 @@ def _load_manifest(p: Path) -> list[Path]:
 
 # -------------------- Filesystem -------------------- #
 def _create_log_directory(cfg) -> Path:
-    experiment_log_dir = Path("experiments") / cfg.experiment.name / f"Run_{cfg.experiment.run}"
+    experiment_log_dir = Path("experiments/results") / cfg.experiment.name / f"Run_{cfg.experiment.run}"
     exists = experiment_log_dir.exists()
 
     if exists and not cfg.saving.overwrite_run:
@@ -100,7 +100,7 @@ def main(gpu_id: str, experiment_folder: str) -> None:
     os.environ["CUDA_VISIBLE_DEVICES"] = gpu_id
 
     # If experiment_number is used to pick orchestrator, wire it here.
-    orchestrator_path = Path("configs") / experiment_folder / "Experiment_Orchestrator_Config.toml"
+    orchestrator_path = Path("experiments/configurations") / experiment_folder / "Experiment_Orchestrator_Config.toml"
 
     for cfg_path in _load_manifest(orchestrator_path):
         t0 = time.perf_counter()

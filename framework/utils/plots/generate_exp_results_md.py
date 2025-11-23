@@ -162,7 +162,7 @@ def summarize_baseline_experiment_group_to_markdown(
     Expected structures:
 
       Case 1: multiple runs
-        experiments/Experiment_1/
+        experiments/results/Experiment_1/
           Run_1/
             metrics.jsonl
             config.toml
@@ -172,7 +172,7 @@ def summarize_baseline_experiment_group_to_markdown(
           ...
 
       Case 2: single run, no Run_X subfolders
-        experiments/Experiment_1/
+        experiments/results/Experiment_1/
           metrics.jsonl
           config.toml
     """
@@ -228,7 +228,7 @@ def summarize_baseline_experiment_group_to_markdown(
 
 def _summarize_single_baseline_run(run_dir: Path) -> Dict[str, str]:
     """
-    Given a baseline run directory (e.g. experiments/Experiment_1/Run_1), extract:
+    Given a baseline run directory (e.g. experiments/results/Experiment_1/Run_1), extract:
       - config.toml
       - metrics.jsonl
 
@@ -808,7 +808,7 @@ def save_size_accuracy_per_run(df: pd.DataFrame, out_dir: str, log_x: bool = Fal
 
 def _summarize_single_run(run_dir: Path) -> Dict[str, str]:
     """
-    Given a run directory like experiments/Experiment_3/Run_1, extract:
+    Given a run directory like experiments/results/Experiment_3/Run_1, extract:
       - config.toml
       - metrics.jsonl
       - teacher metrics
@@ -920,7 +920,7 @@ def summarize_experiment_group_to_markdown(
 
     Example:
         summarize_experiment_group_to_markdown(
-            experiment_dir="experiments/Experiment_3",
+            experiment_dir="experiments/results/Experiment_3",
             output_md_path="docs/results/experiment_3_summary.md",
         )
     """
@@ -969,7 +969,7 @@ def summarize_experiment_group_to_markdown(
 
 def main():
     # Setup logging
-    logger_cfg_path = "configs/plot_config.toml"
+    logger_cfg_path = "experiments/configurations/plot_config.toml"
     cfg = load_config_toml(logger_cfg_path, validate=False)
     setup_logging(cfg.model_dump(), Path(), False)
     log.info(f"Config loaded from {logger_cfg_path}")
@@ -978,65 +978,65 @@ def main():
     # Tables for Baseline Experiments
     # ------------------------------------------------------------------
     summarize_baseline_experiment_group_to_markdown(
-        experiment_dir="experiments/Experiment_1",
-        output_md_path="experiments/Experiment_1/experiment_summary.md",
+        experiment_dir="experiments/results/Experiment_1",
+        output_md_path="experiments/results/Experiment_1/experiment_summary.md",
     )
     summarize_baseline_experiment_group_to_markdown(
-        experiment_dir="experiments/Experiment_5",
-        output_md_path="experiments/Experiment_5/experiment_summary.md",
+        experiment_dir="experiments/results/Experiment_5",
+        output_md_path="experiments/results/Experiment_5/experiment_summary.md",
     )
     # ------------------------------------------------------------------
     # Tables for Teacher - Student KD Experiments
     # ------------------------------------------------------------------
     summarize_experiment_group_to_markdown(
-        experiment_dir="experiments/Experiment_2",
-        output_md_path="experiments/Experiment_2/experiment_summary.md",
+        experiment_dir="experiments/results/Experiment_2",
+        output_md_path="experiments/results/Experiment_2/experiment_summary.md",
     )
 
     summarize_experiment_group_to_markdown(
-        experiment_dir="experiments/Experiment_3",
-        output_md_path="experiments/Experiment_3/experiment_summary.md",
+        experiment_dir="experiments/results/Experiment_3",
+        output_md_path="experiments/results/Experiment_3/experiment_summary.md",
     )
 
     summarize_experiment_group_to_markdown(
-        experiment_dir="experiments/Experiment_4",
-        output_md_path="experiments/Experiment_4/experiment_summary.md",
+        experiment_dir="experiments/results/Experiment_4",
+        output_md_path="experiments/results/Experiment_4/experiment_summary.md",
     )
 
     summarize_experiment_group_to_markdown(
-        experiment_dir="experiments/Experiment_4a",
-        output_md_path="experiments/Experiment_4a/experiment_summary.md",
+        experiment_dir="experiments/results/Experiment_4a",
+        output_md_path="experiments/results/Experiment_4a/experiment_summary.md",
     )
 
     summarize_experiment_group_to_markdown(
-        experiment_dir="experiments/Experiment_6",
-        output_md_path="experiments/Experiment_6/experiment_summary.md",
+        experiment_dir="experiments/results/Experiment_6",
+        output_md_path="experiments/results/Experiment_6/experiment_summary.md",
     )
     summarize_experiment_group_to_markdown(
-        experiment_dir="experiments/Experiment_6a",
-        output_md_path="experiments/Experiment_6a/experiment_summary.md",
+        experiment_dir="experiments/results/Experiment_6a",
+        output_md_path="experiments/results/Experiment_6a/experiment_summary.md",
     )
     summarize_experiment_group_to_markdown(
-        experiment_dir="experiments/Experiment_6b",
-        output_md_path="experiments/Experiment_6b/experiment_summary.md",
+        experiment_dir="experiments/results/Experiment_6b",
+        output_md_path="experiments/results/Experiment_6b/experiment_summary.md",
     )
 
     # ------------------------------------------------------------------
     # Tables for Pruning/Compression Experiments
     # ------------------------------------------------------------------
     summarize_pruning_experiment(
-        experiment_dir="experiments/Experiment_7",
-        output_md_path="experiments/Experiment_7/experiment_summary.md",
+        experiment_dir="experiments/results/Experiment_7",
+        output_md_path="experiments/results/Experiment_7/experiment_summary.md",
     )
 
     summarize_pruning_experiment(
-        experiment_dir="experiments/Experiment_7a",
-        output_md_path="experiments/Experiment_7a/experiment_summary.md",
+        experiment_dir="experiments/results/Experiment_7a",
+        output_md_path="experiments/results/Experiment_7a/experiment_summary.md",
     )
     
     summarize_pruning_experiment(
-        experiment_dir="experiments/Experiment_8",
-        output_md_path="experiments/Experiment_8/experiment_summary.md",
+        experiment_dir="experiments/results/Experiment_8",
+        output_md_path="experiments/results/Experiment_8/experiment_summary.md",
     )
 
 
