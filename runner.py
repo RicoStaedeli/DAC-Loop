@@ -44,7 +44,7 @@ def _load_manifest(p: Path) -> list[Path]:
 
 # -------------------- Filesystem -------------------- #
 def _create_log_directory(cfg) -> Path:
-    experiment_log_dir = Path("experiments") / cfg.experiment.name / f"Run_{cfg.experiment.run}"
+    experiment_log_dir = Path("experiments/results") / cfg.experiment.name / f"Run_{cfg.experiment.run}"
     exists = experiment_log_dir.exists()
 
     if exists and not cfg.saving.overwrite_run:
