@@ -1,6 +1,4 @@
-<div style="width:50%;">
-  <img src="docs/plots/0_KD%20Aware%20Compression%20Loop.png" alt="Distillation aware compression loop" style="width:100%;">
-</div>
+<img src="docs/plots/0_KD%20Aware%20Compression%20Loop.png" alt="Distillation aware compression loop" width="50%">
 
 # DISTILLATION-AWARE COMPRESSION LOOP: ENHANCING CNN COMPRESSION WITH TEACHER-STUDENT LEARNING FOR REMOTE SENSING
 
