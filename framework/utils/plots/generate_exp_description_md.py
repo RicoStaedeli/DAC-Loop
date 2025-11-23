@@ -220,9 +220,12 @@ def _create_ex_desc_table_compression(experiment_name: str, runs: int) -> str:
         metrics_iteration_2.jsonl
         ...
 
-    For each iteration, we create a dedicated column with the best accuracy
-    of that iteration (val_accuracy). We still report the baseline accuracy
-    and the improvement vs. the best accuracy over all iterations.
+    For each iteration, we create:
+      - a metrics column linking to that iteration's metrics file
+      - a column with the best accuracy of that iteration
+
+    We still report the baseline accuracy and the improvement vs. the best
+    accuracy over all iterations.
     """
     lines: list[str] = []
 
@@ -239,7 +242,6 @@ def _create_ex_desc_table_compression(experiment_name: str, runs: int) -> str:
             if m:
                 iteration_indices.add(int(m.group(1)))
 
-    # Sort iteration indices so columns are in a stable order
     sorted_iterations = sorted(iteration_indices)
 
     # ---------- Section title ----------
@@ -255,19 +257,23 @@ def _create_ex_desc_table_compression(experiment_name: str, runs: int) -> str:
         "Dataset",
         "KD-Type",
         "Compression",
-        "Metrics",
         "Plots",
         "Bands",
     ]
 
-    iteration_header_cols = [f"Best Acc Iter {i}" for i in sorted_iterations]
+    # For each iteration we create two columns:
+    #   Metrics Iter i | Best Acc Iter i
+    iter_header_cols: list[str] = []
+    for i in sorted_iterations:
+        iter_header_cols.append(f"Metrics Iter {i}")
+        iter_header_cols.append(f"Best Acc Iter {i}")
 
     tail_header_cols = [
         "Baseline Accuracy",
         "Improvement to Baseline",
     ]
 
-    header_cols = base_header_cols + iteration_header_cols + tail_header_cols
+    header_cols = base_header_cols + iter_header_cols + tail_header_cols
 
     # Header line
     lines.append("| " + " | ".join(header_cols) + " |")
@@ -294,7 +300,7 @@ def _create_ex_desc_table_compression(experiment_name: str, runs: int) -> str:
 
         run_dir = _run_dir(experiment_name, run_idx)
 
-        # ----- Baseline metrics (unchanged logic) -----
+        # ----- Baseline metrics -----
         baseline_metrics_path = Path(ts_cfg.baseline_student)
         if baseline_metrics_path.exists():
             try:
@@ -327,7 +333,6 @@ def _create_ex_desc_table_compression(experiment_name: str, runs: int) -> str:
                 )
                 iter_results[iter_idx] = (val_acc, epoch)
                 has_any_metrics = True
-
                 if val_acc > best_overall_acc:
                     best_overall_acc = val_acc
             except ValueError as e:
@@ -336,7 +341,6 @@ def _create_ex_desc_table_compression(experiment_name: str, runs: int) -> str:
         if not has_any_metrics:
             print(f"[Warning] No metrics_iteration_*.jsonl files found for {run_dir}")
 
-        # Improvement vs. best overall iteration accuracy
         improvement = best_overall_acc - baseline_val_acc
 
         # ----- Build row -----
@@ -348,20 +352,23 @@ def _create_ex_desc_table_compression(experiment_name: str, runs: int) -> str:
             f"`{dataset_name}`",
             kd_type,
             pruning_method,
-            # Link metrics to the run directory (where all iteration files live)
-            f"[metrics]({experiment_name}/Run_{run_idx})",
             f"[plots]({_plots_path_md(experiment_name, run_idx)})",
             str(indices),
         ]
 
-        # Add one cell per iteration column
+        # For each iteration: metrics-link column + best-acc column
         for iter_idx in sorted_iterations:
+            metrics_file_path_md = f"{experiment_name}/Run_{run_idx}/metrics_iteration_{iter_idx}.jsonl"
             if iter_idx in iter_results:
                 acc, epoch = iter_results[iter_idx]
+                # Metrics column (link to exact file for this iteration)
+                row_cols.append(f"[metrics_iteration_{iter_idx}.jsonl]({metrics_file_path_md})")
+                # Accuracy column
                 row_cols.append(f"{acc:.2f}% @ {epoch}")
             else:
-                # No metrics file for this iteration in this run
-                row_cols.append("-")
+                # No metrics for this iteration in this run
+                row_cols.append("-")          # metrics link
+                row_cols.append("-")          # accuracy
 
         # Baseline + improvement
         row_cols.append(f"{baseline_val_acc:.2f}%")
