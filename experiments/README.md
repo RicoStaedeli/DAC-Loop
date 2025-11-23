@@ -36,10 +36,6 @@ ResNet50 and ResNet18 are used as teacher models, while ResNet10 and TinyCNN ser
     2. RGB bands: ["B02", "B03", "B04"]
     3. Vegetation indices + RGB bands: ["NDVI", "NDWI", "NDMI"]["B02", "B03", "B04", "B07", "B08"]
 
-<details>
-  <summary><strong>Experiment 1 – overview plot</strong></summary>
-  <img src="results/Experiment_1/overview_plot_Experiment_1.pdf" alt="overview">
-</details>
 
 **Outcomes**
 
@@ -75,11 +71,6 @@ ResNet50 and ResNet18 are used as teacher models, while ResNet10 and TinyCNN ser
 best validation loss) ResNet18 as a guiding teacher.
 This experiment was later replaced by Experiment 3 and 4 which include hyperparameter tuning.
 
-<details>
-  <summary><strong>Experiment 2 – overview plot</strong></summary>
-  <img src="results/Experiment_2/overview_plot_Experiment_2.pdf" alt="overview">
-</details>
-
 **Outcomes**
 
 - Teacher-Student learning works in theory but did not improve the baseline results in practice
@@ -109,11 +100,6 @@ In this experiment we will do hyperparameter tuning for the student model traini
 distillation methods such as CosineEmbeddingLoss, CrossEntropyLoss and KLDivergenceLoss.
 
 [Results](results/Experiment_3/experiment_summary.md)
-
-<details>
-  <summary>Experiment 3 – overview plot</summary>
-  <img src="results/Experiment_3/overview_plot_Experiment_3.pdf" alt="overview">
-</details>
 
 **Outcomes**
 
@@ -160,11 +146,6 @@ In this experiment we will do hyperparameter tuning for the student model traini
 distillation methods such as CosineEmbeddingLoss, CrossEntropyLoss and KLDivergenceLoss.
 
 [Results](results/Experiment_4/experiment_summary.md)
-
-<details>
-  <summary>Experiment 4 – overview plot</summary>
-  <img src="results/Experiment_4/overview_plot_Experiment_4.pdf" alt="overview">
-</details>
 
 **Outcomes**
 
@@ -227,11 +208,6 @@ distillation methods such as CosineEmbeddingLoss, CrossEntropyLoss and KLDiverge
 
 [Results](results/Experiment_4a/experiment_summary.md)
 
-<details>
-  <summary>Experiment 4a – overview plot</summary>
-  <img src="results/Experiment_4a/overview_plot_Experiment_4a.pdf" alt="overview">
-</details>
-
 **Outcomes**
 
 - The baseline of the Student model (ResNet10) could be beaten with Teacher-Student learning using ResNet50 as teacher.
@@ -288,10 +264,8 @@ distillation methods such as CosineEmbeddingLoss, CrossEntropyLoss and KLDiverge
 
 **Goal:** In this experiment we will establish a baseline using the `RESISC45` dataset. We will train different models (
 ResNet18, ResNet18, ResNet50, TinyCNN) on the RESISC45 dataset and evaluate their performance.
-<details>
-  <summary>Experiment 5 – overview plot</summary>
-  <img src="results/Experiment_5/overview_plot_Experiment_5.pdf" alt="overview">
-</details>
+
+[Results](results/Experiment_5/experiment_summary.md)
 
 ### Runs
 
@@ -316,11 +290,6 @@ distillation methods such as CosineEmbeddingLoss, CrossEntropyLoss and KLDiverge
 Dataset is the `RESISC45` dataset.
 
 [Results](results/Experiment_6/experiment_summary.md)
-
-<details>
-    <summary>Experiment 6 – overview plot</summary>
-    <img src="results/Experiment_6/overview_plot_Experiment_6.pdf" alt="overview">
-</details>
 
 ### Runs
 
@@ -377,10 +346,6 @@ Dataset is the `RESISC45` dataset.
 
 [Results](results/Experiment_6a/experiment_summary.md)
 
-<details>
-    <summary>Experiment 6a – overview plot</summary>
-    <img src="results/Experiment_6a/overview_plot_Experiment_6a.pdf" alt="overview">
-</details>
 
 ### Runs
 
@@ -437,11 +402,6 @@ Dataset is the `RESISC45` dataset.
 
 [Results](results/Experiment_6b/experiment_summary.md)
 
-<details>
-    <summary>Experiment 6b – overview plot</summary>
-    <img src="results/Experiment_6b/overview_plot_Experiment_6b.pdf" alt="overview">
-</details>
-
 ### Runs
 
 | Run  | Config                                                  | Model        | Model Teacher | Dataset         | KD-Type             | Metrics                                                    | Plots                                       | Bands                 | Best Accuracy | Baseline Accuracy | Improvement to Baseline |
@@ -497,11 +457,6 @@ following was used: [Experiment 6, Run 23](results/Experiment_6/Run_23/config.to
 
 [Results](results/Experiment_7/experiment_summary.md)
 
-<details>
-    <summary>Experiment 7 – overview plot</summary>
-    <img src="results/Experiment_7/overview_plot_Experiment_7.pdf" alt="overview">
-</details>
-
 ### Runs
 
 | Run  | Config                                                 | Model    | Model Teacher | Dataset         | KD-Type          | Compression | Plots                                      | Bands                 | Metrics Iter 1                                                                     | Best Acc Iter 1 | Baseline Accuracy | Improvement to Baseline |
@@ -537,11 +492,6 @@ All experiment use a ResNet10 student model trained with a ResNet50 teacher mode
 following was used: [Experiment 6a, Run 40](results/Experiment_6a/Run_40/config.toml)
 
 [Results](results/Experiment_7a/experiment_summary.md)
-
-<details>
-    <summary>Experiment 7a – overview plot</summary>
-    <img src="results/Experiment_7a/overview_plot_Experiment_7a.pdf" alt="overview">
-</details>
 
 ### Runs
 
@@ -592,11 +542,6 @@ teacher.
 | [12] | Train with teacher KD only in the second stage to see if kd in first stage is necessary - ResNet18<br>- Resisc45<br>**- Stage 1:** No teacher<br>**- Stage 2:** Compression with hyperparameter from [Experiment 7, Run 11](results/Experiment_7/Run_11/config.toml)<br>**- Stage 3:** Train with teacher --> use model after pruning                                             |
 
 [Results](results/Experiment_8/experiment_summary.md)
-
-<details>
-    <summary>Experiment 8 – overview plot</summary>
-    <img src="results/Experiment_8/overview_plot_Experiment_8.pdf" alt="overview">
-</details>
 
 ### Runs
 
