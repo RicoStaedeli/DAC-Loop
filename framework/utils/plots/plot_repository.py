@@ -399,46 +399,73 @@ def make_overview_per_experiment(
     The output format is inferred from `out_path` extension:
     - .png -> PNG (lossless, with DPI metadata)
     - .pdf -> PDF (single-page bitmap)
+
+    If compression=True:
+      - Only val_accuracy_per_epoch_and_iteration.png is used
+      - Overview consists of a single "Val Acc" column
     """
     rows = []
     labels = []
+
     for i in run_indices:
         pdir = os.path.join(base_dir, f"Run_{i}", "plots")
-        loss_p = os.path.join(pdir, "loss_per_epoch.png")
-        acc_p = os.path.join(pdir, "val_accuracy_per_epoch.png" if not compression else "val_accuracy_per_epoch_and_iteration.png")
-        if not (os.path.exists(loss_p) and os.path.exists(acc_p)):
-            continue
-        loss_im = Image.open(loss_p).convert("RGB")  # keep native size
-        acc_im = Image.open(acc_p).convert("RGB")
 
-        # Equalize row height by padding the shorter one (no resampling)
-        h1, h2 = loss_im.size[1], acc_im.size[1]
-        row_h = max(h1, h2)
+        if compression:
+            # ✅ Only val accuracy with iteration, no loss file expected
+            acc_p = os.path.join(pdir, "val_accuracy_per_epoch_and_iteration.png")
+            if not os.path.exists(acc_p):
+                continue
 
-        def pad_to_h(img, target_h):
-            if img.size[1] == target_h:
-                return img
-            padded = Image.new("RGB", (img.size[0], target_h), "white")
-            padded.paste(img, (0, 0))
-            return padded
+            acc_im = Image.open(acc_p).convert("RGB")
+            row_h = acc_im.size[1]
 
-        loss_im = pad_to_h(loss_im, row_h)
-        acc_im = pad_to_h(acc_im, row_h)
+            rows.append((acc_im, row_h))  # (image, height)
+            labels.append(f"Run {i}")
 
-        rows.append((loss_im, acc_im, row_h))
-        labels.append(f"Run {i}")
+        else:
+            # ✅ Original behavior: require both loss + val accuracy per epoch
+            loss_p = os.path.join(pdir, "loss_per_epoch.png")
+            acc_p = os.path.join(pdir, "val_accuracy_per_epoch.png")
+            if not (os.path.exists(loss_p) and os.path.exists(acc_p)):
+                continue
+
+            loss_im = Image.open(loss_p).convert("RGB")
+            acc_im = Image.open(acc_p).convert("RGB")
+
+            # Equalize row height by padding the shorter one (no resampling)
+            h1, h2 = loss_im.size[1], acc_im.size[1]
+            row_h = max(h1, h2)
+
+            def pad_to_h(img, target_h):
+                if img.size[1] == target_h:
+                    return img
+                padded = Image.new("RGB", (img.size[0], target_h), "white")
+                padded.paste(img, (0, 0))
+                return padded
+
+            loss_im = pad_to_h(loss_im, row_h)
+            acc_im = pad_to_h(acc_im, row_h)
+
+            rows.append((loss_im, acc_im, row_h))  # (loss, acc, height)
+            labels.append(f"Run {i}")
 
     if not rows:
-        raise FileNotFoundError("No runs with both plots found.")
+        raise FileNotFoundError("No runs with plots found.")
 
-    # Compute natural canvas size (no resizes)
-    loss_w = rows[0][0].size[0]
-    acc_w = rows[0][1].size[0]
-    col_w_total = loss_w + hpad + acc_w
+    # --- Compute canvas size ---
+    if compression:
+        # Single-column (Val Acc only)
+        acc_w = rows[0][0].size[0]
+        col_w_total = acc_w
+    else:
+        # Two columns: Loss + Val Acc
+        loss_w = rows[0][0].size[0]
+        acc_w = rows[0][1].size[0]
+        col_w_total = loss_w + hpad + acc_w
 
     nrows = len(rows)
     canvas_w = margin + (caption_width if add_captions else 0) + col_w_total + margin
-    canvas_h = margin + sum(rh for _, _, rh in rows) + vpad * (nrows - 1) + margin
+    canvas_h = margin + sum(r[-1] for r in rows) + vpad * (nrows - 1) + margin
 
     canvas = Image.new("RGB", (canvas_w, canvas_h), "white")
     draw = ImageDraw.Draw(canvas)
@@ -450,23 +477,42 @@ def make_overview_per_experiment(
         font = ImageFont.load_default()
         font_bold = font
 
-    # Column headers
+    # --- Column headers ---
     x0 = margin + (caption_width if add_captions else 0)
     header_y = max(10, margin // 2)
-    draw.text((x0 + loss_w // 2 - 40, header_y), "Loss", font=font_bold, fill="black")
-    draw.text((x0 + loss_w + hpad + acc_w // 2 - 60, header_y), "Val Acc", font=font_bold, fill="black")
 
+    if compression:
+        # Only "Val Acc" centered in the single column
+        draw.text((x0 + acc_w // 2 - 60, header_y), "Val Acc", font=font_bold, fill="black")
+    else:
+        # "Loss" and "Val Acc" headers for two columns
+        draw.text((x0 + loss_w // 2 - 40, header_y), "Loss", font=font_bold, fill="black")
+        draw.text((x0 + loss_w + hpad + acc_w // 2 - 60, header_y), "Val Acc", font=font_bold, fill="black")
+
+    # --- Paste rows ---
     y = margin
-    for (loss_im, acc_im, row_h), label in zip(rows, labels):
-        if add_captions:
-            cap_x = margin
-            cap_y = y + row_h // 2 - 12
-            draw.text((cap_x, cap_y), label, font=font_bold, fill="black")
-        x = x0
-        canvas.paste(loss_im, (x, y))
-        x += loss_w + hpad
-        canvas.paste(acc_im, (x, y))
-        y += row_h + vpad
+    if compression:
+        for (acc_im, row_h), label in zip(rows, labels):
+            if add_captions:
+                cap_x = margin
+                cap_y = y + row_h // 2 - 12
+                draw.text((cap_x, cap_y), label, font=font_bold, fill="black")
+
+            x = x0
+            canvas.paste(acc_im, (x, y))
+            y += row_h + vpad
+    else:
+        for (loss_im, acc_im, row_h), label in zip(rows, labels):
+            if add_captions:
+                cap_x = margin
+                cap_y = y + row_h // 2 - 12
+                draw.text((cap_x, cap_y), label, font=font_bold, fill="black")
+
+            x = x0
+            canvas.paste(loss_im, (x, y))
+            x += loss_w + hpad
+            canvas.paste(acc_im, (x, y))
+            y += row_h + vpad
 
     # Optional single downscale at the end (best quality if needed)
     if final_scale != 1.0:
@@ -478,7 +524,6 @@ def make_overview_per_experiment(
     ext = os.path.splitext(out_path)[1].lower()
 
     if ext == ".png":
-        # PNG is lossless; compression level affects size, not quality.
         canvas.save(
             out_path,
             format="PNG",
@@ -487,7 +532,6 @@ def make_overview_per_experiment(
             dpi=(set_dpi, set_dpi),
         )
     elif ext == ".pdf":
-        # Single-page bitmap PDF; `resolution` acts as DPI hint.
         canvas.save(
             out_path,
             format="PDF",
