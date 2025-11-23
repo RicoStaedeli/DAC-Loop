@@ -382,13 +382,13 @@ def _plot_train_vs_val_loss(series, cfg, path_base: Path, figsize=DEFAULT_FIGSIZ
 
 
 def make_overview_png_per_experiment(
-        base_dir="experiments/Experiment_3",
+        base_dir="experiments/results/Experiment_3",
         run_indices=range(1, 25),
         hpad=40,  # padding between Loss and ValAcc columns
         vpad=60,  # padding between rows
         margin=60,  # outer border
         caption_width=400,  # left gutter for "Run i"
-        out_path="experiments/Experiment_3/overview_all_plots.png",
+        out_path="experiments/results/Experiment_3/overview_all_plots.png",
         add_captions=False,
         final_scale=0.6,  # 1.0 = no final resize; <1.0 downscales once at the end
         set_png_dpi=400  # embeds DPI metadata (some viewers honor this)

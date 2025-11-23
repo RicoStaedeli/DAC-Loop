@@ -5,7 +5,7 @@ import re
 
 from framework.utils.utils import load_config_toml
 
-EXPERIMENTS_ROOT = Path("experiments")
+EXPERIMENTS_ROOT = Path("experiments/results")
 DEFAULT_OUTPUT_PATH = Path("experiments/_generated_experiment_tables.md")
 
 
@@ -61,15 +61,15 @@ def _metrics_path(experiment_name: str, run_idx: int) -> Path:
 
 
 def _config_path_md(experiment_name: str, run_idx: int) -> str:
-    return f"{experiment_name}/Run_{run_idx}/config.toml"
+    return f"results/{experiment_name}/Run_{run_idx}/config.toml"
 
 
 def _metrics_path_md(experiment_name: str, run_idx: int) -> str:
-    return f"{experiment_name}/Run_{run_idx}/metrics.jsonl"
+    return f"results/{experiment_name}/Run_{run_idx}/metrics.jsonl"
 
 
 def _plots_path_md(experiment_name: str, run_idx: int) -> str:
-    return f"{experiment_name}/Run_{run_idx}/plots"
+    return f"results/{experiment_name}/Run_{run_idx}/plots"
 
 
 # ---------- TABLE BUILDERS ----------
@@ -358,7 +358,7 @@ def _create_ex_desc_table_compression(experiment_name: str, runs: int) -> str:
 
         # For each iteration: metrics-link column + best-acc column
         for iter_idx in sorted_iterations:
-            metrics_file_path_md = f"{experiment_name}/Run_{run_idx}/metrics_iteration_{iter_idx}.jsonl"
+            metrics_file_path_md = f"results/{experiment_name}/Run_{run_idx}/metrics_iteration_{iter_idx}.jsonl"
             if iter_idx in iter_results:
                 acc, epoch = iter_results[iter_idx]
                 # Metrics column (link to exact file for this iteration)

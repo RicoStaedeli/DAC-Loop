@@ -74,11 +74,11 @@ uv install
 ```
 
 3. **Run Experiments**:
-   The experiments are defined in the [configs](configs) directory. Each Experiments consist of an
+   The experiments are defined in the [configs](experiments/configurations) directory. Each Experiments consist of an
    `Experiment_Orchestrator_Config.toml`
    file and the corresponding `Run-xy.toml` files. The orchestrator config defines which runs to execute. The parameters
    of the specific run are in the run config files.
-   An example experiment can be found in [Experiment_XY](configs/Experiment_XY). The name of the experiment folder is
+   An example experiment can be found in [Experiment_XY](experiments/configurations/Experiment_XY). The name of the experiment folder is
    passed as an argument to the `runner.py` script.
 4. To execute an experiment, use the following command:
 

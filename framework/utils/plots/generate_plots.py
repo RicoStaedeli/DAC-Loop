@@ -11,7 +11,7 @@ log = logging.getLogger(__name__)
 
 def main():
     # Setup logging
-    logger_cfg_path = "configs/plot_config.toml"
+    logger_cfg_path = "configurations/plot_config.toml"
     cfg = load_config_toml(logger_cfg_path, validate=False)
     setup_logging(cfg.model_dump(), Path(), False)
     log.info(f"Config loaded from {logger_cfg_path}")
@@ -45,10 +45,10 @@ def _plots_for_different_experiments():
     ########## Plot Validation Accuracy over Epochs for different models on EuroSAT ##########
     # 1 - EuroSAT Baseline training runs
     models = {
-        "ResNet50": "experiments/Experiment_1/Run_10/metrics.jsonl",
-        "ResNet18": "experiments/Experiment_1/Run_1/metrics.jsonl",
-        "ResNet10": "experiments/Experiment_1/Run_4/metrics.jsonl",
-        "TinyCNN": "experiments/Experiment_1/Run_7/metrics.jsonl",
+        "ResNet50": "experiments/results/Experiment_1/Run_10/metrics.jsonl",
+        "ResNet18": "experiments/results/Experiment_1/Run_1/metrics.jsonl",
+        "ResNet10": "experiments/results/Experiment_1/Run_4/metrics.jsonl",
+        "TinyCNN": "experiments/results/Experiment_1/Run_7/metrics.jsonl",
     }
     plot_val_accuracy_over_epochs(
         models,
@@ -60,10 +60,10 @@ def _plots_for_different_experiments():
 
     # 2 - EuroSAT RGB and Special Bands training runs
     models = {
-        "ResNet50": "experiments/Experiment_1/Run_11/metrics.jsonl",
-        "ResNet18": "experiments/Experiment_1/Run_2/metrics.jsonl",
-        "ResNet10": "experiments/Experiment_1/Run_5/metrics.jsonl",
-        "TinyCNN": "experiments/Experiment_1/Run_8/metrics.jsonl",
+        "ResNet50": "experiments/results/Experiment_1/Run_11/metrics.jsonl",
+        "ResNet18": "experiments/results/Experiment_1/Run_2/metrics.jsonl",
+        "ResNet10": "experiments/results/Experiment_1/Run_5/metrics.jsonl",
+        "TinyCNN": "experiments/results/Experiment_1/Run_8/metrics.jsonl",
     }
     plot_val_accuracy_over_epochs(
         models,
@@ -75,10 +75,10 @@ def _plots_for_different_experiments():
 
     # 3 - EuroSAT Special Bands training runs
     models = {
-        "ResNet50": "experiments/Experiment_1/Run_12/metrics.jsonl",
-        "ResNet18": "experiments/Experiment_1/Run_3/metrics.jsonl",
-        "ResNet10": "experiments/Experiment_1/Run_6/metrics.jsonl",
-        "TinyCNN": "experiments/Experiment_1/Run_9/metrics.jsonl",
+        "ResNet50": "experiments/results/Experiment_1/Run_12/metrics.jsonl",
+        "ResNet18": "experiments/results/Experiment_1/Run_3/metrics.jsonl",
+        "ResNet10": "experiments/results/Experiment_1/Run_6/metrics.jsonl",
+        "TinyCNN": "experiments/results/Experiment_1/Run_9/metrics.jsonl",
     }
     plot_val_accuracy_over_epochs(
         models,
@@ -91,11 +91,11 @@ def _plots_for_different_experiments():
     ########## Plot Validation Accuracy over Epochs for different models on RESISC45 ##########
     # 4 - RESISC45 Baseline training runs
     models = {
-        "ResNet50": "experiments/Experiment_5/Run_7/metrics.jsonl",
-        "ResNet18": "experiments/Experiment_5/Run_8/metrics.jsonl",
-        "ResNet10": "experiments/Experiment_5/Run_2/metrics.jsonl",
-        "ResNet10small": "experiments/Experiment_5/Run_9/metrics.jsonl",
-        "TinyCNN": "experiments/Experiment_5/Run_3/metrics.jsonl",
+        "ResNet50": "experiments/results/Experiment_5/Run_7/metrics.jsonl",
+        "ResNet18": "experiments/results/Experiment_5/Run_8/metrics.jsonl",
+        "ResNet10": "experiments/results/Experiment_5/Run_2/metrics.jsonl",
+        "ResNet10small": "experiments/results/Experiment_5/Run_9/metrics.jsonl",
+        "TinyCNN": "experiments/results/Experiment_5/Run_3/metrics.jsonl",
 
     }
     plot_val_accuracy_over_epochs(
@@ -109,8 +109,8 @@ def _plots_for_different_experiments():
     ########## Plot Validation Accuracy over Epochs for Student vs Baseline on EuroSAT ##########
     # 5 - EuroSAT TinyCNN Student vs Baseline training runs
     models = {
-        "TinyCNN-Student": "experiments/Experiment_3/Run_1/metrics.jsonl",
-        "TinyCNN-Student-Baseline": "experiments/Experiment_1/Run_7/metrics.jsonl",
+        "TinyCNN-Student": "experiments/results/Experiment_3/Run_1/metrics.jsonl",
+        "TinyCNN-Student-Baseline": "experiments/results/Experiment_1/Run_7/metrics.jsonl",
     }
     plot_val_accuracy_over_epochs(
         models,
@@ -122,8 +122,8 @@ def _plots_for_different_experiments():
 
     # 6 - EuroSAT ResNet18 Student vs Baseline training runs
     models = {
-        "ResNet18-Student": "experiments/Experiment_4/Run_3/metrics.jsonl",
-        "ResNet18-Student-Baseline": "experiments/Experiment_1/Run_1/metrics.jsonl",
+        "ResNet18-Student": "experiments/results/Experiment_4/Run_3/metrics.jsonl",
+        "ResNet18-Student-Baseline": "experiments/results/Experiment_1/Run_1/metrics.jsonl",
     }
     plot_val_accuracy_over_epochs(
         models,
@@ -135,8 +135,8 @@ def _plots_for_different_experiments():
 
     # 7 - EuroSAT ResNet10 Student vs Baseline training runs
     models = {
-        "ResNet10-Student": "experiments/Experiment_4a/Run_6/metrics.jsonl",
-        "ResNet10-Student-Baseline": "experiments/Experiment_1/Run_4/metrics.jsonl",
+        "ResNet10-Student": "experiments/results/Experiment_4a/Run_6/metrics.jsonl",
+        "ResNet10-Student-Baseline": "experiments/results/Experiment_1/Run_4/metrics.jsonl",
     }
     plot_val_accuracy_over_epochs(
         models,
@@ -149,8 +149,8 @@ def _plots_for_different_experiments():
     ########## Plot Validation Accuracy over Epochs for Student vs Baseline on RESISC45 ##########
     # 8 - RESISC45 ResNet18 Student vs Baseline training runs
     models = {
-        "ResNet18-Student": "experiments/Experiment_6/Run_23/metrics.jsonl",
-        "ResNet18-Student-Baseline": "experiments/Experiment_5/Run_8/metrics.jsonl",
+        "ResNet18-Student": "experiments/results/Experiment_6/Run_23/metrics.jsonl",
+        "ResNet18-Student-Baseline": "experiments/results/Experiment_5/Run_8/metrics.jsonl",
     }
     plot_val_accuracy_over_epochs(
         models,
@@ -162,8 +162,8 @@ def _plots_for_different_experiments():
 
     # 9 - RESISC45 ResNet10 Student vs Baseline training runs
     models = {
-        "ResNet10-Student": "experiments/Experiment_6a/Run_40/metrics.jsonl",
-        "ResNet10-Student-Baseline": "experiments/Experiment_5/Run_2/metrics.jsonl",
+        "ResNet10-Student": "experiments/results/Experiment_6a/Run_40/metrics.jsonl",
+        "ResNet10-Student-Baseline": "experiments/results/Experiment_5/Run_2/metrics.jsonl",
     }
     plot_val_accuracy_over_epochs(
         models,
