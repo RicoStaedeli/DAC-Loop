@@ -704,15 +704,6 @@ def summarize_pruning_experiment_multiple_iterations(
                 100 * (1 - df["Parameter after pruning"] / df["Parameter Before pruning"])
         ).round(2)
 
-    # OPTIONAL: if you still want the emoji Run Group column from earlier, keep something like:
-    if "Run ID" in df.columns:
-        df.insert(
-            0,
-            "Run Group",
-            [f"{marker_for_run(int(run_id))}" for run_id in df["Run ID"]],
-        )
-
-    # --- NEW: build one markdown table per run ---
     markdown_parts: List[str] = []
 
     # ensure runs are in numeric order
@@ -726,7 +717,7 @@ def summarize_pruning_experiment_multiple_iterations(
         # optional: drop Run ID column for the subtables, since it's in the title
         run_df_for_table = run_df.drop(columns=["Run ID"])
 
-        markdown_parts.append(f"### Run {int(run_id)}\n")
+        markdown_parts.append(f"### {marker_for_run(int(run_id))} Run {int(run_id)}\n")
         markdown_parts.append(df_to_markdown_stable(run_df_for_table))
         markdown_parts.append("")  # blank line after each table
 
