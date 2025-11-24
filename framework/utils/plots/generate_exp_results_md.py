@@ -563,43 +563,32 @@ def _get_val_acc_from_candidates(d: Dict[str, Any], *candidate_keys: str) -> Opt
     return None
 
 
-RUN_COLORS = [
-    "#ffdddd",  # light red
-    "#ddffdd",  # light green
-    "#ddddff",  # light blue
-    "#fff0b3",  # light yellow
-    "#e6ccff",  # light purple
-    "#ffd9b3",  # light orange
-]
+RUN_MARKERS = ["🔴", "🟢", "🔵", "🟡", "🟣", "🟠"]
 
-def color_for_run(run_id: int) -> str:
-    return RUN_COLORS[(run_id - 1) % len(RUN_COLORS)]
+def marker_for_run(run_id: int) -> str:
+    # run_id is assumed to start at 1
+    return RUN_MARKERS[(run_id - 1) % len(RUN_MARKERS)]
 
-def df_to_color_html(df: pd.DataFrame, run_col: str = "Run ID") -> str:
+def insert_run_separators(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Convert dataframe to an HTML table where all rows belonging to the same run
-    have a consistent background color.
+    Insert a bold separator row after each run group.
     """
-    html = ['<table border="1" cellspacing="0" cellpadding="4">']
+    rows = []
+    columns = df.columns
 
-    # header
-    html.append("<tr>")
-    for col in df.columns:
-        html.append(f"<th>{col}</th>")
-    html.append("</tr>")
+    unique_runs = df["Run ID"].unique()
 
-    # rows
-    for _, row in df.iterrows():
-        run_id = int(row[run_col])
-        bg = color_for_run(run_id)
+    for run in unique_runs:
+        block = df[df["Run ID"] == run]
+        rows.append(block)
 
-        html.append(f'<tr style="background-color:{bg}">')
-        for col in df.columns:
-            html.append(f"<td>{row[col]}</td>")
-        html.append("</tr>")
+        # separator row (one per run)
+        sep = {col: "**———**" for col in columns}
+        rows.append(pd.DataFrame([sep]))
 
-    html.append("</table>")
-    return "\n".join(html)
+    # concatenate everything
+    out = pd.concat(rows, ignore_index=True)
+    return out
 
 def summarize_pruning_experiment(
     experiment_dir: str,
@@ -714,14 +703,23 @@ def summarize_pruning_experiment(
             100 * (1 - df["Parameter after pruning"] / df["Parameter Before pruning"])
         ).round(2)
 
-    html_table = df_to_color_html(df)
+    if "Run ID" in df.columns:
+        df.insert(
+            0,  # put it as the first column
+            "Run Group",
+            [f"{marker_for_run(int(run_id))} Run {int(run_id)}" for run_id in df["Run ID"]],
+        )
+
+    df = insert_run_separators(df)
+
+    markdown = df_to_markdown_stable(df)
 
     if output_md_path is not None:
         out_path = Path(output_md_path)
         _ensure_parent_dir(out_path)
-        out_path.write_text(html_table + "\n", encoding="utf-8")
+        out_path.write_text(markdown + "\n", encoding="utf-8")
     else:
-        print(html_table)
+        print(markdown)
 
     return df
 
