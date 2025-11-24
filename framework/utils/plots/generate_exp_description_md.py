@@ -399,6 +399,7 @@ def main(output_path: Path = DEFAULT_OUTPUT_PATH) -> None:
         _create_ex_desc_table_compression("Experiment_7", runs=21),
         _create_ex_desc_table_compression("Experiment_7a", runs=21),
         _create_ex_desc_table_compression("Experiment_8", runs=12),
+        _create_ex_desc_table_compression("Experiment_9", runs=4),
     ]
 
     markdown_content = "\n".join(sections)

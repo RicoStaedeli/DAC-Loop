@@ -29,10 +29,11 @@ def main():
     # _make_plots_for_experiment(experiment_name="Experiment_5", num_runs=9, only_overview=False, compression_experiment=False)
     # _make_plots_for_experiment(experiment_name="Experiment_6", num_runs=40, only_overview=False, compression_experiment=False)
     # _make_plots_for_experiment(experiment_name="Experiment_6a", num_runs=40, only_overview=False, compression_experiment=False)
-    _make_plots_for_experiment(experiment_name="Experiment_6b", num_runs=40, only_overview=False, compression_experiment=False)
-    _make_plots_for_experiment(experiment_name="Experiment_7", num_runs=21, only_overview=False, compression_experiment=True)
-    _make_plots_for_experiment(experiment_name="Experiment_7a", num_runs=21, only_overview=False, compression_experiment=True)
-    _make_plots_for_experiment(experiment_name="Experiment_8", num_runs=12, only_overview=False, compression_experiment=True)
+    # _make_plots_for_experiment(experiment_name="Experiment_6b", num_runs=40, only_overview=False, compression_experiment=False)
+    # _make_plots_for_experiment(experiment_name="Experiment_7", num_runs=21, only_overview=False, compression_experiment=True)
+    # _make_plots_for_experiment(experiment_name="Experiment_7a", num_runs=21, only_overview=False, compression_experiment=True)
+    # _make_plots_for_experiment(experiment_name="Experiment_8", num_runs=12, only_overview=False, compression_experiment=True)
+    _make_plots_for_experiment(experiment_name="Experiment_9", num_runs=4, only_overview=False, compression_experiment=True)
 
     ################################################################################################################
     ############################ Plots with different experiments ##################################################

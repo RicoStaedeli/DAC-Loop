@@ -180,12 +180,6 @@ def main(gpu_id: str, experiment_folder: str) -> None:
                     model_teacher=model_teacher,
                 )
 
-            plot_teacher_student_metrics(
-                cfg_path=str(experiment_dir / "config.toml"),
-                project_root=".",
-                export_png=True, export_pdf=False, png_dpi=600, use_latex=False,
-            )
-
             # Wrap-up
             duration = time.perf_counter() - t0
             log.info("Experiment %s --> end training", experiment_name)
