@@ -116,7 +116,7 @@ The teacher was in all stages end experiments the same: ResNet50 trained on RESI
 | ResNet18 - No KD + Pruning (65.71%) + KD    | 2,708,024  | 90.48                   | [Experiment 8, Run_12](../experiments/results/Experiment_8/Run_12)            | Compress model ResNet18 - No KD and fine-tune with KD       |
 | ResNet18 + KD + Pruning (65.71%) - No KD    | 2,708,024  | 89.63                   | [Experiment 8, Run_8](../experiments/results/Experiment_8/Run_8)              | Compress model ResNet18 - KD and fine-tune without KD       |
 | ResNet18 + KD + Pruning (65.71%) + KD       | 2,708,024  | 91.37                   | [Experiment 7, Run_11](../experiments/results/Experiment_7/Run_11)            | Compress model ResNet18 - KD and fine-tune with KD          |
-| ResNet18 + KD aware compression loop        | 3,093,531  | **92.44**               | [Experiment 9, Run_4, Iteration 4](../experiments/results/Experiment_9/Run_4) | Compress model ResNet18 - KD and fine-tune with KD          |
+| ResNet18 + KD aware compression loop        | 1'653'545  | **92.44**               | [Experiment 9, Run_5, Iteration 6](../experiments/results/Experiment_9/Run_5) | Compress model ResNet18 - KD and fine-tune with KD          |
 
 
 KD-Aware compression consistently outperforms standard pruning methods, achieving higher accuracy with significant parameter
