@@ -563,6 +563,44 @@ def _get_val_acc_from_candidates(d: Dict[str, Any], *candidate_keys: str) -> Opt
     return None
 
 
+RUN_COLORS = [
+    "#ffdddd",  # light red
+    "#ddffdd",  # light green
+    "#ddddff",  # light blue
+    "#fff0b3",  # light yellow
+    "#e6ccff",  # light purple
+    "#ffd9b3",  # light orange
+]
+
+def color_for_run(run_id: int) -> str:
+    return RUN_COLORS[(run_id - 1) % len(RUN_COLORS)]
+
+def df_to_color_html(df: pd.DataFrame, run_col: str = "Run ID") -> str:
+    """
+    Convert dataframe to an HTML table where all rows belonging to the same run
+    have a consistent background color.
+    """
+    html = ['<table border="1" cellspacing="0" cellpadding="4">']
+
+    # header
+    html.append("<tr>")
+    for col in df.columns:
+        html.append(f"<th>{col}</th>")
+    html.append("</tr>")
+
+    # rows
+    for _, row in df.iterrows():
+        run_id = int(row[run_col])
+        bg = color_for_run(run_id)
+
+        html.append(f'<tr style="background-color:{bg}">')
+        for col in df.columns:
+            html.append(f"<td>{row[col]}</td>")
+        html.append("</tr>")
+
+    html.append("</table>")
+    return "\n".join(html)
+
 def summarize_pruning_experiment(
     experiment_dir: str,
     num_of_runs: Optional[int] = None,
@@ -676,14 +714,14 @@ def summarize_pruning_experiment(
             100 * (1 - df["Parameter after pruning"] / df["Parameter Before pruning"])
         ).round(2)
 
-    markdown = df_to_markdown_stable(df)
+    html_table = df_to_color_html(df)
 
     if output_md_path is not None:
         out_path = Path(output_md_path)
         _ensure_parent_dir(out_path)
-        out_path.write_text(markdown + "\n", encoding="utf-8")
+        out_path.write_text(html_table + "\n", encoding="utf-8")
     else:
-        print(markdown)
+        print(html_table)
 
     return df
 

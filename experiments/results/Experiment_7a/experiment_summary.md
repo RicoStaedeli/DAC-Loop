@@ -1,23 +1,222 @@
-| Run ID | Iteration | Acc. before Pruning | Acc. after Pruning | Acc. after fine tuning | Parameter Before pruning | Parameter after pruning | Param Reduction (%) |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| 1 | 1 | 90.98 | 2.29 | 89.65 | 4921197 | 3030044 | 38.43 |
-| 2 | 1 | 90.98 | 2.67 | 91.51 | 4921197 | 3030044 | 38.43 |
-| 3 | 1 | 90.98 | 2.73 | 90.94 | 4921197 | 3030044 | 38.43 |
-| 4 | 1 | 90.98 | 2.29 | 85.56 | 4921197 | 3030044 | 38.43 |
-| 5 | 1 | 90.98 | 2.32 | 81.43 | 4921197 | 3030044 | 38.43 |
-| 6 | 1 | 90.98 | 2.29 | 89.65 | 4921197 | 3030044 | 38.43 |
-| 7 | 1 | 90.98 | 2.29 | 85.56 | 4921197 | 3030044 | 38.43 |
-| 8 | 1 | 90.98 | 73.44 | 91.33 | 4921197 | 4921197 | 0.0 |
-| 9 | 1 | 90.98 | 7.13 | 90.92 | 4921197 | 4921197 | 0.0 |
-| 10 | 1 | 90.98 | 2.41 | 91.0 | 4921197 | 3030044 | 38.43 |
-| 11 | 1 | 90.98 | 2.43 | 89.97 | 4921197 | 1687563 | 65.71 |
-| 12 | 1 | 90.98 | 2.27 | 88.67 | 4921197 | 1687563 | 65.71 |
-| 13 | 1 | 90.98 | 2.29 | 89.65 | 4921197 | 3030044 | 38.43 |
-| 14 | 1 | 90.98 | 2.29 | 89.65 | 4921197 | 3030044 | 38.43 |
-| 15 | 1 | 90.98 | 2.29 | 90.17 | 4921197 | 4233935 | 13.97 |
-| 16 | 1 | 90.98 | 2.52 | 76.63 | 4921197 | 317290 | 93.55 |
-| 17 | 1 | 90.98 | 2.52 | 74.41 | 4921197 | 317290 | 93.55 |
-| 18 | 1 | 90.98 | 2.16 | 91.48 | 4921197 | 4921197 | 0.0 |
-| 19 | 1 | 90.98 | 87.13 | 91.38 | 4921197 | 4921197 | 0.0 |
-| 20 | 1 | 90.98 | 2.27 | 88.67 | 4921197 | 1687563 | 65.71 |
-| 21 | 1 | 90.98 | 2.41 | 90.14 | 4921197 | 3030044 | 38.43 |
+<table border="1" cellspacing="0" cellpadding="4">
+<tr>
+<th>Run ID</th>
+<th>Iteration</th>
+<th>Acc. before Pruning</th>
+<th>Acc. after Pruning</th>
+<th>Acc. after fine tuning</th>
+<th>Parameter Before pruning</th>
+<th>Parameter after pruning</th>
+<th>Param Reduction (%)</th>
+</tr>
+<tr style="background-color:#ffdddd">
+<td>1.0</td>
+<td>1.0</td>
+<td>90.98</td>
+<td>2.29</td>
+<td>89.65</td>
+<td>4921197.0</td>
+<td>3030044.0</td>
+<td>38.43</td>
+</tr>
+<tr style="background-color:#ddffdd">
+<td>2.0</td>
+<td>1.0</td>
+<td>90.98</td>
+<td>2.67</td>
+<td>91.51</td>
+<td>4921197.0</td>
+<td>3030044.0</td>
+<td>38.43</td>
+</tr>
+<tr style="background-color:#ddddff">
+<td>3.0</td>
+<td>1.0</td>
+<td>90.98</td>
+<td>2.73</td>
+<td>90.94</td>
+<td>4921197.0</td>
+<td>3030044.0</td>
+<td>38.43</td>
+</tr>
+<tr style="background-color:#fff0b3">
+<td>4.0</td>
+<td>1.0</td>
+<td>90.98</td>
+<td>2.29</td>
+<td>85.56</td>
+<td>4921197.0</td>
+<td>3030044.0</td>
+<td>38.43</td>
+</tr>
+<tr style="background-color:#e6ccff">
+<td>5.0</td>
+<td>1.0</td>
+<td>90.98</td>
+<td>2.32</td>
+<td>81.43</td>
+<td>4921197.0</td>
+<td>3030044.0</td>
+<td>38.43</td>
+</tr>
+<tr style="background-color:#ffd9b3">
+<td>6.0</td>
+<td>1.0</td>
+<td>90.98</td>
+<td>2.29</td>
+<td>89.65</td>
+<td>4921197.0</td>
+<td>3030044.0</td>
+<td>38.43</td>
+</tr>
+<tr style="background-color:#ffdddd">
+<td>7.0</td>
+<td>1.0</td>
+<td>90.98</td>
+<td>2.29</td>
+<td>85.56</td>
+<td>4921197.0</td>
+<td>3030044.0</td>
+<td>38.43</td>
+</tr>
+<tr style="background-color:#ddffdd">
+<td>8.0</td>
+<td>1.0</td>
+<td>90.98</td>
+<td>73.44</td>
+<td>91.33</td>
+<td>4921197.0</td>
+<td>4921197.0</td>
+<td>0.0</td>
+</tr>
+<tr style="background-color:#ddddff">
+<td>9.0</td>
+<td>1.0</td>
+<td>90.98</td>
+<td>7.13</td>
+<td>90.92</td>
+<td>4921197.0</td>
+<td>4921197.0</td>
+<td>0.0</td>
+</tr>
+<tr style="background-color:#fff0b3">
+<td>10.0</td>
+<td>1.0</td>
+<td>90.98</td>
+<td>2.41</td>
+<td>91.0</td>
+<td>4921197.0</td>
+<td>3030044.0</td>
+<td>38.43</td>
+</tr>
+<tr style="background-color:#e6ccff">
+<td>11.0</td>
+<td>1.0</td>
+<td>90.98</td>
+<td>2.43</td>
+<td>89.97</td>
+<td>4921197.0</td>
+<td>1687563.0</td>
+<td>65.71</td>
+</tr>
+<tr style="background-color:#ffd9b3">
+<td>12.0</td>
+<td>1.0</td>
+<td>90.98</td>
+<td>2.27</td>
+<td>88.67</td>
+<td>4921197.0</td>
+<td>1687563.0</td>
+<td>65.71</td>
+</tr>
+<tr style="background-color:#ffdddd">
+<td>13.0</td>
+<td>1.0</td>
+<td>90.98</td>
+<td>2.29</td>
+<td>89.65</td>
+<td>4921197.0</td>
+<td>3030044.0</td>
+<td>38.43</td>
+</tr>
+<tr style="background-color:#ddffdd">
+<td>14.0</td>
+<td>1.0</td>
+<td>90.98</td>
+<td>2.29</td>
+<td>89.65</td>
+<td>4921197.0</td>
+<td>3030044.0</td>
+<td>38.43</td>
+</tr>
+<tr style="background-color:#ddddff">
+<td>15.0</td>
+<td>1.0</td>
+<td>90.98</td>
+<td>2.29</td>
+<td>90.17</td>
+<td>4921197.0</td>
+<td>4233935.0</td>
+<td>13.97</td>
+</tr>
+<tr style="background-color:#fff0b3">
+<td>16.0</td>
+<td>1.0</td>
+<td>90.98</td>
+<td>2.52</td>
+<td>76.63</td>
+<td>4921197.0</td>
+<td>317290.0</td>
+<td>93.55</td>
+</tr>
+<tr style="background-color:#e6ccff">
+<td>17.0</td>
+<td>1.0</td>
+<td>90.98</td>
+<td>2.52</td>
+<td>74.41</td>
+<td>4921197.0</td>
+<td>317290.0</td>
+<td>93.55</td>
+</tr>
+<tr style="background-color:#ffd9b3">
+<td>18.0</td>
+<td>1.0</td>
+<td>90.98</td>
+<td>2.16</td>
+<td>91.48</td>
+<td>4921197.0</td>
+<td>4921197.0</td>
+<td>0.0</td>
+</tr>
+<tr style="background-color:#ffdddd">
+<td>19.0</td>
+<td>1.0</td>
+<td>90.98</td>
+<td>87.13</td>
+<td>91.38</td>
+<td>4921197.0</td>
+<td>4921197.0</td>
+<td>0.0</td>
+</tr>
+<tr style="background-color:#ddffdd">
+<td>20.0</td>
+<td>1.0</td>
+<td>90.98</td>
+<td>2.27</td>
+<td>88.67</td>
+<td>4921197.0</td>
+<td>1687563.0</td>
+<td>65.71</td>
+</tr>
+<tr style="background-color:#ddddff">
+<td>21.0</td>
+<td>1.0</td>
+<td>90.98</td>
+<td>2.41</td>
+<td>90.14</td>
+<td>4921197.0</td>
+<td>3030044.0</td>
+<td>38.43</td>
+</tr>
+</table>
