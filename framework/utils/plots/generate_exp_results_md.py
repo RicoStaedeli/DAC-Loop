@@ -709,7 +709,7 @@ def summarize_pruning_experiment_multiple_iterations(
         df.insert(
             0,
             "Run Group",
-            [f"{marker_for_run(int(run_id))} Run {int(run_id)}" for run_id in df["Run ID"]],
+            [f"{marker_for_run(int(run_id))}" for run_id in df["Run ID"]],
         )
 
     # --- NEW: build one markdown table per run ---
