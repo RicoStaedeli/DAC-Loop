@@ -563,6 +563,7 @@ def _get_val_acc_from_candidates(d: Dict[str, Any], *candidate_keys: str) -> Opt
     return None
 
 
+
 RUN_MARKERS = ["🔴", "🟢", "🔵", "🟡", "🟣", "🟠"]
 
 def marker_for_run(run_id: int) -> str:
@@ -589,6 +590,157 @@ def insert_run_separators(df: pd.DataFrame) -> pd.DataFrame:
     # concatenate everything
     out = pd.concat(rows, ignore_index=True)
     return out
+
+def summarize_pruning_experiment_multiple_iterations(
+    experiment_dir: str,
+    num_of_runs: Optional[int] = None,
+    output_md_path: Optional[str] = None,
+) -> pd.DataFrame:
+    """
+    Build a combined pruning/compression table across multiple runs and iterations.
+
+    For each Run_X:
+      - Read metrics_pruning.jsonl
+      - For each line (iteration):
+          * extract accuracies before/after pruning and after fine-tuning
+          * load the corresponding model summary logs to get total params
+
+    Final DataFrame columns:
+
+      | Run ID | Iteration | Acc. before Pruning | Acc. after Pruning |
+      | Acc. after fine tuning | Parameter Before pruning | Parameter after pruning |
+    """
+    experiment_path = Path(experiment_dir)
+
+    if not experiment_path.is_dir():
+        raise NotADirectoryError(f"{experiment_dir} is not a directory")
+
+    combined_rows: List[Dict[str, Any]] = []
+
+    # determine run directories
+    if num_of_runs is not None:
+        run_dirs = [
+            experiment_path / f"Run_{i}"
+            for i in range(1, num_of_runs + 1)
+            if (experiment_path / f"Run_{i}").is_dir()
+        ]
+    else:
+        run_dirs = [d for d in experiment_path.iterdir() if d.is_dir()]
+
+    # You already have this helper somewhere:
+    run_dirs = sorted(run_dirs, key=lambda d: _extract_run_number(d.name))
+
+    for run_dir in run_dirs:
+        metrics_path = run_dir / "metrics_pruning.jsonl"
+        if not metrics_path.is_file():
+            # skip runs without metrics
+            continue
+
+        with metrics_path.open("r", encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if not line:
+                    continue
+
+                try:
+                    record = json.loads(line)
+                except json.JSONDecodeError:
+                    # skip malformed lines
+                    continue
+
+                iteration = record.get("iteration")
+                if iteration is None:
+                    continue
+
+                # --- accuracies (nested dicts) ---
+                acc_before = _get_val_acc_from_candidates(record, "before_pruning")
+                acc_after_pruning = _get_val_acc_from_candidates(
+                    record,
+                    "after_pruning",
+                    "pruned",
+                    "after_prune",
+                )
+                acc_after_ft = _get_val_acc_from_candidates(
+                    record,
+                    "after_finetuning",
+                    "after_fine_tuning",
+                    "pruned_and_finetuned",
+                    "pruned_finetuned",
+                )
+
+                # round to 2 decimals if present
+                acc_before = round(acc_before, 2) if acc_before is not None else None
+                acc_after_pruning = (
+                    round(acc_after_pruning, 2) if acc_after_pruning is not None else None
+                )
+                acc_after_ft = round(acc_after_ft, 2) if acc_after_ft is not None else None
+
+                # --- parameter counts from log files (per iteration) ---
+                before_log = run_dir / f"model_summary_Student - Before Pruning iteration {iteration}.log"
+                after_log = run_dir / f"model_summary_Student - Pruned and Fine-tuned iteration {iteration}.log"
+
+                params_before = _extract_total_params(before_log)
+                params_after = _extract_total_params(after_log)
+
+                row: Dict[str, Any] = {
+                    "Run ID": _extract_run_number(run_dir.name),
+                    "Iteration": iteration,
+                    "Acc. before Pruning": acc_before,
+                    "Acc. after Pruning": acc_after_pruning,
+                    "Acc. after fine tuning": acc_after_ft,
+                    "Parameter Before pruning": params_before,
+                    "Parameter after pruning": params_after,
+                }
+
+                combined_rows.append(row)
+
+    if not combined_rows:
+        raise RuntimeError(f"No valid runs or iterations found in {experiment_dir}")
+
+    df = pd.DataFrame(combined_rows)
+
+    if "Parameter Before pruning" in df.columns and "Parameter after pruning" in df.columns:
+        df["Param Reduction (%)"] = (
+                100 * (1 - df["Parameter after pruning"] / df["Parameter Before pruning"])
+        ).round(2)
+
+    # OPTIONAL: if you still want the emoji Run Group column from earlier, keep something like:
+    if "Run ID" in df.columns:
+        df.insert(
+            0,
+            "Run Group",
+            [f"{marker_for_run(int(run_id))} Run {int(run_id)}" for run_id in df["Run ID"]],
+        )
+
+    # --- NEW: build one markdown table per run ---
+    markdown_parts: List[str] = []
+
+    # ensure runs are in numeric order
+    for run_id in sorted(df["Run ID"].unique()):
+        run_df = df[df["Run ID"] == run_id].copy()
+
+        # sort iterations within each run (optional but usually nice)
+        if "Iteration" in run_df.columns:
+            run_df = run_df.sort_values("Iteration")
+
+        # optional: drop Run ID column for the subtables, since it's in the title
+        run_df_for_table = run_df.drop(columns=["Run ID"])
+
+        markdown_parts.append(f"### Run {int(run_id)}\n")
+        markdown_parts.append(df_to_markdown_stable(run_df_for_table))
+        markdown_parts.append("")  # blank line after each table
+
+    markdown = "\n".join(markdown_parts)
+
+    if output_md_path is not None:
+        out_path = Path(output_md_path)
+        _ensure_parent_dir(out_path)
+        out_path.write_text(markdown + "\n", encoding="utf-8")
+    else:
+        print(markdown)
+
+    return df
+
 
 def summarize_pruning_experiment(
     experiment_dir: str,
@@ -703,15 +855,6 @@ def summarize_pruning_experiment(
             100 * (1 - df["Parameter after pruning"] / df["Parameter Before pruning"])
         ).round(2)
 
-    if "Run ID" in df.columns:
-        df.insert(
-            0,  # put it as the first column
-            "Run Group",
-            [f"{marker_for_run(int(run_id))} Run {int(run_id)}" for run_id in df["Run ID"]],
-        )
-
-    df = insert_run_separators(df)
-
     markdown = df_to_markdown_stable(df)
 
     if output_md_path is not None:
@@ -722,9 +865,6 @@ def summarize_pruning_experiment(
         print(markdown)
 
     return df
-
-
-
 
 
 def _collect_run_points(df: pd.DataFrame, run: int):
@@ -1072,7 +1212,8 @@ def main():
         experiment_dir="experiments/results/Experiment_8",
         output_md_path="experiments/results/Experiment_8/experiment_summary.md",
     )
-    summarize_pruning_experiment(
+
+    summarize_pruning_experiment_multiple_iterations(
         experiment_dir="experiments/results/Experiment_9",
         output_md_path="experiments/results/Experiment_9/experiment_summary.md",
     )
