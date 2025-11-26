@@ -51,7 +51,8 @@ uv install
    of the specific run are in the run config files.
    An example experiment can be found in [Experiment_XY](experiments/experiments/configurations/Experiment_XY). The name of the experiment folder is
    passed as an argument to the `runner.py` script.
-4. To execute an experiment, use the following command:
+
+    To execute an experiment, use the following command:
 
 ```bash
 uv run runner.py --gpu 0 --experiment Experiment_XY
