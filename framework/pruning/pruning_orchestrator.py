@@ -203,7 +203,7 @@ class PruningOrchestrator:
             # Final summary after the last pruning + fine-tuning iteration
             summarize(cfg, self.model, input_channels, f"Student - Pruned and Fine-tuned iteration {iteration}", experiment_dir)
 
-        pruned_path = Path(cfg.training.base_path_ckpts) / experiment_dir / "compressed_model.pt"
-        save_state_dict(self.model, pruned_path)
+            pruned_path = Path(cfg.training.base_path_ckpts) / experiment_dir / f"compressed_model_iteration_{iteration}.pt"
+            save_state_dict(self.model, pruned_path)
 
         return self.model

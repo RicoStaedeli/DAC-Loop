@@ -1,6 +1,5 @@
-# R-L Net
-
-bla bla
+# Project Documentation
+This document provides an overview of the R-L Net framework, instructions for generating plots, baseline results, and ablation studies.
 
 ## Generate Plots
 

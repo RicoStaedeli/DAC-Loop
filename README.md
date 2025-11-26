@@ -19,13 +19,12 @@ The directory structure of **R-L-Net** is organized as follows:
 
 ### Module Overview
 
-| Directory              | Description                                                                        |
-|------------------------|------------------------------------------------------------------------------------|
-| **framework/models**   | Contains model architectures including various ResNet implementations and TinyCNN. |
-| **framework/pruning**  | Handles model pruning strategies and orchestration logic.                          |
-| **framework/training** | Manages training loops with KD methods                                             |
-| **notebooks**          | Notebooks for data exploration                                                     |
-| **runner.py**          | The primary script to execute training or pruning tasks.                           |
+| Directory                       | Description                                                       |
+|---------------------------------|-------------------------------------------------------------------|
+| **[experiments](experiments/)** | Contains the experiment configurations and the results            |
+| **[framework](framework/)**     | This is the framework of the Distillation Aware Compression Loop. |
+| **[notebooks](notebooks/)**     | Notebooks for data exploration                                    |
+| **[runner.py](runner.py)**      | The primary script to execute experiments                         |
 
 ## Getting Started
 
