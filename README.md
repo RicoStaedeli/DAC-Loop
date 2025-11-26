@@ -4,7 +4,7 @@
 
 ## Project Overview
 
-This project implements a distillation-aware pruning loop designed to enhance the compression of Convolutional Neural
+This project implements a distillation-aware compression loop designed to enhance the compression of Convolutional Neural
 Networks (CNNs) using teacher-student learning techniques. The primary goal is to reduce the model size while
 maintaining high performance, making it suitable for deployment in resource-constrained environments, particularly in
 remote sensing applications.
@@ -40,7 +40,7 @@ cd R-L-Net
 2. **Install Dependencies**:
 
 ```bash
-pip install uv
+pip install uv      # Install UV if not already installed
 uv install
 ```
 
