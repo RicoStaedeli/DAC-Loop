@@ -115,15 +115,10 @@ class PruningOrchestrator:
         Returns:
             nn.Module: The pruned and fine-tuned model.
         """
-
-
-        # Path for JSONL metrics
         metrics_path = experiment_dir / "metrics_pruning.jsonl"
-        # overwrite on each run (use "a" if you prefer appending)
         metrics_file = metrics_path.open("w")
 
 
-        # How many pruning iterations to run
         iterations = getattr(getattr(cfg.training, "pruning", cfg.training), "iterations", 0)
         if iterations < 1:
             log.warning(
@@ -145,6 +140,8 @@ class PruningOrchestrator:
             # Build strategy from schedule / defaults
             strategy = self._build_strategy(cfg, iteration, input_channels)
 
+            it_cfg = self._get_iteration_cfg(cfg, iteration)
+
             # Prepare and apply pruning masks / surgery
             strategy.prepare(self.model)
             strategy.apply(self.model)
@@ -164,7 +161,7 @@ class PruningOrchestrator:
                 student=self.model,
                 train_loader=train_loader,
                 val_loader=val_loader,
-                adapt_kd_proj_flag=getattr(cfg.training.pruning, "structured", False),
+                adapt_kd_proj_flag= True if it_cfg["structured"] else False,
                 iteration=iteration,
             )
 
