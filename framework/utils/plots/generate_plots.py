@@ -33,8 +33,8 @@ def main():
     # _make_plots_for_experiment(experiment_name="Experiment_7", num_runs=21, only_overview=False, compression_experiment=True)
     # _make_plots_for_experiment(experiment_name="Experiment_7a", num_runs=21, only_overview=False, compression_experiment=True)
     # _make_plots_for_experiment(experiment_name="Experiment_8", num_runs=12, only_overview=False, compression_experiment=True)
-    _make_plots_for_experiment(experiment_name="Experiment_9", num_runs=8, only_overview=False, compression_experiment=True)
-    #_make_plots_for_experiment(experiment_name="Experiment_9a", num_runs=8, only_overview=False, compression_experiment=True)
+    # _make_plots_for_experiment(experiment_name="Experiment_9", num_runs=8, only_overview=False, compression_experiment=True)
+    _make_plots_for_experiment(experiment_name="Experiment_9a", num_runs=8, only_overview=False, compression_experiment=True)
 
     ################################################################################################################
     ############################ Plots with different experiments ##################################################
