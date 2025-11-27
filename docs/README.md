@@ -101,7 +101,7 @@ The teacher was in all stages end experiments the same: ResNet50 trained on RESI
 | ResNet10 - No KD + Pruning (65.71%) + KD             | 1,687,563 | 89.62                   | [Experiment 8, Run_10](../experiments/results/Experiment_8/Run_10)              | Compress model ResNet10 - No KD and fine-tune with KD       |
 | ResNet10 + KD + Pruning (65.71%) - No KD             | 1,687,563 | 89.02                   | [Experiment 8, Run_5](../experiments/results/Experiment_8/Run_6)                | Compress model ResNet10 - KD and fine-tune without KD       |
 | ResNet10 + KD + Pruning (65.71%) + KD                | 1,687,563 | 89.97                   | [Experiment 7a, Run_11](../experiments/results/Experiment_7a/Run_11)            | Compress model ResNet10 - KD and fine-tune with KD          |
-| ResNet10 + 2 iterations of KD aware compression loop | 3,030,044 | **91.33**               | [Experiment 9a, Run_3, Iteration 4](../experiments/results/Experiment_9a/Run_3) | Distillation-Aware compression loop with 4 iterations       |
+| ResNet10 + 2 iterations of KD aware compression loop | 3,030,044 | **91.33**               | [Experiment 9a, Run_3, Iteration 4](../experiments/results/Experiment_9a/Run_3) | Distillation-Aware compression loop with 2 iterations       |
 | ResNet10 + 4 iterations of KD aware compression loop | 1,872,563 | **90.89**               | [Experiment 9a, Run_3, Iteration 4](../experiments/results/Experiment_9a/Run_3) | Distillation-Aware compression loop with 4 iterations       |
 
 ### ResNet18 on RESISC45
@@ -117,8 +117,8 @@ The teacher was in all stages end experiments the same: ResNet50 trained on RESI
 | ResNet18 - No KD + Pruning (65.71%) + KD             | 2,708,024  | 90.48                   | [Experiment 8, Run_12](../experiments/results/Experiment_8/Run_12)            | Compress model ResNet18 - No KD and fine-tune with KD       |
 | ResNet18 + KD + Pruning (65.71%) - No KD             | 2,708,024  | 89.63                   | [Experiment 8, Run_8](../experiments/results/Experiment_8/Run_8)              | Compress model ResNet18 - KD and fine-tune without KD       |
 | ResNet18 + KD + Pruning (65.71%) + KD                | 2,708,024  | 91.37                   | [Experiment 7, Run_11](../experiments/results/Experiment_7/Run_11)            | Compress model ResNet18 - KD and fine-tune with KD          |
-| ResNet18 + 6 iterations of KD aware compression loop | 1'653'545  | **92.44**               | [Experiment 9, Run_5, Iteration 6](../experiments/results/Experiment_9/Run_5) | Compress model ResNet18 - KD and fine-tune with KD          |
-| ResNet18 + 9 iterations of KD aware compression loop | 885,489    | **91.10**               | [Experiment 9, Run_7, Iteration 9](../experiments/results/Experiment_9/Run_7) | Compress model ResNet18 - KD and fine-tune with KD          |
+| ResNet18 + 6 iterations of KD aware compression loop | 1'653'545  | **92.44**               | [Experiment 9, Run_5, Iteration 6](../experiments/results/Experiment_9/Run_5) | Distillation-Aware compression loop with 6 iterations       |
+| ResNet18 + 9 iterations of KD aware compression loop | 885,489    | **91.10**               | [Experiment 9, Run_7, Iteration 9](../experiments/results/Experiment_9/Run_7) | Distillation-Aware compression loop with 9 iterations       |
 
 
 KD-Aware compression consistently outperforms standard pruning methods, achieving higher accuracy with significant parameter
