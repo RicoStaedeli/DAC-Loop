@@ -1211,6 +1211,10 @@ def main():
         experiment_dir="experiments/results/Experiment_8",
         output_md_path="experiments/results/Experiment_8/experiment_summary.md",
     )
+    summarize_pruning_experiment(
+        experiment_dir="experiments/results/Experiment_12",
+        output_md_path="experiments/results/Experiment_12/experiment_summary.md",
+    )
 
     # ------------------------------------------------------------------
     # Tables for Compression Loop Experiments
