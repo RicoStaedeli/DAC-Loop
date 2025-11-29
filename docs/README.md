@@ -99,7 +99,7 @@ The teacher was in all stages end experiments the same: ResNet50 trained on RESI
 | ResNet10 + KD + Pruning (38.43%) + KD                | 3,030,044 | 91.00                   | [Experiment 7a, Run_10](../experiments/results/Experiment_7a/Run_10)            | Compress model ResNet10 - KD and fine-tune with KD          |
 | ResNet10 - No KD + Pruning (65.71%) - No KD          | 1,687,563 | 89.52                   | [Experiment 8, Run_2](../experiments/results/Experiment_8/Run_2)                | Compress model ResNet10 - Baseline and fine-tune without KD |
 | ResNet10 - No KD + Pruning (65.71%) + KD             | 1,687,563 | 89.62                   | [Experiment 8, Run_10](../experiments/results/Experiment_8/Run_10)              | Compress model ResNet10 - No KD and fine-tune with KD       |
-| ResNet10 + KD + Pruning (65.71%) - No KD             | 1,687,563 | 89.02                   | [Experiment 8, Run_5](../experiments/results/Experiment_8/Run_6)                | Compress model ResNet10 - KD and fine-tune without KD       |
+| ResNet10 + KD + Pruning (65.71%) - No KD             | 1,687,563 | 89.02                   | [Experiment 8, Run_6](../experiments/results/Experiment_8/Run_6)                | Compress model ResNet10 - KD and fine-tune without KD       |
 | ResNet10 + KD + Pruning (65.71%) + KD                | 1,687,563 | 89.97                   | [Experiment 7a, Run_11](../experiments/results/Experiment_7a/Run_11)            | Compress model ResNet10 - KD and fine-tune with KD          |
 | ResNet10 + 2 iterations of KD aware compression loop | 3,030,044 | **91.33**               | [Experiment 9a, Run_3, Iteration 4](../experiments/results/Experiment_9a/Run_3) | Distillation-Aware compression loop with 2 iterations       |
 | ResNet10 + 4 iterations of KD aware compression loop | 1,872,563 | **90.89**               | [Experiment 9a, Run_3, Iteration 4](../experiments/results/Experiment_9a/Run_3) | Distillation-Aware compression loop with 4 iterations       |
@@ -120,6 +120,34 @@ The teacher was in all stages end experiments the same: ResNet50 trained on RESI
 | ResNet18 + 6 iterations of KD aware compression loop | 1'653'545  | **92.44**               | [Experiment 9, Run_5, Iteration 6](../experiments/results/Experiment_9/Run_5) | Distillation-Aware compression loop with 6 iterations       |
 | ResNet18 + 9 iterations of KD aware compression loop | 885,489    | **91.10**               | [Experiment 9, Run_7, Iteration 9](../experiments/results/Experiment_9/Run_7) | Distillation-Aware compression loop with 9 iterations       |
 
+
+### ResNet10 on EuroSAT
+| Model                                       | Parameter | Validation Accuracy (%) | Run ID                                                                 | Notes                                                       |
+|---------------------------------------------|-----------|-------------------------|------------------------------------------------------------------------|-------------------------------------------------------------|
+| ResNet10 - Our Baseline                     | 4,921,197 | 98.40                   | [Experiment 1, Run_4](../experiments/results/Experiment_1/Run_4)       | Train from scratch without a teacher for 50 epochs          |
+| ResNet10 + KD                               | 4,921,197 | 98.57                   | [Experiment 4a, Run_11](../experiments/results/Experiment_4a/Run_11)   | Train from scratch with a teacher for 50 epochs             |
+| ResNet10 - No KD + Pruning (38.46%) - No KD | 3,020,831 | 98.04                   | [Experiment 12, Run_1](../experiments/results/Experiment_12/Run_1)     | Compress model ResNet10 - Baseline and fine-tune without KD |
+| ResNet10 - No KD + Pruning (34.59%) + KD    | 3,210,783 | 98.19                   | [Experiment 12, Run_9](../experiments/results/Experiment_12/Run_9)     | Compress model ResNet10 - No KD and fine-tune with KD       |
+| ResNet10 + KD + Pruning (38.43%) - No KD    | 3,020,831 | 98.20                   | [Experiment 12, Run_5](../experiments/results/Experiment_12/Run_5)     | Compress model ResNet10 - KD and fine-tune without KD       |
+| ResNet10 + KD + Pruning (34.59%) + KD       | 3,210,783 | 98.24                   | [Experiment 11a, Run_2](../experiments/results/Experiment_11a/Run_2)   | Compress model ResNet10 - KD and fine-tune with KD          |
+| ResNet10 - No KD + Pruning (65.75%) - No KD | 1'681'300 | 97.83                   | [Experiment 12, Run_2](../experiments/results/Experiment_12/Run_2)     | Compress model ResNet10 - Baseline and fine-tune without KD |
+| ResNet10 - No KD + Pruning (63.12%) + KD    | 1,810,324 | 98.24                   | [Experiment 12, Run_10](../experiments/results/Experiment_12/Run_10)   | Compress model ResNet10 - No KD and fine-tune with KD       |
+| ResNet10 + KD + Pruning (65.75%) - No KD    | 1'681'300 | 97.89                   | [Experiment 12, Run_6](../experiments/results/Experiment_12/Run_6)     | Compress model ResNet10 - KD and fine-tune without KD       |
+| ResNet10 + KD + Pruning (63.12%) + KD       | 1,810,324 | 98.20                   | [Experiment 11a, Run_20](../experiments/results/Experiment_11a/Run_20) | Compress model ResNet10 - KD and fine-tune with KD          |
+
+### ResNet18 on EuroSAT
+| Model                                       | Parameter | Validation Accuracy (%) | Run ID                                                               | Notes                                                       |
+|---------------------------------------------|-----------|-------------------------|----------------------------------------------------------------------|-------------------------------------------------------------|
+| ResNet18 - Our Baseline                     | 4,921,197 | 98.27                   | [Experiment 1, Run_1](../experiments/results/Experiment_1/Run_1)     | Train from scratch without a teacher for 50 epochs          |
+| ResNet18 + KD                               | 4,921,197 | 98.74                   | [Experiment 4, Run_3](../experiments/results/Experiment_4/Run_3)     | Train from scratch with a teacher for 50 epochs             |
+| ResNet18 - No KD + Pruning (47.48%) - No KD | 5,871078  | 98.06                   | [Experiment 12, Run_3](../experiments/results/Experiment_12/Run_3)   | Compress model ResNet18 - Baseline and fine-tune without KD |
+| ResNet18 - No KD + Pruning 46.03%) + KD     | 6,032,870 | 98.00                   | [Experiment 12, Run_11](../experiments/results/Experiment_12/Run_11) | Compress model ResNet18 - No KD and fine-tune with KD       |
+| ResNet18 + KD + Pruning (47.48%) - No KD    | 5,871,078 | 98.35                   | [Experiment 12, Run_7](../experiments/results/Experiment_12/Run_7)   | Compress model ResNet18 - KD and fine-tune without KD       |
+| ResNet18 + KD + Pruning (46.03%) + KD       | 6,032,870 | 98.56                   | [Experiment 11, Run_2](../experiments/results/Experiment_11/Run_2)   | Compress model ResNet18 - KD and fine-tune with KD          |
+| ResNet18 - No KD + Pruning (75.82%) - No KD | 2,703,657 | 98.07                   | [Experiment 12, Run_4](../experiments/results/Experiment_12/Run_4)   | Compress model ResNet18 - Baseline and fine-tune without KD |
+| ResNet18 - No KD + Pruning (75.0%) + KD     | 2,794,281 | 97.94                   | [Experiment 12, Run_12](../experiments/results/Experiment_12/Run_12) | Compress model ResNet18 - No KD and fine-tune with KD       |
+| ResNet18 + KD + Pruning (75.82%) - No KD    | 2,703,657 | 97.80                   | [Experiment 12, Run_8](../experiments/results/Experiment_12/Run_8)   | Compress model ResNet18 - KD and fine-tune without KD       |
+| ResNet18 + KD + Pruning (75.0%) + KD        | 2,794,281 | 98.33                   | [Experiment 11, Run_20](../experiments/results/Experiment_11/Run_20) | Compress model ResNet18 - KD and fine-tune with KD          |
 
 KD-Aware compression consistently outperforms standard pruning methods, achieving higher accuracy with significant parameter
 reductions.
