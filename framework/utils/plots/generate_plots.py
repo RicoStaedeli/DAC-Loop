@@ -3,7 +3,7 @@ from pathlib import Path
 
 from framework.utils.logger import setup_logging
 from framework.utils.plots.plot_repository import plot_teacher_student_metrics, make_overview_per_experiment, \
-    plot_val_accuracy_over_epochs, plot_compression_experiment
+    plot_val_accuracy_over_epochs, plot_compression_experiment, plot_dac_compression_curves
 from framework.utils.utils import load_config_toml
 
 log = logging.getLogger(__name__)
@@ -35,8 +35,7 @@ def main():
     # _make_plots_for_experiment(experiment_name="Experiment_8", num_runs=12, only_overview=False, compression_experiment=True)
     # _make_plots_for_experiment(experiment_name="Experiment_9", num_runs=8, only_overview=False, compression_experiment=True)
     # _make_plots_for_experiment(experiment_name="Experiment_9a", num_runs=8, only_overview=False, compression_experiment=True)
-    _make_plots_for_experiment(experiment_name="Experiment_11", num_runs=21, only_overview=False,
-                               compression_experiment=True)
+    # _make_plots_for_experiment(experiment_name="Experiment_11", num_runs=21, only_overview=False, compression_experiment=True)
     # _make_plots_for_experiment(experiment_name="Experiment_11a", num_runs=21, only_overview=False, compression_experiment=True)
     ################################################################################################################
     ############################ Plots with different experiments ##################################################
@@ -173,6 +172,15 @@ def _plots_for_different_experiments():
         models,
         out_path_base="docs/plots/9_resisc_resnet10_student_vs_baseline",
         title="ResNet10 - Validation Accuracy over Epochs on RESISC45",
+        use_latex=True,
+        figsize=(6, 3)
+    )
+
+    ########## Final Plot DAC Effect on RESISC45 ##########
+    # 10 - Final Plot
+    plot_dac_compression_curves(
+        json_path="experiments/results/Experiment_13/result.json",
+        out_path_base="docs/plots/10_dac_compression_curves",
         use_latex=True,
         figsize=(6, 3)
     )

@@ -759,3 +759,95 @@ def plot_compression_experiment(
     out_base.parent.mkdir(parents=True, exist_ok=True)
     saved = _save_figure(fig, out_base, export_pdf, export_png, png_dpi)
     return saved
+
+def plot_dac_compression_curves(
+        json_path: Union[str, Path],
+        out_path_base: Union[str, Path] = "dac_compression_curves",
+        *,
+        title: str = "Effect of DAC on Validation Accuracy vs. Compression",
+        use_latex: bool = True,
+        figsize: Tuple[float, float] = DEFAULT_FIGSIZE,
+        export_pdf: bool = True,
+        export_png: bool = True,
+        png_dpi: int = 600,
+) -> dict:
+    """
+    Plot validation accuracy with/without DAC as a function of compression.
+
+    Expects a JSON file like:
+    [
+      {
+        "Parameter": 11191917,
+        "Acc_without_DAC": 91.24,
+        "Acc_with_DAC": 93.24,
+        "Compression": 0.0
+      },
+      ...
+    ]
+    """
+    # Runtime plotting options
+    rcParams.update({"text.usetex": use_latex, "savefig.dpi": png_dpi})
+
+    json_path = Path(json_path)
+    if not json_path.exists():
+        raise FileNotFoundError(f"JSON file not found: {json_path}")
+
+    with open(json_path, "r") as f:
+        data = json.load(f)
+
+    if not isinstance(data, list) or not data:
+        raise ValueError(f"Expected a non-empty list of records in {json_path}")
+
+    df = pd.DataFrame(data)
+
+    required_cols = {"Compression", "Acc_without_DAC", "Acc_with_DAC"}
+    missing = required_cols - set(df.columns)
+    if missing:
+        raise ValueError(f"{json_path} is missing required columns: {missing}")
+
+    # Ensure numeric and sorted by compression
+    df["Compression"] = pd.to_numeric(df["Compression"], errors="coerce")
+    df["Acc_without_DAC"] = pd.to_numeric(df["Acc_without_DAC"], errors="coerce")
+    df["Acc_with_DAC"] = pd.to_numeric(df["Acc_with_DAC"], errors="coerce")
+    df = df.dropna(subset=["Compression", "Acc_without_DAC", "Acc_with_DAC"])
+    df = df.sort_values("Compression").reset_index(drop=True)
+
+    if df.empty:
+        raise ValueError(f"No valid numeric rows found in {json_path}")
+
+    fig, ax = plt.subplots(figsize=figsize)
+    ax.grid(True, linestyle=":", linewidth=0.4, alpha=0.8)
+    ax.tick_params(length=3, width=0.6, which="both")
+    ax.set_xlabel("Compression (\\%)")
+    ax.set_ylabel("Validation Accuracy (\\%)")
+
+    # Decide once whether to treat accuracy as fraction or percent
+    all_acc = pd.concat([df["Acc_without_DAC"], df["Acc_with_DAC"]], ignore_index=True)
+    # In your example (80–95 range) this will evaluate to "already percent"
+    as_fraction = _is_fractional_accuracy(all_acc)
+
+    y_no = df["Acc_without_DAC"].to_numpy()
+    y_yes = df["Acc_with_DAC"].to_numpy()
+
+    # If accuracies are fractional in [0,1], convert to percent
+    if as_fraction:
+        y_no = y_no * 100.0
+        y_yes = y_yes * 100.0
+
+    x = df["Compression"].to_numpy()
+
+    # Simple labels, no best point info
+    ax.plot(x, y_no, linestyle="-", marker=None, label="w/o DAC")
+    ax.plot(x, y_yes, linestyle="-", marker=None, label="w/ DAC")
+
+    # Show every 10% step on the x-axis
+    ax.set_xticks(list(range(0, 101, 10)))
+    ax.set_xlim(0, 100)
+
+    ax.set_title(rf"\textbf{{{title}}}")
+    ax.legend(frameon=False, handlelength=1.2, borderaxespad=0.2, loc="best")
+
+    out_base = Path(out_path_base)
+    out_base.parent.mkdir(parents=True, exist_ok=True)
+    saved = _save_figure(fig, out_base, export_pdf, export_png, png_dpi)
+    return saved
