@@ -16,6 +16,7 @@ from framework.training.training_orchestrator import Trainer
 from framework.utils.device_resolver import DeviceResolver
 from framework.pruning.strategies.structured import StructuredPruning
 from framework.pruning.strategies.unstructured import UnstructuredPruning
+from framework.utils.push_to_remote_repository import git_commit_and_push
 
 log = logging.getLogger(__name__)
 
@@ -202,5 +203,6 @@ class PruningOrchestrator:
 
             pruned_path = Path(cfg.training.base_path_ckpts) / experiment_dir / f"compressed_model_iteration_{iteration}.pt"
             save_state_dict(self.model, pruned_path)
+            git_commit_and_push(f"Experiment={cfg.experiment.name} Run={cfg.experiment.run}")
 
         return self.model

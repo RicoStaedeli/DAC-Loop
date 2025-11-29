@@ -14,11 +14,8 @@ from dotenv import load_dotenv
 from framework.dataset.load_for_training import load_hf_splits, build_loaders_from_hf
 from framework.models import MODEL_REGISTRY
 from framework.pruning.pruning_orchestrator import PruningOrchestrator
-from framework.pruning.strategies.structured import StructuredPruning
-from framework.pruning.strategies.unstructured import UnstructuredPruning
 from framework.training.training_orchestrator import Trainer
 from framework.utils.logger import setup_logging, log_meta_info, print_model_summary, print_experiment_overview
-from framework.utils.plots.plot_repository import plot_teacher_student_metrics
 from framework.utils.push_to_remote_repository import git_commit_and_push
 from framework.utils.utils import set_seed, load_config_toml
 
