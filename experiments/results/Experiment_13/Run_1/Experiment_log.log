@@ -8112,3 +8112,341 @@ Estimated Total Size (MB): 31091.14
 
 
 2025-11-30 17:37:32,431 [INFO] [framework.pruning.services.core] (core.save_state_dict:77) :: Saved model state_dict to experiments/results/Experiment_13/Run_1/compressed_model_iteration_23.pt
+2025-11-30 17:37:33,370 [INFO] [framework.pruning.pruning_orchestrator] (pruning_orchestrator.run:134) :: == PRUNING ITERATION 24/51 ==
+2025-11-30 17:37:33,989 [INFO] [framework.pruning.services.metrics] (logger.print_model_summary:135) :: Student - Before Pruning iteration 24:
+---------------------------
+============================================================================================================================================
+Layer (type:depth-idx)                   Input Shape               Output Shape              Param #                   Trainable
+============================================================================================================================================
+ResNet18                                 [256, 3, 256, 256]        [256, 45]                 --                        True
+├─Conv2d: 1-1                            [256, 3, 256, 256]        [256, 33, 256, 256]       891                       True
+├─BatchNorm2d: 1-2                       [256, 33, 256, 256]       [256, 33, 256, 256]       66                        True
+├─ReLU: 1-3                              [256, 33, 256, 256]       [256, 33, 256, 256]       --                        --
+├─MaxPool2d: 1-4                         [256, 33, 256, 256]       [256, 33, 128, 128]       --                        --
+├─Sequential: 1-5                        [256, 33, 128, 128]       [256, 33, 128, 128]       --                        True
+│    └─BasicBlock: 2-1                   [256, 33, 128, 128]       [256, 33, 128, 128]       --                        True
+│    │    └─Conv2d: 3-1                  [256, 33, 128, 128]       [256, 53, 128, 128]       15,741                    True
+│    │    └─BatchNorm2d: 3-2             [256, 53, 128, 128]       [256, 53, 128, 128]       106                       True
+│    │    └─ReLU: 3-3                    [256, 53, 128, 128]       [256, 53, 128, 128]       --                        --
+│    │    └─Conv2d: 3-4                  [256, 53, 128, 128]       [256, 33, 128, 128]       15,741                    True
+│    │    └─BatchNorm2d: 3-5             [256, 33, 128, 128]       [256, 33, 128, 128]       66                        True
+│    │    └─Sequential: 3-6              [256, 33, 128, 128]       [256, 33, 128, 128]       --                        --
+│    │    └─ReLU: 3-7                    [256, 33, 128, 128]       [256, 33, 128, 128]       --                        --
+│    └─BasicBlock: 2-2                   [256, 33, 128, 128]       [256, 33, 128, 128]       --                        True
+│    │    └─Conv2d: 3-8                  [256, 33, 128, 128]       [256, 53, 128, 128]       15,741                    True
+│    │    └─BatchNorm2d: 3-9             [256, 53, 128, 128]       [256, 53, 128, 128]       106                       True
+│    │    └─ReLU: 3-10                   [256, 53, 128, 128]       [256, 53, 128, 128]       --                        --
+│    │    └─Conv2d: 3-11                 [256, 53, 128, 128]       [256, 33, 128, 128]       15,741                    True
+│    │    └─BatchNorm2d: 3-12            [256, 33, 128, 128]       [256, 33, 128, 128]       66                        True
+│    │    └─Sequential: 3-13             [256, 33, 128, 128]       [256, 33, 128, 128]       --                        --
+│    │    └─ReLU: 3-14                   [256, 33, 128, 128]       [256, 33, 128, 128]       --                        --
+├─Sequential: 1-6                        [256, 33, 128, 128]       [256, 59, 64, 64]         --                        True
+│    └─BasicBlock: 2-3                   [256, 33, 128, 128]       [256, 59, 64, 64]         --                        True
+│    │    └─Conv2d: 3-15                 [256, 33, 128, 128]       [256, 96, 64, 64]         28,512                    True
+│    │    └─BatchNorm2d: 3-16            [256, 96, 64, 64]         [256, 96, 64, 64]         192                       True
+│    │    └─ReLU: 3-17                   [256, 96, 64, 64]         [256, 96, 64, 64]         --                        --
+│    │    └─Conv2d: 3-18                 [256, 96, 64, 64]         [256, 59, 64, 64]         50,976                    True
+│    │    └─BatchNorm2d: 3-19            [256, 59, 64, 64]         [256, 59, 64, 64]         118                       True
+│    │    └─Sequential: 3-20             [256, 33, 128, 128]       [256, 59, 64, 64]         --                        True
+│    │    │    └─Conv2d: 4-1             [256, 33, 128, 128]       [256, 59, 64, 64]         1,947                     True
+│    │    │    └─BatchNorm2d: 4-2        [256, 59, 64, 64]         [256, 59, 64, 64]         118                       True
+│    │    └─ReLU: 3-21                   [256, 59, 64, 64]         [256, 59, 64, 64]         --                        --
+│    └─BasicBlock: 2-4                   [256, 59, 64, 64]         [256, 59, 64, 64]         --                        True
+│    │    └─Conv2d: 3-22                 [256, 59, 64, 64]         [256, 96, 64, 64]         50,976                    True
+│    │    └─BatchNorm2d: 3-23            [256, 96, 64, 64]         [256, 96, 64, 64]         192                       True
+│    │    └─ReLU: 3-24                   [256, 96, 64, 64]         [256, 96, 64, 64]         --                        --
+│    │    └─Conv2d: 3-25                 [256, 96, 64, 64]         [256, 59, 64, 64]         50,976                    True
+│    │    └─BatchNorm2d: 3-26            [256, 59, 64, 64]         [256, 59, 64, 64]         118                       True
+│    │    └─Sequential: 3-27             [256, 59, 64, 64]         [256, 59, 64, 64]         --                        --
+│    │    └─ReLU: 3-28                   [256, 59, 64, 64]         [256, 59, 64, 64]         --                        --
+├─Sequential: 1-7                        [256, 59, 64, 64]         [256, 104, 32, 32]        --                        True
+│    └─BasicBlock: 2-5                   [256, 59, 64, 64]         [256, 104, 32, 32]        --                        True
+│    │    └─Conv2d: 3-29                 [256, 59, 64, 64]         [256, 188, 32, 32]        99,828                    True
+│    │    └─BatchNorm2d: 3-30            [256, 188, 32, 32]        [256, 188, 32, 32]        376                       True
+│    │    └─ReLU: 3-31                   [256, 188, 32, 32]        [256, 188, 32, 32]        --                        --
+│    │    └─Conv2d: 3-32                 [256, 188, 32, 32]        [256, 104, 32, 32]        175,968                   True
+│    │    └─BatchNorm2d: 3-33            [256, 104, 32, 32]        [256, 104, 32, 32]        208                       True
+│    │    └─Sequential: 3-34             [256, 59, 64, 64]         [256, 104, 32, 32]        --                        True
+│    │    │    └─Conv2d: 4-3             [256, 59, 64, 64]         [256, 104, 32, 32]        6,136                     True
+│    │    │    └─BatchNorm2d: 4-4        [256, 104, 32, 32]        [256, 104, 32, 32]        208                       True
+│    │    └─ReLU: 3-35                   [256, 104, 32, 32]        [256, 104, 32, 32]        --                        --
+│    └─BasicBlock: 2-6                   [256, 104, 32, 32]        [256, 104, 32, 32]        --                        True
+│    │    └─Conv2d: 3-36                 [256, 104, 32, 32]        [256, 188, 32, 32]        175,968                   True
+│    │    └─BatchNorm2d: 3-37            [256, 188, 32, 32]        [256, 188, 32, 32]        376                       True
+│    │    └─ReLU: 3-38                   [256, 188, 32, 32]        [256, 188, 32, 32]        --                        --
+│    │    └─Conv2d: 3-39                 [256, 188, 32, 32]        [256, 104, 32, 32]        175,968                   True
+│    │    └─BatchNorm2d: 3-40            [256, 104, 32, 32]        [256, 104, 32, 32]        208                       True
+│    │    └─Sequential: 3-41             [256, 104, 32, 32]        [256, 104, 32, 32]        --                        --
+│    │    └─ReLU: 3-42                   [256, 104, 32, 32]        [256, 104, 32, 32]        --                        --
+├─Sequential: 1-8                        [256, 104, 32, 32]        [256, 197, 16, 16]        --                        True
+│    └─BasicBlock: 2-7                   [256, 104, 32, 32]        [256, 197, 16, 16]        --                        True
+│    │    └─Conv2d: 3-43                 [256, 104, 32, 32]        [256, 371, 16, 16]        347,256                   True
+│    │    └─BatchNorm2d: 3-44            [256, 371, 16, 16]        [256, 371, 16, 16]        742                       True
+│    │    └─ReLU: 3-45                   [256, 371, 16, 16]        [256, 371, 16, 16]        --                        --
+│    │    └─Conv2d: 3-46                 [256, 371, 16, 16]        [256, 197, 16, 16]        657,783                   True
+│    │    └─BatchNorm2d: 3-47            [256, 197, 16, 16]        [256, 197, 16, 16]        394                       True
+│    │    └─Sequential: 3-48             [256, 104, 32, 32]        [256, 197, 16, 16]        --                        True
+│    │    │    └─Conv2d: 4-5             [256, 104, 32, 32]        [256, 197, 16, 16]        20,488                    True
+│    │    │    └─BatchNorm2d: 4-6        [256, 197, 16, 16]        [256, 197, 16, 16]        394                       True
+│    │    └─ReLU: 3-49                   [256, 197, 16, 16]        [256, 197, 16, 16]        --                        --
+│    └─BasicBlock: 2-8                   [256, 197, 16, 16]        [256, 197, 16, 16]        --                        True
+│    │    └─Conv2d: 3-50                 [256, 197, 16, 16]        [256, 371, 16, 16]        657,783                   True
+│    │    └─BatchNorm2d: 3-51            [256, 371, 16, 16]        [256, 371, 16, 16]        742                       True
+│    │    └─ReLU: 3-52                   [256, 371, 16, 16]        [256, 371, 16, 16]        --                        --
+│    │    └─Conv2d: 3-53                 [256, 371, 16, 16]        [256, 197, 16, 16]        657,783                   True
+│    │    └─BatchNorm2d: 3-54            [256, 197, 16, 16]        [256, 197, 16, 16]        394                       True
+│    │    └─Sequential: 3-55             [256, 197, 16, 16]        [256, 197, 16, 16]        --                        --
+│    │    └─ReLU: 3-56                   [256, 197, 16, 16]        [256, 197, 16, 16]        --                        --
+├─AdaptiveAvgPool2d: 1-9                 [256, 197, 16, 16]        [256, 197, 1, 1]          --                        --
+├─Linear: 1-10                           [256, 197]                [256, 512]                100,864                   True
+├─Linear: 1-11                           [256, 197]                [256, 45]                 8,910                     True
+============================================================================================================================================
+Total params: 3,337,167
+Trainable params: 3,337,167
+Non-trainable params: 0
+Total mult-adds (Units.GIGABYTES): 790.95
+============================================================================================================================================
+Input size (MB): 201.33
+Forward/backward pass size (MB): 30876.46
+Params size (MB): 13.35
+Estimated Total Size (MB): 31091.14
+============================================================================================================================================
+
+
+2025-11-30 17:37:45,543 [INFO] [framework.pruning.services.metrics] (metrics.evaluate_and_log:28) :: BEFORE pruning.
+2025-11-30 17:37:45,543 [INFO] [framework.pruning.services.metrics] (metrics.evaluate_and_log:29) :: Validation Loss=0.2901 | Acc=92.33% | MSE=0.0027
+2025-11-30 17:37:45,543 [INFO] [framework.pruning.services.metrics] (metrics.log_sparsity:60) :: == Layer-wise sparsity ==
+2025-11-30 17:37:45,544 [INFO] [framework.pruning.services.metrics] (metrics.log_sparsity:65) :: conv1: 20.88% sparse
+2025-11-30 17:37:45,544 [INFO] [framework.pruning.services.metrics] (metrics.log_sparsity:65) :: layer1.0.conv1: 28.36% sparse
+2025-11-30 17:37:45,544 [INFO] [framework.pruning.services.metrics] (metrics.log_sparsity:65) :: layer1.0.conv2: 22.99% sparse
+2025-11-30 17:37:45,544 [INFO] [framework.pruning.services.metrics] (metrics.log_sparsity:65) :: layer1.1.conv1: 27.32% sparse
+2025-11-30 17:37:45,544 [INFO] [framework.pruning.services.metrics] (metrics.log_sparsity:65) :: layer1.1.conv2: 21.84% sparse
+2025-11-30 17:37:45,545 [INFO] [framework.pruning.services.metrics] (metrics.log_sparsity:65) :: layer2.0.conv1: 25.97% sparse
+2025-11-30 17:37:45,545 [INFO] [framework.pruning.services.metrics] (metrics.log_sparsity:65) :: layer2.0.conv2: 25.51% sparse
+2025-11-30 17:37:45,545 [INFO] [framework.pruning.services.metrics] (metrics.log_sparsity:65) :: layer2.0.shortcut.0: 17.51% sparse
+2025-11-30 17:37:45,545 [INFO] [framework.pruning.services.metrics] (metrics.log_sparsity:65) :: layer2.1.conv1: 27.57% sparse
+2025-11-30 17:37:45,545 [INFO] [framework.pruning.services.metrics] (metrics.log_sparsity:65) :: layer2.1.conv2: 23.90% sparse
+2025-11-30 17:37:45,545 [INFO] [framework.pruning.services.metrics] (metrics.log_sparsity:65) :: layer3.0.conv1: 26.49% sparse
+2025-11-30 17:37:45,546 [INFO] [framework.pruning.services.metrics] (metrics.log_sparsity:65) :: layer3.0.conv2: 27.01% sparse
+2025-11-30 17:37:45,546 [INFO] [framework.pruning.services.metrics] (metrics.log_sparsity:65) :: layer3.0.shortcut.0: 17.63% sparse
+2025-11-30 17:37:45,546 [INFO] [framework.pruning.services.metrics] (metrics.log_sparsity:65) :: layer3.1.conv1: 27.37% sparse
+2025-11-30 17:37:45,546 [INFO] [framework.pruning.services.metrics] (metrics.log_sparsity:65) :: layer3.1.conv2: 23.09% sparse
+2025-11-30 17:37:45,546 [INFO] [framework.pruning.services.metrics] (metrics.log_sparsity:65) :: layer4.0.conv1: 26.70% sparse
+2025-11-30 17:37:45,546 [INFO] [framework.pruning.services.metrics] (metrics.log_sparsity:65) :: layer4.0.conv2: 26.60% sparse
+2025-11-30 17:37:45,546 [INFO] [framework.pruning.services.metrics] (metrics.log_sparsity:65) :: layer4.0.shortcut.0: 16.12% sparse
+2025-11-30 17:37:45,547 [INFO] [framework.pruning.services.metrics] (metrics.log_sparsity:65) :: layer4.1.conv1: 26.66% sparse
+2025-11-30 17:37:45,547 [INFO] [framework.pruning.services.metrics] (metrics.log_sparsity:65) :: layer4.1.conv2: 23.96% sparse
+2025-11-30 17:37:45,547 [INFO] [framework.pruning.services.metrics] (metrics.log_sparsity:65) :: fc: 0.70% sparse
+2025-11-30 17:37:45,547 [INFO] [framework.pruning.services.metrics] (metrics.log_sparsity:65) :: kd_proj: 2.09% sparse
+2025-11-30 17:37:45,547 [INFO] [framework.pruning.services.metrics] (metrics.log_sparsity:69) :: Overall sparsity: 25.00%
+2025-11-30 17:37:45,547 [INFO] [framework.pruning.pruning_orchestrator] (pruning_orchestrator._get_iteration_cfg:56) :: Pruning iteration 24 config: {'amount': 0.25, 'method': 'l1', 'structured': True, 'dim': 0, 'layer_prune_ratio': 0.03, 'min_channels': 8}
+2025-11-30 17:37:45,577 [INFO] [framework.pruning.pruning_orchestrator] (pruning_orchestrator._get_iteration_cfg:56) :: Pruning iteration 24 config: {'amount': 0.25, 'method': 'l1', 'structured': True, 'dim': 0, 'layer_prune_ratio': 0.03, 'min_channels': 8}
+2025-11-30 17:37:45,634 [INFO] [framework.pruning.pruning_orchestrator] (pruning_orchestrator.run:150) :: == AFTER pruning (with masks or surgery) ==
+2025-11-30 17:37:45,634 [INFO] [framework.pruning.services.metrics] (metrics.log_sparsity:60) :: == Layer-wise sparsity ==
+2025-11-30 17:37:45,634 [INFO] [framework.pruning.services.metrics] (metrics.log_sparsity:65) :: conv1: 25.36% sparse
+2025-11-30 17:37:45,634 [INFO] [framework.pruning.services.metrics] (metrics.log_sparsity:65) :: layer1.0.conv1: 26.98% sparse
+2025-11-30 17:37:45,635 [INFO] [framework.pruning.services.metrics] (metrics.log_sparsity:65) :: layer1.0.conv2: 30.42% sparse
+2025-11-30 17:37:45,635 [INFO] [framework.pruning.services.metrics] (metrics.log_sparsity:65) :: layer1.1.conv1: 25.93% sparse
+2025-11-30 17:37:45,635 [INFO] [framework.pruning.services.metrics] (metrics.log_sparsity:65) :: layer1.1.conv2: 29.38% sparse
+2025-11-30 17:37:45,635 [INFO] [framework.pruning.services.metrics] (metrics.log_sparsity:65) :: layer2.0.conv1: 26.41% sparse
+2025-11-30 17:37:45,635 [INFO] [framework.pruning.services.metrics] (metrics.log_sparsity:65) :: layer2.0.conv2: 32.24% sparse
+2025-11-30 17:37:45,635 [INFO] [framework.pruning.services.metrics] (metrics.log_sparsity:65) :: layer2.0.shortcut.0: 25.92% sparse
+2025-11-30 17:37:45,635 [INFO] [framework.pruning.services.metrics] (metrics.log_sparsity:65) :: layer2.1.conv1: 28.06% sparse
+2025-11-30 17:37:45,636 [INFO] [framework.pruning.services.metrics] (metrics.log_sparsity:65) :: layer2.1.conv2: 31.65% sparse
+2025-11-30 17:37:45,636 [INFO] [framework.pruning.services.metrics] (metrics.log_sparsity:65) :: layer3.0.conv1: 26.61% sparse
+2025-11-30 17:37:45,636 [INFO] [framework.pruning.services.metrics] (metrics.log_sparsity:65) :: layer3.0.conv2: 32.33% sparse
+2025-11-30 17:37:45,636 [INFO] [framework.pruning.services.metrics] (metrics.log_sparsity:65) :: layer3.0.shortcut.0: 24.96% sparse
+2025-11-30 17:37:45,636 [INFO] [framework.pruning.services.metrics] (metrics.log_sparsity:65) :: layer3.1.conv1: 27.18% sparse
+2025-11-30 17:37:45,636 [INFO] [framework.pruning.services.metrics] (metrics.log_sparsity:65) :: layer3.1.conv2: 30.85% sparse
+2025-11-30 17:37:45,636 [INFO] [framework.pruning.services.metrics] (metrics.log_sparsity:65) :: layer4.0.conv1: 26.24% sparse
+2025-11-30 17:37:45,637 [INFO] [framework.pruning.services.metrics] (metrics.log_sparsity:65) :: layer4.0.conv2: 33.51% sparse
+2025-11-30 17:37:45,637 [INFO] [framework.pruning.services.metrics] (metrics.log_sparsity:65) :: layer4.0.shortcut.0: 26.71% sparse
+2025-11-30 17:37:45,637 [INFO] [framework.pruning.services.metrics] (metrics.log_sparsity:65) :: layer4.1.conv1: 26.56% sparse
+2025-11-30 17:37:45,637 [INFO] [framework.pruning.services.metrics] (metrics.log_sparsity:65) :: layer4.1.conv2: 32.76% sparse
+2025-11-30 17:37:45,637 [INFO] [framework.pruning.services.metrics] (metrics.log_sparsity:65) :: fc: 0.66% sparse
+2025-11-30 17:37:45,637 [INFO] [framework.pruning.services.metrics] (metrics.log_sparsity:65) :: kd_proj: 2.07% sparse
+2025-11-30 17:37:45,638 [INFO] [framework.pruning.services.metrics] (metrics.log_sparsity:69) :: Overall sparsity: 29.06%
+2025-11-30 17:37:57,221 [INFO] [framework.pruning.services.metrics] (metrics.evaluate_and_log:28) :: PRUNED model before fine-tuning (iteration 24/51).
+2025-11-30 17:37:57,221 [INFO] [framework.pruning.services.metrics] (metrics.evaluate_and_log:29) :: Validation Loss=12.6733 | Acc=3.71% | MSE=0.0363
+2025-11-30 17:37:57,221 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:83) :: Using device: cuda
+2025-11-30 17:37:57,226 [INFO] [framework.training.training_orchestrator] (training_orchestrator._maybe_load_teacher:39) :: Loading teacher from experiments/results/Experiment_5/Run_7/best.pt
+2025-11-30 17:37:57,599 [INFO] [framework.training.io_ckpt] (io_ckpt.load:26) :: Loaded checkpoint from experiments/results/Experiment_5/Run_7/best.pt
+2025-11-30 17:39:32,091 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:128) :: Epoch 001 | train_loss 1.1155 train_acc 95.55% | val_loss 0.3609 val_acc 90.63% val_MSE 0.0032
+2025-11-30 17:41:07,382 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:128) :: Epoch 002 | train_loss 0.3633 train_acc 99.50% | val_loss 0.3464 val_acc 91.10% val_MSE 0.0031
+2025-11-30 17:42:42,630 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:128) :: Epoch 003 | train_loss 0.2764 train_acc 99.87% | val_loss 0.3338 val_acc 91.38% val_MSE 0.0030
+2025-11-30 17:44:18,041 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:128) :: Epoch 004 | train_loss 0.2403 train_acc 99.96% | val_loss 0.3314 val_acc 91.63% val_MSE 0.0030
+2025-11-30 17:45:53,775 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:128) :: Epoch 005 | train_loss 0.2177 train_acc 99.95% | val_loss 0.3219 val_acc 91.71% val_MSE 0.0029
+2025-11-30 17:47:28,971 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:128) :: Epoch 006 | train_loss 0.2065 train_acc 99.97% | val_loss 0.3279 val_acc 91.35% val_MSE 0.0030
+2025-11-30 17:49:04,326 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:128) :: Epoch 007 | train_loss 0.1859 train_acc 99.98% | val_loss 0.3339 val_acc 91.16% val_MSE 0.0030
+2025-11-30 17:50:39,489 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:128) :: Epoch 008 | train_loss 0.1853 train_acc 99.98% | val_loss 0.3219 val_acc 91.73% val_MSE 0.0029
+2025-11-30 17:52:15,195 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:128) :: Epoch 009 | train_loss 0.1674 train_acc 99.99% | val_loss 0.3081 val_acc 91.90% val_MSE 0.0028
+2025-11-30 17:53:50,240 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:128) :: Epoch 010 | train_loss 0.1652 train_acc 99.99% | val_loss 0.3273 val_acc 91.25% val_MSE 0.0030
+2025-11-30 17:55:25,294 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:128) :: Epoch 011 | train_loss 0.1597 train_acc 99.98% | val_loss 0.3291 val_acc 91.37% val_MSE 0.0030
+2025-11-30 17:57:00,766 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:128) :: Epoch 012 | train_loss 0.1504 train_acc 99.99% | val_loss 0.3290 val_acc 91.65% val_MSE 0.0030
+2025-11-30 17:58:36,712 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:128) :: Epoch 013 | train_loss 0.1480 train_acc 100.00% | val_loss 0.3314 val_acc 91.37% val_MSE 0.0030
+2025-11-30 18:00:11,990 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:128) :: Epoch 014 | train_loss 0.1559 train_acc 99.99% | val_loss 0.3210 val_acc 91.51% val_MSE 0.0029
+2025-11-30 18:01:47,686 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:128) :: Epoch 015 | train_loss 0.1492 train_acc 99.99% | val_loss 0.3145 val_acc 91.67% val_MSE 0.0029
+2025-11-30 18:03:24,085 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:128) :: Epoch 016 | train_loss 0.1475 train_acc 99.99% | val_loss 0.3253 val_acc 91.43% val_MSE 0.0029
+2025-11-30 18:04:59,409 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:128) :: Epoch 017 | train_loss 0.1377 train_acc 99.99% | val_loss 0.3250 val_acc 91.51% val_MSE 0.0030
+2025-11-30 18:06:35,021 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:128) :: Epoch 018 | train_loss 0.1381 train_acc 99.99% | val_loss 0.3334 val_acc 91.27% val_MSE 0.0030
+2025-11-30 18:08:11,471 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:128) :: Epoch 019 | train_loss 0.1364 train_acc 100.00% | val_loss 0.3144 val_acc 91.65% val_MSE 0.0029
+2025-11-30 18:09:46,843 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:128) :: Epoch 020 | train_loss 0.1297 train_acc 100.00% | val_loss 0.3085 val_acc 91.67% val_MSE 0.0029
+2025-11-30 18:11:22,903 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:128) :: Epoch 021 | train_loss 0.1316 train_acc 100.00% | val_loss 0.3207 val_acc 91.59% val_MSE 0.0030
+2025-11-30 18:12:58,739 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:128) :: Epoch 022 | train_loss 0.1272 train_acc 100.00% | val_loss 0.3142 val_acc 91.71% val_MSE 0.0029
+2025-11-30 18:14:32,155 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:128) :: Epoch 023 | train_loss 0.1250 train_acc 100.00% | val_loss 0.3172 val_acc 91.83% val_MSE 0.0028
+2025-11-30 18:16:05,557 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:128) :: Epoch 024 | train_loss 0.1209 train_acc 100.00% | val_loss 0.3173 val_acc 91.71% val_MSE 0.0029
+2025-11-30 18:17:38,864 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:128) :: Epoch 025 | train_loss 0.1162 train_acc 99.99% | val_loss 0.3270 val_acc 91.46% val_MSE 0.0029
+2025-11-30 18:19:12,312 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:128) :: Epoch 026 | train_loss 0.1209 train_acc 100.00% | val_loss 0.3050 val_acc 92.06% val_MSE 0.0028
+2025-11-30 18:20:46,012 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:128) :: Epoch 027 | train_loss 0.1161 train_acc 100.00% | val_loss 0.3194 val_acc 91.57% val_MSE 0.0029
+2025-11-30 18:22:19,339 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:128) :: Epoch 028 | train_loss 0.1160 train_acc 99.99% | val_loss 0.3073 val_acc 91.78% val_MSE 0.0028
+2025-11-30 18:23:52,622 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:128) :: Epoch 029 | train_loss 0.1072 train_acc 100.00% | val_loss 0.3014 val_acc 92.05% val_MSE 0.0028
+2025-11-30 18:25:25,834 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:128) :: Epoch 030 | train_loss 0.1091 train_acc 100.00% | val_loss 0.3086 val_acc 92.08% val_MSE 0.0028
+2025-11-30 18:26:59,028 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:128) :: Epoch 031 | train_loss 0.1044 train_acc 99.99% | val_loss 0.3055 val_acc 92.02% val_MSE 0.0028
+2025-11-30 18:28:32,377 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:128) :: Epoch 032 | train_loss 0.1038 train_acc 100.00% | val_loss 0.3104 val_acc 92.05% val_MSE 0.0028
+2025-11-30 18:30:05,722 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:128) :: Epoch 033 | train_loss 0.1017 train_acc 99.99% | val_loss 0.3040 val_acc 92.16% val_MSE 0.0028
+2025-11-30 18:31:39,031 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:128) :: Epoch 034 | train_loss 0.0993 train_acc 100.00% | val_loss 0.3050 val_acc 92.16% val_MSE 0.0028
+2025-11-30 18:33:12,504 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:128) :: Epoch 035 | train_loss 0.1003 train_acc 100.00% | val_loss 0.3081 val_acc 91.86% val_MSE 0.0028
+2025-11-30 18:34:46,030 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:128) :: Epoch 036 | train_loss 0.0964 train_acc 100.00% | val_loss 0.2990 val_acc 92.21% val_MSE 0.0028
+2025-11-30 18:36:19,610 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:128) :: Epoch 037 | train_loss 0.0985 train_acc 100.00% | val_loss 0.3008 val_acc 92.19% val_MSE 0.0028
+2025-11-30 18:37:52,770 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:128) :: Epoch 038 | train_loss 0.0949 train_acc 100.00% | val_loss 0.3010 val_acc 92.14% val_MSE 0.0028
+2025-11-30 18:39:25,876 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:128) :: Epoch 039 | train_loss 0.0929 train_acc 100.00% | val_loss 0.3004 val_acc 92.25% val_MSE 0.0028
+2025-11-30 18:40:59,789 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:128) :: Epoch 040 | train_loss 0.0914 train_acc 100.00% | val_loss 0.3005 val_acc 92.06% val_MSE 0.0028
+2025-11-30 18:42:33,144 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:128) :: Epoch 041 | train_loss 0.0901 train_acc 100.00% | val_loss 0.3019 val_acc 92.17% val_MSE 0.0028
+2025-11-30 18:44:06,594 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:128) :: Epoch 042 | train_loss 0.0916 train_acc 100.00% | val_loss 0.3009 val_acc 92.13% val_MSE 0.0028
+2025-11-30 18:45:40,005 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:128) :: Epoch 043 | train_loss 0.0902 train_acc 100.00% | val_loss 0.2990 val_acc 92.19% val_MSE 0.0027
+2025-11-30 18:47:13,751 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:128) :: Epoch 044 | train_loss 0.0941 train_acc 100.00% | val_loss 0.3001 val_acc 92.17% val_MSE 0.0028
+2025-11-30 18:48:47,041 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:128) :: Epoch 045 | train_loss 0.0858 train_acc 100.00% | val_loss 0.2988 val_acc 92.24% val_MSE 0.0027
+2025-11-30 18:50:20,311 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:128) :: Epoch 046 | train_loss 0.0862 train_acc 100.00% | val_loss 0.2989 val_acc 92.14% val_MSE 0.0027
+2025-11-30 18:51:53,641 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:128) :: Epoch 047 | train_loss 0.0824 train_acc 100.00% | val_loss 0.3000 val_acc 92.25% val_MSE 0.0028
+2025-11-30 18:53:26,917 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:128) :: Epoch 048 | train_loss 0.0859 train_acc 100.00% | val_loss 0.3003 val_acc 92.17% val_MSE 0.0027
+2025-11-30 18:55:00,347 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:128) :: Epoch 049 | train_loss 0.0842 train_acc 100.00% | val_loss 0.2995 val_acc 92.13% val_MSE 0.0028
+2025-11-30 18:56:33,443 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:128) :: Epoch 050 | train_loss 0.0846 train_acc 100.00% | val_loss 0.3008 val_acc 92.14% val_MSE 0.0028
+2025-11-30 18:56:33,530 [INFO] [framework.training.io_ckpt] (io_ckpt.load:26) :: Loaded checkpoint from experiments/results/Experiment_13/Run_1/best.pt
+2025-11-30 18:56:33,533 [INFO] [framework.pruning.pruning_orchestrator] (pruning_orchestrator.run:171) :: == After removing masks / cleanup ==
+2025-11-30 18:56:33,534 [INFO] [framework.pruning.services.metrics] (metrics.log_sparsity:60) :: == Layer-wise sparsity ==
+2025-11-30 18:56:33,534 [INFO] [framework.pruning.services.metrics] (metrics.log_sparsity:65) :: conv1: 15.15% sparse
+2025-11-30 18:56:33,534 [INFO] [framework.pruning.services.metrics] (metrics.log_sparsity:65) :: layer1.0.conv1: 24.24% sparse
+2025-11-30 18:56:33,535 [INFO] [framework.pruning.services.metrics] (metrics.log_sparsity:65) :: layer1.0.conv2: 9.34% sparse
+2025-11-30 18:56:33,535 [INFO] [framework.pruning.services.metrics] (metrics.log_sparsity:65) :: layer1.1.conv1: 23.08% sparse
+2025-11-30 18:56:33,535 [INFO] [framework.pruning.services.metrics] (metrics.log_sparsity:65) :: layer1.1.conv2: 8.56% sparse
+2025-11-30 18:56:33,535 [INFO] [framework.pruning.services.metrics] (metrics.log_sparsity:65) :: layer2.0.conv1: 23.40% sparse
+2025-11-30 18:56:33,535 [INFO] [framework.pruning.services.metrics] (metrics.log_sparsity:65) :: layer2.0.conv2: 16.06% sparse
+2025-11-30 18:56:33,536 [INFO] [framework.pruning.services.metrics] (metrics.log_sparsity:65) :: layer2.0.shortcut.0: 7.14% sparse
+2025-11-30 18:56:33,536 [INFO] [framework.pruning.services.metrics] (metrics.log_sparsity:65) :: layer2.1.conv1: 25.04% sparse
+2025-11-30 18:56:33,536 [INFO] [framework.pruning.services.metrics] (metrics.log_sparsity:65) :: layer2.1.conv2: 12.74% sparse
+2025-11-30 18:56:33,536 [INFO] [framework.pruning.services.metrics] (metrics.log_sparsity:65) :: layer3.0.conv1: 23.58% sparse
+2025-11-30 18:56:33,536 [INFO] [framework.pruning.services.metrics] (metrics.log_sparsity:65) :: layer3.0.conv2: 17.70% sparse
+2025-11-30 18:56:33,536 [INFO] [framework.pruning.services.metrics] (metrics.log_sparsity:65) :: layer3.0.shortcut.0: 9.08% sparse
+2025-11-30 18:56:33,536 [INFO] [framework.pruning.services.metrics] (metrics.log_sparsity:65) :: layer3.1.conv1: 24.15% sparse
+2025-11-30 18:56:33,537 [INFO] [framework.pruning.services.metrics] (metrics.log_sparsity:65) :: layer3.1.conv2: 13.69% sparse
+2025-11-30 18:56:33,537 [INFO] [framework.pruning.services.metrics] (metrics.log_sparsity:65) :: layer4.0.conv1: 23.05% sparse
+2025-11-30 18:56:33,537 [INFO] [framework.pruning.services.metrics] (metrics.log_sparsity:65) :: layer4.0.conv2: 15.97% sparse
+2025-11-30 18:56:33,537 [INFO] [framework.pruning.services.metrics] (metrics.log_sparsity:65) :: layer4.0.shortcut.0: 5.90% sparse
+2025-11-30 18:56:33,537 [INFO] [framework.pruning.services.metrics] (metrics.log_sparsity:65) :: layer4.1.conv1: 23.17% sparse
+2025-11-30 18:56:33,537 [INFO] [framework.pruning.services.metrics] (metrics.log_sparsity:65) :: layer4.1.conv2: 11.59% sparse
+2025-11-30 18:56:33,538 [INFO] [framework.pruning.services.metrics] (metrics.log_sparsity:65) :: fc: 0.00% sparse
+2025-11-30 18:56:33,538 [INFO] [framework.pruning.services.metrics] (metrics.log_sparsity:65) :: kd_proj: 0.00% sparse
+2025-11-30 18:56:33,538 [INFO] [framework.pruning.services.metrics] (metrics.log_sparsity:69) :: Overall sparsity: 17.44%
+2025-11-30 18:56:43,073 [INFO] [framework.pruning.services.metrics] (metrics.evaluate_and_log:28) :: Pruned + fine-tuned (iteration 24/51).
+2025-11-30 18:56:43,074 [INFO] [framework.pruning.services.metrics] (metrics.evaluate_and_log:29) :: Validation Loss=0.3004 | Acc=92.25% | MSE=0.0028
+2025-11-30 18:56:43,432 [INFO] [framework.pruning.services.metrics] (logger.print_model_summary:135) :: Student - Pruned and Fine-tuned iteration 24:
+---------------------------
+============================================================================================================================================
+Layer (type:depth-idx)                   Input Shape               Output Shape              Param #                   Trainable
+============================================================================================================================================
+ResNet18                                 [256, 3, 256, 256]        [256, 45]                 --                        True
+├─Conv2d: 1-1                            [256, 3, 256, 256]        [256, 33, 256, 256]       891                       True
+├─BatchNorm2d: 1-2                       [256, 33, 256, 256]       [256, 33, 256, 256]       66                        True
+├─ReLU: 1-3                              [256, 33, 256, 256]       [256, 33, 256, 256]       --                        --
+├─MaxPool2d: 1-4                         [256, 33, 256, 256]       [256, 33, 128, 128]       --                        --
+├─Sequential: 1-5                        [256, 33, 128, 128]       [256, 33, 128, 128]       --                        True
+│    └─BasicBlock: 2-1                   [256, 33, 128, 128]       [256, 33, 128, 128]       --                        True
+│    │    └─Conv2d: 3-1                  [256, 33, 128, 128]       [256, 52, 128, 128]       15,444                    True
+│    │    └─BatchNorm2d: 3-2             [256, 52, 128, 128]       [256, 52, 128, 128]       104                       True
+│    │    └─ReLU: 3-3                    [256, 52, 128, 128]       [256, 52, 128, 128]       --                        --
+│    │    └─Conv2d: 3-4                  [256, 52, 128, 128]       [256, 33, 128, 128]       15,444                    True
+│    │    └─BatchNorm2d: 3-5             [256, 33, 128, 128]       [256, 33, 128, 128]       66                        True
+│    │    └─Sequential: 3-6              [256, 33, 128, 128]       [256, 33, 128, 128]       --                        --
+│    │    └─ReLU: 3-7                    [256, 33, 128, 128]       [256, 33, 128, 128]       --                        --
+│    └─BasicBlock: 2-2                   [256, 33, 128, 128]       [256, 33, 128, 128]       --                        True
+│    │    └─Conv2d: 3-8                  [256, 33, 128, 128]       [256, 52, 128, 128]       15,444                    True
+│    │    └─BatchNorm2d: 3-9             [256, 52, 128, 128]       [256, 52, 128, 128]       104                       True
+│    │    └─ReLU: 3-10                   [256, 52, 128, 128]       [256, 52, 128, 128]       --                        --
+│    │    └─Conv2d: 3-11                 [256, 52, 128, 128]       [256, 33, 128, 128]       15,444                    True
+│    │    └─BatchNorm2d: 3-12            [256, 33, 128, 128]       [256, 33, 128, 128]       66                        True
+│    │    └─Sequential: 3-13             [256, 33, 128, 128]       [256, 33, 128, 128]       --                        --
+│    │    └─ReLU: 3-14                   [256, 33, 128, 128]       [256, 33, 128, 128]       --                        --
+├─Sequential: 1-6                        [256, 33, 128, 128]       [256, 56, 64, 64]         --                        True
+│    └─BasicBlock: 2-3                   [256, 33, 128, 128]       [256, 56, 64, 64]         --                        True
+│    │    └─Conv2d: 3-15                 [256, 33, 128, 128]       [256, 94, 64, 64]         27,918                    True
+│    │    └─BatchNorm2d: 3-16            [256, 94, 64, 64]         [256, 94, 64, 64]         188                       True
+│    │    └─ReLU: 3-17                   [256, 94, 64, 64]         [256, 94, 64, 64]         --                        --
+│    │    └─Conv2d: 3-18                 [256, 94, 64, 64]         [256, 56, 64, 64]         47,376                    True
+│    │    └─BatchNorm2d: 3-19            [256, 56, 64, 64]         [256, 56, 64, 64]         112                       True
+│    │    └─Sequential: 3-20             [256, 33, 128, 128]       [256, 56, 64, 64]         --                        True
+│    │    │    └─Conv2d: 4-1             [256, 33, 128, 128]       [256, 56, 64, 64]         1,848                     True
+│    │    │    └─BatchNorm2d: 4-2        [256, 56, 64, 64]         [256, 56, 64, 64]         112                       True
+│    │    └─ReLU: 3-21                   [256, 56, 64, 64]         [256, 56, 64, 64]         --                        --
+│    └─BasicBlock: 2-4                   [256, 56, 64, 64]         [256, 56, 64, 64]         --                        True
+│    │    └─Conv2d: 3-22                 [256, 56, 64, 64]         [256, 94, 64, 64]         47,376                    True
+│    │    └─BatchNorm2d: 3-23            [256, 94, 64, 64]         [256, 94, 64, 64]         188                       True
+│    │    └─ReLU: 3-24                   [256, 94, 64, 64]         [256, 94, 64, 64]         --                        --
+│    │    └─Conv2d: 3-25                 [256, 94, 64, 64]         [256, 56, 64, 64]         47,376                    True
+│    │    └─BatchNorm2d: 3-26            [256, 56, 64, 64]         [256, 56, 64, 64]         112                       True
+│    │    └─Sequential: 3-27             [256, 56, 64, 64]         [256, 56, 64, 64]         --                        --
+│    │    └─ReLU: 3-28                   [256, 56, 64, 64]         [256, 56, 64, 64]         --                        --
+├─Sequential: 1-7                        [256, 56, 64, 64]         [256, 96, 32, 32]         --                        True
+│    └─BasicBlock: 2-5                   [256, 56, 64, 64]         [256, 96, 32, 32]         --                        True
+│    │    └─Conv2d: 3-29                 [256, 56, 64, 64]         [256, 183, 32, 32]        92,232                    True
+│    │    └─BatchNorm2d: 3-30            [256, 183, 32, 32]        [256, 183, 32, 32]        366                       True
+│    │    └─ReLU: 3-31                   [256, 183, 32, 32]        [256, 183, 32, 32]        --                        --
+│    │    └─Conv2d: 3-32                 [256, 183, 32, 32]        [256, 96, 32, 32]         158,112                   True
+│    │    └─BatchNorm2d: 3-33            [256, 96, 32, 32]         [256, 96, 32, 32]         192                       True
+│    │    └─Sequential: 3-34             [256, 56, 64, 64]         [256, 96, 32, 32]         --                        True
+│    │    │    └─Conv2d: 4-3             [256, 56, 64, 64]         [256, 96, 32, 32]         5,376                     True
+│    │    │    └─BatchNorm2d: 4-4        [256, 96, 32, 32]         [256, 96, 32, 32]         192                       True
+│    │    └─ReLU: 3-35                   [256, 96, 32, 32]         [256, 96, 32, 32]         --                        --
+│    └─BasicBlock: 2-6                   [256, 96, 32, 32]         [256, 96, 32, 32]         --                        True
+│    │    └─Conv2d: 3-36                 [256, 96, 32, 32]         [256, 183, 32, 32]        158,112                   True
+│    │    └─BatchNorm2d: 3-37            [256, 183, 32, 32]        [256, 183, 32, 32]        366                       True
+│    │    └─ReLU: 3-38                   [256, 183, 32, 32]        [256, 183, 32, 32]        --                        --
+│    │    └─Conv2d: 3-39                 [256, 183, 32, 32]        [256, 96, 32, 32]         158,112                   True
+│    │    └─BatchNorm2d: 3-40            [256, 96, 32, 32]         [256, 96, 32, 32]         192                       True
+│    │    └─Sequential: 3-41             [256, 96, 32, 32]         [256, 96, 32, 32]         --                        --
+│    │    └─ReLU: 3-42                   [256, 96, 32, 32]         [256, 96, 32, 32]         --                        --
+├─Sequential: 1-8                        [256, 96, 32, 32]         [256, 182, 16, 16]        --                        True
+│    └─BasicBlock: 2-7                   [256, 96, 32, 32]         [256, 182, 16, 16]        --                        True
+│    │    └─Conv2d: 3-43                 [256, 96, 32, 32]         [256, 360, 16, 16]        311,040                   True
+│    │    └─BatchNorm2d: 3-44            [256, 360, 16, 16]        [256, 360, 16, 16]        720                       True
+│    │    └─ReLU: 3-45                   [256, 360, 16, 16]        [256, 360, 16, 16]        --                        --
+│    │    └─Conv2d: 3-46                 [256, 360, 16, 16]        [256, 182, 16, 16]        589,680                   True
+│    │    └─BatchNorm2d: 3-47            [256, 182, 16, 16]        [256, 182, 16, 16]        364                       True
+│    │    └─Sequential: 3-48             [256, 96, 32, 32]         [256, 182, 16, 16]        --                        True
+│    │    │    └─Conv2d: 4-5             [256, 96, 32, 32]         [256, 182, 16, 16]        17,472                    True
+│    │    │    └─BatchNorm2d: 4-6        [256, 182, 16, 16]        [256, 182, 16, 16]        364                       True
+│    │    └─ReLU: 3-49                   [256, 182, 16, 16]        [256, 182, 16, 16]        --                        --
+│    └─BasicBlock: 2-8                   [256, 182, 16, 16]        [256, 182, 16, 16]        --                        True
+│    │    └─Conv2d: 3-50                 [256, 182, 16, 16]        [256, 360, 16, 16]        589,680                   True
+│    │    └─BatchNorm2d: 3-51            [256, 360, 16, 16]        [256, 360, 16, 16]        720                       True
+│    │    └─ReLU: 3-52                   [256, 360, 16, 16]        [256, 360, 16, 16]        --                        --
+│    │    └─Conv2d: 3-53                 [256, 360, 16, 16]        [256, 182, 16, 16]        589,680                   True
+│    │    └─BatchNorm2d: 3-54            [256, 182, 16, 16]        [256, 182, 16, 16]        364                       True
+│    │    └─Sequential: 3-55             [256, 182, 16, 16]        [256, 182, 16, 16]        --                        --
+│    │    └─ReLU: 3-56                   [256, 182, 16, 16]        [256, 182, 16, 16]        --                        --
+├─AdaptiveAvgPool2d: 1-9                 [256, 182, 16, 16]        [256, 182, 1, 1]          --                        --
+├─Linear: 1-10                           [256, 182]                [256, 512]                93,184                    True
+├─Linear: 1-11                           [256, 182]                [256, 45]                 8,235                     True
+============================================================================================================================================
+Total params: 3,010,434
+Trainable params: 3,010,434
+Non-trainable params: 0
+Total mult-adds (Units.GIGABYTES): 741.72
+============================================================================================================================================
+Input size (MB): 201.33
+Forward/backward pass size (MB): 30311.28
+Params size (MB): 12.04
+Estimated Total Size (MB): 30524.65
+============================================================================================================================================
+
+
+2025-11-30 18:56:43,599 [INFO] [framework.pruning.services.core] (core.save_state_dict:77) :: Saved model state_dict to experiments/results/Experiment_13/Run_1/compressed_model_iteration_24.pt
