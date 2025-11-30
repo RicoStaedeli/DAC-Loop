@@ -182,6 +182,7 @@ def _plots_for_different_experiments():
         json_path="experiments/results/Experiment_13/result.json",
         out_path_base="docs/plots/10_dac_compression_curves",
         use_latex=True,
+        total_parameters=11191917,
         figsize=(5, 3.2)
     )
 

@@ -764,6 +764,7 @@ def plot_dac_compression_curves(
         json_path: Union[str, Path],
         out_path_base: Union[str, Path] = "dac_compression_curves",
         *,
+        total_parameters: int,
         title: str = "Effect of DAC on Validation Accuracy vs. Compression",
         use_latex: bool = True,
         figsize: Tuple[float, float] = DEFAULT_FIGSIZE,
@@ -779,23 +780,37 @@ def plot_dac_compression_curves(
       {
         "Parameter": 11191917,
         "Acc_without_DAC": 91.24,
-        "Acc_with_DAC": 93.24,
-        "Compression": 0.0
+        "Acc_with_DAC": null
+      },
+      {
+        "Parameter": 5878933,
+        "Acc_without_DAC": null,
+        "Acc_with_DAC": 92.86
       },
       ...
     ]
+
+    Compression is computed as:
+        Compression (%) = 100 * (1 - Parameter / total_parameters)
+
+    All entries with a value in Acc_without_DAC form the "w/o DAC" curve.
+    All entries with a value in Acc_with_DAC form the "w/ DAC" curve.
     """
+
+    if total_parameters <= 0:
+        raise ValueError(f"total_parameters must be positive, got {total_parameters}")
+
     # Runtime plotting options
     rcParams.update({
         "text.usetex": use_latex,
         "savefig.dpi": png_dpi,
-        "axes.titlesize": 12,  # was 10
-        "axes.labelsize": 11,  # was 9
-        "legend.fontsize": 10,  # was 8
+        "axes.titlesize": 12,
+        "axes.labelsize": 11,
+        "legend.fontsize": 10,
         "legend.title_fontsize": 10,
-        "xtick.labelsize": 10,  # was 8
+        "xtick.labelsize": 10,
         "ytick.labelsize": 10,
-        "figure.titlesize": 13,  # was 11
+        "figure.titlesize": 13,
     })
 
     json_path = Path(json_path)
@@ -810,20 +825,59 @@ def plot_dac_compression_curves(
 
     df = pd.DataFrame(data)
 
-    required_cols = {"Compression", "Acc_without_DAC", "Acc_with_DAC"}
+    required_cols = {"Parameter", "Acc_without_DAC", "Acc_with_DAC"}
     missing = required_cols - set(df.columns)
     if missing:
         raise ValueError(f"{json_path} is missing required columns: {missing}")
 
-    # Ensure numeric and sorted by compression
-    df["Compression"] = pd.to_numeric(df["Compression"], errors="coerce")
+    # Ensure numeric
+    df["Parameter"] = pd.to_numeric(df["Parameter"], errors="coerce")
     df["Acc_without_DAC"] = pd.to_numeric(df["Acc_without_DAC"], errors="coerce")
     df["Acc_with_DAC"] = pd.to_numeric(df["Acc_with_DAC"], errors="coerce")
-    df = df.dropna(subset=["Compression", "Acc_without_DAC", "Acc_with_DAC"])
-    df = df.sort_values("Compression").reset_index(drop=True)
 
+    # Drop rows with invalid Parameter
+    df = df.dropna(subset=["Parameter"])
     if df.empty:
-        raise ValueError(f"No valid numeric rows found in {json_path}")
+        raise ValueError(f"No valid 'Parameter' values found in {json_path}")
+
+    # Compute compression from parameter counts
+    df["Compression"] = 100.0 * (1.0 - df["Parameter"] / float(total_parameters))
+
+    # Split into two curves: w/o DAC and w/ DAC
+    df_no = df.dropna(subset=["Acc_without_DAC"]).copy()
+    df_yes = df.dropna(subset=["Acc_with_DAC"]).copy()
+
+    if df_no.empty:
+        raise ValueError(f"No rows with 'Acc_without_DAC' found in {json_path}")
+    if df_yes.empty:
+        raise ValueError(f"No rows with 'Acc_with_DAC' found in {json_path}")
+
+    # Sort each curve by compression
+    df_no = df_no.sort_values("Compression").reset_index(drop=True)
+    df_yes = df_yes.sort_values("Compression").reset_index(drop=True)
+
+    # Decide once whether to treat accuracy as fraction or percent
+    all_acc = pd.concat(
+        [df_no["Acc_without_DAC"], df_yes["Acc_with_DAC"]],
+        ignore_index=True
+    ).dropna()
+
+    if all_acc.empty:
+        raise ValueError(f"No valid accuracy values found in {json_path}")
+
+    # In your example (80–95 range) this will evaluate to "already percent"
+    as_fraction = _is_fractional_accuracy(all_acc)
+
+    y_no = df_no["Acc_without_DAC"].to_numpy()
+    y_yes = df_yes["Acc_with_DAC"].to_numpy()
+
+    # If accuracies are fractional in [0,1], convert to percent
+    if as_fraction:
+        y_no = y_no * 100.0
+        y_yes = y_yes * 100.0
+
+    x_no = df_no["Compression"].to_numpy()
+    x_yes = df_yes["Compression"].to_numpy()
 
     fig, ax = plt.subplots(figsize=figsize)
     ax.grid(True, linestyle=":", linewidth=0.4, alpha=0.8)
@@ -831,24 +885,9 @@ def plot_dac_compression_curves(
     ax.set_xlabel("Compression (\\%)")
     ax.set_ylabel("Validation Accuracy (\\%)")
 
-    # Decide once whether to treat accuracy as fraction or percent
-    all_acc = pd.concat([df["Acc_without_DAC"], df["Acc_with_DAC"]], ignore_index=True)
-    # In your example (80–95 range) this will evaluate to "already percent"
-    as_fraction = _is_fractional_accuracy(all_acc)
-
-    y_no = df["Acc_without_DAC"].to_numpy()
-    y_yes = df["Acc_with_DAC"].to_numpy()
-
-    # If accuracies are fractional in [0,1], convert to percent
-    if as_fraction:
-        y_no = y_no * 100.0
-        y_yes = y_yes * 100.0
-
-    x = df["Compression"].to_numpy()
-
-    # Simple labels, no best point info
-    ax.plot(x, y_no, linestyle="-", marker=None, label="w/o DAC")
-    ax.plot(x, y_yes, linestyle="-", marker=None, label="w/ DAC")
+    # Plot the two curves independently
+    ax.plot(x_no, y_no, linestyle="-", marker=None, label="w/o DAC")
+    ax.plot(x_yes, y_yes, linestyle="-", marker=None, label="w/ DAC")
 
     # Show every 10% step on the x-axis
     ax.set_xticks(list(range(0, 101, 10)))
