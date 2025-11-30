@@ -786,7 +786,17 @@ def plot_dac_compression_curves(
     ]
     """
     # Runtime plotting options
-    rcParams.update({"text.usetex": use_latex, "savefig.dpi": png_dpi})
+    rcParams.update({
+        "text.usetex": use_latex,
+        "savefig.dpi": png_dpi,
+        "axes.titlesize": 12,  # was 10
+        "axes.labelsize": 11,  # was 9
+        "legend.fontsize": 10,  # was 8
+        "legend.title_fontsize": 10,
+        "xtick.labelsize": 10,  # was 8
+        "ytick.labelsize": 10,
+        "figure.titlesize": 13,  # was 11
+    })
 
     json_path = Path(json_path)
     if not json_path.exists():
