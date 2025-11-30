@@ -203,6 +203,8 @@ class PruningOrchestrator:
 
             pruned_path = Path(cfg.training.base_path_ckpts) / experiment_dir / f"compressed_model_iteration_{iteration}.pt"
             save_state_dict(self.model, pruned_path)
-            git_commit_and_push(f"Experiment={cfg.experiment.name} Run={cfg.experiment.run}")
+            if iteration > 1:
+                # If the experiment has multiple iterations commit every iteration
+                git_commit_and_push(f"Experiment={cfg.experiment.name} Run={cfg.experiment.run} Iteration = {iteration}")
 
         return self.model
