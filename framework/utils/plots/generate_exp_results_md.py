@@ -1227,6 +1227,10 @@ def main():
         experiment_dir="experiments/results/Experiment_9a",
         output_md_path="experiments/results/Experiment_9a/experiment_summary.md",
     )
+    summarize_pruning_experiment_multiple_iterations(
+        experiment_dir="experiments/results/Experiment_13",
+        output_md_path="experiments/results/Experiment_13/experiment_summary.md",
+    )
 
 
 if __name__ == "__main__":

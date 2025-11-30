@@ -161,7 +161,7 @@ class PruningOrchestrator:
                 student=self.model,
                 train_loader=train_loader,
                 val_loader=val_loader,
-                adapt_kd_proj_flag= True if it_cfg["structured"] else False,
+                adapt_kd_proj_flag= False, # TODO: True if it_cfg["structured"] else False,
                 iteration=iteration,
             )
 
