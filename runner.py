@@ -185,7 +185,7 @@ def main(gpu_id: str, experiment_folder: str) -> None:
                      experiment_name, cfg.experiment.run, duration)
             log.info("=" * 88)
 
-            # git_commit_and_push(f"Experiment={cfg.experiment.name} Run={cfg.experiment.run}")
+            git_commit_and_push(f"Experiment={cfg.experiment.name} Run={cfg.experiment.run}")
 
         except Exception as e:
             log.error("Error during Experiment --> %s", e, exc_info=True)
