@@ -1152,6 +1152,14 @@ def main():
         experiment_dir="experiments/results/Experiment_5",
         output_md_path="experiments/results/Experiment_5/experiment_summary.md",
     )
+    summarize_baseline_experiment_group_to_markdown(
+        experiment_dir="experiments/results/Experiment_10",
+        output_md_path="experiments/results/Experiment_10/experiment_summary.md",
+    )
+    summarize_baseline_experiment_group_to_markdown(
+        experiment_dir="experiments/results/Experiment_10a",
+        output_md_path="experiments/results/Experiment_10a/experiment_summary.md",
+    )
     # ------------------------------------------------------------------
     # Tables for Teacher - Student KD Experiments
     # ------------------------------------------------------------------

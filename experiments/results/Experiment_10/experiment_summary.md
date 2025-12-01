@@ -1,0 +1,5 @@
+| run_name | experiment_name | run_id | model | dataset | augmentation | indices_config | epochs | learning_rate | batch_size | weight_decay | scheduler | seed | best_epoch | best_train_loss | best_val_loss | best_train_accuracy (%) | best_val_accuracy (%) | best_val_MSE |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Run_13 | Experiment_10 | 13 | ResNet10mini | blanchon/EuroSAT_MSI | False | calc=[] - bands=[B01, B02, B03, B04, B05, B06, B07, B08, B8A, B09, B11, B12] | 50 | 0.0003 | 256 | 1e-05 | cosine | 43 | 38 | 0.000366 | 0.139731 | 100.0000 | 96.5185 | 0.005766 |
+| Run_14 | Experiment_10 | 14 | ResNet10mini | blanchon/EuroSAT_MSI | False | calc=[] - bands=[B01, B02, B03, B04, B05, B06, B07, B08, B8A, B09, B11, B12] | 50 | 0.0003 | 256 | 1e-05 | cosine | 44 | 44 | 0.000291 | 0.155665 | 100.0000 | 96.2963 | 0.006120 |
+| Run_15 | Experiment_10 | 15 | ResNet10mini | blanchon/EuroSAT_MSI | False | calc=[] - bands=[B01, B02, B03, B04, B05, B06, B07, B08, B8A, B09, B11, B12] | 50 | 0.0003 | 256 | 1e-05 | cosine | 45 | 39 | 0.000752 | 0.148045 | 99.9938 | 96.4815 | 0.005916 |
