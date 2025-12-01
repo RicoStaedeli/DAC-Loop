@@ -12,3 +12,4 @@
 | Run_10 | Experiment_1 | 10 | ResNet50 | blanchon/EuroSAT_MSI | False | calc=[] - bands=[B01, B02, B03, B04, B05, B06, B07, B08, B8A, B09, B11, B12] | 50 | 0.0003 | 256 | 1e-05 | cosine | 42 | 48 | 0.000205 | 0.171966 | 99.9938 | 96.9630 | 0.005394 |
 | Run_11 | Experiment_1 | 11 | ResNet50 | blanchon/EuroSAT_MSI | False | calc=[] - bands=[B02, B03, B04] | 50 | 0.0003 | 256 | 1e-05 | cosine | 42 | 45 | 0.002114 | 0.512845 | 99.9753 | 90.9074 | 0.015801 |
 | Run_12 | Experiment_1 | 12 | ResNet50 | blanchon/EuroSAT_MSI | False | calc=[NDVI, NDWI, NDMI] - bands=[B02, B03, B04, B07, B08] | 50 | 0.0003 | 256 | 1e-05 | cosine | 42 | 43 | 0.000237 | 0.205801 | 100.0000 | 96.1296 | 0.006716 |
+| Run_13 | Experiment_1 | 13 | ResNet10mini | blanchon/EuroSAT_MSI | False | calc=[] - bands=[B01, B02, B03, B04, B05, B06, B07, B08, B8A, B09, B11, B12] | 50 | 0.0003 | 256 | 1e-05 | cosine | 42 | 33 | 0.000461 | 0.146088 | 100.0000 | 96.3519 | 0.006080 |
