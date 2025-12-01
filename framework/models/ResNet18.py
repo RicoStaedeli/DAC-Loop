@@ -71,6 +71,6 @@ class ResNet18(nn.Module):
 
         out = self.avgpool(out)  # N, 512, 1, 1
         feat = out.view(out.size(0), -1)  # N, 512
-        kd_feat = self.kd_proj(feat)
+        kd_feat = self.kd_proj(feat) if feat.size(1) != 512  else feat
         logits = self.fc(feat)  # N, num_classe
         return (logits, kd_feat) if return_features else logits
