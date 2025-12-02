@@ -886,8 +886,8 @@ def plot_dac_compression_curves(
     ax.set_ylabel("Validation Accuracy (\\%)")
 
     # Plot the two curves independently
-    ax.plot(x_no, y_no, linestyle="-", marker=None, label="w/o DAC")
-    ax.plot(x_yes, y_yes, linestyle="-", marker=None, label="w/ DAC")
+    ax.plot(x_no, y_no, linestyle="-", marker=None, label="without DAC")
+    ax.plot(x_yes, y_yes, linestyle="-", marker=None, label="with DAC")
 
     # Show every 10% step on the x-axis
     ax.set_xticks(list(range(0, 101, 10)))
