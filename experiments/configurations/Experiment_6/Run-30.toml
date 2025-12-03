@@ -22,7 +22,7 @@ epochs = 50                                                     # (int) default:
 learning_rate = 0.0003                                          # (float) default: 0.0003 | Step size for weight updates.
 weight_decay = 0.00001
 scheduler = "cosine"                                            # "cosine", "step", "none" --> only cosine implemented yet
-batch_size = 128                                                # (int) default: 128 | Number of samples per training batch.
+batch_size = 256                                                # (int) default: 128 | Number of samples per training batch.
 save_only_best = true                           # (bool) default: False | Whether to save only the best model according to validation metric.
 do_not_log_steps = false                                        # (bool) default: False | Whether to log metrics per step or not
 seed = 42                                                       # (int) default: 42 | Random seed for reproducibility.
@@ -35,27 +35,14 @@ train_student = true                                                   # (bool) 
 teacher_model_path = "experiments/results/Experiment_5/Run_7/best.pt"          # (string) default: | Path to trained ResNet18 Model (Teacher)
 teacher_model_name = "ResNet50"                                        # Available: ['ResNet10', 'ResNet18', 'ResNet50','TinyCNN']
 baseline_student = "experiments/results/Experiment_5/Run_8/metrics.jsonl"      # (string) default: "" | Path to a pre-trained student model. If provided, the student model will be initialized with these weights before training.
-
 # (string) Available: ['CrossEntropyLoss', 'CosineEmbeddingLoss', 'KLDivLoss', 'RegressorMSE']
-kd_type = "KLDivLoss"
-
-# (float) default: 0.25 | used in CosineEmbeddingLoss, RegressorMSE
-hidden_rep_loss_weight = 0.25
-
-# (float) default: 0.75 | weight to multiply the cross entropy loss of the labels used in 'CrossEntropyLoss', 'CosineEmbeddingLoss'
-ce_loss_weight = 0.3
-
-# (float) default: 0.25 | used in CrossEntropyLoss, RegressorMSE
-soft_target_loss_weight = 0.25
-
-# (float) default: 0.7 | used in KLDivLoss
-alpha_kd = 0.7
-
-# (float) default: 0.25 | used in KLDivLoss
-beta_feat = 0
-
-# (int) default: 2 | Temperature paramter used in CrossEntropyLoss, RegressorMSE and KLDivLoss during Knowledge Distillation.
-T_param = 4
+kd_type = "KLDivLoss"         # (string) Available: ['CrossEntropyLoss', 'CosineEmbeddingLoss', 'KLDivLoss', 'RegressorMSE']
+hidden_rep_loss_weight = 0.25            # (float) default: 0.25 | used in CosineEmbeddingLoss, RegressorMSE
+ce_loss_weight = 0.3                   # (float) default: 0.75 | weight to multiply the cross entropy loss of the labels used in 'CrossEntropyLoss', 'CosineEmbeddingLoss'
+soft_target_loss_weight = 0.25          # (float) default: 0.25 | used in CrossEntropyLoss, RegressorMSE
+alpha_kd = 0.7                           # (float) default: 0.7 | used in KLDivLoss
+beta_feat = 0                           # (float) default: 0.25 | used in KLDivLoss
+T_param = 4                             # (int) default: 2 | Temperature paramter used in CrossEntropyLoss, RegressorMSE and KLDivLoss during Knowledge Distillation.
 
 
 [training.early_stopping]
