@@ -278,7 +278,7 @@ ResNet18, ResNet18, ResNet50, TinyCNN) on the RESISC45 dataset and evaluate thei
 | [5] | [Config.toml](results/Experiment_5/Run_5/config.toml) | ResNet50     | `timm/resisc45` | [metrics.json](results/Experiment_5/Run_5/metrics.jsonl) | [plots](results/Experiment_5/Run_5/plots) | ['B01', 'B02', 'B03'] | 89.30% @ 83   |
 | [6] | [Config.toml](results/Experiment_5/Run_6/config.toml) | ResNet50     | `timm/resisc45` | [metrics.json](results/Experiment_5/Run_6/metrics.jsonl) | [plots](results/Experiment_5/Run_6/plots) | ['B01', 'B02', 'B03'] | 81.62% @ 49   |
 | [7] | [Config.toml](results/Experiment_5/Run_7/config.toml) | ResNet50     | `timm/resisc45` | [metrics.json](results/Experiment_5/Run_7/metrics.jsonl) | [plots](results/Experiment_5/Run_7/plots) | ['B01', 'B02', 'B03'] | 92.68% @ 93   |
-| [8] | [Config.toml](results/Experiment_5/Run_8/config.toml) | ResNet18     | `timm/resisc45` | [metrics.json](results/Experiment_5/Run_8/metrics.jsonl) | [plots](results/Experiment_5/Run_8/plots) | ['B01', 'B02', 'B03'] | 89.97% @ 49   |
+| [8] | [Config.toml](results/Experiment_5/Run_1/config.toml) | ResNet18     | `timm/resisc45` | [metrics.json](results/Experiment_5/Run_1/metrics.jsonl) | [plots](results/Experiment_5/Run_1/plots) | ['B01', 'B02', 'B03'] | 89.97% @ 49   |
 | [9] | [Config.toml](results/Experiment_5/Run_9/config.toml) | ResNet10mini | `timm/resisc45` | [metrics.json](results/Experiment_5/Run_9/metrics.jsonl) | [plots](results/Experiment_5/Run_9/plots) | ['B01', 'B02', 'B03'] | 83.30% @ 41   |
 
 ## Experiment 6: Hyperparameter-tuning - RESISC45, ResNet18, ResNet50

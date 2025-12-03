@@ -95,7 +95,7 @@ def _plots_for_different_experiments():
     # 4 - RESISC45 Baseline training runs
     models = {
         "ResNet50": "experiments/results/Experiment_5/Run_7/metrics.jsonl",
-        "ResNet18": "experiments/results/Experiment_5/Run_8/metrics.jsonl",
+        "ResNet18": "experiments/results/Experiment_5/Run_1/metrics.jsonl",
         "ResNet10": "experiments/results/Experiment_5/Run_2/metrics.jsonl",
         "ResNet10small": "experiments/results/Experiment_5/Run_9/metrics.jsonl",
         "TinyCNN": "experiments/results/Experiment_5/Run_3/metrics.jsonl",
@@ -153,7 +153,7 @@ def _plots_for_different_experiments():
     # 8 - RESISC45 ResNet18 Student vs Baseline training runs
     models = {
         "ResNet18-Student": "experiments/results/Experiment_6/Run_23/metrics.jsonl",
-        "ResNet18-Student-Baseline": "experiments/results/Experiment_5/Run_8/metrics.jsonl",
+        "ResNet18-Student-Baseline": "experiments/results/Experiment_5/Run_1/metrics.jsonl",
     }
     plot_val_accuracy_over_epochs(
         models,

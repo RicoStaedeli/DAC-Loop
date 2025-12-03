@@ -107,7 +107,7 @@ The teacher was in all stages end experiments the same: ResNet50 trained on RESI
 ### ResNet18 on RESISC45
 | Model                                                | Parameter  | Validation Accuracy (%) | Run ID                                                                        | Notes                                                       |
 |------------------------------------------------------|------------|-------------------------|-------------------------------------------------------------------------------|-------------------------------------------------------------|
-| ResNet18 - Our Baseline                              | 11,191,917 | 89.96                   | [Experiment 5, Run_8](../experiments/results/Experiment_5/Run_8)              | Train from scratch without a teacher for 50 epochs          |
+| ResNet18 - Our Baseline                              | 11,191,917 | 89.96                   | [Experiment 5, Run_8](../experiments/results/Experiment_5/Run_1)              | Train from scratch without a teacher for 50 epochs          |
 | ResNet18 + KD                                        | 11,191,917 | 92.98                   | [Experiment 6, Run_23](../experiments/results/Experiment_6/Run_23)            | Train from scratch with a teacher for 50 epochs             |
 | ResNet18 - No KD + Pruning (38.43%) - No KD          | 5,878,933  | 90.14                   | [Experiment 8, Run_3](../experiments/results/Experiment_8/Run_3)              | Compress model ResNet18 - Baseline and fine-tune without KD |
 | ResNet18 - No KD + Pruning (38.43%) + KD             | 5,878,933  | 91.90                   | [Experiment 8, Run_11](../experiments/results/Experiment_8/Run_11)            | Compress model ResNet18 - No KD and fine-tune with KD       |
