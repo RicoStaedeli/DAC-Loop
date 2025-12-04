@@ -26,6 +26,7 @@ class Evaluator:
         Returns:
             Dict[str, float]: Dictionary containing evaluation metrics: loss, mse, and accuracy.
         """
+        model.to(device)
         model.eval()
         total_loss = total_mse = total = correct = 0.0
 
