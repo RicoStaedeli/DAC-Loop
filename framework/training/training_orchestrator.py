@@ -106,6 +106,7 @@ class Trainer:
 
         for epoch in range(1, self.cfg.training.epochs + 1):
             t0 = time.time()
+
             if teacher is None:
                 # train without teacher
                 train_res = PlainSupervisedStrategy(ce_loss).train_one_epoch(
