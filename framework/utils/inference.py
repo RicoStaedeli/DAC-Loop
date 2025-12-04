@@ -6,6 +6,7 @@ from torchinfo import summary
 import time
 from typing import Dict, Any, Tuple
 import torch.nn as nn
+import json
 
 from framework.models.ResNet18 import ResNet18
 from framework.utils.logger import setup_logging
@@ -16,7 +17,13 @@ from framework.dataset.load_for_training import load_hf_splits, build_loaders_fr
 
 log = logging.getLogger(__name__)
 
-
+def save_results(path: Path, results: Dict[str, Any]) -> None:
+    """
+    Save results dictionary to a JSON file.
+    """
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w") as f:
+        json.dump(results, f, indent=2)
 
 
 def _get_parent_module(root: nn.Module, name: str) -> Tuple[nn.Module, str]:
@@ -283,6 +290,24 @@ def _inference_time_comparison_resisc(device: torch.device) -> None:
     log.info(f"Compressed model:{comp_batch_time*1e3:.3f} ms / batch | {comp_sample_time*1e3:.3f} ms / sample")
     log.info(f"Speedup (batch):  x{speedup_batch:.3f}")
     log.info(f"Speedup (sample): x{speedup_sample:.3f}")
+
+    # -------------------------
+    # Persist results to file
+    # -------------------------
+    results = {
+        "model_full_path": str(path_full),
+        "model_compressed_path": str(path_compressed),
+        "full_batch_time_s": full_batch_time,
+        "full_sample_time_s": full_sample_time,
+        "compressed_batch_time_s": comp_batch_time,
+        "compressed_sample_time_s": comp_sample_time,
+        "speedup_batch": speedup_batch,
+        "speedup_sample": speedup_sample,
+    }
+
+    out_path = Path("experiments/results/inference_times_resisc45.json")
+    save_results(out_path, results)
+    log.info("Saved inference results to %s", out_path)
 
 def print_model_summary(model: Optional[torch.nn.Module], input_channels: int, bs, img_size,
                         description: str) -> None:
