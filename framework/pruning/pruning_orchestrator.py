@@ -88,7 +88,7 @@ class PruningOrchestrator:
         strategy.build_dependency(self.model, example)
         return strategy
 
-    def _build_pruning_config(model: nn.Module) -> dict:
+    def _build_pruning_config(self, model: nn.Module) -> dict:
         """
         Build a config describing the pruned architecture.
 
