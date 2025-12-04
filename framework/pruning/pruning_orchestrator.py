@@ -17,6 +17,7 @@ from framework.utils.device_resolver import DeviceResolver
 from framework.pruning.strategies.structured import StructuredPruning
 from framework.pruning.strategies.unstructured import UnstructuredPruning
 from framework.utils.push_to_remote_repository import git_commit_and_push
+from framework.pruning.services.pruning_utils import prunable_layers
 
 log = logging.getLogger(__name__)
 
@@ -86,6 +87,37 @@ class PruningOrchestrator:
         )
         strategy.build_dependency(self.model, example)
         return strategy
+
+    def _build_pruning_config(self, model: nn.Module) -> dict:
+        """
+        Build a config describing the pruned architecture.
+
+        For each prunable layer (Conv2d / Linear) we store its type and key
+        shape parameters. This is generic and can be used later to rebuild
+        a matching compressed model (e.g. a pruned ResNet-18).
+        """
+        cfg: dict[str, dict] = {}
+        for name, m in prunable_layers(model):
+            if isinstance(m, nn.Conv2d):
+                cfg[name] = {
+                    "type": "conv2d",
+                    "in_channels": m.in_channels,
+                    "out_channels": m.out_channels,
+                    "kernel_size": list(m.kernel_size),
+                    "stride": list(m.stride),
+                    "padding": list(m.padding),
+                    "dilation": list(m.dilation),
+                    "groups": m.groups,
+                    "bias": m.bias is not None,
+                }
+            elif isinstance(m, nn.Linear):
+                cfg[name] = {
+                    "type": "linear",
+                    "in_features": m.in_features,
+                    "out_features": m.out_features,
+                    "bias": m.bias is not None,
+                }
+        return cfg
 
 
     def run(
@@ -202,7 +234,22 @@ class PruningOrchestrator:
             summarize(cfg, self.model, input_channels, f"Student - Pruned and Fine-tuned iteration {iteration}", experiment_dir)
 
             pruned_path = Path(cfg.training.base_path_ckpts) / experiment_dir / f"compressed_model_iteration_{iteration}.pt"
-            save_state_dict(self.model, pruned_path)
+            pruning_cfg = self._build_pruning_config(self.model)
+
+            checkpoint = {
+                # keep the same key you use for the full model so loading code is consistent
+                "model_state": self.model.state_dict(),
+                "pruning_cfg": pruning_cfg,
+                "iteration": iteration,
+                "experiment": {
+                    "name": cfg.experiment.name,
+                    "run": cfg.experiment.run,
+                }
+            }
+
+            pruned_path.parent.mkdir(parents=True, exist_ok=True)
+            torch.save(checkpoint, pruned_path)
+
             if iteration > 1:
                 # If the experiment has multiple iterations commit every iteration
                 git_commit_and_push(f"Experiment={cfg.experiment.name} Run={cfg.experiment.run} Iteration = {iteration}")
