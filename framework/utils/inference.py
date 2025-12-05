@@ -228,10 +228,7 @@ def _inference_time_comparison_resisc(device: torch.device) -> None:
 
     # Models
     model_full = _build_model("ResNet18", input_channels=3, num_classes=45)
-    model_compressed = _build_model("ResNet18", input_channels=3, num_classes=45)
 
-    print_model_summary(model_full, input_channels=3, bs=256, img_size=256, description="Baseline ResNet18")
-    print_model_summary(model_compressed, input_channels=3, bs=256, img_size=256, description="Compressed ResNet18")
 
     # Baseline ResNet18
     path_full = Path("experiments/results/Experiment_5/Run_1/best.pt")
@@ -244,6 +241,7 @@ def _inference_time_comparison_resisc(device: torch.device) -> None:
     # -------------------------
     ckpt = torch.load(str(path_full), map_location=device)
     model_full.load_state_dict(ckpt["model_state"])
+    print_model_summary(model_full, input_channels=3, bs=256, img_size=256, description="Baseline ResNet18")
 
     full_batch_time, full_sample_time = _measure_inference_time(
         model_full, val_loader, device
@@ -269,6 +267,7 @@ def _inference_time_comparison_resisc(device: torch.device) -> None:
     )
 
     model_compressed.load_state_dict(ckpt["model_state"], strict=True)
+    print_model_summary(model_compressed, input_channels=3, bs=256, img_size=256, description="Compressed ResNet18")
 
     comp_batch_time, comp_sample_time = _measure_inference_time(
         model_compressed, val_loader, device
@@ -312,12 +311,22 @@ def _inference_time_comparison_resisc(device: torch.device) -> None:
         except Exception as e:
             log.warning("Could not query CUDA device properties for summary: %s", e)
 
+    full_size_bytes = path_full.stat().st_size
+    comp_size_bytes = path_compressed.stat().st_size
+
+    full_size_mb = full_size_bytes / (1024 * 1024)
+    comp_size_mb = comp_size_bytes / (1024 * 1024)
+    size_reduction = full_size_mb / comp_size_mb if comp_size_mb > 0 else float("inf")
+
     log.info("=== FINAL INFERENCE SUMMARY ===")
     log.info("Model full checkpoint:       %s", path_full)
     log.info("Model compressed checkpoint: %s", path_compressed)
     log.info("Device:                      %s", device)
     log.info("Device name:                 %s", device_name)
     log.info("Device capability:           %s", device_cap)
+    log.info("Checkpoint (full) size:       %.2f MB", full_size_mb)
+    log.info("Checkpoint (compressed) size: %.2f MB", comp_size_mb)
+    log.info("Checkpoint size reduction:    x%.3f", size_reduction)
     log.info("Full batch time [s]:         %.6f", full_batch_time)
     log.info("Full sample time [s]:        %.6f", full_sample_time)
     log.info("Compressed batch time [s]:   %.6f", comp_batch_time)
