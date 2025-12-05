@@ -97,7 +97,7 @@ def _plots_for_different_experiments():
         "ResNet50": "experiments/results/Experiment_5/Run_7/metrics.jsonl",
         "ResNet18": "experiments/results/Experiment_5/Run_1/metrics.jsonl",
         "ResNet10": "experiments/results/Experiment_5/Run_2/metrics.jsonl",
-        "ResNet10small": "experiments/results/Experiment_5/Run_9/metrics.jsonl",
+        "ResNet10small": "experiments/results/Experiment_5/Run_1/metrics.jsonl",
         "TinyCNN": "experiments/results/Experiment_5/Run_3/metrics.jsonl",
 
     }
