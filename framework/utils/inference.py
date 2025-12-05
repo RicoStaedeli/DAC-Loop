@@ -17,6 +17,8 @@ from framework.dataset.load_for_training import load_hf_splits, build_loaders_fr
 
 log = logging.getLogger(__name__)
 
+LOGFILE_PATH = Path("experiments/results/inference_times_resisc45.log")
+
 def save_results(path: Path, results: Dict[str, Any]) -> None:
     """
     Save results dictionary to a JSON file.
@@ -224,8 +226,6 @@ def _inference_time_comparison_resisc(device: torch.device) -> None:
         pin_memory=True,
     )
 
-    # If you prefer, you can build a dedicated test_loader here instead of using val_loader.
-
     # Models
     model_full = _build_model("ResNet18", input_channels=3, num_classes=45)
     model_compressed = _build_model("ResNet18", input_channels=3, num_classes=45)
@@ -265,7 +265,7 @@ def _inference_time_comparison_resisc(device: torch.device) -> None:
         pruning_cfg=pruning_cfg,
         input_channels=3,
         num_classes=45,
-        feature_dim=512,  # or ckpt.get("feature_dim", 512) if you store it
+        feature_dim=512,
     )
 
     model_compressed.load_state_dict(ckpt["model_state"], strict=True)
@@ -283,31 +283,49 @@ def _inference_time_comparison_resisc(device: torch.device) -> None:
     # Comparison & logging
     # -------------------------
     speedup_batch = full_batch_time / comp_batch_time if comp_batch_time > 0 else float("inf")
-    speedup_sample = full_sample_time / comp_sample_time if comp_sample_time > 0 else float("inf")
+    speedup_sample = full_sample_time / comp_sample_time if full_sample_time > 0 else float("inf")
 
     log.info("=== Inference Time Comparison on RESISC45 (val split) ===")
-    log.info(f"Full model:      {full_batch_time*1e3:.3f} ms / batch | {full_sample_time*1e3:.3f} ms / sample")
-    log.info(f"Compressed model:{comp_batch_time*1e3:.3f} ms / batch | {comp_sample_time*1e3:.3f} ms / sample")
-    log.info(f"Speedup (batch):  x{speedup_batch:.3f}")
-    log.info(f"Speedup (sample): x{speedup_sample:.3f}")
+    log.info(
+        "Full model:      %.3f ms / batch | %.3f ms / sample",
+        full_batch_time * 1e3,
+        full_sample_time * 1e3,
+    )
+    log.info(
+        "Compressed model: %.3f ms / batch | %.3f ms / sample",
+        comp_batch_time * 1e3,
+        comp_sample_time * 1e3,
+    )
+    log.info("Speedup (batch):  x%.3f", speedup_batch)
+    log.info("Speedup (sample): x%.3f", speedup_sample)
 
     # -------------------------
-    # Persist results to file
+    # Final summary block in logfile (not JSON)
     # -------------------------
-    results = {
-        "model_full_path": str(path_full),
-        "model_compressed_path": str(path_compressed),
-        "full_batch_time_s": full_batch_time,
-        "full_sample_time_s": full_sample_time,
-        "compressed_batch_time_s": comp_batch_time,
-        "compressed_sample_time_s": comp_sample_time,
-        "speedup_batch": speedup_batch,
-        "speedup_sample": speedup_sample,
-    }
+    # Device info for the summary
+    device_name = "N/A"
+    device_cap = "N/A"
+    if device.type == "cuda":
+        try:
+            device_name = torch.cuda.get_device_name(device)
+            device_cap = torch.cuda.get_device_capability(device)
+        except Exception as e:
+            log.warning("Could not query CUDA device properties for summary: %s", e)
 
-    out_path = Path("experiments/results/inference_times_resisc45.json")
-    save_results(out_path, results)
-    log.info("Saved inference results to %s", out_path)
+    log.info("=== FINAL INFERENCE SUMMARY ===")
+    log.info("Model full checkpoint:       %s", path_full)
+    log.info("Model compressed checkpoint: %s", path_compressed)
+    log.info("Device:                      %s", device)
+    log.info("Device name:                 %s", device_name)
+    log.info("Device capability:           %s", device_cap)
+    log.info("Full batch time [s]:         %.6f", full_batch_time)
+    log.info("Full sample time [s]:        %.6f", full_sample_time)
+    log.info("Compressed batch time [s]:   %.6f", comp_batch_time)
+    log.info("Compressed sample time [s]:  %.6f", comp_sample_time)
+    log.info("Speedup batch:               x%.6f", speedup_batch)
+    log.info("Speedup sample:              x%.6f", speedup_sample)
+    log.info("Logfile written to:          %s", LOGFILE_PATH)
+
 
 def print_model_summary(model: Optional[torch.nn.Module], input_channels: int, bs, img_size,
                         description: str) -> None:
@@ -329,19 +347,46 @@ def print_model_summary(model: Optional[torch.nn.Module], input_channels: int, b
     log.info(text)
 
 def main():
-    # Setup logging
+    # Setup logging (console etc. via your existing config)
     logger_cfg_path = "experiments/configurations/plot_config.toml"
     cfg = load_config_toml(logger_cfg_path, validate=False)
     setup_logging(cfg.model_dump(), Path(), False)
-    log.info(f"Config loaded from {logger_cfg_path}")
 
+    # Add file handler so ALL logs are written to LOGFILE_PATH
+    LOGFILE_PATH.parent.mkdir(parents=True, exist_ok=True)
+    file_handler = logging.FileHandler(LOGFILE_PATH, mode="a")  # append
+    file_handler.setLevel(logging.INFO)
+    file_handler.setFormatter(
+        logging.Formatter(
+            "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+        )
+    )
+    logging.getLogger().addHandler(file_handler)
+
+    log.info("===================================================")
+    log.info("Starting inference time comparison script")
+    log.info("Config loaded from %s", logger_cfg_path)
 
     device = DeviceResolver.get()
     log.info("Using device: %s", device)
 
+    if device.type == "cuda":
+        try:
+            log.info("CUDA device index: %s", device.index)
+            log.info("CUDA device name: %s", torch.cuda.get_device_name(device))
+            log.info(
+                "CUDA capability: %s",
+                torch.cuda.get_device_capability(device),
+            )
+        except Exception as e:
+            log.warning("Could not query CUDA device properties: %s", e)
+
+
+    log.info("Using device: %s", device)
+
     _inference_time_comparison_resisc(device)
 
-
+    log.info("Finished inference time comparison script")
 
 
 
