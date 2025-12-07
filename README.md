@@ -13,6 +13,19 @@ while preserving teacher-level accuracy on RS scene classification. In particula
   NWPU-RESISC45.
 - Ablation studies demonstrate that iterative DAC-Loop cycles outperform standard pruning on every level of compressio.
 
+Our proposed DAC-Loop approach achieves state-of-the-art results on the NWPU-RESISC45 dataset with a ResNet18 backbone,
+compressing the model by 85.2% while still achieving 92.00% accuracy, outperforming previous methods.
+We implemented a dynamic framework allowing to create scheduled compression loops. The loop follows these steps:
+
+1. A teacher model is trained on the dataset.
+2. A student model (smaller than teacher) is trained using knowledge distillation from the teacher.
+3. The KD-trained student model is compressed via structured pruning.
+4. The compressed model becomes the new student, and steps 2-4 are repeated for N iterations.
+
+The framework allows to flexibly define different compression rates, methods and parameters during each iteration. This
+enables a possibility to start in a first iteration e.g. with global unstructured pruning with a low compression rate
+and end with structured pruning with a high compression rate in the last iteration.
+
 ## Project Structure
 
 The directory structure of **DAC-Loop** is organized as follows:
@@ -88,3 +101,20 @@ Also included are the results of our DAC-Loop approach with multiple iterations 
 |             |  –   |  ✓   | 9 | 92.1% |  0.8 M |     90.71 ± 0.25 |
 
 \* 2.0M model: ResNet10mini, our own small-model baseline.
+
+![Final Plot](docs/plots/10_dac_compression_curves.png)
+
+## Contact
+Feel free to get in touch with us with any questions on the project. Reach out to [rico.staedeli@student.unisg.ch](mailto:rico.staedeli@student.unisg.ch).
+
+## Citation
+If you find this work useful for your research, please consider citing the following paper:
+
+```
+@article{staedeli2024dacloop,
+  title={DAC-Loop: Distillation-Aware Compression Loop with Teacher-Student Learning for Remote Sensing CNN},
+  author={Staedeli, Rico and Raichle, Lorena},
+  journal={DeepLearning 2025},
+  year={2025}
+}
+```
