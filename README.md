@@ -14,7 +14,7 @@ while preserving teacher-level accuracy on RS scene classification. In particula
 - Ablation studies demonstrate that iterative DAC-Loop cycles outperform standard pruning on every level of compressio.
 
 Our proposed DAC-Loop approach achieves state-of-the-art results on the NWPU-RESISC45 dataset with a ResNet18 backbone,
-compressing the model by 85.2% while still achieving 92.00% accuracy, outperforming previous methods.
+compressing the model by 85.2% while still achieving 92.00% accuracy.
 We implemented a dynamic framework allowing to create scheduled compression loops. The loop follows these steps:
 
 1. A teacher model is trained on the dataset.
