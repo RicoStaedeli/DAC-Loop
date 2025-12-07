@@ -21,6 +21,8 @@ uv run runner.py --gpu 0 --experiment Experiment_XY
 
 ---
 
+
+
 ## Experiment 1: Baselines Teacher & Students on EuroSAT
 
 **Goal:** Train baseline models on EuroSAT dataset with different band combinations to establish performance benchmarks
@@ -622,13 +624,28 @@ Teacher: [Experiment 5, Run 7](results/Experiment_5/Run_7/config.toml)
 ### Runs
 
 
-## Experiment 10b: Seed Experiments for Experiment 8 Ablation Study Resisc45 and Resnet18
+## Experiment 10b: Seed Runs for Resisc45 and Resnet18
 
 **Goal:** The goal of this experiment is to evaluate the stability of the baseline experiments from Experiment 8 on Resisc45 with different random seeds.
 ResNet18.
+ Seed ResNet18 RESISC:
+- 1-3 KD --> [Exp 6, Run 23](results/Experiment_6/Run_23)
+- 4-6 ResNet18 - No KD + Pruning (38.43%) - No KD --> [Exp 8, Run 3](results/Experiment_8/Run_3)
+- 7-9 ResNet18 - No KD + Pruning (38.43%) + KD --> [Exp 8, Run 11](results/Experiment_8/Run_11)
+- 10-12 ResNet18 + KD + Pruning (38.43%) - No KD --> [Exp 8, Run 7](results/Experiment_8/Run_7)
+- 13-15 ResNet18 + KD + Pruning (38.43%) + KD --> [Exp 7, Run 10](results/Experiment_7/Run_10)
+- 16-18 ResNet18 - No KD + Pruning (65.71%) - No KD --> [Exp 8, Run 4](results/Experiment_8/Run_4)
+- 19-21 ResNet18 - No KD + Pruning (65.71%) + KD --> [Exp 8, Run 12](results/Experiment_8/Run_12)
+- 22-24 ResNet18 + KD + Pruning (65.71%) - No KD --> [Exp 8, Run 8](results/Experiment_8/Run_8)
+- 25-27 ResNet18 + KD + Pruning (65.71%) + KD --> [Exp 7, Run 11](results/Experiment_7/Run_11)
+- 28-30 KD loop 6 iters --> [Exp 9, Run 5](results/Experiment_9/Run_5)
+- 31-33 KD loop 9 iters --> [Exp 9, Run 7](results/Experiment_9/Run_7)
+- 34-35 unstructured pruning -> [Exp 7, Run 19](results/Experiment_7/Run_19)
+
+### Results
+
 [Results](results/Experiment_10b/experiment_summary.md)
 
-### Runs
 
 
 ## Experiment 10c: Seed Experiments for Experiment 8 Ablation Study Resisc45 and Resnet10
