@@ -110,7 +110,7 @@ Feel free to get in touch with us with any questions on the project. Reach out t
 ## Citation
 If you find this work useful for your research, please consider citing the following paper:
 
-```
+```bibtex
 @article{staedeli2024dacloop,
   title={DAC-Loop: Distillation-Aware Compression Loop with Teacher-Student Learning for Remote Sensing CNN},
   author={Staedeli, Rico and Raichle, Lorena},
