@@ -37,7 +37,7 @@ uv run python -m framework.utils.evaluation.generate_plots --use-default-batch
 
 
 ## Experiment Results
-Create the experiment summary markdown tables with:
+Create the experiment summary Markdown tables with:
 
 ```bash
 uv run python -m framework.utils.evaluation.generate_exp_results_md
