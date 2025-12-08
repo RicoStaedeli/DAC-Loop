@@ -50,7 +50,7 @@ Create the Experiment Description Table with:
 uv run python -m framework.utils.evaluation.generate_exp_description_md
 ```
 $
-## Infernence Evaluation
+## Inference Evaluation
 
 Make Inference comparison
 
