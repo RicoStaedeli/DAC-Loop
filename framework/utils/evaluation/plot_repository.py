@@ -920,9 +920,10 @@ def animate_only_dac_curve(
 
     - X ticks every 10% compression
     - Y-axis max = 94
-    - At each 10% step along the DAC curve (interpolated),
-      draw a marker and show the accuracy label at the
-      bottom-left of the point.
+    - At each 10% step along BOTH curves (interpolated),
+      draw a marker and show the accuracy label.
+    - "without DAC" is static (always present in the gif).
+    - "with DAC" is animated (markers/labels appear as the curve grows).
     """
 
     if total_parameters <= 0:
@@ -986,16 +987,25 @@ def animate_only_dac_curve(
     x_yes = df_yes["Compression"].to_numpy()
 
     # -------- precompute labels at 10% compression steps --------
-    # 0, 10, 20, ..., 100
     ticks_x = np.arange(0.0, 101.0, 10.0)
 
-    # only within the DAC curve range
-    mask_grid = (ticks_x >= x_yes.min()) & (ticks_x <= x_yes.max())
-    x_label_pts = ticks_x[mask_grid]
-    y_label_pts = np.interp(x_label_pts, x_yes, y_yes)
+    # --- WITH DAC label points ---
+    mask_yes = (ticks_x >= x_yes.min()) & (ticks_x <= x_yes.max())
+    x_label_pts_yes = ticks_x[mask_yes]
+    y_label_pts_yes = np.interp(x_label_pts_yes, x_yes, y_yes)
 
-    x_label_pts = np.append(x_label_pts, x_yes[-1])
-    y_label_pts = np.append(y_label_pts, y_yes[-1])
+    # ensure final real point is included
+    x_label_pts_yes = np.append(x_label_pts_yes, x_yes[-1])
+    y_label_pts_yes = np.append(y_label_pts_yes, y_yes[-1])
+
+    # --- WITHOUT DAC label points ---
+    mask_no = (ticks_x >= x_no.min()) & (ticks_x <= x_no.max())
+    x_label_pts_no = ticks_x[mask_no]
+    y_label_pts_no = np.interp(x_label_pts_no, x_no, y_no)
+
+    # ensure final real point is included
+    x_label_pts_no = np.append(x_label_pts_no, x_no[-1])
+    y_label_pts_no = np.append(y_label_pts_no, y_no[-1])
 
     # -------- plot & animate --------
     fig, ax = plt.subplots(figsize=figsize)
@@ -1007,7 +1017,48 @@ def animate_only_dac_curve(
     ax.set_xlim(0, 100)
 
     # static baseline (without DAC)
-    ax.plot(x_no, y_no, linestyle="-", lw=1, label="without DAC")
+    (line_no,) = ax.plot(x_no, y_no, linestyle="-", lw=1, label="without DAC")
+
+    # ---- static markers/labels for WITHOUT DAC ----
+    ax._no_labels = []
+    ax._no_markers = []
+
+    for j, (xi, yi) in enumerate(zip(x_label_pts_no, y_label_pts_no)):
+        # marker (no legend entry)
+        (m,) = ax.plot(
+            xi, yi,
+            marker="o",
+            markersize=4,
+            color=line_no.get_color(),
+            label="_nolegend_",
+        )
+        ax._no_markers.append(m)
+
+        # baseline labels slightly BELOW the point to reduce collisions
+        txt_x = xi + 0.8
+        txt_y = yi + 0.2
+        ha = "left"
+        va = "bottom"
+
+        if j == 0:
+            txt_x = xi + 1.0
+            txt_y = yi - 0.15
+
+        # tweak final point if desired
+        if j == len(x_label_pts_no) - 1:
+            txt_x = xi + 0.9
+            txt_y = yi - 0.2
+
+        txt = ax.text(
+            txt_x,
+            txt_y,
+            f"{yi:.2f}",
+            fontsize=8,
+            ha=ha,
+            va=va,
+            color=line_no.get_color(),
+        )
+        ax._no_labels.append(txt)
 
     # animated curve (with DAC)
     (line_yes,) = ax.plot([], [], linestyle="-", lw=1, label="with DAC")
@@ -1018,13 +1069,13 @@ def animate_only_dac_curve(
         loc="lower left",
     )
 
-    # storage for label + marker artists
+    # storage for DAC label + marker artists (animated ones)
     ax._dac_labels = []
     ax._dac_markers = []
 
     def init():
         line_yes.set_data([], [])
-        # clear labels & markers
+        # clear DAC labels & markers only
         for t in ax._dac_labels:
             t.remove()
         for m in ax._dac_markers:
@@ -1033,11 +1084,13 @@ def animate_only_dac_curve(
         ax._dac_markers = []
         return (line_yes,)
 
+    index_last_point = len(x_label_pts_yes) - 1
+
     def update(frame: int):
         # grow the DAC line
         line_yes.set_data(x_yes[:frame + 1], y_yes[:frame + 1])
 
-        # clear previous labels & markers
+        # clear previous DAC labels & markers
         for t in ax._dac_labels:
             t.remove()
         for m in ax._dac_markers:
@@ -1049,10 +1102,11 @@ def animate_only_dac_curve(
         current_x_max = x_yes[frame]
 
         # show markers/labels for all 10%-steps that are <= current_x_max
-        visible_mask = x_label_pts <= current_x_max
+        visible_mask = x_label_pts_yes <= current_x_max
+        xs = x_label_pts_yes[visible_mask]
+        ys = y_label_pts_yes[visible_mask]
 
-        xs = x_label_pts[visible_mask]
-        ys = y_label_pts[visible_mask]
+
 
         for j, (xi, yi) in enumerate(zip(xs, ys)):
             # marker
@@ -1061,20 +1115,19 @@ def animate_only_dac_curve(
                 marker="o",
                 markersize=4,
                 color=line_yes.get_color(),
+                label="_nolegend_",
             )
             ax._dac_markers.append(m)
 
-            # --- special label offset for the FINAL point ---
-            if j == len(xs) - 1:
-                # final point → shift more (above-right for example)
+            # --- special label offset for the FINAL visible point ---
+            if j == index_last_point:
                 txt_x = xi + 1.0
                 txt_y = yi - 0.3
                 ha = "left"
                 va = "bottom"
             else:
-                # normal points → above-left
                 txt_x = xi + 1.0
-                txt_y = yi + 0.4
+                txt_y = yi + 0.2
                 ha = "left"
                 va = "bottom"
 
@@ -1085,6 +1138,7 @@ def animate_only_dac_curve(
                 fontsize=8,
                 ha=ha,
                 va=va,
+                color=line_yes.get_color(),
             )
             ax._dac_labels.append(txt)
 
@@ -1117,7 +1171,6 @@ def animate_only_dac_curve(
 
     im = Image.open(gif_path)
     frames = [frame.copy() for frame in ImageSequence.Iterator(im)]
-
     durations = [f.info.get("duration", int(1000 / fps)) for f in frames]
 
     frames[0].save(
