@@ -1,6 +1,6 @@
 # Evaluation
 
-To generate plots for R-L Net, you can use the following code snippet:
+To generate plots you can use the following code snippet:
 Make sure you are in the **root directory** of the project and have the necessary dependencies installed.
 All generation scripts are hardcoded and have to be adjusted if new experiments are done.
 
