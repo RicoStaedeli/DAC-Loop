@@ -1047,7 +1047,7 @@ def animate_only_dac_curve(
         # tweak final point if desired
         if j == len(x_label_pts_no) - 1:
             txt_x = xi + 0.9
-            txt_y = yi - 0.2
+            txt_y = yi - 0.5
 
         txt = ax.text(
             txt_x,
@@ -1122,7 +1122,7 @@ def animate_only_dac_curve(
             # --- special label offset for the FINAL visible point ---
             if j == index_last_point:
                 txt_x = xi + 1.0
-                txt_y = yi - 0.3
+                txt_y = yi - 0.5
                 ha = "left"
                 va = "bottom"
             else:
