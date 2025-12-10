@@ -8,7 +8,8 @@ from framework.utils.evaluation.plot_repository import (
     make_overview_per_experiment,
     plot_compression_experiment,
     plot_dac_compression_curves,
-    plot_val_accuracy_over_epochs
+    plot_val_accuracy_over_epochs,
+    animate_only_dac_curve
 )
 from framework.utils.utils import load_config_toml
 
@@ -271,6 +272,14 @@ def _plots_for_different_experiments():
     plot_dac_compression_curves(
         json_path="experiments/results/Experiment_13/result.json",
         out_path_base="docs/plots/10_dac_compression_curves",
+        use_latex=True,
+        total_parameters=11191917,
+        figsize=(5, 3.2)
+    )
+
+    animate_only_dac_curve(
+        json_path="experiments/results/Experiment_13/result.json",
+        out_path_base="docs/plots/11_dac_compression_curves",
         use_latex=True,
         total_parameters=11191917,
         figsize=(5, 3.2)

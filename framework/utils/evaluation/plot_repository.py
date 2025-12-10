@@ -4,10 +4,12 @@ import os
 from pathlib import Path
 from typing import Dict, Tuple, List, Union, Optional
 
+import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 from PIL import Image, ImageDraw, ImageFont
 from matplotlib import rcParams
+from matplotlib.animation import FuncAnimation, PillowWriter
 
 from framework.utils.utils import load_config_toml
 
@@ -900,3 +902,233 @@ def plot_dac_compression_curves(
     out_base.parent.mkdir(parents=True, exist_ok=True)
     saved = _save_figure(fig, out_base, export_pdf, export_png, png_dpi)
     return saved
+
+
+
+def animate_only_dac_curve(
+        json_path: Union[str, Path],
+        out_path_base: Union[str, Path] = "dac_compression_animation",
+        *,
+        total_parameters: int,
+        title: str = "Effect of DAC on Validation Accuracy vs. Compression",
+        use_latex: bool = True,
+        figsize: Tuple[float, float] = DEFAULT_FIGSIZE,
+        fps: int = 5,
+) -> str:
+    """
+    Creates ONLY a .gif where the 'with DAC' curve grows step-by-step.
+
+    - X ticks every 10% compression
+    - Y-axis max = 94
+    - At each 10% step along the DAC curve (interpolated),
+      draw a marker and show the accuracy label at the
+      bottom-left of the point.
+    """
+
+    if total_parameters <= 0:
+        raise ValueError(f"total_parameters must be positive, got {total_parameters}")
+
+    rcParams.update({
+        "text.usetex": use_latex,
+        "axes.titlesize": 12,
+        "axes.labelsize": 11,
+        "legend.fontsize": 10,
+        "legend.title_fontsize": 10,
+        "xtick.labelsize": 10,
+        "ytick.labelsize": 10,
+        "figure.titlesize": 13,
+    })
+
+    json_path = Path(json_path)
+    data = json.loads(json_path.read_text())
+    df = pd.DataFrame(data)
+
+    required_cols = {"Parameter", "Acc_without_DAC", "Acc_with_DAC"}
+    missing = required_cols - set(df.columns)
+    if missing:
+        raise ValueError(f"{json_path} is missing required columns: {missing}")
+
+    # numeric
+    df["Parameter"] = pd.to_numeric(df["Parameter"], errors="coerce")
+    df["Acc_without_DAC"] = pd.to_numeric(df["Acc_without_DAC"], errors="coerce")
+    df["Acc_with_DAC"] = pd.to_numeric(df["Acc_with_DAC"], errors="coerce")
+    df = df.dropna(subset=["Parameter"])
+
+    # compression
+    df["Compression"] = 100.0 * (1.0 - df["Parameter"] / float(total_parameters))
+
+    df_no = df.dropna(subset=["Acc_without_DAC"]).copy()
+    df_yes = df.dropna(subset=["Acc_with_DAC"]).copy()
+
+    if df_no.empty or df_yes.empty:
+        raise ValueError("Need both Acc_without_DAC and Acc_with_DAC data.")
+
+    df_no = df_no.sort_values("Compression").reset_index(drop=True)
+    df_yes = df_yes.sort_values("Compression").reset_index(drop=True)
+
+    # fractional vs percent (simple heuristic)
+    all_acc = pd.concat(
+        [df_no["Acc_without_DAC"], df_yes["Acc_with_DAC"]],
+        ignore_index=True
+    ).dropna()
+    as_fraction = False
+    if not all_acc.empty:
+        mn, mx = all_acc.min(), all_acc.max()
+        as_fraction = (0.0 <= mn) and (mx <= 1.0)
+
+    y_no = df_no["Acc_without_DAC"].to_numpy()
+    y_yes = df_yes["Acc_with_DAC"].to_numpy()
+    if as_fraction:
+        y_no = y_no * 100.0
+        y_yes = y_yes * 100.0
+
+    x_no = df_no["Compression"].to_numpy()
+    x_yes = df_yes["Compression"].to_numpy()
+
+    # -------- precompute labels at 10% compression steps --------
+    # 0, 10, 20, ..., 100
+    ticks_x = np.arange(0.0, 101.0, 10.0)
+
+    # only within the DAC curve range
+    mask_grid = (ticks_x >= x_yes.min()) & (ticks_x <= x_yes.max())
+    x_label_pts = ticks_x[mask_grid]
+    y_label_pts = np.interp(x_label_pts, x_yes, y_yes)
+
+    x_label_pts = np.append(x_label_pts, x_yes[-1])
+    y_label_pts = np.append(y_label_pts, y_yes[-1])
+
+    # -------- plot & animate --------
+    fig, ax = plt.subplots(figsize=figsize)
+    ax.grid(True, linestyle=":", linewidth=0.4, alpha=0.8)
+    ax.set_xlabel("Compression (\\%)")
+    ax.set_ylabel("Validation Accuracy (\\%)")
+    ax.set_ylim(87, 94)                 # max y = 94
+    ax.set_xticks(ticks_x)             # tick every 10% on x-axis
+    ax.set_xlim(0, 100)
+
+    # static baseline (without DAC)
+    ax.plot(x_no, y_no, linestyle="-", lw=1, label="without DAC")
+
+    # animated curve (with DAC)
+    (line_yes,) = ax.plot([], [], linestyle="-", lw=1, label="with DAC")
+
+    ax.set_title(rf"\textbf{{{title}}}")
+    ax.legend(
+        frameon=False,
+        loc="lower left",
+    )
+
+    # storage for label + marker artists
+    ax._dac_labels = []
+    ax._dac_markers = []
+
+    def init():
+        line_yes.set_data([], [])
+        # clear labels & markers
+        for t in ax._dac_labels:
+            t.remove()
+        for m in ax._dac_markers:
+            m.remove()
+        ax._dac_labels = []
+        ax._dac_markers = []
+        return (line_yes,)
+
+    def update(frame: int):
+        # grow the DAC line
+        line_yes.set_data(x_yes[:frame + 1], y_yes[:frame + 1])
+
+        # clear previous labels & markers
+        for t in ax._dac_labels:
+            t.remove()
+        for m in ax._dac_markers:
+            m.remove()
+        ax._dac_labels = []
+        ax._dac_markers = []
+
+        # current max compression reached by animation
+        current_x_max = x_yes[frame]
+
+        # show markers/labels for all 10%-steps that are <= current_x_max
+        visible_mask = x_label_pts <= current_x_max
+
+        xs = x_label_pts[visible_mask]
+        ys = y_label_pts[visible_mask]
+
+        for j, (xi, yi) in enumerate(zip(xs, ys)):
+            # marker
+            (m,) = ax.plot(
+                xi, yi,
+                marker="o",
+                markersize=4,
+                color=line_yes.get_color(),
+            )
+            ax._dac_markers.append(m)
+
+            # --- special label offset for the FINAL point ---
+            if j == len(xs) - 1:
+                # final point → shift more (above-right for example)
+                txt_x = xi + 1.0
+                txt_y = yi - 0.3
+                ha = "left"
+                va = "bottom"
+            else:
+                # normal points → above-left
+                txt_x = xi + 1.0
+                txt_y = yi + 0.4
+                ha = "left"
+                va = "bottom"
+
+            txt = ax.text(
+                txt_x,
+                txt_y,
+                f"{yi:.2f}",
+                fontsize=8,
+                ha=ha,
+                va=va,
+            )
+            ax._dac_labels.append(txt)
+
+        return (line_yes, *ax._dac_labels, *ax._dac_markers)
+
+    n_frames = len(x_yes)
+    if n_frames == 0:
+        raise ValueError("No 'with DAC' points available to animate.")
+
+    anim = FuncAnimation(
+        fig,
+        update,
+        init_func=init,
+        frames=n_frames,
+        interval=1000 / fps,
+        blit=False,
+        repeat=False,
+        save_count=n_frames,
+    )
+
+    out_base = Path(out_path_base)
+    out_base.parent.mkdir(parents=True, exist_ok=True)
+    gif_path = out_base.with_suffix(".gif")
+
+    writer = PillowWriter(fps=fps)
+    anim.save(gif_path, writer=writer)
+
+    # ---- Post-process loop count ----
+    from PIL import Image, ImageSequence
+
+    im = Image.open(gif_path)
+    frames = [frame.copy() for frame in ImageSequence.Iterator(im)]
+
+    durations = [f.info.get("duration", int(1000 / fps)) for f in frames]
+
+    frames[0].save(
+        gif_path,
+        save_all=True,
+        append_images=frames[1:],
+        duration=durations,
+        loop=None,   # repeat only one time
+        disposal=2
+    )
+    # -------------------------------
+
+    plt.close(fig)
+    return str(gif_path)
