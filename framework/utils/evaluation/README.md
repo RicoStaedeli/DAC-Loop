@@ -26,7 +26,7 @@ uv run python -m framework.utils.evaluation.generate_plots. \
 Generate plot for a specific TS Experiment
 ```bash
 uv run python -m framework.utils.evaluation.generate_plots \
-  --experiment Experiment_4 \
+  --experiment Experiment_3 \
   --run-id 3 \
   --type teacher_student
 ```
