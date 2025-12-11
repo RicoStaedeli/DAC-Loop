@@ -274,7 +274,8 @@ def _plots_for_different_experiments():
         out_path_base="docs/plots/10_dac_compression_curves",
         use_latex=True,
         total_parameters=11191917,
-        figsize=(5, 3.2)
+        figsize=(5, 3.2),
+        show_step_markers=True,
     )
 
     animate_only_dac_curve(

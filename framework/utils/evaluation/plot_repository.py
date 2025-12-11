@@ -773,6 +773,7 @@ def plot_dac_compression_curves(
         export_pdf: bool = True,
         export_png: bool = True,
         png_dpi: int = 600,
+        show_step_markers: bool = False,  # <-- NEW
 ) -> dict:
     """
     Plot validation accuracy with/without DAC as a function of compression.
@@ -797,6 +798,12 @@ def plot_dac_compression_curves(
 
     All entries with a value in Acc_without_DAC form the "w/o DAC" curve.
     All entries with a value in Acc_with_DAC form the "w/ DAC" curve.
+
+    If show_step_markers is True, then on both curves we:
+      - interpolate accuracies at 0, 10, 20, ..., 100 % compression
+        (only within the min/max compression range of each curve),
+      - add markers at those points, plus the final real point,
+      - and print the accuracy next to each marker.
     """
 
     if total_parameters <= 0:
@@ -888,12 +895,103 @@ def plot_dac_compression_curves(
     ax.set_ylabel("Validation Accuracy (\\%)")
 
     # Plot the two curves independently
-    ax.plot(x_no, y_no, linestyle="-", marker=None, label="without DAC")
-    ax.plot(x_yes, y_yes, linestyle="-", marker=None, label="with DAC")
+    (line_no,) = ax.plot(x_no, y_no, linestyle="-", marker=None, label="without DAC")
+    (line_yes,) = ax.plot(x_yes, y_yes, linestyle="-", marker=None, label="with DAC")
+
+    # Optional markers/labels at 10%-steps + final point
+    if show_step_markers:
+        # 0, 10, 20, ..., 100
+        ticks_x = np.arange(0.0, 101.0, 10.0)
+
+        # ---- WITH DAC ----
+        mask_yes = (ticks_x >= x_yes.min()) & (ticks_x <= x_yes.max())
+        x_label_pts_yes = ticks_x[mask_yes]
+        y_label_pts_yes = np.interp(x_label_pts_yes, x_yes, y_yes)
+
+        # ensure final real point is included
+        x_label_pts_yes = np.append(x_label_pts_yes, x_yes[-1])
+        y_label_pts_yes = np.append(y_label_pts_yes, y_yes[-1])
+
+        # ---- WITHOUT DAC ----
+        mask_no = (ticks_x >= x_no.min()) & (ticks_x <= x_no.max())
+        x_label_pts_no = ticks_x[mask_no]
+        y_label_pts_no = np.interp(x_label_pts_no, x_no, y_no)
+
+        # ensure final real point is included
+        x_label_pts_no = np.append(x_label_pts_no, x_no[-1])
+        y_label_pts_no = np.append(y_label_pts_no, y_no[-1])
+
+        # --- Static markers/labels for WITHOUT DAC (similar offsets to GIF) ---
+        for j, (xi, yi) in enumerate(zip(x_label_pts_no, y_label_pts_no)):
+            # marker
+            ax.plot(
+                xi, yi,
+                marker="o",
+                markersize=4,
+                color=line_no.get_color(),
+                label="_nolegend_",
+            )
+
+            # label offsets
+            txt_x = xi + 0.8
+            txt_y = yi + 0.2
+            ha = "left"
+            va = "bottom"
+
+            if j == 0:
+                txt_x = xi + 1.0
+                txt_y = yi - 0.15
+
+            if j == len(x_label_pts_no) - 1:
+                txt_x = xi + 0.9
+                txt_y = yi - 0.5
+
+            ax.text(
+                txt_x,
+                txt_y,
+                f"{yi:.2f}",
+                fontsize=8,
+                ha=ha,
+                va=va,
+                color=line_no.get_color(),
+            )
+
+        # --- Static markers/labels for WITH DAC (matching GIF style) ---
+        index_last_point_yes = len(x_label_pts_yes) - 1
+        for j, (xi, yi) in enumerate(zip(x_label_pts_yes, y_label_pts_yes)):
+            ax.plot(
+                xi, yi,
+                marker="o",
+                markersize=4,
+                color=line_yes.get_color(),
+                label="_nolegend_",
+            )
+
+            if j == index_last_point_yes:
+                txt_x = xi + 1.0
+                txt_y = yi - 0.5
+                ha = "left"
+                va = "bottom"
+            else:
+                txt_x = xi + 1.0
+                txt_y = yi + 0.2
+                ha = "left"
+                va = "bottom"
+
+            ax.text(
+                txt_x,
+                txt_y,
+                f"{yi:.2f}",
+                fontsize=8,
+                ha=ha,
+                va=va,
+                color=line_yes.get_color(),
+            )
 
     # Show every 10% step on the x-axis
     ax.set_xticks(list(range(0, 101, 10)))
     ax.set_xlim(0, 100)
+    ax.set_ylim(87, 94)
 
     ax.set_title(rf"\textbf{{{title}}}")
     ax.legend(frameon=False, handlelength=1.2, borderaxespad=0.2, loc="best")
