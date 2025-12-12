@@ -113,7 +113,6 @@ class TeacherStudentConfig(BaseModel):
     hidden_rep_loss_weight: float = 0.25
     ce_loss_weight: float = 0.75
     soft_target_loss_weight: float = 0.25
-    alpha_kd: float = 0.25
     beta_feat: float = 0.25
     T_param: PositiveInt = 1
 

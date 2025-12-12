@@ -1017,7 +1017,6 @@ def _summarize_single_run(run_dir: Path) -> Dict[str, str]:
     ce_loss_weight = _get_param("ce_loss_weight")
     soft_target_loss_weight = _get_param("soft_target_loss_weight")
     T_param = _get_param("T_param")
-    alpha_kd = _get_param("alpha_kd")
     beta_feat = _get_param("beta_feat")
 
     # --- Teacher ---
@@ -1068,7 +1067,6 @@ def _summarize_single_run(run_dir: Path) -> Dict[str, str]:
         "hidden_rep_loss_weight": hidden_rep_loss_weight,
         "ce_loss_weight": ce_loss_weight,
         "soft_target_loss_weight": soft_target_loss_weight,
-        "alpha_kd": alpha_kd,
         "beta_feat": beta_feat,
         "T_param": T_param,
         "teacher_best_val_accuracy (%)": f"{teacher_best_val_acc:.4f}",
@@ -1116,7 +1114,6 @@ def summarize_experiment_group_to_markdown(
         "hidden_rep_loss_weight",
         "ce_loss_weight",
         "soft_target_loss_weight",
-        "alpha_kd",
         "beta_feat",
         "T_param",
         "teacher_best_val_accuracy (%)",

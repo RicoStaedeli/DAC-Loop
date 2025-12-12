@@ -17,11 +17,11 @@ class CrossEntropyKDStrategy:
         """
         self.cross_entropy_loss = ce_loss
         self.temperature = T
-        self.weight_soft_target = w_soft
-        self.weight_cross_entropy = w_ce
+        self.weight_loss_kl = w_soft
+        self.weight_loss_ce = w_ce
 
     def train_one_epoch(self, *, teacher, student, loader, device, optimizer, epoch, total_epochs) -> EpochResult:
-        teacher.eval();
+        teacher.eval()
         student.train()
         tot_loss = tot_acc = tot_n = 0.0
 
@@ -37,12 +37,12 @@ class CrossEntropyKDStrategy:
             student_logp_temperature = F.log_softmax(student_logits / self.temperature, dim=1)
             teacher_logp_temperature = F.log_softmax(teacher_logits / self.temperature, dim=1)
 
-            soft = F.kl_div(student_logp_temperature, teacher_logp_temperature, reduction="batchmean",
+            loss_kl = F.kl_div(student_logp_temperature, teacher_logp_temperature, reduction="batchmean",
                             log_target=True) * (self.temperature ** 2)
 
-            ce = self.cross_entropy_loss(student_logits, label)
+            loss_ce = self.cross_entropy_loss(student_logits, label)
 
-            loss = self.weight_soft_target * soft + self.weight_cross_entropy * ce
+            loss = self.weight_loss_kl * loss_kl + self.weight_loss_ce * loss_ce
 
             loss.backward()
 
