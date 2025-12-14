@@ -1145,6 +1145,7 @@ def main():
         experiment_dir="experiments/results/Experiment_1",
         output_md_path="experiments/results/Experiment_1/experiment_summary.md",
     )
+    '''
     summarize_baseline_experiment_group_to_markdown(
         experiment_dir="experiments/results/Experiment_1a",
         output_md_path="experiments/results/Experiment_1a/experiment_summary.md",
@@ -1157,6 +1158,8 @@ def main():
         experiment_dir="experiments/results/Experiment_11a",
         output_md_path="experiments/results/Experiment_11a/experiment_summary.md",
     )
+    '''
+
     # ------------------------------------------------------------------
     # Tables for Teacher - Student KD Experiments
     # ------------------------------------------------------------------
@@ -1164,22 +1167,20 @@ def main():
         experiment_dir="experiments/results/Experiment_2",
         output_md_path="experiments/results/Experiment_2/experiment_summary.md",
     )
-
-    summarize_experiment_group_to_markdown(
-        experiment_dir="experiments/results/Experiment_2",
-        output_md_path="experiments/results/Experiment_2/experiment_summary.md",
-    )
-
     summarize_experiment_group_to_markdown(
         experiment_dir="experiments/results/Experiment_3",
         output_md_path="experiments/results/Experiment_3/experiment_summary.md",
     )
-
     summarize_experiment_group_to_markdown(
         experiment_dir="experiments/results/Experiment_4",
         output_md_path="experiments/results/Experiment_4/experiment_summary.md",
     )
+    summarize_experiment_group_to_markdown(
+        experiment_dir="experiments/results/Experiment_5",
+        output_md_path="experiments/results/Experiment_5/experiment_summary.md",
+    )
 
+    '''
     summarize_experiment_group_to_markdown(
         experiment_dir="experiments/results/Experiment_3a",
         output_md_path="experiments/results/Experiment_3a/experiment_summary.md",
@@ -1192,6 +1193,7 @@ def main():
         experiment_dir="experiments/results/Experiment_5a",
         output_md_path="experiments/results/Experiment_5a/experiment_summary.md",
     )
+    
 
     # ------------------------------------------------------------------
     # Tables for Pruning/Compression Experiments
@@ -1240,6 +1242,7 @@ def main():
         experiment_dir="experiments/results/Experiment_14a",
         output_md_path="experiments/results/Experiment_14a/experiment_summary.md",
     )
+    '''
 
 
 if __name__ == "__main__":

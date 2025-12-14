@@ -1,0 +1,42 @@
+| run_name | teacher_model | student_model | dataset | kd_type | hidden_rep_loss_weight | ce_loss_weight | soft_target_loss_weight | beta_feat | T_param | teacher_best_val_accuracy (%) | student_best_val_accuracy (%) | baseline_student_best_val_accuracy (%) | improvement_over_baseline (%) |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Run_1 | ResNet50 | ResNet10mini | blanchon/EuroSAT_MSI | CosineEmbeddingLoss | 0.1 | 0.75 | 0.25 | 0 | 2 | 96.9630 | 96.4630 | 96.3519 | 0.1111 |
+| Run_2 | ResNet50 | ResNet10mini | blanchon/EuroSAT_MSI | CosineEmbeddingLoss | 0.3 | 0.75 | 0.25 | 0 | 2 | 96.9630 | 96.4444 | 96.3519 | 0.0926 |
+| Run_3 | ResNet50 | ResNet10mini | blanchon/EuroSAT_MSI | CosineEmbeddingLoss | 0.5 | 0.75 | 0.25 | 0 | 2 | 96.9630 | 96.4630 | 96.3519 | 0.1111 |
+| Run_4 | ResNet50 | ResNet10mini | blanchon/EuroSAT_MSI | CosineEmbeddingLoss | 0.7 | 0.75 | 0.25 | 0 | 2 | 96.9630 | 96.4259 | 96.3519 | 0.0741 |
+| Run_5 | ResNet50 | ResNet10mini | blanchon/EuroSAT_MSI | CosineEmbeddingLoss | 0.9 | 0.75 | 0.25 | 0 | 2 | 96.9630 | 96.6111 | 96.3519 | 0.2593 |
+| Run_6 | ResNet50 | ResNet10mini | blanchon/EuroSAT_MSI | CosineEmbeddingLoss | 0.25 | 0.1 | 0.25 | 0 | 2 | 96.9630 | 96.6111 | 96.3519 | 0.2593 |
+| Run_7 | ResNet50 | ResNet10mini | blanchon/EuroSAT_MSI | CosineEmbeddingLoss | 0.25 | 0.3 | 0.25 | 0 | 2 | 96.9630 | 96.3519 | 96.3519 | 0.0000 |
+| Run_8 | ResNet50 | ResNet10mini | blanchon/EuroSAT_MSI | CosineEmbeddingLoss | 0.25 | 0.5 | 0.25 | 0 | 2 | 96.9630 | 96.4444 | 96.3519 | 0.0926 |
+| Run_9 | ResNet50 | ResNet10mini | blanchon/EuroSAT_MSI | CosineEmbeddingLoss | 0.25 | 0.7 | 0.25 | 0 | 2 | 96.9630 | 96.3519 | 96.3519 | 0.0000 |
+| Run_10 | ResNet50 | ResNet10mini | blanchon/EuroSAT_MSI | CosineEmbeddingLoss | 0.25 | 0.9 | 0.25 | 0 | 2 | 96.9630 | 96.4259 | 96.3519 | 0.0741 |
+| Run_11 | ResNet50 | ResNet10mini | blanchon/EuroSAT_MSI | CrossEntropyLoss | 0.25 | 0.1 | 0.25 | 0 | 2 | 96.9630 | 96.9444 | 96.3519 | 0.5926 |
+| Run_12 | ResNet50 | ResNet10mini | blanchon/EuroSAT_MSI | CrossEntropyLoss | 0.25 | 0.3 | 0.25 | 0 | 2 | 96.9630 | 96.5741 | 96.3519 | 0.2222 |
+| Run_13 | ResNet50 | ResNet10mini | blanchon/EuroSAT_MSI | CrossEntropyLoss | 0.25 | 0.5 | 0.25 | 0 | 2 | 96.9630 | 96.4444 | 96.3519 | 0.0926 |
+| Run_14 | ResNet50 | ResNet10mini | blanchon/EuroSAT_MSI | CrossEntropyLoss | 0.25 | 0.7 | 0.25 | 0 | 2 | 96.9630 | 96.5000 | 96.3519 | 0.1481 |
+| Run_15 | ResNet50 | ResNet10mini | blanchon/EuroSAT_MSI | CrossEntropyLoss | 0.25 | 0.9 | 0.25 | 0 | 2 | 96.9630 | 96.5185 | 96.3519 | 0.1667 |
+| Run_16 | ResNet50 | ResNet10mini | blanchon/EuroSAT_MSI | CrossEntropyLoss | 0.25 | 0.75 | 0.1 | 0 | 2 | 96.9630 | 96.3519 | 96.3519 | 0.0000 |
+| Run_17 | ResNet50 | ResNet10mini | blanchon/EuroSAT_MSI | CrossEntropyLoss | 0.25 | 0.75 | 0.3 | 0 | 2 | 96.9630 | 96.5556 | 96.3519 | 0.2037 |
+| Run_18 | ResNet50 | ResNet10mini | blanchon/EuroSAT_MSI | CrossEntropyLoss | 0.25 | 0.75 | 0.5 | 0 | 2 | 96.9630 | 96.6296 | 96.3519 | 0.2778 |
+| Run_19 | ResNet50 | ResNet10mini | blanchon/EuroSAT_MSI | CrossEntropyLoss | 0.25 | 0.75 | 0.7 | 0 | 2 | 96.9630 | 96.8148 | 96.3519 | 0.4630 |
+| Run_20 | ResNet50 | ResNet10mini | blanchon/EuroSAT_MSI | CrossEntropyLoss | 0.25 | 0.75 | 0.9 | 0 | 2 | 96.9630 | 96.4815 | 96.3519 | 0.1296 |
+| Run_21 | ResNet50 | ResNet10mini | blanchon/EuroSAT_MSI | CrossEntropyLoss | 0.25 | 0.75 | 0.25 | 0 | 3 | 96.9630 | 96.8148 | 96.3519 | 0.4630 |
+| Run_22 | ResNet50 | ResNet10mini | blanchon/EuroSAT_MSI | CrossEntropyLoss | 0.25 | 0.75 | 0.25 | 0 | 5 | 96.9630 | 97.1667 | 96.3519 | 0.8148 |
+| Run_23 | ResNet50 | ResNet10mini | blanchon/EuroSAT_MSI | CrossEntropyLoss | 0.25 | 0.75 | 0.25 | 0 | 10 | 96.9630 | 96.8704 | 96.3519 | 0.5185 |
+| Run_24 | ResNet50 | ResNet10mini | blanchon/EuroSAT_MSI | RegressorMSE | 0.25 | 0.75 | 0.25 | 0 | 4 | 96.9630 | 96.8704 | 96.3519 | 0.5185 |
+| Run_25 | ResNet50 | ResNet10mini | blanchon/EuroSAT_MSI | RegressorMSE | 0.1 | 0.6 | 0.4 | 0 | 4 | 96.9630 | 97.0741 | 96.3519 | 0.7222 |
+| Run_26 | ResNet50 | ResNet10mini | blanchon/EuroSAT_MSI | RegressorMSE | 0.4 | 0.6 | 0.2 | 0 | 4 | 96.9630 | 96.9444 | 96.3519 | 0.5926 |
+| Run_27 | ResNet50 | ResNet10mini | blanchon/EuroSAT_MSI | RegressorMSE | 0.1 | 0.5 | 0.5 | 0 | 2 | 96.9630 | 96.7407 | 96.3519 | 0.3889 |
+| Run_28 | ResNet50 | ResNet10mini | blanchon/EuroSAT_MSI | RegressorMSE | 0.4 | 0.5 | 0.1 | 0 | 4 | 96.9630 | 96.7222 | 96.3519 | 0.3704 |
+| Run_29 | ResNet50 | ResNet10mini | blanchon/EuroSAT_MSI | KLDivLoss | 0.25 | 0.3 | 0.25 | 0.25 | 4 | 96.9630 | 97.1667 | 96.3519 | 0.8148 |
+| Run_30 | ResNet50 | ResNet10mini | blanchon/EuroSAT_MSI | KLDivLoss | 0.25 | 0.3 | 0.25 | 0 | 4 | 96.9630 | 97.1296 | 96.3519 | 0.7778 |
+| Run_31 | ResNet50 | ResNet10mini | blanchon/EuroSAT_MSI | KLDivLoss | 0.25 | 0.3 | 0.25 | 0 | 2 | 96.9630 | 96.5741 | 96.3519 | 0.2222 |
+| Run_32 | ResNet50 | ResNet10mini | blanchon/EuroSAT_MSI | KLDivLoss | 0.25 | 0.3 | 0.25 | 0 | 8 | 96.9630 | 97.3519 | 96.3519 | 1.0000 |
+| Run_33 | ResNet50 | ResNet10mini | blanchon/EuroSAT_MSI | KLDivLoss | 0.25 | 0.1 | 0.25 |  | 4 | 96.9630 | 97.3704 | 96.3519 | 1.0185 |
+| Run_34 | ResNet50 | ResNet10mini | blanchon/EuroSAT_MSI | KLDivLoss | 0.25 | 0.5 | 0.25 | 0 | 4 | 96.9630 | 97.1296 | 96.3519 | 0.7778 |
+| Run_35 | ResNet50 | ResNet10mini | blanchon/EuroSAT_MSI | KLDivLoss | 0.25 | 0.4 | 0.25 | 0.1 | 4 | 96.9630 | 97.0370 | 96.3519 | 0.6852 |
+| Run_36 | ResNet50 | ResNet10mini | blanchon/EuroSAT_MSI | KLDivLoss | 0.25 | 0.2 | 0.25 | 0.1 | 4 | 96.9630 | 97.1481 | 96.3519 | 0.7963 |
+| Run_37 | ResNet50 | ResNet10mini | blanchon/EuroSAT_MSI | KLDivLoss | 0.25 | 0.05 | 0.25 | 0.25 | 4 | 96.9630 | 97.2407 | 96.3519 | 0.8889 |
+| Run_38 | ResNet50 | ResNet10mini | blanchon/EuroSAT_MSI | KLDivLoss | 0.25 | 0.01 | 0.25 |  | 4 | 96.9630 | 97.3519 | 96.3519 | 1.0000 |
+| Run_39 | ResNet50 | ResNet10mini | blanchon/EuroSAT_MSI | KLDivLoss | 0.25 | 0.3 | 0.25 | 0 | 8 | 96.9630 | 97.3519 | 96.3519 | 1.0000 |
+| Run_40 | ResNet50 | ResNet10mini | blanchon/EuroSAT_MSI | KLDivLoss | 0.25 | 0.3 | 0.25 | 0 | 8 | 96.9630 | 97.3519 | 96.3519 | 1.0000 |
