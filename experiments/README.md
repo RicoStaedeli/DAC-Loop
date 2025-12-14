@@ -240,7 +240,7 @@ Teacher model ResNet50: [Experiment 1, Run 10](results/Experiment_1/Run_10/confi
 | ResNet10 - No KD + Pruning (65.75%) - No KD | 1'681'300 | 97.83                   | [Experiment 8, Run_2](results/Experiment_8/Run_2)   | Compress model ResNet10 - Baseline and fine-tune without KD |
 | ResNet10 - No KD + Pruning (65.75%) + KD    | 1'681'300 | 98.15                   | [Experiment 8, Run_10](results/Experiment_8/Run_10) | Compress model ResNet10 - No KD and fine-tune with KD       |
 | ResNet10 + KD + Pruning (65.75%) - No KD    | 1'681'300 | 97.89                   | [Experiment 8, Run_6](results/Experiment_8/Run_6)   | Compress model ResNet10 - KD and fine-tune without KD       |
-| ResNet10 + KD + Pruning (65.75%) + KD       | 1,810,324 | 98.15                   | [Experiment 7, Run_11](results/Experiment_7/Run_11) | Compress model ResNet10 - KD and fine-tune with KD          |
+| ResNet10 + KD + Pruning (63.12%) + KD       | 1,810,324 | 98.17                   | [Experiment 7, Run_11](results/Experiment_7/Run_11) | Compress model ResNet10 - KD and fine-tune with KD          |
 
 ### ResNet18 on EuroSAT
 | Model                                       | Parameter | Validation Accuracy (%) | Run ID                                              | Notes                                                       |

@@ -1203,13 +1203,13 @@ def main():
         experiment_dir="experiments/results/Experiment_6",
         output_md_path="experiments/results/Experiment_6/experiment_summary.md",
     )
-    '''
+
     summarize_pruning_experiment(
         experiment_dir="experiments/results/Experiment_7",
         output_md_path="experiments/results/Experiment_7/experiment_summary.md",
     )
 
-
+'''
     summarize_pruning_experiment(
         experiment_dir="experiments/results/Experiment_6a",
         output_md_path="experiments/results/Experiment_6a/experiment_summary.md",
