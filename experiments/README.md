@@ -254,7 +254,7 @@ Teacher model ResNet50: [Experiment 1, Run 10](results/Experiment_1/Run_10/confi
 | ResNet18 - No KD + Pruning (75.82%) - No KD | 2,703,657 | 98.07                   | [Experiment 8, Run_4](results/Experiment_8/Run_4)   | Compress model ResNet18 - Baseline and fine-tune without KD |
 | ResNet18 - No KD + Pruning (75.82%) + KD    | 2,703,657 | 98.04                   | [Experiment 8, Run_12](results/Experiment_8/Run_12) | Compress model ResNet18 - No KD and fine-tune with KD       |
 | ResNet18 + KD + Pruning (75.82%) - No KD    | 2,703,657 | 97.80                   | [Experiment 8, Run_8](results/Experiment_8/Run_8)   | Compress model ResNet18 - KD and fine-tune without KD       |
-| ResNet18 + KD + Pruning (75.0%) + KD        | 2,794,281 | 98.33                   | [Experiment 6, Run_20](results/Experiment_6/Run_20) | Compress model ResNet18 - KD and fine-tune with KD          |
+| ResNet18 + KD + Pruning (75.0%) + KD        | 2,794,281 | 98.67                   | [Experiment 6, Run_11](results/Experiment_6/Run_11) | Compress model ResNet18 - KD and fine-tune with KD          |
 
 
 ## Experiment 8a: Ablation Experiments - RESISC45, ResNet10, ResNet18

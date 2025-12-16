@@ -1209,44 +1209,26 @@ def main():
         output_md_path="experiments/results/Experiment_7/experiment_summary.md",
     )
 
-'''
-    summarize_pruning_experiment(
-        experiment_dir="experiments/results/Experiment_6a",
-        output_md_path="experiments/results/Experiment_6a/experiment_summary.md",
-    )
-    summarize_pruning_experiment(
-        experiment_dir="experiments/results/Experiment_7a",
-        output_md_path="experiments/results/Experiment_7a/experiment_summary.md",
-    )
-    summarize_pruning_experiment(
-        experiment_dir="experiments/results/Experiment_8a",
-        output_md_path="experiments/results/Experiment_8a/experiment_summary.md",
-    )
     summarize_pruning_experiment(
         experiment_dir="experiments/results/Experiment_8",
         output_md_path="experiments/results/Experiment_8/experiment_summary.md",
-    )
-    summarize_pruning_experiment(
-        experiment_dir="experiments/results/Experiment_12a",
-        output_md_path="experiments/results/Experiment_12a/experiment_summary.md",
     )
 
     # ------------------------------------------------------------------
     # Tables for Compression Loop Experiments
     # ------------------------------------------------------------------
+
+
     summarize_pruning_experiment_multiple_iterations(
-        experiment_dir="experiments/results/Experiment_9a",
-        output_md_path="experiments/results/Experiment_9a/experiment_summary.md",
+        experiment_dir="experiments/results/Experiment_9",
+        output_md_path="experiments/results/Experiment_9/experiment_summary.md",
     )
     summarize_pruning_experiment_multiple_iterations(
-        experiment_dir="experiments/results/Experiment_10a",
-        output_md_path="experiments/results/Experiment_10a/experiment_summary.md",
+        experiment_dir="experiments/results/Experiment_10",
+        output_md_path="experiments/results/Experiment_10/experiment_summary.md",
     )
-    summarize_pruning_experiment_multiple_iterations(
-        experiment_dir="experiments/results/Experiment_14a",
-        output_md_path="experiments/results/Experiment_14a/experiment_summary.md",
-    )
-    '''
+
+
 
 
 if __name__ == "__main__":
