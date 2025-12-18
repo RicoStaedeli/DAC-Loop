@@ -1185,6 +1185,11 @@ def main():
     '''
 
     summarize_experiment_group_to_markdown(
+        experiment_dir="experiments/results/Experiment_3a",
+        output_md_path="experiments/results/Experiment_3a/experiment_summary.md",
+    )
+
+    summarize_experiment_group_to_markdown(
         experiment_dir="experiments/results/Experiment_4a",
         output_md_path="experiments/results/Experiment_4a/experiment_summary.md",
     )
