@@ -1,0 +1,42 @@
+| run_name | teacher_model | student_model | dataset | kd_type | hidden_rep_loss_weight | ce_loss_weight | soft_target_loss_weight | beta_feat | T_param | teacher_best_val_accuracy (%) | student_best_val_accuracy (%) | baseline_student_best_val_accuracy (%) | improvement_over_baseline (%) |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Run_1 | ResNet50 | ResNet10 | timm/resisc45 | CosineEmbeddingLoss | 0.1 | 0.75 | 0.25 | 0 | 2 | 92.2698 | 87.7460 | 88.5556 | -0.8095 |
+| Run_2 | ResNet50 | ResNet10 | timm/resisc45 | CosineEmbeddingLoss | 0.3 | 0.75 | 0.25 | 0 | 2 | 92.2698 | 88.0794 | 88.5556 | -0.4762 |
+| Run_3 | ResNet50 | ResNet10 | timm/resisc45 | CosineEmbeddingLoss | 0.5 | 0.75 | 0.25 | 0 | 2 | 92.2698 | 88.3651 | 88.5556 | -0.1905 |
+| Run_4 | ResNet50 | ResNet10 | timm/resisc45 | CosineEmbeddingLoss | 0.7 | 0.75 | 0.25 | 0 | 2 | 92.2698 | 88.6349 | 88.5556 | 0.0794 |
+| Run_5 | ResNet50 | ResNet10 | timm/resisc45 | CosineEmbeddingLoss | 0.9 | 0.75 | 0.25 | 0 | 2 | 92.2698 | 88.7778 | 88.5556 | 0.2222 |
+| Run_6 | ResNet50 | ResNet10 | timm/resisc45 | CosineEmbeddingLoss | 0.25 | 0.1 | 0.25 | 0 | 2 | 92.2698 | 88.5873 | 88.5556 | 0.0317 |
+| Run_7 | ResNet50 | ResNet10 | timm/resisc45 | CosineEmbeddingLoss | 0.25 | 0.3 | 0.25 | 0 | 2 | 92.2698 | 88.4444 | 88.5556 | -0.1111 |
+| Run_8 | ResNet50 | ResNet10 | timm/resisc45 | CosineEmbeddingLoss | 0.25 | 0.5 | 0.25 | 0 | 2 | 92.2698 | 88.1905 | 88.5556 | -0.3651 |
+| Run_9 | ResNet50 | ResNet10 | timm/resisc45 | CosineEmbeddingLoss | 0.25 | 0.7 | 0.25 | 0 | 2 | 92.2698 | 88.0317 | 88.5556 | -0.5238 |
+| Run_10 | ResNet50 | ResNet10 | timm/resisc45 | CosineEmbeddingLoss | 0.25 | 0.9 | 0.25 | 0 | 2 | 92.2698 | 87.9841 | 88.5556 | -0.5714 |
+| Run_11 | ResNet50 | ResNet10 | timm/resisc45 | CrossEntropyLoss | 0.25 | 0.1 | 0.25 | 0 | 2 | 92.2698 | 88.4286 | 88.5556 | -0.1270 |
+| Run_12 | ResNet50 | ResNet10 | timm/resisc45 | CrossEntropyLoss | 0.25 | 0.3 | 0.25 | 0 | 2 | 92.2698 | 88.4444 | 88.5556 | -0.1111 |
+| Run_13 | ResNet50 | ResNet10 | timm/resisc45 | CrossEntropyLoss | 0.25 | 0.5 | 0.25 | 0 | 2 | 92.2698 | 88.1746 | 88.5556 | -0.3810 |
+| Run_14 | ResNet50 | ResNet10 | timm/resisc45 | CrossEntropyLoss | 0.25 | 0.7 | 0.25 | 0 | 2 | 92.2698 | 88.1905 | 88.5556 | -0.3651 |
+| Run_15 | ResNet50 | ResNet10 | timm/resisc45 | CrossEntropyLoss | 0.25 | 0.9 | 0.25 | 0 | 2 | 92.2698 | 88.1270 | 88.5556 | -0.4286 |
+| Run_16 | ResNet50 | ResNet10 | timm/resisc45 | CrossEntropyLoss | 0.25 | 0.75 | 0.1 | 0 | 2 | 92.2698 | 66.0476 | 88.5556 | -22.5079 |
+| Run_17 | ResNet50 | ResNet10 | timm/resisc45 | CrossEntropyLoss | 0.25 | 0.75 | 0.3 | 0 | 2 | 92.2698 | 88.0952 | 88.5556 | -0.4603 |
+| Run_18 | ResNet50 | ResNet10 | timm/resisc45 | CrossEntropyLoss | 0.25 | 0.75 | 0.5 | 0 | 2 | 92.2698 | 88.4127 | 88.5556 | -0.1429 |
+| Run_19 | ResNet50 | ResNet10 | timm/resisc45 | CrossEntropyLoss | 0.25 | 0.75 | 0.7 | 0 | 2 | 92.2698 | 88.4286 | 88.5556 | -0.1270 |
+| Run_20 | ResNet50 | ResNet10 | timm/resisc45 | CrossEntropyLoss | 0.25 | 0.75 | 0.9 | 0 | 2 | 92.2698 | 88.4921 | 88.5556 | -0.0635 |
+| Run_21 | ResNet50 | ResNet10 | timm/resisc45 | CrossEntropyLoss | 0.25 | 0.75 | 0.25 | 0 | 3 | 92.2698 | 88.9683 | 88.5556 | 0.4127 |
+| Run_22 | ResNet50 | ResNet10 | timm/resisc45 | CrossEntropyLoss | 0.25 | 0.75 | 0.25 | 0 | 5 | 92.2698 | 89.3016 | 88.5556 | 0.7460 |
+| Run_23 | ResNet50 | ResNet10 | timm/resisc45 | CrossEntropyLoss | 0.25 | 0.75 | 0.25 | 0 | 10 | 92.2698 | 89.1905 | 88.5556 | 0.6349 |
+| Run_24 | ResNet50 | ResNet10 | timm/resisc45 | RegressorMSE | 0.25 | 0.75 | 0.25 | 0 | 4 | 92.2698 | 89.3810 | 88.5556 | 0.8254 |
+| Run_25 | ResNet50 | ResNet10 | timm/resisc45 | RegressorMSE | 0.1 | 0.6 | 0.4 | 0 | 4 | 92.2698 | 89.4444 | 88.5556 | 0.8889 |
+| Run_26 | ResNet50 | ResNet10 | timm/resisc45 | RegressorMSE | 0.4 | 0.6 | 0.2 | 0 | 4 | 92.2698 | 89.3016 | 88.5556 | 0.7460 |
+| Run_27 | ResNet50 | ResNet10 | timm/resisc45 | RegressorMSE | 0.1 | 0.5 | 0.5 | 0 | 2 | 92.2698 | 88.5714 | 88.5556 | 0.0159 |
+| Run_28 | ResNet50 | ResNet10 | timm/resisc45 | RegressorMSE | 0.4 | 0.5 | 0.1 | 0 | 4 | 92.2698 | 89.1587 | 88.5556 | 0.6032 |
+| Run_29 | ResNet50 | ResNet10 | timm/resisc45 | KLDivLoss | 0.25 | 0.3 | 0.25 | 0.25 | 4 | 92.2698 | 89.3016 | 88.5556 | 0.7460 |
+| Run_30 | ResNet50 | ResNet10 | timm/resisc45 | KLDivLoss | 0.25 | 0.3 | 0.25 | 0 | 4 | 92.2698 | 89.2698 | 88.5556 | 0.7143 |
+| Run_31 | ResNet50 | ResNet10 | timm/resisc45 | KLDivLoss | 0.25 | 0.3 | 0.25 | 0 | 2 | 92.2698 | 88.4444 | 88.5556 | -0.1111 |
+| Run_32 | ResNet50 | ResNet10 | timm/resisc45 | KLDivLoss | 0.25 | 0.3 | 0.25 | 0 | 8 | 92.2698 | 87.2540 | 88.5556 | -1.3016 |
+| Run_33 | ResNet50 | ResNet10 | timm/resisc45 | KLDivLoss | 0.25 | 0.1 | 0.25 |  | 4 | 92.2698 | 89.3175 | 88.5556 | 0.7619 |
+| Run_34 | ResNet50 | ResNet10 | timm/resisc45 | KLDivLoss | 0.25 | 0.5 | 0.25 | 0 | 4 | 92.2698 | 89.1587 | 88.5556 | 0.6032 |
+| Run_35 | ResNet50 | ResNet10 | timm/resisc45 | KLDivLoss | 0.25 | 0.4 | 0.25 | 0.1 | 4 | 92.2698 | 89.4444 | 88.5556 | 0.8889 |
+| Run_36 | ResNet50 | ResNet10 | timm/resisc45 | KLDivLoss | 0.25 | 0.2 | 0.25 | 0.1 | 4 | 92.2698 | 89.2698 | 88.5556 | 0.7143 |
+| Run_37 | ResNet50 | ResNet10 | timm/resisc45 | KLDivLoss | 0.25 | 0.05 | 0.25 | 0.25 | 4 | 92.2698 | 89.1905 | 88.5556 | 0.6349 |
+| Run_38 | ResNet50 | ResNet10 | timm/resisc45 | KLDivLoss | 0.25 | 0.01 | 0.25 |  | 4 | 92.2698 | 89.2381 | 88.5556 | 0.6825 |
+| Run_39 | ResNet50 | ResNet10 | timm/resisc45 | KLDivLoss | 0.25 | 0.3 | 0.25 | 0 | 8 | 92.2698 | 87.2540 | 88.5556 | -1.3016 |
+| Run_40 | ResNet50 | ResNet10 | timm/resisc45 | KLDivLoss | 0.25 | 0.3 | 0.25 | 0 | 8 | 92.2698 | 89.2063 | 88.5556 | 0.6508 |
