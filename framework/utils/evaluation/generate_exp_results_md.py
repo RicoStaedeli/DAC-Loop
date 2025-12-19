@@ -1145,20 +1145,11 @@ def main():
         experiment_dir="experiments/results/Experiment_1",
         output_md_path="experiments/results/Experiment_1/experiment_summary.md",
     )
-    '''
+
     summarize_baseline_experiment_group_to_markdown(
         experiment_dir="experiments/results/Experiment_1a",
         output_md_path="experiments/results/Experiment_1a/experiment_summary.md",
     )
-    summarize_baseline_experiment_group_to_markdown(
-        experiment_dir="experiments/results/Experiment_11",
-        output_md_path="experiments/results/Experiment_11/experiment_summary.md",
-    )
-    summarize_baseline_experiment_group_to_markdown(
-        experiment_dir="experiments/results/Experiment_11a",
-        output_md_path="experiments/results/Experiment_11a/experiment_summary.md",
-    )
-    '''
 
     # ------------------------------------------------------------------
     # Tables for Teacher - Student KD Experiments
@@ -1172,29 +1163,26 @@ def main():
         output_md_path="experiments/results/Experiment_3/experiment_summary.md",
     )
     summarize_experiment_group_to_markdown(
-        experiment_dir="experiments/results/Experiment_4",
-        output_md_path="experiments/results/Experiment_4/experiment_summary.md",
-    )
-    summarize_experiment_group_to_markdown(
-        experiment_dir="experiments/results/Experiment_5",
-        output_md_path="experiments/results/Experiment_5/experiment_summary.md",
-    )
-
-    '''
-    summarize_experiment_group_to_markdown(
         experiment_dir="experiments/results/Experiment_3a",
         output_md_path="experiments/results/Experiment_3a/experiment_summary.md",
+    )
+    summarize_experiment_group_to_markdown(
+        experiment_dir="experiments/results/Experiment_4",
+        output_md_path="experiments/results/Experiment_4/experiment_summary.md",
     )
     summarize_experiment_group_to_markdown(
         experiment_dir="experiments/results/Experiment_4a",
         output_md_path="experiments/results/Experiment_4a/experiment_summary.md",
     )
     summarize_experiment_group_to_markdown(
+        experiment_dir="experiments/results/Experiment_5",
+        output_md_path="experiments/results/Experiment_5/experiment_summary.md",
+    )
+    summarize_experiment_group_to_markdown(
         experiment_dir="experiments/results/Experiment_5a",
         output_md_path="experiments/results/Experiment_5a/experiment_summary.md",
     )
-    
-    '''
+
     # ------------------------------------------------------------------
     # Tables for Pruning/Compression Experiments
     # ------------------------------------------------------------------
@@ -1203,12 +1191,21 @@ def main():
         experiment_dir="experiments/results/Experiment_6",
         output_md_path="experiments/results/Experiment_6/experiment_summary.md",
     )
+    summarize_pruning_experiment(
+        experiment_dir="experiments/results/Experiment_6a",
+        output_md_path="experiments/results/Experiment_6a/experiment_summary.md",
+    )
 
     summarize_pruning_experiment(
         experiment_dir="experiments/results/Experiment_7",
         output_md_path="experiments/results/Experiment_7/experiment_summary.md",
     )
+    summarize_pruning_experiment(
+        experiment_dir="experiments/results/Experiment_7a",
+        output_md_path="experiments/results/Experiment_7a/experiment_summary.md",
+    )
 
+    '''
     summarize_pruning_experiment(
         experiment_dir="experiments/results/Experiment_8",
         output_md_path="experiments/results/Experiment_8/experiment_summary.md",
@@ -1227,7 +1224,7 @@ def main():
         experiment_dir="experiments/results/Experiment_10",
         output_md_path="experiments/results/Experiment_10/experiment_summary.md",
     )
-
+    '''
 
 
 

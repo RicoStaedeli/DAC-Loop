@@ -31,9 +31,12 @@
 | Run_29 | ResNet50 | ResNet18 | timm/resisc45 | KLDivLoss | 0.25 | 0.3 | 0.25 | 0.25 | 4 | 92.2698 | 91.3175 | 89.8889 | 1.4286 |
 | Run_30 | ResNet50 | ResNet18 | timm/resisc45 | KLDivLoss | 0.25 | 0.3 | 0.25 | 0 | 4 | 92.2698 | 91.2857 | 89.8889 | 1.3968 |
 | Run_31 | ResNet50 | ResNet18 | timm/resisc45 | KLDivLoss | 0.25 | 0.3 | 0.25 | 0 | 2 | 92.2698 | 89.8889 | 89.8889 | 0.0000 |
+| Run_32 | ResNet50 | ResNet18 | timm/resisc45 | KLDivLoss | 0.25 | 0.3 | 0.25 | 0 | 8 | 92.2698 | 91.4921 | 89.8889 | 1.6032 |
 | Run_33 | ResNet50 | ResNet18 | timm/resisc45 | KLDivLoss | 0.25 | 0.1 | 0.25 | 0 | 4 | 92.2698 | 91.3333 | 89.8889 | 1.4444 |
 | Run_34 | ResNet50 | ResNet18 | timm/resisc45 | KLDivLoss | 0.25 | 0.5 | 0.25 | 0 | 4 | 92.2698 | 91.1587 | 89.8889 | 1.2698 |
 | Run_35 | ResNet50 | ResNet18 | timm/resisc45 | KLDivLoss | 0.25 | 0.4 | 0.25 |  | 4 | 92.2698 | 91.2540 | 89.8889 | 1.3651 |
 | Run_36 | ResNet50 | ResNet18 | timm/resisc45 | KLDivLoss | 0.25 | 0.2 | 0.2 | 0.1 | 4 | 92.2698 | 91.2063 | 89.8889 | 1.3175 |
 | Run_37 | ResNet50 | ResNet18 | timm/resisc45 | KLDivLoss | 0.25 | 0.05 | 0.25 | 0.25 | 4 | 92.2698 | 91.2222 | 89.8889 | 1.3333 |
 | Run_38 | ResNet50 | ResNet18 | timm/resisc45 | KLDivLoss | 0.25 | 0.01 | 0.25 | 0.1 | 4 | 92.2698 | 91.5714 | 89.8889 | 1.6825 |
+| Run_39 | ResNet50 | ResNet18 | timm/resisc45 | KLDivLoss | 0.25 | 0.3 | 0.25 | 0 | 8 | 92.2698 | 91.6508 | 89.8889 | 1.7619 |
+| Run_40 | ResNet50 | ResNet18 | timm/resisc45 | KLDivLoss | 0.25 | 0.3 | 0.25 | 0 | 8 | 92.2698 | 92.0794 | 89.8889 | 2.1905 |

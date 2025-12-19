@@ -10,7 +10,7 @@
 | Run_8 | ResNet50 | ResNet10 | blanchon/EuroSAT_MSI | CosineEmbeddingLoss | 0.25 | 0.5 | 0.25 | 0 | 2 | 96.9630 | 98.4074 | 98.4074 | 0.0000 |
 | Run_9 | ResNet50 | ResNet10 | blanchon/EuroSAT_MSI | CosineEmbeddingLoss | 0.25 | 0.7 | 0.25 | 0 | 2 | 96.9630 | 98.4815 | 98.4074 | 0.0741 |
 | Run_10 | ResNet50 | ResNet10 | blanchon/EuroSAT_MSI | CosineEmbeddingLoss | 0.25 | 0.9 | 0.25 | 0 | 2 | 96.9630 | 98.4815 | 98.4074 | 0.0741 |
-| Run_11 | ResNet50 | ResNet10 | blanchon/EuroSAT_MSI | CrossEntropyLoss | 0.25 | 0.1 | 0.25 | 0 | 2 | 96.9630 | 98.5741 | 98.4074 | 0.1667 |
+| Run_11 | ResNet50 | ResNet10 | blanchon/EuroSAT_MSI | CrossEntropyLoss | 0.25 | 0.1 | 0.25 | 0 | 2 | 96.9630 | 98.4074 | 98.4074 | 0.0000 |
 | Run_12 | ResNet50 | ResNet10 | blanchon/EuroSAT_MSI | CrossEntropyLoss | 0.25 | 0.3 | 0.25 | 0 | 2 | 96.9630 | 98.3333 | 98.4074 | -0.0741 |
 | Run_13 | ResNet50 | ResNet10 | blanchon/EuroSAT_MSI | CrossEntropyLoss | 0.25 | 0.5 | 0.25 | 0 | 2 | 96.9630 | 98.3333 | 98.4074 | -0.0741 |
 | Run_14 | ResNet50 | ResNet10 | blanchon/EuroSAT_MSI | CrossEntropyLoss | 0.25 | 0.7 | 0.25 | 0 | 2 | 96.9630 | 98.2963 | 98.4074 | -0.1111 |
