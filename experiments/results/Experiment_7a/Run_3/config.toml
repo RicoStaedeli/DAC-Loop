@@ -1,0 +1,87 @@
+[logging]
+default_level = "INFO"                                          # (string) default: INFO | The global logging level.
+[logging.levels]
+"framework.models.ResNet10" = "INFO"                                # (string) default: INFO | Overwrites the logging level for "framework.models.ResNet10"
+
+
+[artifacts]
+hf_repo_id = ""                                                 # (string) default:  | Hugging Face repository where artifacts (models, checkpoints) are stored.
+
+[hf_upload]
+enabled = false                                                 # (bool) default: False | Whether to upload trained models/artifacts automatically to Hugging Face Hub.
+
+[experiment]
+name = "Experiment_7a"                                          # (string) default: Experiment_XY | Identifier for the experiment (used in saving checkpoints and logging).
+run = 3                                                         # (int) default: 1 | Run ID (used in saving checkpoints and logging).
+
+[saving]
+overwrite_run = false                                                    # (bool) default: false | If true an existing run will be overwritten
+
+[training]                                                              # If train_student = true, this hyperparameters are used for the student model during the training.
+epochs = 50                                                              # (int) default: 2 | Number of full passes through the training dataset.
+learning_rate = 0.0003                                                  # (float) default: 0.0003 | Step size for weight updates.
+weight_decay = 0.00001
+scheduler = "cosine"                                                    # "cosine", "step", "none" --> only cosine implemented yet
+batch_size = 256                                                        # (int) default: 128 | Number of samples per training batch.
+save_only_best = true                                                   # (bool) default: False | Whether to save only the best model according to validation metric.
+do_not_log_steps = false                                                # (bool) default: False | Whether to log metrics per step or not
+seed = 42                                                               # (int) default: 42 | Random seed for reproducibility.
+load_from_checkpoint = false                                            # (bool) default: False | Resume training from a saved checkpoint if true.
+previous_checkpoint_path = ""                                           # (string) default: None | Path to a checkpoint file for resuming training. Only relevant if load_from_checkpoint = true.
+base_path_ckpts = ""                                                    # (string) default: "" | this is used as basepath for the checkoint dir. Used in Colab to save Checkpoints to G-Drive, (/content/drive/MyDrive/HSG/DL/)
+
+[training.pruning]
+# This section is for pruning. Pruning reduces the model size. If prune = true it will prune the pretrained model specified in path_checkpoint_to_prune.
+# After pruning the model is finetuned with teacher-student learning. Therefore, train_student must be true and a teacher model must be specified.
+prune = true                                                            # (bool) default: false | Whether to use pruning or not. If false the model is only trained and if true only pruning is applied.
+path_checkpoint_to_prune = "experiments/results/Experiment_4a/Run_33/best.pt"    # (string) default: "" | Path to a pre-trained model to be pruned. Only relevant if prune = true.
+iterations = 1                                                          # (int) default: 1 | Number of times to repeat the prune and finetune cycle. Only relevant if prune = true.
+
+[[training.pruning.schedule]]
+iteration = 1                                                           # (int) | Iteration number to define the pruning schedule and paramters for.
+pruning_amount = 0.5                                                    # (float) default: 0.5 | Amount of pruning to apply (between 0 and 1).
+method = "l1"                                                           # (string) default: "l1" | Pruning method to use. Available methods: ['l1', 'random']
+structured = false                                                       # (bool) default: false | Whether to use structured pruning or not. Structured pruning also makes surgery possible.
+dim = 0                                                                 # (int) default: 0 | The dimension along which to prune (0 for output channels, 1 for input channels). Only relevant if structured = true.
+layer_prune_ratio = 0.15                                                # (float) default: 0.15 | Percentage of layers to prune in structured pruning. Only relevant if structured = true.
+min_channels = 8                                                        # (int) default: 8 | Minimum number of channels to keep in structured pruning. Only relevant if structured = true.
+
+[training.teacher_student]
+train_student = true                                                    # (bool) default: false | Whether a student is trained or not. If false a teacher model is trained.
+teacher_model_path = "experiments/results/Experiment_1a/Run_7/best.pt"           # (string) default: | Path to trained ResNet18 Model (Teacher)
+teacher_model_name = "ResNet50"                                         # Available: ['ResNet10', 'ResNet18', 'ResNet50','TinyCNN']
+baseline_student = "experiments/results/Experiment_1a/Run_2/metrics.jsonl"       # (string) default: "" | Path to a pre-trained student model. If provided, the student model will be initialized with these weights before training.
+# Parameters for Knowledge Distillation --> Experiment 4a Run 33 is the base because it proofed to be the best hyperparamter setting
+kd_type = "KLDivLoss"         # (string) Available: ['CrossEntropyLoss', 'CosineEmbeddingLoss', 'KLDivLoss', 'RegressorMSE']
+hidden_rep_loss_weight = 0.25            # (float) default: 0.25 | used in CosineEmbeddingLoss, RegressorMSE
+ce_loss_weight = 0.1                  # (float) default: 0.75 | weight to multiply the cross entropy loss of the labels used in 'CrossEntropyLoss', 'CosineEmbeddingLoss'
+soft_target_loss_weight = 0.25          # (float) default: 0.25 | used in CrossEntropyLoss, RegressorMSEbeta_feat = 0                           # (float) default: 0.25 | used in KLDivLoss
+T_param = 4                             # (int) default: 2 | Temperature paramter used in CrossEntropyLoss, RegressorMSE and KLDivLoss during Knowledge Distillation.
+
+
+[training.early_stopping]
+enabled = false                         # (bool) default: False | Whether to use early stopping or not
+patience = 5                            # (int) default: 0 | Number of epochs to wait for improvement before stopping training.
+min_delta = 0.0                         # (float) default: 0.0 | Minimum improvement in validation loss required to reset patience and save the new best epoch.
+keep_last = 0                           # (int) default: 0 | Number of last checkpoints to keep during training.
+
+
+[model]
+name = "ResNet10"                       # (string) default:  | If train_student = true then this is the name of the student Model. Otherwise, this is the model of the teacher.
+
+[model.args]
+classes = 45                            # (int) default: 10 | How manny classes the dataset has. Used for FC layer in CNN
+
+[data]
+dataset_hf_repo_id = "timm/resisc45"    # (string) default:  | Huggingface Repo of the dataset
+image_size = 256                        # (int) default: 64 | 64x64 --> always cube Image Size used for upsampling image
+augment = false                         # (bool) default: False | Whether to use image augmenation or not
+normalize = true                        # (bool) default: True | Whether to normalize image or not$
+num_workers = 2                         # (int) default: 4 | How many workser the dataloader can use. This increased the GPU Memory load.
+pin_memory = true                       # (bool) default: False | Whether to use pin memory in DataLoader or nor. Much faster training. MPS does not support this option
+num_used_entries_train = 1000           # (int) default: 100 | Number of training samples used. If 0 all samples are used.
+num_used_entries_validation = 100       # (int) default: 10 | Number of validation samples used. If 0 all samples are used.
+
+[data.indices]
+calculated_indices = []
+selected_bands = ["B01", "B02", "B03"]
