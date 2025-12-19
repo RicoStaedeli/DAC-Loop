@@ -11,7 +11,7 @@ hf_repo_id = ""                                                         # (strin
 enabled = false                                                         # (bool) default: False | Whether to upload trained models/artifacts automatically to Hugging Face Hub.
 
 [experiment]
-name = "Experiment_8"                                                   # (string) default: Experiment_XY | Identifier for the experiment (used in saving checkpoints and logging).
+name = "Experiment_8a"                                                   # (string) default: Experiment_XY | Identifier for the experiment (used in saving checkpoints and logging).
 run = 7                                                                 # (int) default: 1 | Run ID (used in saving checkpoints and logging).
 
 [saving]
@@ -39,19 +39,19 @@ iterations = 1                                                          # (int) 
 
 [[training.pruning.schedule]]
 iteration = 1                                                           # (int) | Iteration number to define the pruning schedule and paramters for.
-pruning_amount = 0.5                                                    # (float) default: 0.5 | Amount of pruning to apply (between 0 and 1).
+pruning_amount = 0.2                                                    # (float) default: 0.5 | Amount of pruning to apply (between 0 and 1).
 method = "l1"                                                           # (string) default: "l1" | Pruning method to use. Available methods: ['l1', 'random']
 structured = true                                                       # (bool) default: false | Whether to use structured pruning or not. Structured pruning also makes surgery possible.
-dim = 1                                                                 # (int) default: 0 | The dimension along which to prune (0 for output channels, 1 for input channels). Only relevant if structured = true.
+dim = 0                                                                 # (int) default: 0 | The dimension along which to prune (0 for output channels, 1 for input channels). Only relevant if structured = true.
 layer_prune_ratio = 0.15                                                # (float) default: 0.15 | Percentage of layers to prune in structured pruning. Only relevant if structured = true.
 min_channels = 8                                                        # (int) default: 8 | Minimum number of channels to keep in structured pruning. Only relevant if structured = true.
 
 
 [training.teacher_student]
 train_student = false                                                   # (bool) default: false | Whether a student is trained or not. If false a teacher model is trained.
-teacher_model_path = "experiments/results/Experiment_5/Run_7/best.pt"           # (string) default: | Path to trained ResNet18 Model (Teacher)
+teacher_model_path = ""           # (string) default: | Path to trained ResNet18 Model (Teacher)
 teacher_model_name = "ResNet50"                                         # Available: ['ResNet10', 'ResNet18', 'ResNet50','TinyCNN']
-baseline_student = "experiments/results/Experiment_5/Run_1/metrics.jsonl"       # (string) default: "" | Path to a pre-trained student model. If provided, the student model will be initialized with these weights before training.
+baseline_student = "experiments/results/Experiment_1a/Run_1/metrics.jsonl"       # (string) default: "" | Path to a pre-trained student model. If provided, the student model will be initialized with these weights before training.
 # Parameters for Knowledge Distillation --> Experiment 6 RUn 23 is the base because it proofed to be the best hyperparamter setting
 kd_type = "CrossEntropyLoss"            # (string) Available: ['CrossEntropyLoss', 'CosineEmbeddingLoss', 'KLDivLoss', 'RegressorMSE']
 hidden_rep_loss_weight = 0.25           # (float) default: 0.25 | used in CosineEmbeddingLoss, RegressorMSE
