@@ -20,6 +20,7 @@ def adapt_student_kd_proj(student: nn.Module, teacher: nn.Module, device: torch.
     s_dim = student.fc.in_features
     t_dim = teacher.kd_proj.out_features if hasattr(teacher, "kd_proj") and isinstance(teacher.kd_proj,
                                                                                        nn.Linear) else 2048 if teacher is None else teacher.fc.in_features
+    log.info(f"s_dim: {s_dim}, t_dim: {t_dim}")
     student.kd_proj = nn.Linear(s_dim, t_dim, bias=False).to(device)
     nn.init.kaiming_normal_(student.kd_proj.weight, nonlinearity="linear")
 
