@@ -19,7 +19,7 @@ log = logging.getLogger(__name__)
 def adapt_student_kd_proj(student: nn.Module, teacher: nn.Module, device: torch.device) -> None:
     s_dim = student.fc.in_features
     t_dim = teacher.kd_proj.out_features if hasattr(teacher, "kd_proj") and isinstance(teacher.kd_proj,
-                                                                                       nn.Linear) else teacher.fc.in_features
+                                                                                       nn.Linear) else 2048 if teacher is None else teacher.fc.in_features
     student.kd_proj = nn.Linear(s_dim, t_dim, bias=False).to(device)
     nn.init.kaiming_normal_(student.kd_proj.weight, nonlinearity="linear")
 
