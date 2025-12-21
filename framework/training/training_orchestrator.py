@@ -95,7 +95,7 @@ class Trainer:
 
         self._maybe_resume(model_to_train, opt_model_to_train, device)
 
-        if adapt_kd_proj_flag and teacher is not None:
+        if adapt_kd_proj_flag: # and teacher is not None:
             adapt_student_kd_proj(student, teacher, device)
 
         ce_loss = nn.CrossEntropyLoss()

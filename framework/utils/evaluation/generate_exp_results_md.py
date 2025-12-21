@@ -1204,6 +1204,14 @@ def main():
         experiment_dir="experiments/results/Experiment_7a",
         output_md_path="experiments/results/Experiment_7a/experiment_summary.md",
     )
+    summarize_pruning_experiment(
+        experiment_dir="experiments/results/Experiment_8",
+        output_md_path="experiments/results/Experiment_8/experiment_summary.md",
+    )
+    summarize_pruning_experiment(
+        experiment_dir="experiments/results/Experiment_8a",
+        output_md_path="experiments/results/Experiment_8a/experiment_summary.md",
+    )
 
     '''
     summarize_pruning_experiment(
