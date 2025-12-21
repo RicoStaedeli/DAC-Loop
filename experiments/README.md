@@ -26,8 +26,12 @@ uv run runner.py --gpu 0 --experiment Experiment_XY
 ## Experiment 1: Baselines Teacher & Students on EuroSAT
 
 **Goal:** Train baseline models on EuroSAT dataset with different band combinations to establish performance benchmarks
-for subsequent experiments.
-ResNet50 and ResNet18 are used as teacher models, while ResNet10 and TinyCNN serve as student models.
+for subsequent experiments. Models used:
+- ResNetTiny (1M)
+- ResNet10mini (2M)
+- ResNet10 (5M)
+- ResNet18 (11M)
+- ResNet50 (24M) → Used as teacher later
 
 **Description**
 
@@ -43,40 +47,35 @@ ResNet50 and ResNet18 are used as teacher models, while ResNet10 and TinyCNN ser
 
 - Baseline results for all models and band combinations
 - Even the smallest model (TinyCNN) achieves accuracy ~90.00% when trained with all bands
-- The best band comination is using all bands, followed by vegetation indices + RGB bands, and finally RGB bands only.
+- The best band combination is using all bands, followed by vegetation indices + RGB bands, and finally RGB bands only.
 
-**Next Steps**
+**Results**
 
-- Try to use this big teacher model (ResNet50 and ResNet18) to guide the smaller models with teacher-student learning (
-  Experiment 2)
-
-### Runs
+- [Results](results/Experiment_1/experiment_summary.md)
 
 
-## Experiment 2: Teacher-Student learning (replaced by Experiment 3 and 4)
+## Experiment 1a: Baseline Teacher & Student on RESISC45
 
-**Goal:** Train the smaller models (ResNet10 and TiniCNN) with teacher-student training. Use the best teacher model (
-best validation loss) ResNet18 as a guiding teacher.
-This experiment was later replaced by Experiment 3 and 4 which include hyperparameter tuning.
+**Goal:** In this experiment we will establish a baseline using the `RESISC45` dataset. Models used:
+- ResNetTiny (1M)
+- ResNet10mini (2M)
+- ResNet10 (5M)
+- ResNet18 (11M)
+- ResNet50 (24M) → Used as teacher later
 
 **Outcomes**
+- [Exp 1a Run 7](results/Experiment_1a/Run_7) has proven to achieve the best results on RESISC45 Dataset and will be used as Teacher model for all following experiments.
 
-- Teacher-Student learning works in theory but did not improve the baseline results in practice
-
-**Next Steps**
-
-- Hyperparameter tuning for the student model training (Experiment 3 and 4)
-- Try bigger models as teachers --> Do Baseline for ResNet50 (done in Experiment 1, Runs 10-12)
-- Try ResNet18 as student and ResNet50 as teacher (Experiment 4)
-
-### Runs
+**Results**
+- [Results](results/Experiment_1a/experiment_summary.md)
 
 
-## Experiment 3: Hyperparameter-tuning - EuroSAT, TinyCNN, ResNet18
 
-**Goal:** Train the smaller models (TinyCNN) with teacher-student training. Use the best teacher model (best validation
-loss) ResNet18 as a guiding teacher.
-In this experiment we will do hyperparameter tuning for the student model training. Also we use different knowledge
+## Experiment 2: KD Hyperparameter-tuning - EuroSAT, ResNetTiny, ResNet50
+
+**Goal:** Train the smaller models (ResNetTiny) with teacher-student training. Use the best teacher model (best validation
+loss) of ResNet50 as a guiding teacher.
+In this experiment we will do hyperparameter tuning for the student model training. Also, we use different knowledge
 distillation methods such as CosineEmbeddingLoss, CrossEntropyLoss and KLDivergenceLoss.
 
 [Results](results/Experiment_3/experiment_summary.md)
@@ -85,11 +84,10 @@ distillation methods such as CosineEmbeddingLoss, CrossEntropyLoss and KLDiverge
 
 - No Hyperparameter combination was able to outperform the baseline TinyCNN model trained from scratch
 
-**Next Steps**
+**Results**
 
 - Try bigger models as students and Teacher (Experiment 4)
 
-### Runs
 
 
 ## Experiment 4: Hyperparameter-tuning - EuroSAT, ResNet18, ResNet50
@@ -130,14 +128,7 @@ distillation methods such as CosineEmbeddingLoss, CrossEntropyLoss and KLDiverge
 ### Runs
 
 |
-## Experiment 5: Baseline Teacher & Student on RESISC45
 
-**Goal:** In this experiment we will establish a baseline using the `RESISC45` dataset. We will train different models (
-ResNet18, ResNet18, ResNet50, TinyCNN) on the RESISC45 dataset and evaluate their performance.
-
-[Results](results/Experiment_5/experiment_summary.md)
-
-### Runs
 
 
 ## Experiment 6: Hyperparameter-tuning - RESISC45, ResNet18, ResNet50
