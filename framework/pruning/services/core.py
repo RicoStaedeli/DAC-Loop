@@ -58,6 +58,7 @@ def maybe_load(model: nn.Module, path: Optional[str], device: torch.device, stri
     """
     if not path:
         return
+    log.info("Loading state_dict from %s", path)
     ckpt = torch.load(path, map_location=device)
     sd = load_state_dict_from_any(ckpt)
     model.load_state_dict(sd, strict=strict)
