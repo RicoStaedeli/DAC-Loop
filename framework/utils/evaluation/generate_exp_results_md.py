@@ -1217,11 +1217,6 @@ def main():
         output_md_path="experiments/results/Experiment_8a/experiment_summary.md",
     )
 
-    '''
-    summarize_pruning_experiment(
-        experiment_dir="experiments/results/Experiment_8",
-        output_md_path="experiments/results/Experiment_8/experiment_summary.md",
-    )
 
     # ------------------------------------------------------------------
     # Tables for Compression Loop Experiments
@@ -1233,10 +1228,17 @@ def main():
         output_md_path="experiments/results/Experiment_9/experiment_summary.md",
     )
     summarize_pruning_experiment_multiple_iterations(
+        experiment_dir="experiments/results/Experiment_9a",
+        output_md_path="experiments/results/Experiment_9a/experiment_summary.md",
+    )
+    summarize_pruning_experiment_multiple_iterations(
         experiment_dir="experiments/results/Experiment_10",
         output_md_path="experiments/results/Experiment_10/experiment_summary.md",
     )
-    '''
+    summarize_pruning_experiment_multiple_iterations(
+        experiment_dir="experiments/results/Experiment_10a",
+        output_md_path="experiments/results/Experiment_10a/experiment_summary.md",
+    )
 
 
 
