@@ -52,6 +52,14 @@ for subsequent experiments. Models used:
 
 - [Results](results/Experiment_1/experiment_summary.md)
 
+| Model        | Accuracy |
+|--------------|----------|
+| ResNetTiny   |          |
+| ResNet10mini |          |
+| ResNet10     |          |
+| ResNet18     |          |
+| ResNet50     |          |
+
 ---
 
 ## Experiment 1a: Baseline Teacher & Student on RESISC45
@@ -68,6 +76,14 @@ for subsequent experiments. Models used:
 
 **Results**
 - [Results](results/Experiment_1a/experiment_summary.md)
+
+| Model        | Accuracy |
+|--------------|----------|
+| ResNetTiny   |          |
+| ResNet10mini |          |
+| ResNet10     |          |
+| ResNet18     |          |
+| ResNet50     |          |
 
 ---
 
