@@ -52,13 +52,13 @@ for subsequent experiments. Models used:
 
 - [Results](results/Experiment_1/experiment_summary.md)
 
-| Model        | Accuracy |
-|--------------|----------|
-| ResNetTiny   |          |
-| ResNet10mini |          |
-| ResNet10     |          |
-| ResNet18     |          |
-| ResNet50     |          |
+| Model        | Accuracy + Std. |
+|--------------|-----------------|
+| ResNetTiny   |                 |
+| ResNet10mini | 96.41 +/- 0.09  |
+| ResNet10     | 98.37 +/- 0.05  |
+| ResNet18     | 98.34 +/- 0.05  |
+| ResNet50     | 96.79 +/- 0.18  |
 
 ---
 
@@ -77,13 +77,13 @@ for subsequent experiments. Models used:
 **Results**
 - [Results](results/Experiment_1a/experiment_summary.md)
 
-| Model        | Accuracy |
-|--------------|----------|
-| ResNetTiny   |          |
-| ResNet10mini |          |
-| ResNet10     |          |
-| ResNet18     |          |
-| ResNet50     |          |
+| Model        | Accuracy + Std. |
+|--------------|-----------------|
+| ResNetTiny   | 80.15 +/- 0.54  |
+| ResNet10mini | 83.43 +/- 0.44  |
+| ResNet10     | 88.33 +/- 0.19  |
+| ResNet18     | 89.76 +/- 0.14  |
+| ResNet50     | 92.44 +/- 0.15  |
 
 ---
 
