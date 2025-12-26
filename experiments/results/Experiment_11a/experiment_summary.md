@@ -1,0 +1,17 @@
+| run_name | experiment_name | run_id | model | dataset | augmentation | indices_config | epochs | learning_rate | batch_size | weight_decay | scheduler | seed | best_epoch | best_train_loss | best_val_loss | best_train_accuracy (%) | best_val_accuracy (%) | best_val_MSE |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Run_1 | Experiment_11a | 1 | ResNet18 | timm/resisc45 | False | calc=[] - bands=[B01, B02, B03] | 50 | 0.0003 | 256 | 1e-05 | cosine | 43 | 41 | 0.009019 | 0.340428 | 99.9788 | 89.9206 | 0.003391 |
+| Run_2 | Experiment_11a | 2 | ResNet18 | timm/resisc45 | False | calc=[] - bands=[B01, B02, B03] | 50 | 0.0003 | 256 | 1e-05 | cosine | 44 | 40 | 0.010134 | 0.357578 | 99.9788 | 89.5556 | 0.003502 |
+| Run_3 | Experiment_11a | 3 | ResNet18 | timm/resisc45 | False | calc=[] - bands=[B01, B02, B03] | 50 | 0.0003 | 256 | 1e-05 | cosine | 45 | 44 | 0.007616 | 0.345302 | 99.9841 | 89.6984 | 0.003423 |
+| Run_4 | Experiment_11a | 4 | ResNet10 | timm/resisc45 | False | calc=[] - bands=[B01, B02, B03] | 50 | 0.0003 | 256 | 1e-05 | cosine | 43 | 47 | 0.040077 | 0.371432 | 99.8995 | 88.4762 | 0.003744 |
+| Run_5 | Experiment_11a | 5 | ResNet10 | timm/resisc45 | False | calc=[] - bands=[B01, B02, B03] | 50 | 0.0003 | 256 | 1e-05 | cosine | 44 | 46 | 0.045468 | 0.392092 | 99.8836 | 88.0476 | 0.003953 |
+| Run_6 | Experiment_11a | 6 | ResNet10 | timm/resisc45 | False | calc=[] - bands=[B01, B02, B03] | 50 | 0.0003 | 256 | 1e-05 | cosine | 45 | 49 | 0.037536 | 0.375227 | 99.9312 | 88.2698 | 0.003816 |
+| Run_7 | Experiment_11a | 7 | ResNetTiny | timm/resisc45 | False | calc=[] - bands=[B01, B02, B03] | 50 | 0.0003 | 256 | 1e-05 | cosine | 43 | 49 | 0.092873 | 0.661468 | 99.5503 | 79.5079 | 0.006444 |
+| Run_8 | Experiment_11a | 8 | ResNetTiny | timm/resisc45 | False | calc=[] - bands=[B01, B02, B03] | 50 | 0.0003 | 256 | 1e-05 | cosine | 44 | 45 | 0.099026 | 0.644421 | 99.4392 | 80.2222 | 0.006227 |
+| Run_9 | Experiment_11a | 9 | ResNetTiny | timm/resisc45 | False | calc=[] - bands=[B01, B02, B03] | 50 | 0.0003 | 256 | 1e-05 | cosine | 45 | 43 | 0.114028 | 0.625661 | 99.0000 | 81.0000 | 0.006092 |
+| Run_10 | Experiment_11a | 10 | ResNet50 | timm/resisc45 | True | calc=[] - bands=[B01, B02, B03] | 100 | 0.0003 | 256 | 1e-05 | cosine | 43 | 95 | 0.061945 | 0.271766 | 98.1905 | 92.5556 | 0.002593 |
+| Run_11 | Experiment_11a | 11 | ResNet50 | timm/resisc45 | True | calc=[] - bands=[B01, B02, B03] | 100 | 0.0003 | 256 | 1e-05 | cosine | 44 | 97 | 0.061129 | 0.266191 | 98.1270 | 92.6349 | 0.002558 |
+| Run_12 | Experiment_11a | 12 | ResNet50 | timm/resisc45 | True | calc=[] - bands=[B01, B02, B03] | 100 | 0.0003 | 256 | 1e-05 | cosine | 45 | 90 | 0.066355 | 0.261883 | 98.0159 | 92.3016 | 0.002598 |
+| Run_13 | Experiment_11a | 13 | ResNet10mini | timm/resisc45 | False | calc=[] - bands=[B01, B02, B03] | 50 | 0.0003 | 256 | 1e-05 | cosine | 43 | 43 | 0.021881 | 0.561604 | 99.9735 | 83.2857 | 0.005436 |
+| Run_14 | Experiment_11a | 14 | ResNet10mini | timm/resisc45 | False | calc=[] - bands=[B01, B02, B03] | 50 | 0.0003 | 256 | 1e-05 | cosine | 44 | 47 | 0.017929 | 0.514876 | 99.9788 | 84.1746 | 0.005066 |
+| Run_15 | Experiment_11a | 15 | ResNet10mini | timm/resisc45 | False | calc=[] - bands=[B01, B02, B03] | 50 | 0.0003 | 256 | 1e-05 | cosine | 45 | 49 | 0.020244 | 0.564241 | 99.9841 | 83.3016 | 0.005450 |

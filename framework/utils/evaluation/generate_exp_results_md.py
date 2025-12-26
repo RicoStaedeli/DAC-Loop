@@ -1145,10 +1145,17 @@ def main():
         experiment_dir="experiments/results/Experiment_1",
         output_md_path="experiments/results/Experiment_1/experiment_summary.md",
     )
-
     summarize_baseline_experiment_group_to_markdown(
         experiment_dir="experiments/results/Experiment_1a",
         output_md_path="experiments/results/Experiment_1a/experiment_summary.md",
+    )
+    summarize_baseline_experiment_group_to_markdown(
+        experiment_dir="experiments/results/Experiment_11",
+        output_md_path="experiments/results/Experiment_11/experiment_summary.md",
+    )
+    summarize_baseline_experiment_group_to_markdown(
+        experiment_dir="experiments/results/Experiment_11a",
+        output_md_path="experiments/results/Experiment_11a/experiment_summary.md",
     )
 
     # ------------------------------------------------------------------
@@ -1217,6 +1224,23 @@ def main():
         output_md_path="experiments/results/Experiment_8a/experiment_summary.md",
     )
 
+    summarize_pruning_experiment(
+        experiment_dir="experiments/results/Experiment_12",
+        output_md_path="experiments/results/Experiment_12/experiment_summary.md",
+    )
+    summarize_pruning_experiment(
+        experiment_dir="experiments/results/Experiment_12a",
+        output_md_path="experiments/results/Experiment_12a/experiment_summary.md",
+    )
+    summarize_pruning_experiment(
+        experiment_dir="experiments/results/Experiment_13",
+        output_md_path="experiments/results/Experiment_13/experiment_summary.md",
+    )
+    summarize_pruning_experiment(
+        experiment_dir="experiments/results/Experiment_13a",
+        output_md_path="experiments/results/Experiment_13a/experiment_summary.md",
+    )
+
 
     # ------------------------------------------------------------------
     # Tables for Compression Loop Experiments
@@ -1238,6 +1262,14 @@ def main():
     summarize_pruning_experiment_multiple_iterations(
         experiment_dir="experiments/results/Experiment_10a",
         output_md_path="experiments/results/Experiment_10a/experiment_summary.md",
+    )
+    summarize_pruning_experiment_multiple_iterations(
+        experiment_dir="experiments/results/Experiment_14",
+        output_md_path="experiments/results/Experiment_14/experiment_summary.md",
+    )
+    summarize_pruning_experiment_multiple_iterations(
+        experiment_dir="experiments/results/Experiment_14a",
+        output_md_path="experiments/results/Experiment_14a/experiment_summary.md",
     )
 
 
