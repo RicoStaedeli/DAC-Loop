@@ -987,9 +987,11 @@ def _summarize_single_run(run_dir: Path) -> Dict[str, str]:
     config_path = run_dir / "config.toml"
 
     if not metrics_path.is_file():
-        raise FileNotFoundError(f"No metrics.jsonl found in {run_dir}")
+        # raise FileNotFoundError(f"No metrics.jsonl found in {run_dir}")
+        return {}
     if not config_path.is_file():
-        raise FileNotFoundError(f"No config.toml found in {run_dir}")
+        # raise FileNotFoundError(f"No config.toml found in {run_dir}")
+        return {}
 
     # --- Student (this run) ---
     student_best_val_acc, student_best_epoch = _get_best_val_accuracy_from_jsonl(
@@ -1194,6 +1196,23 @@ def main():
         output_md_path="experiments/results/Experiment_5a/experiment_summary.md",
     )
 
+    summarize_experiment_group_to_markdown(
+        experiment_dir="experiments/results/Experiment_12",
+        output_md_path="experiments/results/Experiment_12/experiment_summary_kd.md",
+    )
+    summarize_experiment_group_to_markdown(
+        experiment_dir="experiments/results/Experiment_12a",
+        output_md_path="experiments/results/Experiment_12a/experiment_summary_kd.md",
+    )
+    summarize_experiment_group_to_markdown(
+        experiment_dir="experiments/results/Experiment_13",
+        output_md_path="experiments/results/Experiment_13/experiment_summary_kd.md",
+    )
+    summarize_experiment_group_to_markdown(
+        experiment_dir="experiments/results/Experiment_13a",
+        output_md_path="experiments/results/Experiment_13a/experiment_summary_kd.md",
+    )
+
     # ------------------------------------------------------------------
     # Tables for Pruning/Compression Experiments
     # ------------------------------------------------------------------
@@ -1226,19 +1245,19 @@ def main():
 
     summarize_pruning_experiment(
         experiment_dir="experiments/results/Experiment_12",
-        output_md_path="experiments/results/Experiment_12/experiment_summary.md",
+        output_md_path="experiments/results/Experiment_12/experiment_summary_pruning.md",
     )
     summarize_pruning_experiment(
         experiment_dir="experiments/results/Experiment_12a",
-        output_md_path="experiments/results/Experiment_12a/experiment_summary.md",
+        output_md_path="experiments/results/Experiment_12a/experiment_summary_pruning.md",
     )
     summarize_pruning_experiment(
         experiment_dir="experiments/results/Experiment_13",
-        output_md_path="experiments/results/Experiment_13/experiment_summary.md",
+        output_md_path="experiments/results/Experiment_13/experiment_summary_pruning.md",
     )
     summarize_pruning_experiment(
         experiment_dir="experiments/results/Experiment_13a",
-        output_md_path="experiments/results/Experiment_13a/experiment_summary.md",
+        output_md_path="experiments/results/Experiment_13a/experiment_summary_pruning.md",
     )
 
 
@@ -1270,6 +1289,23 @@ def main():
     summarize_pruning_experiment_multiple_iterations(
         experiment_dir="experiments/results/Experiment_14a",
         output_md_path="experiments/results/Experiment_14a/experiment_summary.md",
+    )
+
+    summarize_pruning_experiment_multiple_iterations(
+        experiment_dir="experiments/results/Experiment_12",
+        output_md_path="experiments/results/Experiment_12/experiment_summary_loop.md",
+    )
+    summarize_pruning_experiment_multiple_iterations(
+        experiment_dir="experiments/results/Experiment_12a",
+        output_md_path="experiments/results/Experiment_12a/experiment_summary_loop.md",
+    )
+    summarize_pruning_experiment_multiple_iterations(
+        experiment_dir="experiments/results/Experiment_13",
+        output_md_path="experiments/results/Experiment_13/experiment_summary_loop.md",
+    )
+    summarize_pruning_experiment_multiple_iterations(
+        experiment_dir="experiments/results/Experiment_13a",
+        output_md_path="experiments/results/Experiment_13a/experiment_summary_loop.md",
     )
 
 
