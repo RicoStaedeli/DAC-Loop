@@ -921,7 +921,7 @@ def plot_dac_compression_curves(
         x_label_pts_no = np.append(x_label_pts_no, x_no[-1])
         y_label_pts_no = np.append(y_label_pts_no, y_no[-1])
 
-        # --- Static markers/labels for WITHOUT DAC (similar offsets to GIF) ---
+        # --- Static markers/labels for WITHOUT DAC---
         for j, (xi, yi) in enumerate(zip(x_label_pts_no, y_label_pts_no)):
             # marker
             ax.plot(
@@ -933,15 +933,26 @@ def plot_dac_compression_curves(
             )
 
             # label offsets
-            txt_x = xi + 0.8
-            txt_y = yi + 0.2
+            txt_x = xi - 2.5
+            txt_y = yi - 0.5
             ha = "left"
             va = "bottom"
 
             if j == 0:
-                txt_x = xi + 1.0
-                txt_y = yi - 0.15
+                txt_x = xi + 0.7
+                txt_y = yi + 0.2
 
+            # second las point
+            if j == len(x_label_pts_no) - 3:
+                txt_x = xi + 0.4
+                txt_y = yi + 0.1
+
+            # second las point
+            if j == len(x_label_pts_no) - 2:
+                txt_x = xi + 0.9
+                txt_y = yi + 0.1
+
+            # last point
             if j == len(x_label_pts_no) - 1:
                 txt_x = xi + 0.9
                 txt_y = yi - 0.5
@@ -956,7 +967,7 @@ def plot_dac_compression_curves(
                 color=line_no.get_color(),
             )
 
-        # --- Static markers/labels for WITH DAC (matching GIF style) ---
+        # --- Static markers/labels for WITH DAC---
         index_last_point_yes = len(x_label_pts_yes) - 1
         for j, (xi, yi) in enumerate(zip(x_label_pts_yes, y_label_pts_yes)):
             ax.plot(
@@ -967,16 +978,19 @@ def plot_dac_compression_curves(
                 label="_nolegend_",
             )
 
+            txt_x = xi + 1.0
+            txt_y = yi + 0.2
+            ha = "left"
+            va = "bottom"
+
+            if j == 0:
+                txt_x = xi + 1.2
+                txt_y = yi - 0.3
+
             if j == index_last_point_yes:
                 txt_x = xi + 1.0
                 txt_y = yi - 0.5
-                ha = "left"
-                va = "bottom"
-            else:
-                txt_x = xi + 1.0
-                txt_y = yi + 0.2
-                ha = "left"
-                va = "bottom"
+
 
             ax.text(
                 txt_x,

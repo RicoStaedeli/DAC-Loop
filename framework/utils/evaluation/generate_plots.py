@@ -142,7 +142,8 @@ def _plots_for_different_experiments():
         "ResNet50": "experiments/results/Experiment_1/Run_10/metrics.jsonl",
         "ResNet18": "experiments/results/Experiment_1/Run_1/metrics.jsonl",
         "ResNet10": "experiments/results/Experiment_1/Run_4/metrics.jsonl",
-        "TinyCNN": "experiments/results/Experiment_1/Run_7/metrics.jsonl",
+        "ResNet10mini": "experiments/results/Experiment_1/Run_13/metrics.jsonl",
+        "ResNetTiny": "experiments/results/Experiment_1/Run_7/metrics.jsonl",
     }
     plot_val_accuracy_over_epochs(
         models,
@@ -188,8 +189,8 @@ def _plots_for_different_experiments():
         "ResNet50": "experiments/results/Experiment_1a/Run_7/metrics.jsonl",
         "ResNet18": "experiments/results/Experiment_1a/Run_1/metrics.jsonl",
         "ResNet10": "experiments/results/Experiment_1a/Run_2/metrics.jsonl",
-        "ResNet10small": "experiments/results/Experiment_1a/Run_1/metrics.jsonl",
-        "TinyCNN": "experiments/results/Experiment_1a/Run_3/metrics.jsonl",
+        "ResNet10mini": "experiments/results/Experiment_1a/Run_8/metrics.jsonl",
+        "ResNetTiny": "experiments/results/Experiment_1a/Run_3/metrics.jsonl",
 
     }
     plot_val_accuracy_over_epochs(
@@ -203,13 +204,13 @@ def _plots_for_different_experiments():
     ########## Plot Validation Accuracy over Epochs for Student vs Baseline on EuroSAT ##########
     # 5 - EuroSAT TinyCNN Student vs Baseline training runs
     models = {
-        "TinyCNN-Student": "experiments/results/Experiment_2/Run_1/metrics.jsonl",
-        "TinyCNN-Student-Baseline": "experiments/results/Experiment_1/Run_7/metrics.jsonl",
+        "ResNetTiny-Student": "experiments/results/Experiment_2/Run_1/metrics.jsonl",
+        "ResNetTiny-Student-Baseline": "experiments/results/Experiment_1/Run_7/metrics.jsonl",
     }
     plot_val_accuracy_over_epochs(
         models,
-        out_path_base="docs/plots/5_eurosat_tinycnn_student_vs_baseline",
-        title="TinyCNN - Validation Accuracy over Epochs on EuroSAT",
+        out_path_base="docs/plots/5_eurosat_ResNetTiny_student_vs_baseline",
+        title="ResNetTiny - Validation Accuracy over Epochs on EuroSAT",
         use_latex=True,
         figsize=(6, 3)
     )
@@ -278,6 +279,7 @@ def _plots_for_different_experiments():
         show_step_markers=True,
     )
 
+    '''
     animate_only_dac_curve(
         json_path="experiments/results/Experiment_14a/result.json",
         out_path_base="docs/plots/11_dac_compression_curves",
@@ -285,7 +287,7 @@ def _plots_for_different_experiments():
         total_parameters=11191917,
         figsize=(5, 3.2)
     )
-
+    '''
 
 
 def parse_args() -> argparse.Namespace:
