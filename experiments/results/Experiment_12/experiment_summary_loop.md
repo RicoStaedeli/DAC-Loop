@@ -82,6 +82,12 @@
 | --- | --- | --- | --- | --- | --- | --- |
 | 1 | 98.28 | 7.57 | 97.74 | 11179146 | 2794281 | 75.0 |
 
+### 🟠 Run 18
+
+| Iteration | Acc. before Pruning | Acc. after Pruning | Acc. after fine tuning | Parameter Before pruning | Parameter after pruning | Param Reduction (%) |
+| --- | --- | --- | --- | --- | --- | --- |
+| 1 | 98.28 | 7.57 | 97.94 | 11179146 | 2794281 | 75.0 |
+
 ### 🔴 Run 19
 
 | Iteration | Acc. before Pruning | Acc. after Pruning | Acc. after fine tuning | Parameter Before pruning | Parameter after pruning | Param Reduction (%) |
