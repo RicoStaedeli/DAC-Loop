@@ -279,6 +279,19 @@ def _plots_for_different_experiments():
         show_step_markers=True,
     )
 
+    ########## Final Plot DAC Effect on EuroSAT ##########
+    # 12 - Final Plot
+    plot_dac_compression_curves(
+        json_path="experiments/results/Experiment_14/result.json",
+        out_path_base="docs/plots/12_dac_compression_curves_eurosat",
+        use_latex=True,
+        total_parameters=11191917,
+        figsize=(5, 3.2),
+        show_step_markers=True,
+        min_y=95,
+        max_y=100,
+    )
+
     '''
     animate_only_dac_curve(
         json_path="experiments/results/Experiment_14a/result.json",

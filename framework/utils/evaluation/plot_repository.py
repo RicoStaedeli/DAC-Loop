@@ -773,7 +773,9 @@ def plot_dac_compression_curves(
         export_pdf: bool = True,
         export_png: bool = True,
         png_dpi: int = 600,
-        show_step_markers: bool = False,  # <-- NEW
+        show_step_markers: bool = False,
+        min_y: int=87,
+        max_y: int=94
 ) -> dict:
     """
     Plot validation accuracy with/without DAC as a function of compression.
@@ -1005,7 +1007,7 @@ def plot_dac_compression_curves(
     # Show every 10% step on the x-axis
     ax.set_xticks(list(range(0, 101, 10)))
     ax.set_xlim(0, 100)
-    ax.set_ylim(87, 94)
+    ax.set_ylim(min_y, max_y)
 
     ax.set_title(rf"\textbf{{{title}}}")
     ax.legend(frameon=False, handlelength=1.2, borderaxespad=0.2, loc="best")
