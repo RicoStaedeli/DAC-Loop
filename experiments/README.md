@@ -396,60 +396,87 @@ teacher.
 
 ---
 
-## Experiment 9: Loop Experiments - RESISC45, ResNet18
+## Experiment 9: Loop Experiments - EuroSAT, ResNet18
 
 **Goal:** The goal of this experiment is to perform knowledge aware compression in multiple loops to see if further improvements can be achieved.
-All experiments were done on the Resisc45 dataset using ResNet18 as student model and ResNet50 as a teacher.
-Startingpoint for all experiments is the model from [Experiment 6, Run 23](results/Experiment_6/Run_23/config.toml).
-Teacher: [Experiment 5, Run 7](results/Experiment_5/Run_7/config.toml)
+All experiments were done on the `EuroSAT` dataset using ResNet18 as student model and ResNet50 as a teacher.
+Starting point for all experiments is the model from [Experiment 3, Run 3](results/Experiment_3/Run_3/config.toml).
+Teacher: [Experiment 1, Run 10](results/Experiment_1/Run_10/config.toml)
 
-[Results](results/Experiment_9/experiment_summary.md)
+**Results**
+- [Results](results/Experiment_9/experiment_summary.md)
+---
 
-## Experiment 9a: Loop Experiments - RESISC45, ResNet10
+
+## Experiment 9a: Loop Experiments - RESISC45, ResNet18
 
 **Goal:** The goal of this experiment is to perform knowledge aware compression in multiple loops to see if further improvements can be achieved.
-All experiments were done on the Resisc45 dataset using ResNet10 as student model and ResNet50 as a teacher.
-Startingpoint for all experiments is the model from [Experiment 6a, Run 40](results/Experiment_6a/Run_40/config.toml).
-Teacher: [Experiment 5, Run 7](results/Experiment_5/Run_7/config.toml)
+All experiments were done on the `RESISC45` dataset using ResNet18 as student model and ResNet50 as a teacher.
+Starting point for all experiments is the model from [Experiment 3a, Run 23](results/Experiment_3a/Run_23/config.toml).
+Teacher: [Experiment 1a, Run 7](results/Experiment_1a/Run_7/config.toml)
 
-[Results](results/Experiment_9a/experiment_summary.md)
+**Results**
+- [Results](results/Experiment_9a/experiment_summary.md)
+---
+
+## Experiment 10: Loop Experiments - EuroSAT, ResNet10
+
+**Goal:** The goal of this experiment is to perform knowledge aware compression in multiple loops to see if further improvements can be achieved.
+All experiments were done on the `EuroSAT` dataset using ResNet10 as student model and ResNet50 as a teacher.
+Starting point for all experiments is the model from [Experiment 4, Run 11](results/Experiment_4/Run_11/config.toml).
+Teacher: [Experiment 1, Run 10](results/Experiment_1/Run_10/config.toml)
+
+**Results**
+- [Results](results/Experiment_10/experiment_summary.md)
+---
+
+## Experiment 10a: Loop Experiments - RESISC45, ResNet10
+
+**Goal:** The goal of this experiment is to perform knowledge aware compression in multiple loops to see if further improvements can be achieved.
+All experiments were done on the `RESISC45` dataset using ResNet10 as student model and ResNet50 as a teacher.
+Starting point for all experiments is the model from [Experiment 4a, Run 35](results/Experiment_4a/Run_35/config.toml).
+Teacher: [Experiment 1a, Run 7](results/Experiment_1a/Run_7/config.toml)
+
+**Results**
+- [Results](results/Experiment_10a/experiment_summary.md)
+---
 
 
-## Experiment 10: Seed Experiments for Experiment 1 Baselines EuroSAT
+## Experiment 11: Seed Baseline EuroSAT
+**Goal:** Different seeds for all baseline runs for Experiment 1.
 
-**Goal:** The goal of this experiment is to evaluate the stability of the baseline experiments from Experiment 1 on EuroSAT with different random seeds.
+**Results**
+- [Results](results/Experiment_11/experiment_summary.md)
+---
 
-[Results](results/Experiment_10/experiment_summary.md)
+## Experiment 11a: Seed Baseline RESISC45
+**Goal:** Different seeds for all baseline runs for Experiment 1a.
 
-### Runs
-
-
-## Experiment 10a: Seed Experiments for Experiment 5 Baselines Resisc45
-
-**Goal:** The goal of this experiment is to evaluate the stability of the baseline experiments from Experiment 5 on Resisc45 with different random seeds.
-
-[Results](results/Experiment_10a/experiment_summary.md)
-
-### Runs
+**Results**
+- [Results](results/Experiment_11a/experiment_summary.md)
+---
 
 
-## Experiment 10b: Seed Runs for Resisc45 and Resnet18
+
+
+
+
+## Experiment 12: Seed Runs for Resisc45 and Resnet18
 
 **Goal:** The goal of this experiment is to evaluate the stability of the baseline experiments from Experiment 8 on Resisc45 with different random seeds.
 ResNet18.
  Seed ResNet18 RESISC:
 - 1-3 KD --> [Exp 6, Run 23](results/Experiment_6/Run_23)
-- 4-6 ResNet18 - No KD + Pruning (38.43%) - No KD --> [Exp 8, Run 3](results/Experiment_8/Run_3)
-- 7-9 ResNet18 - No KD + Pruning (38.43%) + KD --> [Exp 8, Run 11](results/Experiment_8/Run_11)
-- 10-12 ResNet18 + KD + Pruning (38.43%) - No KD --> [Exp 8, Run 7](results/Experiment_8/Run_7)
-- 13-15 ResNet18 + KD + Pruning (38.43%) + KD --> [Exp 7, Run 10](results/Experiment_7/Run_10)
-- 16-18 ResNet18 - No KD + Pruning (65.71%) - No KD --> [Exp 8, Run 4](results/Experiment_8/Run_4)
-- 19-21 ResNet18 - No KD + Pruning (65.71%) + KD --> [Exp 8, Run 12](results/Experiment_8/Run_12)
-- 22-24 ResNet18 + KD + Pruning (65.71%) - No KD --> [Exp 8, Run 8](results/Experiment_8/Run_8)
-- 25-27 ResNet18 + KD + Pruning (65.71%) + KD --> [Exp 7, Run 11](results/Experiment_7/Run_11)
+- 4-6 ResNet18 - No KD + Pruning (+) - No KD --> [Exp 8, Run 3](results/Experiment_8/Run_3)
+- 7-9 ResNet18 - No KD + Pruning (+) + KD --> [Exp 8, Run 11](results/Experiment_8/Run_11)
+- 10-12 ResNet18 + KD + Pruning (+) - No KD --> [Exp 8, Run 7](results/Experiment_8/Run_7)
+- 13-15 ResNet18 + KD + Pruning (+) + KD --> [Exp 7, Run 10](results/Experiment_7/Run_10)
+- 16-18 ResNet18 - No KD + Pruning (++) - No KD --> [Exp 8, Run 4](results/Experiment_8/Run_4)
+- 19-21 ResNet18 - No KD + Pruning (++) + KD --> [Exp 8, Run 12](results/Experiment_8/Run_12)
+- 22-24 ResNet18 + KD + Pruning (++) - No KD --> [Exp 8, Run 8](results/Experiment_8/Run_8)
+- 25-27 ResNet18 + KD + Pruning (++) + KD --> [Exp 7, Run 11](results/Experiment_7/Run_11)
 - 28-30 KD loop 6 iters --> [Exp 9, Run 5](results/Experiment_9/Run_5)
 - 31-33 KD loop 9 iters --> [Exp 9, Run 7](results/Experiment_9/Run_7)
-- 34-35 unstructured pruning -> [Exp 7, Run 19](results/Experiment_7/Run_19)
 
 ### Results
 
