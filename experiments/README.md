@@ -456,69 +456,108 @@ Teacher: [Experiment 1a, Run 7](results/Experiment_1a/Run_7/config.toml)
 - [Results](results/Experiment_11a/experiment_summary.md)
 ---
 
-
-
-
-
-
-## Experiment 12: Seed Runs for Resisc45 and Resnet18
-
-**Goal:** The goal of this experiment is to evaluate the stability of the baseline experiments from Experiment 8 on Resisc45 with different random seeds.
+## Experiment 12: Seed Runs for EuroSAT and ResNet18
+**Goal:** The goal of this experiment is to evaluate the stability of the baseline experiments from Experiment 8 on EuroSAT with different random seeds.
 ResNet18.
- Seed ResNet18 RESISC:
-- 1-3 KD --> [Exp 6, Run 23](results/Experiment_6/Run_23)
+
+**Descriptions**
+- 1-3 KD --> [Exp 3, Run 3](results/Experiment_3/Run_3)
 - 4-6 ResNet18 - No KD + Pruning (+) - No KD --> [Exp 8, Run 3](results/Experiment_8/Run_3)
 - 7-9 ResNet18 - No KD + Pruning (+) + KD --> [Exp 8, Run 11](results/Experiment_8/Run_11)
 - 10-12 ResNet18 + KD + Pruning (+) - No KD --> [Exp 8, Run 7](results/Experiment_8/Run_7)
-- 13-15 ResNet18 + KD + Pruning (+) + KD --> [Exp 7, Run 10](results/Experiment_7/Run_10)
+- 13-15 ResNet18 + KD + Pruning (+) + KD --> [Exp 6, Run 2](results/Experiment_6/Run_2)
 - 16-18 ResNet18 - No KD + Pruning (++) - No KD --> [Exp 8, Run 4](results/Experiment_8/Run_4)
 - 19-21 ResNet18 - No KD + Pruning (++) + KD --> [Exp 8, Run 12](results/Experiment_8/Run_12)
 - 22-24 ResNet18 + KD + Pruning (++) - No KD --> [Exp 8, Run 8](results/Experiment_8/Run_8)
-- 25-27 ResNet18 + KD + Pruning (++) + KD --> [Exp 7, Run 11](results/Experiment_7/Run_11)
-- 28-30 KD loop 6 iters --> [Exp 9, Run 5](results/Experiment_9/Run_5)
-- 31-33 KD loop 9 iters --> [Exp 9, Run 7](results/Experiment_9/Run_7)
+- 25-27 ResNet18 + KD + Pruning (++) + KD --> [Exp 6, Run 11](results/Experiment_6/Run_11)
+- 28-30 ResNet18 + 7 iterations of KD aware compression loop --> [Exp 9, Run 5](results/Experiment_9/Run_5)
+- 31-33 ResNet18 + 9 iterations of KD aware compression loop --> [Exp 9, Run 7](results/Experiment_9/Run_7)
 
-### Results
+**Results**
+- [KD Experiments](results/Experiment_12/experiment_summary_kd.md)
+- [Pruning Experiments](results/Experiment_12/experiment_summary_pruning.md)
+- [Loop Experiments](results/Experiment_12/experiment_summary_loop.md)
+---
 
-[Results](results/Experiment_10b/experiment_summary.md)
+## Experiment 12a: Seed Runs for RESISC45 and ResNet18
+**Goal:** The goal of this experiment is to evaluate the stability of the baseline experiments from Experiment 8a on `RESISC45`' with different random seeds.
+ResNet18.
+
+**Descriptions**
+- 1-3 KD --> [Exp 3a, Run 23](results/Experiment_3a/Run_23)
+- 4-6 ResNet18 - No KD + Pruning (+) - No KD --> [Exp 8a, Run 3](results/Experiment_8a/Run_3)
+- 7-9 ResNet18 - No KD + Pruning (+) + KD --> [Exp 8a, Run 11](results/Experiment_8a/Run_11)
+- 10-12 ResNet18 + KD + Pruning (+) - No KD --> [Exp 8a, Run 7](results/Experiment_8a/Run_7)
+- 13-15 ResNet18 + KD + Pruning (+) + KD --> [Exp 6a, Run 1](results/Experiment_6a/Run_1)
+- 16-18 ResNet18 - No KD + Pruning (++) - No KD --> [Exp 8a, Run 4](results/Experiment_8a/Run_4)
+- 19-21 ResNet18 - No KD + Pruning (++) + KD --> [Exp 8a, Run 12](results/Experiment_8a/Run_12)
+- 22-24 ResNet18 + KD + Pruning (++) - No KD --> [Exp 8a, Run 8](results/Experiment_8a/Run_8)
+- 25-27 ResNet18 + KD + Pruning (++) + KD --> [Exp 6a, Run 3](results/Experiment_6a/Run_3)
+- 28-30 ResNet18 + compression loop --> [Exp 9a, Run 1](results/Experiment_9a/Run_1)
+- 31-33 ResNet18 + unstructured pruning --> [Exp 6a, Run 6](results/Experiment_6a/Run_6)
+
+**Results**
+- [KD Experiments](results/Experiment_12a/experiment_summary_kd.md)
+- [Pruning Experiments](results/Experiment_12a/experiment_summary_pruning.md)
+- [Loop Experiments](results/Experiment_12a/experiment_summary_loop.md)
+---
 
 
-
-## Experiment 10c: Seed Experiments for Experiment 8 Ablation Study Resisc45 and Resnet10
-
-**Goal:** The goal of this experiment is to evaluate the stability of the baseline experiments from Experiment 8 on Resisc45 with different random seeds.
+## Experiment 13: Seed Runs for EuroSAT and ResNet10
+**Goal:** The goal of this experiment is to evaluate the stability of the baseline experiments from Experiment 8 on `EuroSAT` with different random seeds.
 ResNet10.
-[Results](results/Experiment_10c/experiment_summary.md)
 
-### Runs
+**Descriptions**
+- 1-3 KD --> [Exp 4, Run 11](results/Experiment_4/Run_11)
+- 4-6 ResNet10 - No KD + Pruning (+) - No KD --> [Exp 8, Run 1](results/Experiment_8/Run_1)
+- 7-9 ResNet10 - No KD + Pruning (+) + KD --> [Exp 8, Run 9](results/Experiment_8/Run_9)
+- 10-12 ResNet10 + KD + Pruning (+) - No KD --> [Exp 8, Run 5](results/Experiment_8/Run_5)
+- 13-15 ResNet10 + KD + Pruning (+) + KD --> [Exp 7, Run 2](results/Experiment_7/Run_2)
+- 16-18 ResNet10 - No KD + Pruning (++) - No KD --> [Exp 8, Run 2](results/Experiment_8/Run_2)
+- 19-21 ResNet10 - No KD + Pruning (++) + KD --> [Exp 8, Run 10](results/Experiment_8/Run_10)
+- 22-24 ResNet10 + KD + Pruning (++) - No KD --> [Exp 8, Run 6](results/Experiment_8/Run_6)
+- 25-27 ResNet10 + KD + Pruning (++) + KD --> [Exp 7, Run 11](results/Experiment_7/Run_11)
+- 28-30 ResNet10 + compression loop --> [Exp 10, Run 7](results/Experiment_10/Run_7)
 
-
-## Experiment 11: Compression - EuroSAT, ResNet18, ResNet50
-
-**Goal:** In this Experiment we will compress the ResNet18 model using pruning techniques. The compressed models will be
-fine-tuned with knowledge distillation using the ResNet50 as teacher model. This experiment was done using the best
-hyperparameters found in Experiment 5 and 6. Only EuroSAT dataset is used.
-All experiment use a ResNet18 student model trained with a ResNet50 teacher model. The model resulting form the
-following was used: [Experiment 4, Run 3](results/Experiment_4/Run_3/config.toml)
-Teacher model ResNet50: [Experiment 1, Run 10](results/Experiment_1/Run_10/config.toml)
-
-[Results](results/Experiment_11/experiment_summary.md)
-
-### Runs
-
-
-## Experiment 11a: Compression - EuroSAT, ResNet10, ResNet50
-
-**Goal:** In this Experiment we will compress the ResNet18 model using pruning techniques. The compressed models will be
-fine-tuned with knowledge distillation using the ResNet50 as teacher model. This experiment was done using the best
-hyperparameters found in Experiment 5 and 6. Only EuroSAT dataset is used.
-All experiment use a ResNet18 student model trained with a ResNet50 teacher model. The model resulting form the
-following was used: [Experiment 4a, Run 11](results/Experiment_4a/Run_11/config.toml)
-Teacher model ResNet50: [Experiment 1, Run 10](results/Experiment_1/Run_10/config.toml)
-
-[Results](results/Experiment_11a/experiment_summary.md)
-
-### Runs
+**Results**
+- [KD Experiments](results/Experiment_13/experiment_summary_kd.md)
+- [Pruning Experiments](results/Experiment_13/experiment_summary_pruning.md)
+- [Loop Experiments](results/Experiment_13/experiment_summary_loop.md)
+---
 
 
-### Runs
+## Experiment 13a: Seed Runs for RESISC45 and ResNet10
+**Goal:** The goal of this experiment is to evaluate the stability of the baseline experiments from Experiment 8a on `RESISC45`' with different random seeds.
+ResNet10.
+
+**Descriptions**
+- 1-3 KD --> [Exp 4a, Run 35](results/Experiment_4a/Run_35)
+- 4-6 ResNet10 - No KD + Pruning (+) - No KD --> [Exp 8a, Run 1](results/Experiment_8a/Run_1)
+- 7-9 ResNet10 - No KD + Pruning (+) + KD --> [Exp 8a, Run 9](results/Experiment_8a/Run_9)
+- 10-12 ResNet10 + KD + Pruning (+) - No KD --> [Exp 8a, Run 5](results/Experiment_8a/Run_5)
+- 13-15 ResNet10 + KD + Pruning (+) + KD --> [Exp 7a, Run 5](results/Experiment_7a/Run_5)
+- 16-18 ResNet10 - No KD + Pruning (++) - No KD --> [Exp 8a, Run 2](results/Experiment_8a/Run_2)
+- 19-21 ResNet10 - No KD + Pruning (++) + KD --> [Exp 8a, Run 10](results/Experiment_8a/Run_10)
+- 22-24 ResNet10 + KD + Pruning (++) - No KD --> [Exp 8a, Run 6](results/Experiment_8a/Run_6)
+- 25-27 ResNet10 + KD + Pruning (++) + KD --> [Exp 7a, Run 6](results/Experiment_7a/Run_6)
+- 28-30 ResNet10 + 6 iterations of KD aware compression loop --> [Exp 10a, Run 1](results/Experiment_10a/Run_1)
+
+**Results**
+- [KD Experiments](results/Experiment_13a/experiment_summary_kd.md)
+- [Pruning Experiments](results/Experiment_13a/experiment_summary_pruning.md)
+- [Loop Experiments](results/Experiment_13a/experiment_summary_loop.md)
+---
+
+## Experiment 14: Comparison with and without DAC, EuroSAT and ResNet18
+**Goal:** Run many iteration to compare compression with and without DAC-Loop.
+
+**Results**
+- [Results](results/Experiment_14/experiment_summary.md)
+
+## Experiment 14a: Comparison with and without DAC, RESISC45 and ResNet18
+**Goal:** Run many iteration to compare compression with and without DAC-Loop.
+
+**Results**
+- [Results](results/Experiment_14/experiment_summary.md)
+
+![DAC-comparison](../docs/plots/10_dac_compression_curves.png)
