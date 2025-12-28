@@ -394,6 +394,20 @@ teacher.
 | ResNet18 + 7 iterations of KD aware compression loop | 1,715,497  | 91.61 +/- 0.24              | [Experiment 9a, Run_1, Iteration 7](../experiments/results/Experiment_9a/Run_1) | Distillation-Aware compression loop with 7 iterations       |
 | ResNet18 + 9 iterations of KD aware compression loop | 923,889    | 90.64 +/- 0.15              | [Experiment 9a, Run_1, Iteration 9](../experiments/results/Experiment_9a/Run_1) | Distillation-Aware compression loop with 9 iterations       |
 
+
+### Unstructured ResNet18
+
+| Dataset  | Accuracy + Std. | Run ID                                                             |
+|----------|-----------------|--------------------------------------------------------------------|
+| RESISC45 | 92.22 +/- 0.03  | [Experiment 6a, Run_6](../experiments/results/Experiment_6a/Run_6) |
+
+### Small Models with KD
+| Dataset  | Model        | Parameter | Validation Accuracy (%) std | Run ID                                                            |
+|----------|--------------|-----------|-----------------------------|-------------------------------------------------------------------|
+| EuroSAT  | ResNetTiny   | 997,694   | 96.49 +/- 0.17              | [Experiment 2, Run 18](results/Experiment_2/Run_18/config.toml)   |
+| RESISC45 | ResNetTiny   | 997,694   | 82.63 +/- 0.32              | [Experiment 2a, Run 15](results/Experiment_2a/Run_15/config.toml) |
+| EuroSAT  | ResNet10mini | 2,105,082 | 97.11 +/- 0.15              | [Experiment 5, Run 33](results/Experiment_5/Run_33/config.toml)   |
+| RESISC45 | ResNet10mini | 2,105,082 | 86.36 +/- 0.37              | [Experiment 5a, Run 15](results/Experiment_5a/Run_15/config.toml) |
 ---
 
 ## Experiment 9: Loop Experiments - EuroSAT, ResNet18

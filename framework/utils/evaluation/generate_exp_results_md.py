@@ -1213,6 +1213,11 @@ def main():
         output_md_path="experiments/results/Experiment_13a/experiment_summary_kd.md",
     )
 
+    summarize_experiment_group_to_markdown(
+        experiment_dir="experiments/results/Experiment_15",
+        output_md_path="experiments/results/Experiment_15/experiment_summary_kd.md",
+    )
+
     # ------------------------------------------------------------------
     # Tables for Pruning/Compression Experiments
     # ------------------------------------------------------------------
