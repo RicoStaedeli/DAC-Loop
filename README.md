@@ -77,12 +77,12 @@ uv run runner.py --gpu 0 --experiment Experiment_XY
 
 ## Evaluation
 
-The following table summarizes the evaluation results of our DAC-Loop approach on the `NWPU-RESISC45 dataset using a
-ResNet18 backbone.
+The following table summarizes the evaluation results of our DAC-Loop approach on the `NWPU-RESISC45` dataset using a
+[ResNet18](framework/models/ResNet18.py) backbone.
 The table compares the base model, compressed models without knowledge distillation (KD), and models trained with KD.
 Also included are the results of our DAC-Loop approach with multiple iterations (N) of compression and KD.
 
-**ResNet-18 Ablation Study Results on RESISC45**
+**ResNet18 Ablation Study Results on NWPU-RESISC45**
 
 |             | KD-1 | KD-2 | N | Comp. |  Params |        Val. Acc. |
 |-------------|-----:|:----:|--:|------:|--------:|-----------------:|
