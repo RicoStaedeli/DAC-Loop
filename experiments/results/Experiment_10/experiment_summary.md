@@ -1,17 +1,90 @@
-| run_name | experiment_name | run_id | model | dataset | augmentation | indices_config | epochs | learning_rate | batch_size | weight_decay | scheduler | seed | best_epoch | best_train_loss | best_val_loss | best_train_accuracy (%) | best_val_accuracy (%) | best_val_MSE |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Run_1 | Experiment_10 | 1 | ResNet18 | blanchon/EuroSAT_MSI | False | calc=[] - bands=[B01, B02, B03, B04, B05, B06, B07, B08, B8A, B09, B11, B12] | 50 | 0.0003 | 256 | 1e-05 | cosine | 43 | 50 | 0.000813 | 0.074349 | 99.9877 | 98.4259 | 0.002710 |
-| Run_2 | Experiment_10 | 2 | ResNet18 | blanchon/EuroSAT_MSI | False | calc=[] - bands=[B01, B02, B03, B04, B05, B06, B07, B08, B8A, B09, B11, B12] | 50 | 0.0003 | 256 | 1e-05 | cosine | 44 | 50 | 0.000524 | 0.078192 | 99.9938 | 98.3333 | 0.002850 |
-| Run_3 | Experiment_10 | 3 | ResNet18 | blanchon/EuroSAT_MSI | False | calc=[] - bands=[B01, B02, B03, B04, B05, B06, B07, B08, B8A, B09, B11, B12] | 50 | 0.0003 | 256 | 1e-05 | cosine | 45 | 50 | 0.000792 | 0.079200 | 99.9938 | 98.3333 | 0.002763 |
-| Run_4 | Experiment_10 | 4 | ResNet10 | blanchon/EuroSAT_MSI | False | calc=[] - bands=[B01, B02, B03, B04, B05, B06, B07, B08, B8A, B09, B11, B12] | 50 | 0.0003 | 256 | 1e-05 | cosine | 43 | 47 | 0.000583 | 0.065244 | 100.0000 | 98.3889 | 0.002607 |
-| Run_5 | Experiment_10 | 5 | ResNet10 | blanchon/EuroSAT_MSI | False | calc=[] - bands=[B01, B02, B03, B04, B05, B06, B07, B08, B8A, B09, B11, B12] | 50 | 0.0003 | 256 | 1e-05 | cosine | 44 | 45 | 0.000602 | 0.071065 | 100.0000 | 98.2778 | 0.002904 |
-| Run_6 | Experiment_10 | 6 | ResNet10 | blanchon/EuroSAT_MSI | False | calc=[] - bands=[B01, B02, B03, B04, B05, B06, B07, B08, B8A, B09, B11, B12] | 50 | 0.0003 | 256 | 1e-05 | cosine | 45 | 49 | 0.000445 | 0.072662 | 99.9938 | 98.4074 | 0.002645 |
-| Run_7 | Experiment_10 | 7 | TinyCNN | blanchon/EuroSAT_MSI | False | calc=[] - bands=[B01, B02, B03, B04, B05, B06, B07, B08, B8A, B09, B11, B12] | 50 | 0.0003 | 256 | 1e-05 | cosine | 43 | 40 | 0.335539 | 0.347812 | 88.8519 | 89.0741 | 0.016834 |
-| Run_8 | Experiment_10 | 8 | TinyCNN | blanchon/EuroSAT_MSI | False | calc=[] - bands=[B01, B02, B03, B04, B05, B06, B07, B08, B8A, B09, B11, B12] | 50 | 0.0003 | 256 | 1e-05 | cosine | 44 | 41 | 0.326187 | 0.337393 | 89.2284 | 89.2593 | 0.016469 |
-| Run_9 | Experiment_10 | 9 | TinyCNN | blanchon/EuroSAT_MSI | False | calc=[] - bands=[B01, B02, B03, B04, B05, B06, B07, B08, B8A, B09, B11, B12] | 50 | 0.0003 | 256 | 1e-05 | cosine | 45 | 46 | 0.329434 | 0.346536 | 89.0247 | 88.9444 | 0.016811 |
-| Run_10 | Experiment_10 | 10 | ResNet50 | blanchon/EuroSAT_MSI | False | calc=[] - bands=[B01, B02, B03, B04, B05, B06, B07, B08, B8A, B09, B11, B12] | 50 | 0.0003 | 256 | 1e-05 | cosine | 43 | 40 | 0.000148 | 0.163367 | 100.0000 | 96.8704 | 0.005353 |
-| Run_11 | Experiment_10 | 11 | ResNet50 | blanchon/EuroSAT_MSI | False | calc=[] - bands=[B01, B02, B03, B04, B05, B06, B07, B08, B8A, B09, B11, B12] | 50 | 0.0003 | 256 | 1e-05 | cosine | 44 | 47 | 0.000178 | 0.169671 | 100.0000 | 96.4815 | 0.006002 |
-| Run_12 | Experiment_10 | 12 | ResNet50 | blanchon/EuroSAT_MSI | False | calc=[] - bands=[B01, B02, B03, B04, B05, B06, B07, B08, B8A, B09, B11, B12] | 50 | 0.0003 | 256 | 1e-05 | cosine | 45 | 47 | 0.000132 | 0.165917 | 100.0000 | 96.8519 | 0.005374 |
-| Run_13 | Experiment_10 | 13 | ResNet10mini | blanchon/EuroSAT_MSI | False | calc=[] - bands=[B01, B02, B03, B04, B05, B06, B07, B08, B8A, B09, B11, B12] | 50 | 0.0003 | 256 | 1e-05 | cosine | 43 | 38 | 0.000366 | 0.139731 | 100.0000 | 96.5185 | 0.005766 |
-| Run_14 | Experiment_10 | 14 | ResNet10mini | blanchon/EuroSAT_MSI | False | calc=[] - bands=[B01, B02, B03, B04, B05, B06, B07, B08, B8A, B09, B11, B12] | 50 | 0.0003 | 256 | 1e-05 | cosine | 44 | 44 | 0.000291 | 0.155665 | 100.0000 | 96.2963 | 0.006120 |
-| Run_15 | Experiment_10 | 15 | ResNet10mini | blanchon/EuroSAT_MSI | False | calc=[] - bands=[B01, B02, B03, B04, B05, B06, B07, B08, B8A, B09, B11, B12] | 50 | 0.0003 | 256 | 1e-05 | cosine | 45 | 39 | 0.000752 | 0.148045 | 99.9938 | 96.4815 | 0.005916 |
+### 🔴 Run 1
+
+| Iteration | Acc. before Pruning | Acc. after Pruning | Acc. after fine tuning | Parameter Before pruning | Parameter after pruning | Param Reduction (%) |
+| --- | --- | --- | --- | --- | --- | --- |
+| 1 | 98.57 | 98.26 | 98.57 | 4908426 | 4908426 | 0.0 |
+| 2 | 98.57 | 11.76 | 98.22 | 4908426 | 3210783 | 34.59 |
+
+### 🟢 Run 2
+
+| Iteration | Acc. before Pruning | Acc. after Pruning | Acc. after fine tuning | Parameter Before pruning | Parameter after pruning | Param Reduction (%) |
+| --- | --- | --- | --- | --- | --- | --- |
+| 1 | 98.57 | 98.26 | 98.57 | 4908426 | 4908426 | 0.0 |
+| 2 | 98.57 | 11.76 | 98.22 | 4908426 | 3210783 | 34.59 |
+| 3 | 98.22 | 98.22 | 98.28 | 3210783 | 3210783 | 0.0 |
+
+### 🔵 Run 3
+
+| Iteration | Acc. before Pruning | Acc. after Pruning | Acc. after fine tuning | Parameter Before pruning | Parameter after pruning | Param Reduction (%) |
+| --- | --- | --- | --- | --- | --- | --- |
+| 1 | 98.57 | 98.26 | 98.57 | 4908426 | 4908426 | 0.0 |
+| 2 | 98.57 | 20.52 | 98.52 | 4908426 | 3210783 | 34.59 |
+| 3 | 98.52 | 97.87 | 98.5 | 3210783 | 3210783 | 0.0 |
+| 4 | 98.5 | 17.11 | 98.26 | 3210783 | 2003595 | 37.6 |
+
+### 🟡 Run 4
+
+| Iteration | Acc. before Pruning | Acc. after Pruning | Acc. after fine tuning | Parameter Before pruning | Parameter after pruning | Param Reduction (%) |
+| --- | --- | --- | --- | --- | --- | --- |
+| 1 | 98.57 | 98.26 | 98.57 | 4908426 | 4908426 | 0.0 |
+| 2 | 98.57 | 20.52 | 98.52 | 4908426 | 3210783 | 34.59 |
+| 3 | 98.52 | 97.87 | 98.5 | 3210783 | 3210783 | 0.0 |
+| 4 | 98.5 | 17.11 | 98.26 | 3210783 | 2003595 | 37.6 |
+| 5 | 98.26 | 91.2 | 98.26 | 2003595 | 2003595 | 0.0 |
+
+### 🟣 Run 5
+
+| Iteration | Acc. before Pruning | Acc. after Pruning | Acc. after fine tuning | Parameter Before pruning | Parameter after pruning | Param Reduction (%) |
+| --- | --- | --- | --- | --- | --- | --- |
+| 1 | 98.57 | 98.26 | 98.57 | 4908426 | 4908426 | 0.0 |
+| 2 | 98.57 | 20.52 | 98.52 | 4908426 | 3210783 | 34.59 |
+| 3 | 98.52 | 97.87 | 98.5 | 3210783 | 3210783 | 0.0 |
+| 4 | 98.5 | 17.11 | 98.26 | 3210783 | 2003595 | 37.6 |
+| 5 | 98.26 | 91.2 | 98.26 | 2003595 | 2003595 | 0.0 |
+| 6 | 98.26 | 12.22 | 98.07 | 2003595 | 1254026 | 37.41 |
+| 7 | 98.07 | 96.15 | 98.19 | 1254026 | 1254026 | 0.0 |
+
+### 🟠 Run 6
+
+| Iteration | Acc. before Pruning | Acc. after Pruning | Acc. after fine tuning | Parameter Before pruning | Parameter after pruning | Param Reduction (%) |
+| --- | --- | --- | --- | --- | --- | --- |
+| 1 | 98.57 | 98.26 | 98.57 | 4908426 | 4908426 | 0.0 |
+| 2 | 98.57 | 16.28 | 98.35 | 4908426 | 3210783 | 34.59 |
+| 3 | 98.35 | 98.3 | 98.43 | 3210783 | 3210783 | 0.0 |
+| 4 | 98.43 | 13.85 | 98.07 | 3210783 | 2003595 | 37.6 |
+| 5 | 98.07 | 98.07 | 98.11 | 2003595 | 2003595 | 0.0 |
+| 6 | 98.11 | 30.37 | 98.0 | 2003595 | 1254026 | 37.41 |
+| 7 | 98.0 | 97.69 | 98.04 | 1254026 | 1254026 | 0.0 |
+
+### 🔴 Run 7
+
+| Iteration | Acc. before Pruning | Acc. after Pruning | Acc. after fine tuning | Parameter Before pruning | Parameter after pruning | Param Reduction (%) |
+| --- | --- | --- | --- | --- | --- | --- |
+| 1 | 98.57 | 98.26 | 98.57 | 4908426 | 4908426 | 0.0 |
+| 2 | 98.57 | 16.28 | 98.35 | 4908426 | 3210783 | 34.59 |
+| 3 | 98.35 | 98.3 | 98.43 | 3210783 | 3210783 | 0.0 |
+| 4 | 98.43 | 13.85 | 98.07 | 3210783 | 2003595 | 37.6 |
+| 5 | 98.07 | 98.07 | 98.11 | 2003595 | 2003595 | 0.0 |
+| 6 | 98.11 | 30.37 | 98.0 | 2003595 | 1254026 | 37.41 |
+| 7 | 98.0 | 97.69 | 98.04 | 1254026 | 1254026 | 0.0 |
+| 8 | 98.04 | 15.11 | 97.94 | 1254026 | 793109 | 36.75 |
+| 9 | 97.94 | 97.3 | 97.98 | 793109 | 793109 | 0.0 |
+| 10 | 97.98 | 16.94 | 97.5 | 793109 | 504015 | 36.45 |
+| 11 | 97.5 | 97.28 | 97.63 | 504015 | 504015 | 0.0 |
+
+### 🟢 Run 8
+
+| Iteration | Acc. before Pruning | Acc. after Pruning | Acc. after fine tuning | Parameter Before pruning | Parameter after pruning | Param Reduction (%) |
+| --- | --- | --- | --- | --- | --- | --- |
+| 1 | 98.57 | 98.26 | 98.57 | 4908426 | 4908426 | 0.0 |
+| 2 | 98.57 | 12.48 | 98.13 | 4908426 | 2202922 | 55.12 |
+| 3 | 98.13 | 98.13 | 98.15 | 2202922 | 2202922 | 0.0 |
+| 4 | 98.15 | 11.63 | 97.7 | 2202922 | 948198 | 56.96 |
+| 5 | 97.7 | 97.7 | 97.76 | 948198 | 948198 | 0.0 |
+| 6 | 97.76 | 16.56 | 97.3 | 948198 | 416100 | 56.12 |
+| 7 | 97.3 | 73.31 | 97.19 | 416100 | 416100 | 0.0 |
+| 8 | 97.19 | 10.57 | 96.5 | 416100 | 187139 | 55.03 |
+| 9 | 96.5 | 35.19 | 96.46 | 187139 | 187139 | 0.0 |
+| 10 | 96.46 | 15.43 | 96.69 | 187139 | 124258 | 33.6 |
+| 11 | 96.69 | 95.72 | 96.72 | 124258 | 124258 | 0.0 |
+

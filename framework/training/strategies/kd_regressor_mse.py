@@ -33,7 +33,7 @@ class RegressorMSEKDStrategy:
         self.weight_kd_loss = w_kd
 
     def train_one_epoch(self, *, teacher, student, loader, device, optimizer, epoch, total_epochs) -> EpochResult:
-        teacher.eval();
+        teacher.eval()
         student.train()
         tot_loss = tot_acc = tot_n = 0.0
 

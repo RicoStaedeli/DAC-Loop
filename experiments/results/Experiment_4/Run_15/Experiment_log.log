@@ -1,130 +1,30 @@
-2025-11-15 23:09:10,798 [INFO] [root] (logger.setup_logging:68) :: Logging initialized. Level=INFO, SaveToFile=True, LogFile=experiments/results/Experiment_4/Run_15/Experiment_log.log
-2025-11-15 23:09:10,798 [INFO] [framework.utils.logger] (logger.log_meta_info:94) :: Experiment=Experiment_4 | Run ID=15 | Device=cuda | Seed=42 | Experiment Directory=experiments/results/Experiment_4/Run_15
-2025-11-15 23:09:10,798 [INFO] [__main__] (runner.main:122) :: Loading experiment config: experiments/configurations/Experiment_4/Run-15.toml
-2025-11-15 23:09:10,798 [INFO] [__main__] (logger.print_experiment_overview:140) :: Experiment name: Experiment_4
-2025-11-15 23:09:10,798 [INFO] [__main__] (logger.print_experiment_overview:141) :: Run ID: 15
-2025-11-15 23:09:10,798 [INFO] [__main__] (logger.print_experiment_overview:142) :: ================================================================================
-2025-11-15 23:09:10,798 [INFO] [__main__] (logger.print_experiment_overview:143) :: Input channels: 12
-2025-11-15 23:09:10,799 [INFO] [__main__] (logger.print_experiment_overview:144) :: Extra channels: 0
-2025-11-15 23:09:10,799 [INFO] [__main__] (logger.print_experiment_overview:145) :: Selected Bands: ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12']
-2025-11-15 23:09:10,799 [INFO] [__main__] (logger.print_experiment_overview:146) :: Calculated Indices: []
-2025-11-15 23:09:10,799 [INFO] [__main__] (logger.print_experiment_overview:147) :: Number of Classes: 10
-2025-11-15 23:09:10,799 [INFO] [__main__] (logger.print_experiment_overview:148) :: Image Size: 64x64
-2025-11-15 23:09:10,799 [INFO] [__main__] (logger.print_experiment_overview:149) :: ================================================================================
-2025-11-15 23:09:10,799 [INFO] [__main__] (logger.print_experiment_overview:150) :: Number of Workers: 15
-2025-11-15 23:09:10,799 [INFO] [__main__] (logger.print_experiment_overview:151) :: Pin Memory: True
-2025-11-15 23:09:10,799 [INFO] [__main__] (logger.print_experiment_overview:152) :: Batch size: 256
-2025-11-15 23:09:10,799 [INFO] [__main__] (logger.print_experiment_overview:153) :: ================================================================================
-2025-11-15 23:09:10,799 [INFO] [__main__] (logger.print_experiment_overview:154) :: Dataset Name: blanchon/EuroSAT_MSI
-2025-11-15 23:09:10,799 [INFO] [__main__] (logger.print_experiment_overview:155) :: Data Augmentation: False
-2025-11-15 23:09:10,799 [INFO] [__main__] (logger.print_experiment_overview:156) :: Data Normalization: True
-2025-11-15 23:09:10,799 [INFO] [__main__] (logger.print_experiment_overview:157) :: ================================================================================
-2025-11-15 23:09:10,799 [INFO] [__main__] (logger.print_experiment_overview:161) :: Train with teacher-student knowledge distillation.
-2025-11-15 23:09:10,799 [INFO] [__main__] (logger.print_experiment_overview:162) :: Teacher: ResNet50 | Student: ResNet18 | KD: CrossEntropyLoss
-2025-11-15 23:09:10,799 [INFO] [__main__] (logger.print_experiment_overview:163) :: HiddenRep=0.2500 | CE=0.9000 | SoftTarget=0.2500 | T=2.0000
-2025-11-15 23:09:10,799 [INFO] [__main__] (logger.print_experiment_overview:167) :: ================================================================================
-2025-11-15 23:09:10,799 [INFO] [__main__] (runner._load_models:84) :: Building models...
-2025-11-15 23:09:11,242 [INFO] [__main__] (logger.print_model_summary:135) :: Student:
----------------------------
-============================================================================================================================================
-Layer (type:depth-idx)                   Input Shape               Output Shape              Param #                   Trainable
-============================================================================================================================================
-ResNet18                                 [256, 12, 64, 64]         [256, 10]                 --                        True
-├─Conv2d: 1-1                            [256, 12, 64, 64]         [256, 64, 64, 64]         6,912                     True
-├─BatchNorm2d: 1-2                       [256, 64, 64, 64]         [256, 64, 64, 64]         128                       True
-├─ReLU: 1-3                              [256, 64, 64, 64]         [256, 64, 64, 64]         --                        --
-├─MaxPool2d: 1-4                         [256, 64, 64, 64]         [256, 64, 32, 32]         --                        --
-├─Sequential: 1-5                        [256, 64, 32, 32]         [256, 64, 32, 32]         --                        True
-│    └─BasicBlock: 2-1                   [256, 64, 32, 32]         [256, 64, 32, 32]         --                        True
-│    │    └─Conv2d: 3-1                  [256, 64, 32, 32]         [256, 64, 32, 32]         36,864                    True
-│    │    └─BatchNorm2d: 3-2             [256, 64, 32, 32]         [256, 64, 32, 32]         128                       True
-│    │    └─ReLU: 3-3                    [256, 64, 32, 32]         [256, 64, 32, 32]         --                        --
-│    │    └─Conv2d: 3-4                  [256, 64, 32, 32]         [256, 64, 32, 32]         36,864                    True
-│    │    └─BatchNorm2d: 3-5             [256, 64, 32, 32]         [256, 64, 32, 32]         128                       True
-│    │    └─Sequential: 3-6              [256, 64, 32, 32]         [256, 64, 32, 32]         --                        --
-│    │    └─ReLU: 3-7                    [256, 64, 32, 32]         [256, 64, 32, 32]         --                        --
-│    └─BasicBlock: 2-2                   [256, 64, 32, 32]         [256, 64, 32, 32]         --                        True
-│    │    └─Conv2d: 3-8                  [256, 64, 32, 32]         [256, 64, 32, 32]         36,864                    True
-│    │    └─BatchNorm2d: 3-9             [256, 64, 32, 32]         [256, 64, 32, 32]         128                       True
-│    │    └─ReLU: 3-10                   [256, 64, 32, 32]         [256, 64, 32, 32]         --                        --
-│    │    └─Conv2d: 3-11                 [256, 64, 32, 32]         [256, 64, 32, 32]         36,864                    True
-│    │    └─BatchNorm2d: 3-12            [256, 64, 32, 32]         [256, 64, 32, 32]         128                       True
-│    │    └─Sequential: 3-13             [256, 64, 32, 32]         [256, 64, 32, 32]         --                        --
-│    │    └─ReLU: 3-14                   [256, 64, 32, 32]         [256, 64, 32, 32]         --                        --
-├─Sequential: 1-6                        [256, 64, 32, 32]         [256, 128, 16, 16]        --                        True
-│    └─BasicBlock: 2-3                   [256, 64, 32, 32]         [256, 128, 16, 16]        --                        True
-│    │    └─Conv2d: 3-15                 [256, 64, 32, 32]         [256, 128, 16, 16]        73,728                    True
-│    │    └─BatchNorm2d: 3-16            [256, 128, 16, 16]        [256, 128, 16, 16]        256                       True
-│    │    └─ReLU: 3-17                   [256, 128, 16, 16]        [256, 128, 16, 16]        --                        --
-│    │    └─Conv2d: 3-18                 [256, 128, 16, 16]        [256, 128, 16, 16]        147,456                   True
-│    │    └─BatchNorm2d: 3-19            [256, 128, 16, 16]        [256, 128, 16, 16]        256                       True
-│    │    └─Sequential: 3-20             [256, 64, 32, 32]         [256, 128, 16, 16]        --                        True
-│    │    │    └─Conv2d: 4-1             [256, 64, 32, 32]         [256, 128, 16, 16]        8,192                     True
-│    │    │    └─BatchNorm2d: 4-2        [256, 128, 16, 16]        [256, 128, 16, 16]        256                       True
-│    │    └─ReLU: 3-21                   [256, 128, 16, 16]        [256, 128, 16, 16]        --                        --
-│    └─BasicBlock: 2-4                   [256, 128, 16, 16]        [256, 128, 16, 16]        --                        True
-│    │    └─Conv2d: 3-22                 [256, 128, 16, 16]        [256, 128, 16, 16]        147,456                   True
-│    │    └─BatchNorm2d: 3-23            [256, 128, 16, 16]        [256, 128, 16, 16]        256                       True
-│    │    └─ReLU: 3-24                   [256, 128, 16, 16]        [256, 128, 16, 16]        --                        --
-│    │    └─Conv2d: 3-25                 [256, 128, 16, 16]        [256, 128, 16, 16]        147,456                   True
-│    │    └─BatchNorm2d: 3-26            [256, 128, 16, 16]        [256, 128, 16, 16]        256                       True
-│    │    └─Sequential: 3-27             [256, 128, 16, 16]        [256, 128, 16, 16]        --                        --
-│    │    └─ReLU: 3-28                   [256, 128, 16, 16]        [256, 128, 16, 16]        --                        --
-├─Sequential: 1-7                        [256, 128, 16, 16]        [256, 256, 8, 8]          --                        True
-│    └─BasicBlock: 2-5                   [256, 128, 16, 16]        [256, 256, 8, 8]          --                        True
-│    │    └─Conv2d: 3-29                 [256, 128, 16, 16]        [256, 256, 8, 8]          294,912                   True
-│    │    └─BatchNorm2d: 3-30            [256, 256, 8, 8]          [256, 256, 8, 8]          512                       True
-│    │    └─ReLU: 3-31                   [256, 256, 8, 8]          [256, 256, 8, 8]          --                        --
-│    │    └─Conv2d: 3-32                 [256, 256, 8, 8]          [256, 256, 8, 8]          589,824                   True
-│    │    └─BatchNorm2d: 3-33            [256, 256, 8, 8]          [256, 256, 8, 8]          512                       True
-│    │    └─Sequential: 3-34             [256, 128, 16, 16]        [256, 256, 8, 8]          --                        True
-│    │    │    └─Conv2d: 4-3             [256, 128, 16, 16]        [256, 256, 8, 8]          32,768                    True
-│    │    │    └─BatchNorm2d: 4-4        [256, 256, 8, 8]          [256, 256, 8, 8]          512                       True
-│    │    └─ReLU: 3-35                   [256, 256, 8, 8]          [256, 256, 8, 8]          --                        --
-│    └─BasicBlock: 2-6                   [256, 256, 8, 8]          [256, 256, 8, 8]          --                        True
-│    │    └─Conv2d: 3-36                 [256, 256, 8, 8]          [256, 256, 8, 8]          589,824                   True
-│    │    └─BatchNorm2d: 3-37            [256, 256, 8, 8]          [256, 256, 8, 8]          512                       True
-│    │    └─ReLU: 3-38                   [256, 256, 8, 8]          [256, 256, 8, 8]          --                        --
-│    │    └─Conv2d: 3-39                 [256, 256, 8, 8]          [256, 256, 8, 8]          589,824                   True
-│    │    └─BatchNorm2d: 3-40            [256, 256, 8, 8]          [256, 256, 8, 8]          512                       True
-│    │    └─Sequential: 3-41             [256, 256, 8, 8]          [256, 256, 8, 8]          --                        --
-│    │    └─ReLU: 3-42                   [256, 256, 8, 8]          [256, 256, 8, 8]          --                        --
-├─Sequential: 1-8                        [256, 256, 8, 8]          [256, 512, 4, 4]          --                        True
-│    └─BasicBlock: 2-7                   [256, 256, 8, 8]          [256, 512, 4, 4]          --                        True
-│    │    └─Conv2d: 3-43                 [256, 256, 8, 8]          [256, 512, 4, 4]          1,179,648                 True
-│    │    └─BatchNorm2d: 3-44            [256, 512, 4, 4]          [256, 512, 4, 4]          1,024                     True
-│    │    └─ReLU: 3-45                   [256, 512, 4, 4]          [256, 512, 4, 4]          --                        --
-│    │    └─Conv2d: 3-46                 [256, 512, 4, 4]          [256, 512, 4, 4]          2,359,296                 True
-│    │    └─BatchNorm2d: 3-47            [256, 512, 4, 4]          [256, 512, 4, 4]          1,024                     True
-│    │    └─Sequential: 3-48             [256, 256, 8, 8]          [256, 512, 4, 4]          --                        True
-│    │    │    └─Conv2d: 4-5             [256, 256, 8, 8]          [256, 512, 4, 4]          131,072                   True
-│    │    │    └─BatchNorm2d: 4-6        [256, 512, 4, 4]          [256, 512, 4, 4]          1,024                     True
-│    │    └─ReLU: 3-49                   [256, 512, 4, 4]          [256, 512, 4, 4]          --                        --
-│    └─BasicBlock: 2-8                   [256, 512, 4, 4]          [256, 512, 4, 4]          --                        True
-│    │    └─Conv2d: 3-50                 [256, 512, 4, 4]          [256, 512, 4, 4]          2,359,296                 True
-│    │    └─BatchNorm2d: 3-51            [256, 512, 4, 4]          [256, 512, 4, 4]          1,024                     True
-│    │    └─ReLU: 3-52                   [256, 512, 4, 4]          [256, 512, 4, 4]          --                        --
-│    │    └─Conv2d: 3-53                 [256, 512, 4, 4]          [256, 512, 4, 4]          2,359,296                 True
-│    │    └─BatchNorm2d: 3-54            [256, 512, 4, 4]          [256, 512, 4, 4]          1,024                     True
-│    │    └─Sequential: 3-55             [256, 512, 4, 4]          [256, 512, 4, 4]          --                        --
-│    │    └─ReLU: 3-56                   [256, 512, 4, 4]          [256, 512, 4, 4]          --                        --
-├─AdaptiveAvgPool2d: 1-9                 [256, 512, 4, 4]          [256, 512, 1, 1]          --                        --
-├─Identity: 1-10                         [256, 512]                [256, 512]                --                        --
-├─Linear: 1-11                           [256, 512]                [256, 10]                 5,130                     True
-============================================================================================================================================
-Total params: 11,179,146
-Trainable params: 11,179,146
-Non-trainable params: 0
-Total mult-adds (Units.GIGABYTES): 148.99
-============================================================================================================================================
-Input size (MB): 50.33
-Forward/backward pass size (MB): 3321.91
-Params size (MB): 44.72
-Estimated Total Size (MB): 3416.96
-============================================================================================================================================
-
-
-2025-11-15 23:09:11,391 [INFO] [__main__] (logger.print_model_summary:135) :: Teacher:
+2025-12-13 16:52:41,471 [INFO] [root] (logger.setup_logging:68) :: Logging initialized. Level=INFO, SaveToFile=True, LogFile=experiments/results/Experiment_4/Run_15/Experiment_log.log
+2025-12-13 16:52:41,471 [INFO] [framework.utils.logger] (logger.log_meta_info:91) :: Experiment=Experiment_4 | Run ID=15 | Device=cuda | Seed=42 | Experiment Directory=experiments/results/Experiment_4/Run_15
+2025-12-13 16:52:41,471 [INFO] [__main__] (runner.main:118) :: Loading experiment config: experiments/configurations/Experiment_4/Run-15.toml
+2025-12-13 16:52:41,471 [INFO] [__main__] (logger.print_experiment_overview:141) :: Experiment name: Experiment_4
+2025-12-13 16:52:41,471 [INFO] [__main__] (logger.print_experiment_overview:142) :: Run ID: 15
+2025-12-13 16:52:41,471 [INFO] [__main__] (logger.print_experiment_overview:143) :: ================================================================================
+2025-12-13 16:52:41,471 [INFO] [__main__] (logger.print_experiment_overview:144) :: Input channels: 12
+2025-12-13 16:52:41,471 [INFO] [__main__] (logger.print_experiment_overview:145) :: Extra channels: 0
+2025-12-13 16:52:41,471 [INFO] [__main__] (logger.print_experiment_overview:146) :: Selected Bands: ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12']
+2025-12-13 16:52:41,472 [INFO] [__main__] (logger.print_experiment_overview:147) :: Calculated Indices: []
+2025-12-13 16:52:41,472 [INFO] [__main__] (logger.print_experiment_overview:148) :: Number of Classes: 10
+2025-12-13 16:52:41,472 [INFO] [__main__] (logger.print_experiment_overview:149) :: Image Size: 64x64
+2025-12-13 16:52:41,472 [INFO] [__main__] (logger.print_experiment_overview:150) :: ================================================================================
+2025-12-13 16:52:41,472 [INFO] [__main__] (logger.print_experiment_overview:151) :: Number of Workers: 20
+2025-12-13 16:52:41,472 [INFO] [__main__] (logger.print_experiment_overview:152) :: Pin Memory: True
+2025-12-13 16:52:41,472 [INFO] [__main__] (logger.print_experiment_overview:153) :: Batch size: 256
+2025-12-13 16:52:41,472 [INFO] [__main__] (logger.print_experiment_overview:154) :: ================================================================================
+2025-12-13 16:52:41,472 [INFO] [__main__] (logger.print_experiment_overview:155) :: Dataset Name: blanchon/EuroSAT_MSI
+2025-12-13 16:52:41,472 [INFO] [__main__] (logger.print_experiment_overview:156) :: Data Augmentation: False
+2025-12-13 16:52:41,472 [INFO] [__main__] (logger.print_experiment_overview:157) :: Data Normalization: True
+2025-12-13 16:52:41,472 [INFO] [__main__] (logger.print_experiment_overview:158) :: ================================================================================
+2025-12-13 16:52:41,472 [INFO] [__main__] (logger.print_experiment_overview:162) :: Train with teacher-student knowledge distillation.
+2025-12-13 16:52:41,472 [INFO] [__main__] (logger.print_experiment_overview:163) :: Teacher: ResNet50 | Student: ResNet10 | KD: CrossEntropyLoss
+2025-12-13 16:52:41,472 [INFO] [__main__] (logger.print_experiment_overview:164) :: HiddenRep=0.2500 | CE=0.9000 | SoftTarget=0.2500 | T=2.0000
+2025-12-13 16:52:41,472 [INFO] [__main__] (logger.print_experiment_overview:168) :: ================================================================================
+2025-12-13 16:52:41,472 [INFO] [__main__] (runner._load_models:80) :: Building models...
+2025-12-13 16:52:41,994 [INFO] [__main__] (logger.print_model_summary:135) :: Teacher:
 ---------------------------
 ============================================================================================================================================
 Layer (type:depth-idx)                   Input Shape               Output Shape              Param #                   Trainable
@@ -338,74 +238,141 @@ Estimated Total Size (MB): 3865.98
 ============================================================================================================================================
 
 
-2025-11-15 23:09:11,392 [INFO] [framework.dataset.load_for_training] (load_for_training.load_hf_splits:45) :: Loading Dataset: blanchon/EuroSAT_MSI
-2025-11-15 23:09:12,621 [INFO] [framework.dataset.load_for_training] (load_for_training.build_loaders_from_hf:261) :: Start normalization.
-2025-11-15 23:09:27,123 [INFO] [framework.dataset.load_for_training] (load_for_training.build_loaders_from_hf:285) :: Before normalization --> norm_mean: [1354.4053955078125, 1118.244140625, 1042.929931640625, 947.626220703125, 1199.47265625, 1999.7911376953125, 2369.22412109375, 2296.826171875, 732.0833129882812, 1819.010009765625, 1118.9241943359375, 2594.140625]
+2025-12-13 16:52:42,089 [INFO] [__main__] (logger.print_model_summary:135) :: Student:
+---------------------------
+============================================================================================================================================
+Layer (type:depth-idx)                   Input Shape               Output Shape              Param #                   Trainable
+============================================================================================================================================
+ResNet10                                 [256, 12, 64, 64]         [256, 10]                 --                        True
+├─Conv2d: 1-1                            [256, 12, 64, 64]         [256, 64, 64, 64]         6,912                     True
+├─BatchNorm2d: 1-2                       [256, 64, 64, 64]         [256, 64, 64, 64]         128                       True
+├─ReLU: 1-3                              [256, 64, 64, 64]         [256, 64, 64, 64]         --                        --
+├─MaxPool2d: 1-4                         [256, 64, 64, 64]         [256, 64, 32, 32]         --                        --
+├─Sequential: 1-5                        [256, 64, 32, 32]         [256, 64, 32, 32]         --                        True
+│    └─BasicBlock: 2-1                   [256, 64, 32, 32]         [256, 64, 32, 32]         --                        True
+│    │    └─Conv2d: 3-1                  [256, 64, 32, 32]         [256, 64, 32, 32]         36,864                    True
+│    │    └─BatchNorm2d: 3-2             [256, 64, 32, 32]         [256, 64, 32, 32]         128                       True
+│    │    └─ReLU: 3-3                    [256, 64, 32, 32]         [256, 64, 32, 32]         --                        --
+│    │    └─Conv2d: 3-4                  [256, 64, 32, 32]         [256, 64, 32, 32]         36,864                    True
+│    │    └─BatchNorm2d: 3-5             [256, 64, 32, 32]         [256, 64, 32, 32]         128                       True
+│    │    └─Sequential: 3-6              [256, 64, 32, 32]         [256, 64, 32, 32]         --                        --
+│    │    └─ReLU: 3-7                    [256, 64, 32, 32]         [256, 64, 32, 32]         --                        --
+├─Sequential: 1-6                        [256, 64, 32, 32]         [256, 128, 16, 16]        --                        True
+│    └─BasicBlock: 2-2                   [256, 64, 32, 32]         [256, 128, 16, 16]        --                        True
+│    │    └─Conv2d: 3-8                  [256, 64, 32, 32]         [256, 128, 16, 16]        73,728                    True
+│    │    └─BatchNorm2d: 3-9             [256, 128, 16, 16]        [256, 128, 16, 16]        256                       True
+│    │    └─ReLU: 3-10                   [256, 128, 16, 16]        [256, 128, 16, 16]        --                        --
+│    │    └─Conv2d: 3-11                 [256, 128, 16, 16]        [256, 128, 16, 16]        147,456                   True
+│    │    └─BatchNorm2d: 3-12            [256, 128, 16, 16]        [256, 128, 16, 16]        256                       True
+│    │    └─Sequential: 3-13             [256, 64, 32, 32]         [256, 128, 16, 16]        --                        True
+│    │    │    └─Conv2d: 4-1             [256, 64, 32, 32]         [256, 128, 16, 16]        8,192                     True
+│    │    │    └─BatchNorm2d: 4-2        [256, 128, 16, 16]        [256, 128, 16, 16]        256                       True
+│    │    └─ReLU: 3-14                   [256, 128, 16, 16]        [256, 128, 16, 16]        --                        --
+├─Sequential: 1-7                        [256, 128, 16, 16]        [256, 256, 8, 8]          --                        True
+│    └─BasicBlock: 2-3                   [256, 128, 16, 16]        [256, 256, 8, 8]          --                        True
+│    │    └─Conv2d: 3-15                 [256, 128, 16, 16]        [256, 256, 8, 8]          294,912                   True
+│    │    └─BatchNorm2d: 3-16            [256, 256, 8, 8]          [256, 256, 8, 8]          512                       True
+│    │    └─ReLU: 3-17                   [256, 256, 8, 8]          [256, 256, 8, 8]          --                        --
+│    │    └─Conv2d: 3-18                 [256, 256, 8, 8]          [256, 256, 8, 8]          589,824                   True
+│    │    └─BatchNorm2d: 3-19            [256, 256, 8, 8]          [256, 256, 8, 8]          512                       True
+│    │    └─Sequential: 3-20             [256, 128, 16, 16]        [256, 256, 8, 8]          --                        True
+│    │    │    └─Conv2d: 4-3             [256, 128, 16, 16]        [256, 256, 8, 8]          32,768                    True
+│    │    │    └─BatchNorm2d: 4-4        [256, 256, 8, 8]          [256, 256, 8, 8]          512                       True
+│    │    └─ReLU: 3-21                   [256, 256, 8, 8]          [256, 256, 8, 8]          --                        --
+├─Sequential: 1-8                        [256, 256, 8, 8]          [256, 512, 4, 4]          --                        True
+│    └─BasicBlock: 2-4                   [256, 256, 8, 8]          [256, 512, 4, 4]          --                        True
+│    │    └─Conv2d: 3-22                 [256, 256, 8, 8]          [256, 512, 4, 4]          1,179,648                 True
+│    │    └─BatchNorm2d: 3-23            [256, 512, 4, 4]          [256, 512, 4, 4]          1,024                     True
+│    │    └─ReLU: 3-24                   [256, 512, 4, 4]          [256, 512, 4, 4]          --                        --
+│    │    └─Conv2d: 3-25                 [256, 512, 4, 4]          [256, 512, 4, 4]          2,359,296                 True
+│    │    └─BatchNorm2d: 3-26            [256, 512, 4, 4]          [256, 512, 4, 4]          1,024                     True
+│    │    └─Sequential: 3-27             [256, 256, 8, 8]          [256, 512, 4, 4]          --                        True
+│    │    │    └─Conv2d: 4-5             [256, 256, 8, 8]          [256, 512, 4, 4]          131,072                   True
+│    │    │    └─BatchNorm2d: 4-6        [256, 512, 4, 4]          [256, 512, 4, 4]          1,024                     True
+│    │    └─ReLU: 3-28                   [256, 512, 4, 4]          [256, 512, 4, 4]          --                        --
+├─AdaptiveAvgPool2d: 1-9                 [256, 512, 4, 4]          [256, 512, 1, 1]          --                        --
+├─Linear: 1-10                           [256, 512]                [256, 10]                 5,130                     True
+============================================================================================================================================
+Total params: 4,908,426
+Trainable params: 4,908,426
+Non-trainable params: 0
+Total mult-adds (Units.GIGABYTES): 71.68
+============================================================================================================================================
+Input size (MB): 50.33
+Forward/backward pass size (MB): 2315.28
+Params size (MB): 19.63
+Estimated Total Size (MB): 2385.24
+============================================================================================================================================
+
+
+2025-12-13 16:52:42,090 [INFO] [framework.dataset.load_for_training] (load_for_training.load_hf_splits:46) :: Loading Dataset: blanchon/EuroSAT_MSI
+2025-12-13 16:52:42,277 [INFO] [httpx] (_client._send_single_request:1025) :: HTTP Request: HEAD https://huggingface.co/datasets/blanchon/EuroSAT_MSI/resolve/main/README.md "HTTP/1.1 307 Temporary Redirect"
+2025-12-13 16:52:42,284 [INFO] [httpx] (_client._send_single_request:1025) :: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/datasets/blanchon/EuroSAT_MSI/fceda27a3c49aec8c9a9ecc674097a21d6b9b793/README.md "HTTP/1.1 200 OK"
+2025-12-13 16:52:42,407 [INFO] [httpx] (_client._send_single_request:1025) :: HTTP Request: HEAD https://huggingface.co/datasets/blanchon/EuroSAT_MSI/resolve/fceda27a3c49aec8c9a9ecc674097a21d6b9b793/EuroSAT_MSI.py "HTTP/1.1 404 Not Found"
+2025-12-13 16:52:42,729 [INFO] [httpx] (_client._send_single_request:1025) :: HTTP Request: HEAD https://s3.amazonaws.com/datasets.huggingface.co/datasets/datasets/blanchon/EuroSAT_MSI/blanchon/EuroSAT_MSI.py "HTTP/1.1 404 Not Found"
+2025-12-13 16:52:42,857 [INFO] [httpx] (_client._send_single_request:1025) :: HTTP Request: HEAD https://huggingface.co/datasets/blanchon/EuroSAT_MSI/resolve/fceda27a3c49aec8c9a9ecc674097a21d6b9b793/.huggingface.yaml "HTTP/1.1 404 Not Found"
+2025-12-13 16:52:43,008 [INFO] [httpx] (_client._send_single_request:1025) :: HTTP Request: GET https://datasets-server.huggingface.co/info?dataset=blanchon/EuroSAT_MSI "HTTP/1.1 200 OK"
+2025-12-13 16:52:43,201 [INFO] [httpx] (_client._send_single_request:1025) :: HTTP Request: HEAD https://huggingface.co/datasets/blanchon/EuroSAT_MSI/resolve/fceda27a3c49aec8c9a9ecc674097a21d6b9b793/dataset_infos.json "HTTP/1.1 404 Not Found"
+2025-12-13 16:52:43,221 [INFO] [framework.dataset.load_for_training] (load_for_training.build_loaders_from_hf:267) :: Start normalization.
+2025-12-13 16:52:55,239 [INFO] [framework.dataset.load_for_training] (load_for_training.build_loaders_from_hf:291) :: Before normalization --> norm_mean: [1354.4053955078125, 1118.244140625, 1042.929931640625, 947.626220703125, 1199.47265625, 1999.7911376953125, 2369.22412109375, 2296.826171875, 732.0833129882812, 1819.010009765625, 1118.9241943359375, 2594.140625]
 norm_std: [245.71731567382812, 333.00714111328125, 395.09222412109375, 593.7504272460938, 566.4176025390625, 861.1834716796875, 1086.6287841796875, 1117.9820556640625, 404.9198913574219, 1002.588134765625, 761.3026123046875, 1231.58642578125]
-2025-11-15 23:09:27,559 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:69) :: Using device: cuda
-2025-11-15 23:09:27,566 [INFO] [framework.training.training_orchestrator] (training_orchestrator._maybe_load_teacher:40) :: Loading teacher from experiments/results/Experiment_1/Run_10/best.pt
-2025-11-15 23:09:27,892 [INFO] [framework.training.io_ckpt] (io_ckpt.load:13) :: Loaded checkpoint from experiments/results/Experiment_1/Run_10/best.pt
-2025-11-15 23:09:49,242 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:111) :: Epoch 001 | train_loss 1.1514 train_acc 81.02% | val_loss 0.5865 val_acc 84.67% val_MSE 0.0241
-2025-11-15 23:10:08,581 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:111) :: Epoch 002 | train_loss 0.5215 train_acc 91.74% | val_loss 0.2777 val_acc 92.41% val_MSE 0.0121
-2025-11-15 23:10:27,278 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:111) :: Epoch 003 | train_loss 0.3946 train_acc 93.80% | val_loss 0.2691 val_acc 91.67% val_MSE 0.0125
-2025-11-15 23:10:44,781 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:111) :: Epoch 004 | train_loss 0.3468 train_acc 94.45% | val_loss 0.2199 val_acc 94.02% val_MSE 0.0094
-2025-11-15 23:11:02,432 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:111) :: Epoch 005 | train_loss 0.2662 train_acc 95.59% | val_loss 0.1439 val_acc 96.07% val_MSE 0.0062
-2025-11-15 23:11:20,112 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:111) :: Epoch 006 | train_loss 0.2572 train_acc 95.73% | val_loss 0.3026 val_acc 92.57% val_MSE 0.0122
-2025-11-15 23:11:39,124 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:111) :: Epoch 007 | train_loss 0.3089 train_acc 95.12% | val_loss 0.6568 val_acc 86.74% val_MSE 0.0223
-2025-11-15 23:11:57,304 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:111) :: Epoch 008 | train_loss 0.3122 train_acc 94.78% | val_loss 0.1863 val_acc 95.24% val_MSE 0.0076
-2025-11-15 23:12:14,738 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:111) :: Epoch 009 | train_loss 0.2002 train_acc 96.92% | val_loss 0.1350 val_acc 96.31% val_MSE 0.0058
-2025-11-15 23:12:32,222 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:111) :: Epoch 010 | train_loss 0.1540 train_acc 97.47% | val_loss 0.1690 val_acc 95.59% val_MSE 0.0071
-2025-11-15 23:12:50,223 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:111) :: Epoch 011 | train_loss 0.1469 train_acc 97.50% | val_loss 0.1670 val_acc 96.06% val_MSE 0.0065
-2025-11-15 23:13:07,700 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:111) :: Epoch 012 | train_loss 0.1184 train_acc 98.14% | val_loss 0.1109 val_acc 97.54% val_MSE 0.0042
-2025-11-15 23:13:25,083 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:111) :: Epoch 013 | train_loss 0.1047 train_acc 98.22% | val_loss 0.1162 val_acc 97.24% val_MSE 0.0045
-2025-11-15 23:13:43,556 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:111) :: Epoch 014 | train_loss 0.1278 train_acc 97.86% | val_loss 0.1581 val_acc 96.09% val_MSE 0.0063
-2025-11-15 23:14:02,056 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:111) :: Epoch 015 | train_loss 0.1221 train_acc 98.01% | val_loss 0.1008 val_acc 97.70% val_MSE 0.0039
-2025-11-15 23:14:19,694 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:111) :: Epoch 016 | train_loss 0.0947 train_acc 98.41% | val_loss 0.1247 val_acc 97.31% val_MSE 0.0045
-2025-11-15 23:14:37,885 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:111) :: Epoch 017 | train_loss 0.1026 train_acc 98.36% | val_loss 0.1252 val_acc 97.22% val_MSE 0.0045
-2025-11-15 23:14:56,394 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:111) :: Epoch 018 | train_loss 0.0833 train_acc 98.68% | val_loss 0.1148 val_acc 97.17% val_MSE 0.0046
-2025-11-15 23:15:14,044 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:111) :: Epoch 019 | train_loss 0.0727 train_acc 98.88% | val_loss 0.0989 val_acc 97.81% val_MSE 0.0038
-2025-11-15 23:15:31,742 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:111) :: Epoch 020 | train_loss 0.0513 train_acc 99.23% | val_loss 0.1542 val_acc 96.96% val_MSE 0.0052
-2025-11-15 23:15:49,644 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:111) :: Epoch 021 | train_loss 0.0523 train_acc 99.21% | val_loss 0.1004 val_acc 97.80% val_MSE 0.0036
-2025-11-15 23:16:07,481 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:111) :: Epoch 022 | train_loss 0.0576 train_acc 99.15% | val_loss 0.1088 val_acc 97.85% val_MSE 0.0036
-2025-11-15 23:16:24,932 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:111) :: Epoch 023 | train_loss 0.0425 train_acc 99.37% | val_loss 0.1119 val_acc 97.65% val_MSE 0.0039
-2025-11-15 23:16:42,230 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:111) :: Epoch 024 | train_loss 0.0434 train_acc 99.27% | val_loss 0.1203 val_acc 97.19% val_MSE 0.0045
-2025-11-15 23:17:00,017 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:111) :: Epoch 025 | train_loss 0.0422 train_acc 99.38% | val_loss 0.0953 val_acc 98.06% val_MSE 0.0033
-2025-11-15 23:17:18,861 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:111) :: Epoch 026 | train_loss 0.0271 train_acc 99.65% | val_loss 0.1003 val_acc 98.02% val_MSE 0.0034
-2025-11-15 23:17:36,693 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:111) :: Epoch 027 | train_loss 0.0458 train_acc 99.29% | val_loss 0.0910 val_acc 97.94% val_MSE 0.0034
-2025-11-15 23:17:53,591 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:111) :: Epoch 028 | train_loss 0.0306 train_acc 99.57% | val_loss 0.1004 val_acc 97.85% val_MSE 0.0035
-2025-11-15 23:18:11,850 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:111) :: Epoch 029 | train_loss 0.0244 train_acc 99.70% | val_loss 0.1021 val_acc 97.93% val_MSE 0.0035
-2025-11-15 23:18:28,658 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:111) :: Epoch 030 | train_loss 0.0230 train_acc 99.68% | val_loss 0.0876 val_acc 98.39% val_MSE 0.0029
-2025-11-15 23:18:45,424 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:111) :: Epoch 031 | train_loss 0.0154 train_acc 99.85% | val_loss 0.0931 val_acc 98.09% val_MSE 0.0032
-2025-11-15 23:19:03,386 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:111) :: Epoch 032 | train_loss 0.0176 train_acc 99.81% | val_loss 0.0913 val_acc 98.22% val_MSE 0.0031
-2025-11-15 23:19:20,337 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:111) :: Epoch 033 | train_loss 0.0128 train_acc 99.90% | val_loss 0.0913 val_acc 98.13% val_MSE 0.0031
-2025-11-15 23:19:38,913 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:111) :: Epoch 034 | train_loss 0.0112 train_acc 99.92% | val_loss 0.0876 val_acc 98.30% val_MSE 0.0028
-2025-11-15 23:19:56,026 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:111) :: Epoch 035 | train_loss 0.0099 train_acc 99.93% | val_loss 0.0881 val_acc 98.48% val_MSE 0.0028
-2025-11-15 23:20:13,735 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:111) :: Epoch 036 | train_loss 0.0116 train_acc 99.90% | val_loss 0.0926 val_acc 98.24% val_MSE 0.0030
-2025-11-15 23:20:31,768 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:111) :: Epoch 037 | train_loss 0.0095 train_acc 99.95% | val_loss 0.0844 val_acc 98.43% val_MSE 0.0027
-2025-11-15 23:20:48,037 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:111) :: Epoch 038 | train_loss 0.0076 train_acc 99.99% | val_loss 0.0861 val_acc 98.33% val_MSE 0.0028
-2025-11-15 23:21:05,127 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:111) :: Epoch 039 | train_loss 0.0074 train_acc 99.96% | val_loss 0.0817 val_acc 98.41% val_MSE 0.0027
-2025-11-15 23:21:22,967 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:111) :: Epoch 040 | train_loss 0.0071 train_acc 99.98% | val_loss 0.0850 val_acc 98.35% val_MSE 0.0028
-2025-11-15 23:21:41,082 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:111) :: Epoch 041 | train_loss 0.0071 train_acc 99.98% | val_loss 0.0849 val_acc 98.35% val_MSE 0.0027
-2025-11-15 23:21:59,107 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:111) :: Epoch 042 | train_loss 0.0071 train_acc 99.98% | val_loss 0.0853 val_acc 98.33% val_MSE 0.0029
-2025-11-15 23:22:16,432 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:111) :: Epoch 043 | train_loss 0.0070 train_acc 99.98% | val_loss 0.0827 val_acc 98.41% val_MSE 0.0026
-2025-11-15 23:22:34,382 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:111) :: Epoch 044 | train_loss 0.0065 train_acc 99.99% | val_loss 0.0859 val_acc 98.35% val_MSE 0.0028
-2025-11-15 23:22:51,991 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:111) :: Epoch 045 | train_loss 0.0068 train_acc 99.99% | val_loss 0.0846 val_acc 98.15% val_MSE 0.0027
-2025-11-15 23:23:09,494 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:111) :: Epoch 046 | train_loss 0.0066 train_acc 99.99% | val_loss 0.0834 val_acc 98.37% val_MSE 0.0027
-2025-11-15 23:23:26,843 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:111) :: Epoch 047 | train_loss 0.0065 train_acc 99.99% | val_loss 0.0834 val_acc 98.50% val_MSE 0.0027
-2025-11-15 23:23:45,199 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:111) :: Epoch 048 | train_loss 0.0064 train_acc 99.99% | val_loss 0.0849 val_acc 98.37% val_MSE 0.0027
-2025-11-15 23:24:02,669 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:111) :: Epoch 049 | train_loss 0.0059 train_acc 99.99% | val_loss 0.0826 val_acc 98.39% val_MSE 0.0027
-2025-11-15 23:24:20,833 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:111) :: Epoch 050 | train_loss 0.0060 train_acc 99.99% | val_loss 0.0862 val_acc 98.31% val_MSE 0.0027
-2025-11-15 23:24:20,961 [INFO] [framework.training.io_ckpt] (io_ckpt.load:13) :: Loaded checkpoint from experiments/results/Experiment_4/Run_15/best.pt
-2025-11-15 23:24:20,966 [INFO] [framework.utils.plots.plot_repository] (plot_repository._prepare_series:134) :: Path Teacher Metrics: /home/ubuntu/code/data/R-L-Net/experiments/results/Experiment_1/Run_10/metrics.jsonl
-2025-11-15 23:24:20,966 [INFO] [framework.utils.plots.plot_repository] (plot_repository._prepare_series:137) :: Path Student Baseline: /home/ubuntu/code/data/R-L-Net/experiments/results/Experiment_1/Run_1/metrics.jsonl
-2025-11-15 23:24:20,966 [INFO] [framework.utils.plots.plot_repository] (plot_repository._prepare_series:140) :: Path new Student metrics: /home/ubuntu/code/data/R-L-Net/experiments/results/Experiment_4/Run_15/metrics.jsonl
-2025-11-15 23:24:20,966 [INFO] [framework.utils.plots.plot_repository] (plot_repository._prepare_series:146) :: Loading teacher metrics from /home/ubuntu/code/data/R-L-Net/experiments/results/Experiment_1/Run_10/metrics.jsonl
-2025-11-15 23:24:20,969 [INFO] [framework.utils.plots.plot_repository] (plot_repository._prepare_series:153) :: Loading student baseline metrics from /home/ubuntu/code/data/R-L-Net/experiments/results/Experiment_1/Run_1/metrics.jsonl
-2025-11-15 23:24:20,970 [INFO] [framework.utils.plots.plot_repository] (plot_repository._prepare_series:161) :: Loading student metrics from /home/ubuntu/code/data/R-L-Net/experiments/results/Experiment_4/Run_15/metrics.jsonl
-2025-11-15 23:24:23,526 [INFO] [framework.utils.plots.plot_repository] (plot_repository.plot_teacher_student_metrics:107) :: Plots generated save dir: /home/ubuntu/code/data/R-L-Net/experiments/results/Experiment_4/Run_15/plots
-2025-11-15 23:24:23,526 [INFO] [__main__] (runner.main:205) :: Experiment Experiment_4 --> end training
-2025-11-15 23:24:23,526 [INFO] [__main__] (runner.main:206) :: 
+2025-12-13 16:52:55,659 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:83) :: Using device: cuda
+2025-12-13 16:52:55,664 [INFO] [framework.training.training_orchestrator] (training_orchestrator._maybe_load_teacher:39) :: Loading teacher from experiments/results/Experiment_1/Run_10/best.pt
+2025-12-13 16:52:56,019 [INFO] [framework.training.io_ckpt] (io_ckpt.load:26) :: Loaded checkpoint from experiments/results/Experiment_1/Run_10/best.pt
+2025-12-13 16:53:14,721 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:129) :: Epoch 001 | train_loss 1.1228 train_acc 81.86% | val_loss 0.4439 val_acc 86.31% val_MSE 0.0211
+2025-12-13 16:53:29,754 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:129) :: Epoch 002 | train_loss 0.5246 train_acc 91.65% | val_loss 0.3284 val_acc 90.96% val_MSE 0.0145
+2025-12-13 16:53:44,747 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:129) :: Epoch 003 | train_loss 0.4319 train_acc 93.02% | val_loss 0.2547 val_acc 92.09% val_MSE 0.0123
+2025-12-13 16:53:59,663 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:129) :: Epoch 004 | train_loss 0.3017 train_acc 95.09% | val_loss 0.1887 val_acc 94.76% val_MSE 0.0084
+2025-12-13 16:54:14,755 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:129) :: Epoch 005 | train_loss 0.2747 train_acc 95.36% | val_loss 0.1271 val_acc 96.11% val_MSE 0.0060
+2025-12-13 16:54:29,713 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:129) :: Epoch 006 | train_loss 0.2259 train_acc 96.34% | val_loss 0.1824 val_acc 94.69% val_MSE 0.0084
+2025-12-13 16:54:44,499 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:129) :: Epoch 007 | train_loss 0.1985 train_acc 96.77% | val_loss 0.2289 val_acc 93.76% val_MSE 0.0098
+2025-12-13 16:54:59,203 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:129) :: Epoch 008 | train_loss 0.1815 train_acc 96.93% | val_loss 0.1160 val_acc 96.83% val_MSE 0.0051
+2025-12-13 16:55:14,505 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:129) :: Epoch 009 | train_loss 0.1493 train_acc 97.46% | val_loss 0.1223 val_acc 96.74% val_MSE 0.0054
+2025-12-13 16:55:29,683 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:129) :: Epoch 010 | train_loss 0.1391 train_acc 97.73% | val_loss 0.1217 val_acc 96.70% val_MSE 0.0054
+2025-12-13 16:55:44,514 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:129) :: Epoch 011 | train_loss 0.1474 train_acc 97.50% | val_loss 0.1198 val_acc 96.72% val_MSE 0.0052
+2025-12-13 16:55:59,146 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:129) :: Epoch 012 | train_loss 0.1298 train_acc 97.96% | val_loss 0.1080 val_acc 97.26% val_MSE 0.0045
+2025-12-13 16:56:14,421 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:129) :: Epoch 013 | train_loss 0.1488 train_acc 97.65% | val_loss 0.1630 val_acc 96.06% val_MSE 0.0065
+2025-12-13 16:56:29,453 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:129) :: Epoch 014 | train_loss 0.1009 train_acc 98.44% | val_loss 0.1040 val_acc 97.20% val_MSE 0.0043
+2025-12-13 16:56:44,052 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:129) :: Epoch 015 | train_loss 0.0704 train_acc 98.93% | val_loss 0.0936 val_acc 97.63% val_MSE 0.0039
+2025-12-13 16:56:59,911 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:129) :: Epoch 016 | train_loss 0.0604 train_acc 99.12% | val_loss 0.0861 val_acc 97.83% val_MSE 0.0035
+2025-12-13 16:57:14,767 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:129) :: Epoch 017 | train_loss 0.0591 train_acc 99.09% | val_loss 0.0987 val_acc 97.59% val_MSE 0.0039
+2025-12-13 16:57:29,779 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:129) :: Epoch 018 | train_loss 0.0622 train_acc 99.05% | val_loss 0.1039 val_acc 97.43% val_MSE 0.0042
+2025-12-13 16:57:45,014 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:129) :: Epoch 019 | train_loss 0.0475 train_acc 99.31% | val_loss 0.0912 val_acc 97.69% val_MSE 0.0036
+2025-12-13 16:58:00,348 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:129) :: Epoch 020 | train_loss 0.0532 train_acc 99.25% | val_loss 0.1172 val_acc 97.35% val_MSE 0.0044
+2025-12-13 16:58:15,221 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:129) :: Epoch 021 | train_loss 0.0674 train_acc 98.90% | val_loss 0.0968 val_acc 97.63% val_MSE 0.0039
+2025-12-13 16:58:29,803 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:129) :: Epoch 022 | train_loss 0.0344 train_acc 99.51% | val_loss 0.0895 val_acc 97.78% val_MSE 0.0035
+2025-12-13 16:58:44,482 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:129) :: Epoch 023 | train_loss 0.0385 train_acc 99.47% | val_loss 0.0904 val_acc 97.72% val_MSE 0.0036
+2025-12-13 16:58:58,900 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:129) :: Epoch 024 | train_loss 0.0254 train_acc 99.69% | val_loss 0.0867 val_acc 98.09% val_MSE 0.0031
+2025-12-13 16:59:13,741 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:129) :: Epoch 025 | train_loss 0.0269 train_acc 99.66% | val_loss 0.0869 val_acc 98.04% val_MSE 0.0032
+2025-12-13 16:59:28,752 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:129) :: Epoch 026 | train_loss 0.0175 train_acc 99.85% | val_loss 0.0799 val_acc 98.30% val_MSE 0.0029
+2025-12-13 16:59:44,179 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:129) :: Epoch 027 | train_loss 0.0253 train_acc 99.70% | val_loss 0.0810 val_acc 98.17% val_MSE 0.0030
+2025-12-13 16:59:58,748 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:129) :: Epoch 028 | train_loss 0.0133 train_acc 99.92% | val_loss 0.0784 val_acc 98.24% val_MSE 0.0029
+2025-12-13 17:00:13,378 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:129) :: Epoch 029 | train_loss 0.0164 train_acc 99.87% | val_loss 0.0940 val_acc 98.07% val_MSE 0.0033
+2025-12-13 17:00:28,156 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:129) :: Epoch 030 | train_loss 0.0141 train_acc 99.88% | val_loss 0.0903 val_acc 97.87% val_MSE 0.0034
+2025-12-13 17:00:43,224 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:129) :: Epoch 031 | train_loss 0.0206 train_acc 99.80% | val_loss 0.0857 val_acc 98.28% val_MSE 0.0030
+2025-12-13 17:00:58,353 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:129) :: Epoch 032 | train_loss 0.0113 train_acc 99.93% | val_loss 0.0811 val_acc 98.33% val_MSE 0.0028
+2025-12-13 17:01:13,053 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:129) :: Epoch 033 | train_loss 0.0093 train_acc 99.96% | val_loss 0.0791 val_acc 98.19% val_MSE 0.0029
+2025-12-13 17:01:27,762 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:129) :: Epoch 034 | train_loss 0.0086 train_acc 99.96% | val_loss 0.0801 val_acc 98.26% val_MSE 0.0029
+2025-12-13 17:01:42,542 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:129) :: Epoch 035 | train_loss 0.0084 train_acc 99.97% | val_loss 0.0813 val_acc 98.26% val_MSE 0.0029
+2025-12-13 17:01:57,728 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:129) :: Epoch 036 | train_loss 0.0085 train_acc 99.97% | val_loss 0.0811 val_acc 98.20% val_MSE 0.0030
+2025-12-13 17:02:13,172 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:129) :: Epoch 037 | train_loss 0.0072 train_acc 99.99% | val_loss 0.0818 val_acc 98.30% val_MSE 0.0030
+2025-12-13 17:02:27,752 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:129) :: Epoch 038 | train_loss 0.0070 train_acc 99.98% | val_loss 0.0832 val_acc 98.19% val_MSE 0.0030
+2025-12-13 17:02:42,111 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:129) :: Epoch 039 | train_loss 0.0066 train_acc 99.98% | val_loss 0.0828 val_acc 98.19% val_MSE 0.0029
+2025-12-13 17:02:56,683 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:129) :: Epoch 040 | train_loss 0.0063 train_acc 99.99% | val_loss 0.0816 val_acc 98.20% val_MSE 0.0030
+2025-12-13 17:03:11,073 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:129) :: Epoch 041 | train_loss 0.0062 train_acc 99.99% | val_loss 0.0807 val_acc 98.17% val_MSE 0.0030
+2025-12-13 17:03:25,741 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:129) :: Epoch 042 | train_loss 0.0059 train_acc 99.99% | val_loss 0.0818 val_acc 98.15% val_MSE 0.0030
+2025-12-13 17:03:40,077 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:129) :: Epoch 043 | train_loss 0.0065 train_acc 99.98% | val_loss 0.0800 val_acc 98.30% val_MSE 0.0028
+2025-12-13 17:03:54,396 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:129) :: Epoch 044 | train_loss 0.0065 train_acc 99.99% | val_loss 0.0807 val_acc 98.22% val_MSE 0.0029
+2025-12-13 17:04:09,032 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:129) :: Epoch 045 | train_loss 0.0065 train_acc 99.99% | val_loss 0.0839 val_acc 98.20% val_MSE 0.0030
+2025-12-13 17:04:23,517 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:129) :: Epoch 046 | train_loss 0.0059 train_acc 100.00% | val_loss 0.0824 val_acc 98.19% val_MSE 0.0029
+2025-12-13 17:04:38,172 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:129) :: Epoch 047 | train_loss 0.0056 train_acc 99.99% | val_loss 0.0824 val_acc 98.24% val_MSE 0.0029
+2025-12-13 17:04:52,482 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:129) :: Epoch 048 | train_loss 0.0056 train_acc 99.99% | val_loss 0.0822 val_acc 98.17% val_MSE 0.0030
+2025-12-13 17:05:07,294 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:129) :: Epoch 049 | train_loss 0.0067 train_acc 99.99% | val_loss 0.0824 val_acc 98.30% val_MSE 0.0029
+2025-12-13 17:05:21,642 [INFO] [framework.training.training_orchestrator] (training_orchestrator.train:129) :: Epoch 050 | train_loss 0.0054 train_acc 99.99% | val_loss 0.0836 val_acc 98.19% val_MSE 0.0029
+2025-12-13 17:05:21,733 [INFO] [framework.training.io_ckpt] (io_ckpt.load:26) :: Loaded checkpoint from experiments/results/Experiment_4/Run_15/best.pt
+2025-12-13 17:05:21,736 [INFO] [__main__] (runner.main:182) :: Experiment Experiment_4 --> end training
+2025-12-13 17:05:21,737 [INFO] [__main__] (runner.main:183) :: 
 ========================================================================================
-2025-11-15 23:24:23,526 [INFO] [__main__] (runner.main:207) :: RUN END | Experiment=Experiment_4 | Run ID=15 | Duration=912.7s
-2025-11-15 23:24:23,526 [INFO] [__main__] (runner.main:209) :: ========================================================================================
-2025-11-15 23:24:24,905 [INFO] [__main__] (runner._create_log_directory:64) :: Creating directory 'experiments/results/Experiment_4/Run_16'
+2025-12-13 17:05:21,737 [INFO] [__main__] (runner.main:184) :: RUN END | Experiment=Experiment_4 | Run ID=15 | Duration=760.3s
+2025-12-13 17:05:21,737 [INFO] [__main__] (runner.main:186) :: ========================================================================================
+2025-12-13 17:05:22,509 [INFO] [__main__] (runner._create_log_directory:60) :: Creating directory 'experiments/results/Experiment_4/Run_16'

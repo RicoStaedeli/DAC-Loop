@@ -1,17 +1,16 @@
-| run_name | experiment_name | run_id | model | dataset | augmentation | indices_config | epochs | learning_rate | batch_size | weight_decay | scheduler | seed | best_epoch | best_train_loss | best_val_loss | best_train_accuracy (%) | best_val_accuracy (%) | best_val_MSE |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Run_1 | Experiment_10a | 1 | ResNet10 | timm/resisc45 | True | calc=[] - bands=[B01, B02, B03] | 50 | 0.0003 | 128 | 1e-05 | cosine | 43 | 50 | 0.495657 | 0.392707 | 85.5503 | 88.3968 | 0.003932 |
-| Run_2 | Experiment_10a | 2 | ResNet10 | timm/resisc45 | True | calc=[] - bands=[B01, B02, B03] | 50 | 0.0003 | 128 | 1e-05 | cosine | 44 | 49 | 0.536860 | 0.416953 | 84.4127 | 87.5714 | 0.004181 |
-| Run_3 | Experiment_10a | 3 | ResNet10 | timm/resisc45 | True | calc=[] - bands=[B01, B02, B03] | 50 | 0.0003 | 128 | 1e-05 | cosine | 45 | 49 | 0.542357 | 0.410761 | 84.1111 | 88.0159 | 0.004101 |
-| Run_4 | Experiment_10a | 4 | TinyCNN | timm/resisc45 | True | calc=[] - bands=[B01, B02, B03] | 50 | 0.0003 | 128 | 1e-05 | cosine | 43 | 47 | 2.872718 | 2.608055 | 21.5873 | 27.4444 | 0.018541 |
-| Run_5 | Experiment_10a | 5 | TinyCNN | timm/resisc45 | True | calc=[] - bands=[B01, B02, B03] | 50 | 0.0003 | 128 | 1e-05 | cosine | 44 | 47 | 2.868025 | 2.592901 | 21.6455 | 27.7619 | 0.018455 |
-| Run_6 | Experiment_10a | 6 | TinyCNN | timm/resisc45 | True | calc=[] - bands=[B01, B02, B03] | 50 | 0.0003 | 128 | 1e-05 | cosine | 45 | 42 | 2.854897 | 2.550941 | 21.9471 | 29.3016 | 0.018220 |
-| Run_7 | Experiment_10a | 7 | ResNet50 | timm/resisc45 | True | calc=[] - bands=[B01, B02, B03] | 100 | 0.0003 | 128 | 1e-05 | cosine | 43 | 99 | 0.056172 | 0.287386 | 98.2381 | 92.7460 | 0.002568 |
-| Run_8 | Experiment_10a | 8 | ResNet50 | timm/resisc45 | True | calc=[] - bands=[B01, B02, B03] | 100 | 0.0003 | 128 | 1e-05 | cosine | 44 | 93 | 0.058016 | 0.293493 | 98.1587 | 92.6508 | 0.002649 |
-| Run_9 | Experiment_10a | 9 | ResNet50 | timm/resisc45 | True | calc=[] - bands=[B01, B02, B03] | 100 | 0.0003 | 128 | 1e-05 | cosine | 45 | 85 | 0.071394 | 0.270528 | 97.6614 | 92.8254 | 0.002516 |
-| Run_10 | Experiment_10a | 10 | ResNet18 | timm/resisc45 | False | calc=[] - bands=[B01, B02, B03] | 50 | 0.0003 | 128 | 1e-05 | cosine | 43 | 49 | 0.006105 | 0.329711 | 99.9947 | 90.2857 | 0.003246 |
-| Run_11 | Experiment_10a | 11 | ResNet18 | timm/resisc45 | False | calc=[] - bands=[B01, B02, B03] | 50 | 0.0003 | 128 | 1e-05 | cosine | 44 | 44 | 0.006333 | 0.347010 | 99.9894 | 90.1746 | 0.003380 |
-| Run_12 | Experiment_10a | 12 | ResNet18 | timm/resisc45 | False | calc=[] - bands=[B01, B02, B03] | 50 | 0.0003 | 128 | 1e-05 | cosine | 45 | 44 | 0.006584 | 0.325972 | 99.9894 | 90.7460 | 0.003213 |
-| Run_13 | Experiment_10a | 13 | ResNet10mini | timm/resisc45 | False | calc=[] - bands=[B01, B02, B03] | 50 | 0.0003 | 256 | 1e-05 | cosine | 43 | 43 | 0.021881 | 0.561604 | 99.9735 | 83.2857 | 0.005436 |
-| Run_14 | Experiment_10a | 14 | ResNet10mini | timm/resisc45 | False | calc=[] - bands=[B01, B02, B03] | 50 | 0.0003 | 256 | 1e-05 | cosine | 44 | 47 | 0.017929 | 0.514876 | 99.9788 | 84.1746 | 0.005066 |
-| Run_15 | Experiment_10a | 15 | ResNet10mini | timm/resisc45 | False | calc=[] - bands=[B01, B02, B03] | 50 | 0.0003 | 256 | 1e-05 | cosine | 45 | 49 | 0.020244 | 0.564241 | 99.9841 | 83.3016 | 0.005450 |
+### 🔴 Run 1
+
+| Iteration | Acc. before Pruning | Acc. after Pruning | Acc. after fine tuning | Parameter Before pruning | Parameter after pruning | Param Reduction (%) |
+| --- | --- | --- | --- | --- | --- | --- |
+| 1 | 89.44 | 79.7 | 90.49 | 4921197 | 4921197 | 0.0 |
+| 2 | 90.49 | 2.29 | 90.03 | 4921197 | 3219996 | 34.57 |
+| 3 | 90.03 | 84.52 | 90.43 | 3219996 | 3219996 | 0.0 |
+| 4 | 90.43 | 2.16 | 90.05 | 3219996 | 2010291 | 37.57 |
+| 5 | 90.05 | 63.57 | 90.16 | 2010291 | 2010291 | 0.0 |
+| 6 | 90.16 | 2.63 | 89.19 | 2010291 | 1258861 | 37.38 |
+| 7 | 89.19 | 64.35 | 89.14 | 1258861 | 1258861 | 0.0 |
+| 8 | 89.14 | 1.27 | 88.14 | 1258861 | 796575 | 36.72 |
+| 9 | 88.14 | 35.83 | 88.11 | 796575 | 796575 | 0.0 |
+| 10 | 88.11 | 1.73 | 86.97 | 796575 | 506440 | 36.42 |
+| 11 | 86.97 | 26.38 | 87.08 | 506440 | 506440 | 0.0 |
+

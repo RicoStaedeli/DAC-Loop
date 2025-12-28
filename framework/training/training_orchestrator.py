@@ -19,7 +19,8 @@ log = logging.getLogger(__name__)
 def adapt_student_kd_proj(student: nn.Module, teacher: nn.Module, device: torch.device) -> None:
     s_dim = student.fc.in_features
     t_dim = teacher.kd_proj.out_features if hasattr(teacher, "kd_proj") and isinstance(teacher.kd_proj,
-                                                                                       nn.Linear) else teacher.fc.in_features
+                                                                                       nn.Linear) else 512 if teacher is None else teacher.fc.in_features
+    log.info(f"s_dim: {s_dim}, t_dim: {t_dim}")
     student.kd_proj = nn.Linear(s_dim, t_dim, bias=False).to(device)
     nn.init.kaiming_normal_(student.kd_proj.weight, nonlinearity="linear")
 
@@ -95,7 +96,7 @@ class Trainer:
 
         self._maybe_resume(model_to_train, opt_model_to_train, device)
 
-        if adapt_kd_proj_flag and teacher is not None:
+        if adapt_kd_proj_flag: # and teacher is not None:
             adapt_student_kd_proj(student, teacher, device)
 
         ce_loss = nn.CrossEntropyLoss()

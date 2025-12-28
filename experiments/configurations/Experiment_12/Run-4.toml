@@ -25,7 +25,7 @@ scheduler = "cosine"                                                    # "cosin
 batch_size = 256                                                        # (int) default: 128 | Number of samples per training batch.
 save_only_best = true                                                   # (bool) default: False | Whether to save only the best model according to validation metric.
 do_not_log_steps = false                                                # (bool) default: False | Whether to log metrics per step or not
-seed = 42                                                               # (int) default: 42 | Random seed for reproducibility.
+seed = 43                                                               # (int) default: 42 | Random seed for reproducibility.
 load_from_checkpoint = false                                            # (bool) default: False | Resume training from a saved checkpoint if true.
 previous_checkpoint_path = ""                                           # (string) default: None | Path to a checkpoint file for resuming training. Only relevant if load_from_checkpoint = true.
 base_path_ckpts = ""                                                    # (string) default: "" | this is used as basepath for the checkoint dir. Used in Colab to save Checkpoints to G-Drive, (/content/drive/MyDrive/HSG/DL/)
@@ -39,11 +39,11 @@ iterations = 1                                                          # (int) 
 
 [[training.pruning.schedule]]
 iteration = 1                                                           # (int) | Iteration number to define the pruning schedule and paramters for.
-pruning_amount = 0.5                                                    # (float) default: 0.5 | Amount of pruning to apply (between 0 and 1).
-method = "random"                                                           # (string) default: "l1" | Pruning method to use. Available methods: ['l1', 'random']
+pruning_amount = 0.2                                                    # (float) default: 0.5 | Amount of pruning to apply (between 0 and 1).
+method = "l1"                                                           # (string) default: "l1" | Pruning method to use. Available methods: ['l1', 'random']
 structured = true                                                       # (bool) default: false | Whether to use structured pruning or not. Structured pruning also makes surgery possible.
 dim = 0                                                                 # (int) default: 0 | The dimension along which to prune (0 for output channels, 1 for input channels). Only relevant if structured = true.
-layer_prune_ratio = 0.3                                                # (float) default: 0.15 | Percentage of layers to prune in structured pruning. Only relevant if structured = true.
+layer_prune_ratio = 0.15                                                # (float) default: 0.15 | Percentage of layers to prune in structured pruning. Only relevant if structured = true.
 min_channels = 8                                                        # (int) default: 8 | Minimum number of channels to keep in structured pruning. Only relevant if structured = true.
 
 [training.teacher_student]
@@ -56,7 +56,6 @@ kd_type = "CosineEmbeddingLoss"            # (string) Available: ['CrossEntropyL
 hidden_rep_loss_weight = 0.5           # (float) default: 0.25 | used in CosineEmbeddingLoss, RegressorMSE
 ce_loss_weight = 0.75                   # (float) default: 0.75 | weight to multiply the cross entropy loss of the labels used in 'CrossEntropyLoss', 'CosineEmbeddingLoss'
 soft_target_loss_weight = 0.25          # (float) default: 0.25 | used in CrossEntropyLoss, RegressorMSE
-alpha_kd = 0                            # (float) default: 0.7 | used in KLDivLoss
 beta_feat = 0                           # (float) default: 0.25 | used in KLDivLoss
 T_param = 2                            # (int) default: 2 | Temperature paramter used in CrossEntropyLoss, RegressorMSE and KLDivLoss during Knowledge Distillation.
 
@@ -88,5 +87,4 @@ num_used_entries_validation = 100             # (int) default: 10 | Number of va
 [data.indices]
 calculated_indices = []
 selected_bands = ["B01", "B02", "B03", "B04", "B05", "B06", "B07", "B08", "B8A", "B09", "B11", "B12"]
-
 

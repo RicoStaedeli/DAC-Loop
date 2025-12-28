@@ -71,7 +71,7 @@ def build_strategy(cfg, ce_loss):
     if kd_type == "KLDivLoss":
         return KLDivergenceKDStrategy(ce_loss=ce_loss,
                                       T=ts.T_param,
-                                      alpha_kd=ts.alpha_kd,
+                                      w_soft=ts.soft_target_loss_weight,
                                       beta_feat=getattr(ts, "beta_feat", 0.0),
                                       w_ce=ts.ce_loss_weight,
                                       use_mse_feat=True)

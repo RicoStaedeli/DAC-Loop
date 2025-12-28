@@ -142,7 +142,8 @@ def _plots_for_different_experiments():
         "ResNet50": "experiments/results/Experiment_1/Run_10/metrics.jsonl",
         "ResNet18": "experiments/results/Experiment_1/Run_1/metrics.jsonl",
         "ResNet10": "experiments/results/Experiment_1/Run_4/metrics.jsonl",
-        "TinyCNN": "experiments/results/Experiment_1/Run_7/metrics.jsonl",
+        "ResNet10mini": "experiments/results/Experiment_1/Run_13/metrics.jsonl",
+        "ResNetTiny": "experiments/results/Experiment_1/Run_7/metrics.jsonl",
     }
     plot_val_accuracy_over_epochs(
         models,
@@ -185,11 +186,11 @@ def _plots_for_different_experiments():
     ########## Plot Validation Accuracy over Epochs for different models on RESISC45 ##########
     # 4 - RESISC45 Baseline training runs
     models = {
-        "ResNet50": "experiments/results/Experiment_5/Run_7/metrics.jsonl",
-        "ResNet18": "experiments/results/Experiment_5/Run_1/metrics.jsonl",
-        "ResNet10": "experiments/results/Experiment_5/Run_2/metrics.jsonl",
-        "ResNet10small": "experiments/results/Experiment_5/Run_1/metrics.jsonl",
-        "TinyCNN": "experiments/results/Experiment_5/Run_3/metrics.jsonl",
+        "ResNet50": "experiments/results/Experiment_1a/Run_7/metrics.jsonl",
+        "ResNet18": "experiments/results/Experiment_1a/Run_1/metrics.jsonl",
+        "ResNet10": "experiments/results/Experiment_1a/Run_2/metrics.jsonl",
+        "ResNet10mini": "experiments/results/Experiment_1a/Run_8/metrics.jsonl",
+        "ResNetTiny": "experiments/results/Experiment_1a/Run_3/metrics.jsonl",
 
     }
     plot_val_accuracy_over_epochs(
@@ -203,20 +204,20 @@ def _plots_for_different_experiments():
     ########## Plot Validation Accuracy over Epochs for Student vs Baseline on EuroSAT ##########
     # 5 - EuroSAT TinyCNN Student vs Baseline training runs
     models = {
-        "TinyCNN-Student": "experiments/results/Experiment_3/Run_1/metrics.jsonl",
-        "TinyCNN-Student-Baseline": "experiments/results/Experiment_1/Run_7/metrics.jsonl",
+        "ResNetTiny-Student": "experiments/results/Experiment_2/Run_1/metrics.jsonl",
+        "ResNetTiny-Student-Baseline": "experiments/results/Experiment_1/Run_7/metrics.jsonl",
     }
     plot_val_accuracy_over_epochs(
         models,
-        out_path_base="docs/plots/5_eurosat_tinycnn_student_vs_baseline",
-        title="TinyCNN - Validation Accuracy over Epochs on EuroSAT",
+        out_path_base="docs/plots/5_eurosat_ResNetTiny_student_vs_baseline",
+        title="ResNetTiny - Validation Accuracy over Epochs on EuroSAT",
         use_latex=True,
         figsize=(6, 3)
     )
 
     # 6 - EuroSAT ResNet18 Student vs Baseline training runs
     models = {
-        "ResNet18-Student": "experiments/results/Experiment_4/Run_3/metrics.jsonl",
+        "ResNet18-Student": "experiments/results/Experiment_3/Run_3/metrics.jsonl",
         "ResNet18-Student-Baseline": "experiments/results/Experiment_1/Run_1/metrics.jsonl",
     }
     plot_val_accuracy_over_epochs(
@@ -229,7 +230,7 @@ def _plots_for_different_experiments():
 
     # 7 - EuroSAT ResNet10 Student vs Baseline training runs
     models = {
-        "ResNet10-Student": "experiments/results/Experiment_4a/Run_6/metrics.jsonl",
+        "ResNet10-Student": "experiments/results/Experiment_4/Run_6/metrics.jsonl",
         "ResNet10-Student-Baseline": "experiments/results/Experiment_1/Run_4/metrics.jsonl",
     }
     plot_val_accuracy_over_epochs(
@@ -243,8 +244,8 @@ def _plots_for_different_experiments():
     ########## Plot Validation Accuracy over Epochs for Student vs Baseline on RESISC45 ##########
     # 8 - RESISC45 ResNet18 Student vs Baseline training runs
     models = {
-        "ResNet18-Student": "experiments/results/Experiment_6/Run_23/metrics.jsonl",
-        "ResNet18-Student-Baseline": "experiments/results/Experiment_5/Run_1/metrics.jsonl",
+        "ResNet18-Student": "experiments/results/Experiment_3a/Run_23/metrics.jsonl",
+        "ResNet18-Student-Baseline": "experiments/results/Experiment_1a/Run_1/metrics.jsonl",
     }
     plot_val_accuracy_over_epochs(
         models,
@@ -256,8 +257,8 @@ def _plots_for_different_experiments():
 
     # 9 - RESISC45 ResNet10 Student vs Baseline training runs
     models = {
-        "ResNet10-Student": "experiments/results/Experiment_6a/Run_40/metrics.jsonl",
-        "ResNet10-Student-Baseline": "experiments/results/Experiment_5/Run_2/metrics.jsonl",
+        "ResNet10-Student": "experiments/results/Experiment_4a/Run_40/metrics.jsonl",
+        "ResNet10-Student-Baseline": "experiments/results/Experiment_1a/Run_2/metrics.jsonl",
     }
     plot_val_accuracy_over_epochs(
         models,
@@ -270,7 +271,7 @@ def _plots_for_different_experiments():
     ########## Final Plot DAC Effect on RESISC45 ##########
     # 10 - Final Plot
     plot_dac_compression_curves(
-        json_path="experiments/results/Experiment_13/result.json",
+        json_path="experiments/results/Experiment_14a/result.json",
         out_path_base="docs/plots/10_dac_compression_curves",
         use_latex=True,
         total_parameters=11191917,
@@ -278,14 +279,28 @@ def _plots_for_different_experiments():
         show_step_markers=True,
     )
 
+    ########## Final Plot DAC Effect on EuroSAT ##########
+    # 12 - Final Plot
+    plot_dac_compression_curves(
+        json_path="experiments/results/Experiment_14/result.json",
+        out_path_base="docs/plots/12_dac_compression_curves_eurosat",
+        use_latex=True,
+        total_parameters=11191917,
+        figsize=(5, 3.2),
+        show_step_markers=True,
+        min_y=95,
+        max_y=100,
+    )
+
+    '''
     animate_only_dac_curve(
-        json_path="experiments/results/Experiment_13/result.json",
+        json_path="experiments/results/Experiment_14a/result.json",
         out_path_base="docs/plots/11_dac_compression_curves",
         use_latex=True,
         total_parameters=11191917,
         figsize=(5, 3.2)
     )
-
+    '''
 
 
 def parse_args() -> argparse.Namespace:
@@ -295,7 +310,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--experiment",
         type=str,
-        help="Experiment name, e.g. 'Experiment_7'",
+        help="Experiment name, e.g. 'Experiment_6a'",
     )
     parser.add_argument(
         "--run-id",

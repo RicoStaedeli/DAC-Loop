@@ -35,28 +35,15 @@ base_path_ckpts = ""              #(string) default: "" | this is used as basepa
 train_student = true                                                   # (bool) default: false | Whether a student is trained or not. If false a teacher model is trained.
 teacher_model_path = "experiments/results/Experiment_1/Run_10/best.pt"          # (string) default: | Path to trained ResNet18 Model (Teacher)
 teacher_model_name = "ResNet50"                                        # Available: ['ResNet10', 'ResNet18', 'ResNet50','TinyCNN']
-baseline_student = "experiments/results/Experiment_1/Run_1/metrics.jsonl"      # (string) default: "" | Path to a pre-trained student model. If provided, the student model will be initialized with these weights before training.
-
+baseline_student = "experiments/results/Experiment_1/Run_4/metrics.jsonl"      # (string) default: "" | Path to a pre-trained student model. If provided, the student model will be initialized with these weights before training.
 # (string) Available: ['CrossEntropyLoss', 'CosineEmbeddingLoss', 'KLDivLoss', 'RegressorMSE']
-kd_type = "KLDivLoss"
+kd_type = "KLDivLoss"         # (string) Available: ['CrossEntropyLoss', 'CosineEmbeddingLoss', 'KLDivLoss', 'RegressorMSE']
+hidden_rep_loss_weight = 0.25            # (float) default: 0.25 | used in CosineEmbeddingLoss, RegressorMSE
+ce_loss_weight = 0.3                   # (float) default: 0.75 | weight to multiply the cross entropy loss of the labels used in 'CrossEntropyLoss', 'CosineEmbeddingLoss'
+soft_target_loss_weight = 0.25          # (float) default: 0.25 | used in CrossEntropyLoss, RegressorMSE
+beta_feat = 0                           # (float) default: 0.25 | used in KLDivLoss
+T_param = 8                             # (int) default: 2 | Temperature paramter used in CrossEntropyLoss, RegressorMSE and KLDivLoss during Knowledge Distillation.
 
-# (float) default: 0.25 | used in CosineEmbeddingLoss, RegressorMSE
-hidden_rep_loss_weight = 0.25
-
-# (float) default: 0.75 | weight to multiply the cross entropy loss of the labels used in 'CrossEntropyLoss', 'CosineEmbeddingLoss'
-ce_loss_weight = 0.3
-
-# (float) default: 0.25 | used in CrossEntropyLoss, RegressorMSE
-soft_target_loss_weight = 0.25
-
-# (float) default: 0.7 | used in KLDivLoss
-alpha_kd = 0.7
-
-# (float) default: 0.25 | used in KLDivLoss
-beta_feat = 0
-
-# (int) default: 2 | Temperature paramter used in CrossEntropyLoss, RegressorMSE and KLDivLoss during Knowledge Distillation.
-T_param = 8
 
 [training.early_stopping]
 enabled = false                         # (bool) default: False | Whether to use early stopping or not
@@ -66,7 +53,7 @@ keep_last = 0                           # (int) default: 0 | Number of last chec
 
 
 [model]
-name = "ResNet18"                       # (string) default:  | If train_student = true then this is the name of the student Model. Otherwise, this is the model of the teacher.
+name = "ResNet10"                       # (string) default:  | If train_student = true then this is the name of the student Model. Otherwise, this is the model of the teacher.
 
 [model.args]
 classes = 10                            # (int) default: 10 | How manny classes the dataset has. Used for FC layer in CNN
@@ -76,7 +63,7 @@ dataset_hf_repo_id = "blanchon/EuroSAT_MSI"   # (string) default:  | Huggingface
 image_size = 64                               # (int) default: 64 | 64x64 --> always cube Image Size used for upsampling image
 augment = false                               # (bool) default: False | Whether to use image augmenation or not
 normalize = true                              # (bool) default: True | Whether to normalize image or not$
-num_workers = 15                              # (int) default: 4 | How many workser the dataloader can use. This increased the GPU Memory load.
+num_workers = 20                              # (int) default: 4 | How many workser the dataloader can use. This increased the GPU Memory load.
 pin_memory = true                             # (bool) default: False | Whether to use pin memory in DataLoader or nor. Much faster training. MPS does not support this option
 num_used_entries_train = 1000                 # (int) default: 100 | Number of training samples used. If 0 all samples are used.
 num_used_entries_validation = 100             # (int) default: 10 | Number of validation samples used. If 0 all samples are used.

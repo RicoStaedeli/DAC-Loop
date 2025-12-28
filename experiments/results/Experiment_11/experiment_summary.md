@@ -1,23 +1,17 @@
-| Run ID | Iteration | Acc. before Pruning | Acc. after Pruning | Acc. after fine tuning | Parameter Before pruning | Parameter after pruning | Param Reduction (%) |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| 1 | 1 | 98.74 | 11.65 | 98.28 | 11179146 | 6032870 | 46.03 |
-| 2 | 1 | 98.74 | 17.65 | 98.56 | 11179146 | 6032870 | 46.03 |
-| 3 | 1 | 98.74 | 8.94 | 98.37 | 11179146 | 6032870 | 46.03 |
-| 4 | 1 | 98.74 | 8.91 | 98.09 | 11179146 | 6032870 | 46.03 |
-| 5 | 1 | 98.74 | 9.24 | 97.87 | 11179146 | 6032870 | 46.03 |
-| 6 | 1 | 98.74 | 11.65 | 98.28 | 11179146 | 6032870 | 46.03 |
-| 7 | 1 | 98.74 | 8.91 | 98.09 | 11179146 | 6032870 | 46.03 |
-| 8 | 1 | 98.74 | 98.54 | 98.61 | 11179146 | 11179146 | 0.0 |
-| 9 | 1 | 98.74 | 94.41 | 98.59 | 11179146 | 11179146 | 0.0 |
-| 10 | 1 | 98.74 | 9.46 | 98.54 | 11179146 | 6032870 | 46.03 |
-| 11 | 1 | 98.74 | 5.41 | 98.67 | 11179146 | 2794281 | 75.0 |
-| 12 | 1 | 98.74 | 9.24 | 98.33 | 11179146 | 2794281 | 75.0 |
-| 13 | 1 | 98.74 | 11.65 | 98.28 | 11179146 | 6032870 | 46.03 |
-| 14 | 1 | 98.74 | 11.65 | 98.28 | 11179146 | 6032870 | 46.03 |
-| 15 | 1 | 98.74 | 8.91 | 98.39 | 11179146 | 9376354 | 16.13 |
-| 16 | 1 | 98.74 | 11.35 | 96.72 | 11179146 | 314340 | 97.19 |
-| 17 | 1 | 98.74 | 7.57 | 95.19 | 11179146 | 309759 | 97.23 |
-| 18 | 1 | 98.74 | 28.83 | 98.65 | 11179146 | 11179146 | 0.0 |
-| 19 | 1 | 98.74 | 98.65 | 98.67 | 11179146 | 11179146 | 0.0 |
-| 20 | 1 | 98.74 | 9.24 | 98.33 | 11179146 | 2794281 | 75.0 |
-| 21 | 1 | 98.74 | 9.46 | 98.54 | 11179146 | 6032870 | 46.03 |
+| run_name | experiment_name | run_id | model | dataset | augmentation | indices_config | epochs | learning_rate | batch_size | weight_decay | scheduler | seed | best_epoch | best_train_loss | best_val_loss | best_train_accuracy (%) | best_val_accuracy (%) | best_val_MSE |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Run_1 | Experiment_11 | 1 | ResNet18 | blanchon/EuroSAT_MSI | False | calc=[] - bands=[B01, B02, B03, B04, B05, B06, B07, B08, B8A, B09, B11, B12] | 50 | 0.0003 | 256 | 1e-05 | cosine | 43 | 50 | 0.000813 | 0.074349 | 99.9877 | 98.4259 | 0.002710 |
+| Run_2 | Experiment_11 | 2 | ResNet18 | blanchon/EuroSAT_MSI | False | calc=[] - bands=[B01, B02, B03, B04, B05, B06, B07, B08, B8A, B09, B11, B12] | 50 | 0.0003 | 256 | 1e-05 | cosine | 44 | 50 | 0.000524 | 0.078192 | 99.9938 | 98.3333 | 0.002850 |
+| Run_3 | Experiment_11 | 3 | ResNet18 | blanchon/EuroSAT_MSI | False | calc=[] - bands=[B01, B02, B03, B04, B05, B06, B07, B08, B8A, B09, B11, B12] | 50 | 0.0003 | 256 | 1e-05 | cosine | 45 | 50 | 0.000792 | 0.079200 | 99.9938 | 98.3333 | 0.002763 |
+| Run_4 | Experiment_11 | 4 | ResNet10 | blanchon/EuroSAT_MSI | False | calc=[] - bands=[B01, B02, B03, B04, B05, B06, B07, B08, B8A, B09, B11, B12] | 50 | 0.0003 | 256 | 1e-05 | cosine | 43 | 47 | 0.000583 | 0.065244 | 100.0000 | 98.3889 | 0.002607 |
+| Run_5 | Experiment_11 | 5 | ResNet10 | blanchon/EuroSAT_MSI | False | calc=[] - bands=[B01, B02, B03, B04, B05, B06, B07, B08, B8A, B09, B11, B12] | 50 | 0.0003 | 256 | 1e-05 | cosine | 44 | 45 | 0.000602 | 0.071065 | 100.0000 | 98.2778 | 0.002904 |
+| Run_6 | Experiment_11 | 6 | ResNet10 | blanchon/EuroSAT_MSI | False | calc=[] - bands=[B01, B02, B03, B04, B05, B06, B07, B08, B8A, B09, B11, B12] | 50 | 0.0003 | 256 | 1e-05 | cosine | 45 | 49 | 0.000445 | 0.072662 | 99.9938 | 98.4074 | 0.002645 |
+| Run_7 | Experiment_11 | 7 | ResNetTiny | blanchon/EuroSAT_MSI | False | calc=[] - bands=[B01, B02, B03, B04, B05, B06, B07, B08, B8A, B09, B11, B12] | 50 | 0.0003 | 256 | 1e-05 | cosine | 43 | 50 | 0.000732 | 0.165159 | 99.9938 | 95.8519 | 0.006691 |
+| Run_8 | Experiment_11 | 8 | ResNetTiny | blanchon/EuroSAT_MSI | False | calc=[] - bands=[B01, B02, B03, B04, B05, B06, B07, B08, B8A, B09, B11, B12] | 50 | 0.0003 | 256 | 1e-05 | cosine | 44 | 25 | 0.002073 | 0.169474 | 99.9815 | 95.7778 | 0.006998 |
+| Run_9 | Experiment_11 | 9 | ResNetTiny | blanchon/EuroSAT_MSI | False | calc=[] - bands=[B01, B02, B03, B04, B05, B06, B07, B08, B8A, B09, B11, B12] | 50 | 0.0003 | 256 | 1e-05 | cosine | 45 | 41 | 0.000591 | 0.173272 | 100.0000 | 95.8148 | 0.007060 |
+| Run_10 | Experiment_11 | 10 | ResNet50 | blanchon/EuroSAT_MSI | False | calc=[] - bands=[B01, B02, B03, B04, B05, B06, B07, B08, B8A, B09, B11, B12] | 50 | 0.0003 | 256 | 1e-05 | cosine | 43 | 40 | 0.000148 | 0.163367 | 100.0000 | 96.8704 | 0.005353 |
+| Run_11 | Experiment_11 | 11 | ResNet50 | blanchon/EuroSAT_MSI | False | calc=[] - bands=[B01, B02, B03, B04, B05, B06, B07, B08, B8A, B09, B11, B12] | 50 | 0.0003 | 256 | 1e-05 | cosine | 44 | 47 | 0.000178 | 0.169671 | 100.0000 | 96.4815 | 0.006002 |
+| Run_12 | Experiment_11 | 12 | ResNet50 | blanchon/EuroSAT_MSI | False | calc=[] - bands=[B01, B02, B03, B04, B05, B06, B07, B08, B8A, B09, B11, B12] | 50 | 0.0003 | 256 | 1e-05 | cosine | 45 | 47 | 0.000132 | 0.165917 | 100.0000 | 96.8519 | 0.005374 |
+| Run_13 | Experiment_11 | 13 | ResNet10mini | blanchon/EuroSAT_MSI | False | calc=[] - bands=[B01, B02, B03, B04, B05, B06, B07, B08, B8A, B09, B11, B12] | 50 | 0.0003 | 256 | 1e-05 | cosine | 43 | 38 | 0.000366 | 0.139731 | 100.0000 | 96.5185 | 0.005766 |
+| Run_14 | Experiment_11 | 14 | ResNet10mini | blanchon/EuroSAT_MSI | False | calc=[] - bands=[B01, B02, B03, B04, B05, B06, B07, B08, B8A, B09, B11, B12] | 50 | 0.0003 | 256 | 1e-05 | cosine | 44 | 44 | 0.000291 | 0.155665 | 100.0000 | 96.2963 | 0.006120 |
+| Run_15 | Experiment_11 | 15 | ResNet10mini | blanchon/EuroSAT_MSI | False | calc=[] - bands=[B01, B02, B03, B04, B05, B06, B07, B08, B8A, B09, B11, B12] | 50 | 0.0003 | 256 | 1e-05 | cosine | 45 | 39 | 0.000752 | 0.148045 | 99.9938 | 96.4815 | 0.005916 |

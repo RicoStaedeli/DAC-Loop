@@ -231,10 +231,10 @@ def _inference_time_comparison_resisc(device: torch.device) -> None:
 
 
     # Baseline ResNet18
-    path_full = Path("experiments/results/Experiment_5/Run_1/best.pt")
+    path_full = Path("experiments/results/Experiment_1a/Run_1/best.pt")
 
     # Compressed ResNet18
-    path_compressed = Path("experiments/results/Experiment_9/Run_9/compressed_model_iteration_9.pt")
+    path_compressed = Path("experiments/results/Experiment_9a/Run_9/compressed_model_iteration_9.pt")
 
     # -------------------------
     # Full model timing

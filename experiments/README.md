@@ -19,15 +19,18 @@ To execute an experiment, use the following command:
 uv run runner.py --gpu 0 --experiment Experiment_XY
 ```
 
+
 ---
-
-
 
 ## Experiment 1: Baselines Teacher & Students on EuroSAT
 
 **Goal:** Train baseline models on EuroSAT dataset with different band combinations to establish performance benchmarks
-for subsequent experiments.
-ResNet50 and ResNet18 are used as teacher models, while ResNet10 and TinyCNN serve as student models.
+for subsequent experiments. Models used:
+- ResNetTiny (1M)
+- ResNet10mini (2M)
+- ResNet10 (5M)
+- ResNet18 (11M)
+- ResNet50 (24M) → Used as teacher later
 
 **Description**
 
@@ -43,680 +46,239 @@ ResNet50 and ResNet18 are used as teacher models, while ResNet10 and TinyCNN ser
 
 - Baseline results for all models and band combinations
 - Even the smallest model (TinyCNN) achieves accuracy ~90.00% when trained with all bands
-- The best band comination is using all bands, followed by vegetation indices + RGB bands, and finally RGB bands only.
+- The best band combination is using all bands, followed by vegetation indices + RGB bands, and finally RGB bands only.
 
-**Next Steps**
+**Results**
 
-- Try to use this big teacher model (ResNet50 and ResNet18) to guide the smaller models with teacher-student learning (
-  Experiment 2)
+- [Results](results/Experiment_1/experiment_summary.md)
 
-### Runs
+| Model        | Accuracy + Std. |
+|--------------|-----------------|
+| ResNetTiny   | 95.77 +/- 0.06  |
+| ResNet10mini | 96.41 +/- 0.09  |
+| ResNet10     | 98.37 +/- 0.05  |
+| ResNet18     | 98.34 +/- 0.05  |
+| ResNet50     | 96.79 +/- 0.18  |
 
-| Run  | Config                                                 | Model    | Dataset                | Metrics                                                   | Plots                                      | Bands                                                                                | Best Accuracy |
-|------|--------------------------------------------------------|----------|------------------------|-----------------------------------------------------------|--------------------------------------------|--------------------------------------------------------------------------------------|---------------|
-| [1]  | [Config.toml](results/Experiment_1/Run_1/config.toml)  | ResNet18 | `blanchon/EuroSAT_MSI` | [metrics.json](results/Experiment_1/Run_1/metrics.jsonl)  | [plots](results/Experiment_1/Run_1/plots)  | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 98.28% @ 47   |
-| [2]  | [Config.toml](results/Experiment_1/Run_2/config.toml)  | ResNet18 | `blanchon/EuroSAT_MSI` | [metrics.json](results/Experiment_1/Run_2/metrics.jsonl)  | [plots](results/Experiment_1/Run_2/plots)  | ['B02', 'B03', 'B04']                                                                | 96.85% @ 46   |
-| [3]  | [Config.toml](results/Experiment_1/Run_3/config.toml)  | ResNet18 | `blanchon/EuroSAT_MSI` | [metrics.json](results/Experiment_1/Run_3/metrics.jsonl)  | [plots](results/Experiment_1/Run_3/plots)  | ['NDVI', 'NDWI', 'NDMI', 'B02', 'B03', 'B04', 'B07', 'B08']                          | 97.94% @ 50   |
-| [4]  | [Config.toml](results/Experiment_1/Run_4/config.toml)  | ResNet10 | `blanchon/EuroSAT_MSI` | [metrics.json](results/Experiment_1/Run_4/metrics.jsonl)  | [plots](results/Experiment_1/Run_4/plots)  | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 98.41% @ 24   |
-| [5]  | [Config.toml](results/Experiment_1/Run_5/config.toml)  | ResNet10 | `blanchon/EuroSAT_MSI` | [metrics.json](results/Experiment_1/Run_5/metrics.jsonl)  | [plots](results/Experiment_1/Run_5/plots)  | ['B02', 'B03', 'B04']                                                                | 95.30% @ 37   |
-| [6]  | [Config.toml](results/Experiment_1/Run_6/config.toml)  | ResNet10 | `blanchon/EuroSAT_MSI` | [metrics.json](results/Experiment_1/Run_6/metrics.jsonl)  | [plots](results/Experiment_1/Run_6/plots)  | ['NDVI', 'NDWI', 'NDMI', 'B02', 'B03', 'B04', 'B07', 'B08']                          | 97.83% @ 47   |
-| [7]  | [Config.toml](results/Experiment_1/Run_7/config.toml)  | TinyCNN  | `blanchon/EuroSAT_MSI` | [metrics.json](results/Experiment_1/Run_7/metrics.jsonl)  | [plots](results/Experiment_1/Run_7/plots)  | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 89.22% @ 45   |
-| [8]  | [Config.toml](results/Experiment_1/Run_8/config.toml)  | TinyCNN  | `blanchon/EuroSAT_MSI` | [metrics.json](results/Experiment_1/Run_8/metrics.jsonl)  | [plots](results/Experiment_1/Run_8/plots)  | ['B02', 'B03', 'B04']                                                                | 76.72% @ 44   |
-| [9]  | [Config.toml](results/Experiment_1/Run_9/config.toml)  | TinyCNN  | `blanchon/EuroSAT_MSI` | [metrics.json](results/Experiment_1/Run_9/metrics.jsonl)  | [plots](results/Experiment_1/Run_9/plots)  | ['NDVI', 'NDWI', 'NDMI', 'B02', 'B03', 'B04', 'B07', 'B08']                          | 87.87% @ 39   |
-| [10] | [Config.toml](results/Experiment_1/Run_10/config.toml) | ResNet50 | `blanchon/EuroSAT_MSI` | [metrics.json](results/Experiment_1/Run_10/metrics.jsonl) | [plots](results/Experiment_1/Run_10/plots) | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 96.96% @ 48   |
-| [11] | [Config.toml](results/Experiment_1/Run_11/config.toml) | ResNet50 | `blanchon/EuroSAT_MSI` | [metrics.json](results/Experiment_1/Run_11/metrics.jsonl) | [plots](results/Experiment_1/Run_11/plots) | ['B02', 'B03', 'B04']                                                                | 90.91% @ 45   |
-| [12] | [Config.toml](results/Experiment_1/Run_12/config.toml) | ResNet50 | `blanchon/EuroSAT_MSI` | [metrics.json](results/Experiment_1/Run_12/metrics.jsonl) | [plots](results/Experiment_1/Run_12/plots) | ['NDVI', 'NDWI', 'NDMI', 'B02', 'B03', 'B04', 'B07', 'B08']                          | 96.13% @ 43   |
+---
 
-## Experiment 2: Teacher-Student learning (replaced by Experiment 3 and 4)
+## Experiment 1a: Baseline Teacher & Student on RESISC45
 
-**Goal:** Train the smaller models (ResNet10 and TiniCNN) with teacher-student training. Use the best teacher model (
-best validation loss) ResNet18 as a guiding teacher.
-This experiment was later replaced by Experiment 3 and 4 which include hyperparameter tuning.
+**Goal:** In this experiment we will establish a baseline using the `RESISC45` dataset. Models used:
+- ResNetTiny (1M)
+- ResNet10mini (2M)
+- ResNet10 (5M)
+- ResNet18 (11M)
+- ResNet50 (24M) → Used as teacher later
 
 **Outcomes**
+- [Exp 1a Run 7](results/Experiment_1a/Run_7) has proven to achieve the best results on RESISC45 Dataset and will be used as Teacher model for all following experiments.
 
-- Teacher-Student learning works in theory but did not improve the baseline results in practice
+**Results**
+- [Results](results/Experiment_1a/experiment_summary.md)
 
-**Next Steps**
+| Model        | Accuracy + Std. |
+|--------------|-----------------|
+| ResNetTiny   | 80.15 +/- 0.54  |
+| ResNet10mini | 83.43 +/- 0.44  |
+| ResNet10     | 88.33 +/- 0.19  |
+| ResNet18     | 89.76 +/- 0.14  |
+| ResNet50     | 92.44 +/- 0.15  |
 
-- Hyperparameter tuning for the student model training (Experiment 3 and 4)
-- Try bigger models as teachers --> Do Baseline for ResNet50 (done in Experiment 1, Runs 10-12)
-- Try ResNet18 as student and ResNet50 as teacher (Experiment 4)
+---
 
-### Runs
+## Experiment 2: KD Hyperparameter-tuning - EuroSAT, ResNetTiny, ResNet50
 
-| Run | Config                                                | Model    | Model Teacher | Dataset                | KD-Type             | Metrics                                                  | Plots                                     | Bands                                                                                | Best Accuracy | Baseline Accuracy | Improvement to Baseline |
-|-----|-------------------------------------------------------|----------|---------------|------------------------|---------------------|----------------------------------------------------------|-------------------------------------------|--------------------------------------------------------------------------------------|---------------|-------------------|-------------------------|
-| [1] | [Config.toml](results/Experiment_2/Run_1/config.toml) | ResNet10 | ResNet18      | `blanchon/EuroSAT_MSI` | CosineEmbeddingLoss | [metrics.json](results/Experiment_2/Run_1/metrics.jsonl) | [plots](results/Experiment_2/Run_1/plots) | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 98.28% @ 36   | 98.41%            | -0.13%                  |
-| [2] | [Config.toml](results/Experiment_2/Run_2/config.toml) | ResNet10 | ResNet18      | `blanchon/EuroSAT_MSI` | CosineEmbeddingLoss | [metrics.json](results/Experiment_2/Run_2/metrics.jsonl) | [plots](results/Experiment_2/Run_2/plots) | ['B02', 'B03', 'B04']                                                                | 95.50% @ 17   | 95.30%            | 0.20%                   |
-| [3] | [Config.toml](results/Experiment_2/Run_3/config.toml) | ResNet10 | ResNet18      | `blanchon/EuroSAT_MSI` | CosineEmbeddingLoss | [metrics.json](results/Experiment_2/Run_3/metrics.jsonl) | [plots](results/Experiment_2/Run_3/plots) | ['NDVI', 'NDWI', 'NDMI', 'B02', 'B03', 'B04', 'B07', 'B08']                          | 97.78% @ 23   | 97.83%            | -0.06%                  |
-| [4] | [Config.toml](results/Experiment_2/Run_4/config.toml) | TinyCNN  | ResNet18      | `blanchon/EuroSAT_MSI` | CosineEmbeddingLoss | [metrics.json](results/Experiment_2/Run_4/metrics.jsonl) | [plots](results/Experiment_2/Run_4/plots) | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 84.35% @ 25   | 89.22%            | -4.87%                  |
-| [5] | [Config.toml](results/Experiment_2/Run_5/config.toml) | TinyCNN  | ResNet18      | `blanchon/EuroSAT_MSI` | CosineEmbeddingLoss | [metrics.json](results/Experiment_2/Run_5/metrics.jsonl) | [plots](results/Experiment_2/Run_5/plots) | ['B02', 'B03', 'B04']                                                                | 69.94% @ 22   | 76.72%            | -6.78%                  |
-| [6] | [Config.toml](results/Experiment_2/Run_6/config.toml) | TinyCNN  | ResNet18      | `blanchon/EuroSAT_MSI` | CosineEmbeddingLoss | [metrics.json](results/Experiment_2/Run_6/metrics.jsonl) | [plots](results/Experiment_2/Run_6/plots) | ['NDVI', 'NDWI', 'NDMI', 'B02', 'B03', 'B04', 'B07', 'B08']                          | 82.89% @ 23   | 87.87%            | -4.98%                  |
-
-## Experiment 3: Hyperparameter-tuning - EuroSAT, TinyCNN, ResNet18
-
-**Goal:** Train the smaller models (TinyCNN) with teacher-student training. Use the best teacher model (best validation
-loss) ResNet18 as a guiding teacher.
-In this experiment we will do hyperparameter tuning for the student model training. Also we use different knowledge
+**Goal:** Train the smaller models (ResNetTiny) with teacher-student training. Use the best teacher model (best validation
+loss) of ResNet50 as a guiding teacher.
+In this experiment we will do hyperparameter tuning for the student model training. Also, we use different knowledge
 distillation methods such as CosineEmbeddingLoss, CrossEntropyLoss and KLDivergenceLoss.
 
-[Results](results/Experiment_3/experiment_summary.md)
 
 **Outcomes**
 
-- No Hyperparameter combination was able to outperform the baseline TinyCNN model trained from scratch
+- 
 
-**Next Steps**
+**Results**
+- [Results](results/Experiment_2/experiment_summary.md)
 
-- Try bigger models as students and Teacher (Experiment 4)
+---
 
-### Runs
+## Experiment 2a: KD Hyperparameter-tuning - RESISC45, ResNetTiny, ResNet50
 
-| Run  | Config                                                 | Model   | Model Teacher | Dataset                | KD-Type             | Metrics                                                   | Plots                                      | Bands                                                                                | Best Accuracy | Baseline Accuracy | Improvement to Baseline |
-|------|--------------------------------------------------------|---------|---------------|------------------------|---------------------|-----------------------------------------------------------|--------------------------------------------|--------------------------------------------------------------------------------------|---------------|-------------------|-------------------------|
-| [1]  | [Config.toml](results/Experiment_3/Run_1/config.toml)  | TinyCNN | ResNet50      | `blanchon/EuroSAT_MSI` | CosineEmbeddingLoss | [metrics.json](results/Experiment_3/Run_1/metrics.jsonl)  | [plots](results/Experiment_3/Run_1/plots)  | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 90.04% @ 46   | 89.22%            | 0.81%                   |
-| [2]  | [Config.toml](results/Experiment_3/Run_2/config.toml)  | TinyCNN | ResNet50      | `blanchon/EuroSAT_MSI` | CosineEmbeddingLoss | [metrics.json](results/Experiment_3/Run_2/metrics.jsonl)  | [plots](results/Experiment_3/Run_2/plots)  | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 89.48% @ 43   | 89.22%            | 0.26%                   |
-| [3]  | [Config.toml](results/Experiment_3/Run_3/config.toml)  | TinyCNN | ResNet50      | `blanchon/EuroSAT_MSI` | CosineEmbeddingLoss | [metrics.json](results/Experiment_3/Run_3/metrics.jsonl)  | [plots](results/Experiment_3/Run_3/plots)  | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 88.44% @ 43   | 89.22%            | -0.78%                  |
-| [4]  | [Config.toml](results/Experiment_3/Run_4/config.toml)  | TinyCNN | ResNet50      | `blanchon/EuroSAT_MSI` | CosineEmbeddingLoss | [metrics.json](results/Experiment_3/Run_4/metrics.jsonl)  | [plots](results/Experiment_3/Run_4/plots)  | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 88.65% @ 42   | 89.22%            | -0.57%                  |
-| [5]  | [Config.toml](results/Experiment_3/Run_5/config.toml)  | TinyCNN | ResNet50      | `blanchon/EuroSAT_MSI` | CosineEmbeddingLoss | [metrics.json](results/Experiment_3/Run_5/metrics.jsonl)  | [plots](results/Experiment_3/Run_5/plots)  | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 88.57% @ 42   | 89.22%            | -0.65%                  |
-| [6]  | [Config.toml](results/Experiment_3/Run_6/config.toml)  | TinyCNN | ResNet50      | `blanchon/EuroSAT_MSI` | CosineEmbeddingLoss | [metrics.json](results/Experiment_3/Run_6/metrics.jsonl)  | [plots](results/Experiment_3/Run_6/plots)  | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 89.37% @ 43   | 89.22%            | 0.15%                   |
-| [7]  | [Config.toml](results/Experiment_3/Run_7/config.toml)  | TinyCNN | ResNet50      | `blanchon/EuroSAT_MSI` | CosineEmbeddingLoss | [metrics.json](results/Experiment_3/Run_7/metrics.jsonl)  | [plots](results/Experiment_3/Run_7/plots)  | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 88.54% @ 43   | 89.22%            | -0.69%                  |
-| [8]  | [Config.toml](results/Experiment_3/Run_8/config.toml)  | TinyCNN | ResNet50      | `blanchon/EuroSAT_MSI` | CosineEmbeddingLoss | [metrics.json](results/Experiment_3/Run_8/metrics.jsonl)  | [plots](results/Experiment_3/Run_8/plots)  | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 88.67% @ 43   | 89.22%            | -0.56%                  |
-| [9]  | [Config.toml](results/Experiment_3/Run_9/config.toml)  | TinyCNN | ResNet50      | `blanchon/EuroSAT_MSI` | CosineEmbeddingLoss | [metrics.json](results/Experiment_3/Run_9/metrics.jsonl)  | [plots](results/Experiment_3/Run_9/plots)  | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 89.59% @ 43   | 89.22%            | 0.37%                   |
-| [10] | [Config.toml](results/Experiment_3/Run_10/config.toml) | TinyCNN | ResNet50      | `blanchon/EuroSAT_MSI` | CosineEmbeddingLoss | [metrics.json](results/Experiment_3/Run_10/metrics.jsonl) | [plots](results/Experiment_3/Run_10/plots) | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 89.54% @ 48   | 89.22%            | 0.31%                   |
-| [11] | [Config.toml](results/Experiment_3/Run_11/config.toml) | TinyCNN | ResNet50      | `blanchon/EuroSAT_MSI` | CrossEntropyLoss    | [metrics.json](results/Experiment_3/Run_11/metrics.jsonl) | [plots](results/Experiment_3/Run_11/plots) | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 87.76% @ 43   | 89.22%            | -1.46%                  |
-| [12] | [Config.toml](results/Experiment_3/Run_12/config.toml) | TinyCNN | ResNet50      | `blanchon/EuroSAT_MSI` | CrossEntropyLoss    | [metrics.json](results/Experiment_3/Run_12/metrics.jsonl) | [plots](results/Experiment_3/Run_12/plots) | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 88.02% @ 42   | 89.22%            | -1.20%                  |
-| [13] | [Config.toml](results/Experiment_3/Run_13/config.toml) | TinyCNN | ResNet50      | `blanchon/EuroSAT_MSI` | CrossEntropyLoss    | [metrics.json](results/Experiment_3/Run_13/metrics.jsonl) | [plots](results/Experiment_3/Run_13/plots) | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 88.17% @ 43   | 89.22%            | -1.06%                  |
-| [14] | [Config.toml](results/Experiment_3/Run_14/config.toml) | TinyCNN | ResNet50      | `blanchon/EuroSAT_MSI` | CrossEntropyLoss    | [metrics.json](results/Experiment_3/Run_14/metrics.jsonl) | [plots](results/Experiment_3/Run_14/plots) | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 88.28% @ 43   | 89.22%            | -0.94%                  |
-| [15] | [Config.toml](results/Experiment_3/Run_15/config.toml) | TinyCNN | ResNet50      | `blanchon/EuroSAT_MSI` | CrossEntropyLoss    | [metrics.json](results/Experiment_3/Run_15/metrics.jsonl) | [plots](results/Experiment_3/Run_15/plots) | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 88.31% @ 43   | 89.22%            | -0.91%                  |
-| [16] | [Config.toml](results/Experiment_3/Run_16/config.toml) | TinyCNN | ResNet50      | `blanchon/EuroSAT_MSI` | CrossEntropyLoss    | [metrics.json](results/Experiment_3/Run_16/metrics.jsonl) | [plots](results/Experiment_3/Run_16/plots) | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 88.54% @ 45   | 89.22%            | -0.69%                  |
-| [17] | [Config.toml](results/Experiment_3/Run_17/config.toml) | TinyCNN | ResNet50      | `blanchon/EuroSAT_MSI` | CrossEntropyLoss    | [metrics.json](results/Experiment_3/Run_17/metrics.jsonl) | [plots](results/Experiment_3/Run_17/plots) | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 88.33% @ 43   | 89.22%            | -0.89%                  |
-| [18] | [Config.toml](results/Experiment_3/Run_18/config.toml) | TinyCNN | ResNet50      | `blanchon/EuroSAT_MSI` | CrossEntropyLoss    | [metrics.json](results/Experiment_3/Run_18/metrics.jsonl) | [plots](results/Experiment_3/Run_18/plots) | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 88.02% @ 38   | 89.22%            | -1.20%                  |
-| [19] | [Config.toml](results/Experiment_3/Run_19/config.toml) | TinyCNN | ResNet50      | `blanchon/EuroSAT_MSI` | CrossEntropyLoss    | [metrics.json](results/Experiment_3/Run_19/metrics.jsonl) | [plots](results/Experiment_3/Run_19/plots) | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 87.91% @ 42   | 89.22%            | -1.31%                  |
-| [20] | [Config.toml](results/Experiment_3/Run_20/config.toml) | TinyCNN | ResNet50      | `blanchon/EuroSAT_MSI` | CrossEntropyLoss    | [metrics.json](results/Experiment_3/Run_20/metrics.jsonl) | [plots](results/Experiment_3/Run_20/plots) | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 87.78% @ 43   | 89.22%            | -1.44%                  |
-| [21] | [Config.toml](results/Experiment_3/Run_21/config.toml) | TinyCNN | ResNet50      | `blanchon/EuroSAT_MSI` | CrossEntropyLoss    | [metrics.json](results/Experiment_3/Run_21/metrics.jsonl) | [plots](results/Experiment_3/Run_21/plots) | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 87.98% @ 43   | 89.22%            | -1.24%                  |
-| [22] | [Config.toml](results/Experiment_3/Run_22/config.toml) | TinyCNN | ResNet50      | `blanchon/EuroSAT_MSI` | CrossEntropyLoss    | [metrics.json](results/Experiment_3/Run_22/metrics.jsonl) | [plots](results/Experiment_3/Run_22/plots) | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 87.28% @ 42   | 89.22%            | -1.94%                  |
-| [23] | [Config.toml](results/Experiment_3/Run_23/config.toml) | TinyCNN | ResNet50      | `blanchon/EuroSAT_MSI` | CrossEntropyLoss    | [metrics.json](results/Experiment_3/Run_23/metrics.jsonl) | [plots](results/Experiment_3/Run_23/plots) | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 86.50% @ 40   | 89.22%            | -2.72%                  |
-| [24] | [Config.toml](results/Experiment_3/Run_24/config.toml) | TinyCNN | ResNet50      | `blanchon/EuroSAT_MSI` | KLDivLoss           | [metrics.json](results/Experiment_3/Run_24/metrics.jsonl) | [plots](results/Experiment_3/Run_24/plots) | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 88.85% @ 48   | 89.22%            | -0.37%                  |
+**Goal:** Train the smaller models (ResNetTiny) with teacher-student training. Use the best teacher model (best validation
+loss) of ResNet50 as a guiding teacher.
+In this experiment we will do hyperparameter tuning for the student model training. Also, we use different knowledge
+distillation methods such as CosineEmbeddingLoss, CrossEntropyLoss and KLDivergenceLoss.
 
-## Experiment 4: Hyperparameter-tuning - EuroSAT, ResNet18, ResNet50
+
+**Outcomes**
+
+- 
+
+**Results**
+- [Results](results/Experiment_2a/experiment_summary.md)
+
+---
+
+
+
+## Experiment 3: KD Hyperparameter-tuning - EuroSAT, ResNet18, ResNet50
 
 **Goal:** Train the smaller model (ResNet18) with teacher-student training. Use the best teacher model ( the best
 validation accuracy) ResNet50 as a guiding teacher.
 In this experiment we will do hyperparameter tuning for the student model training. Also, we use different knowledge
 distillation methods such as CosineEmbeddingLoss, CrossEntropyLoss and KLDivergenceLoss.
 
-[Results](results/Experiment_4/experiment_summary.md)
 
 **Outcomes**
 
 - The baseline of the Student model (ResNet18) could be beaten with Teacher-Student learning using ResNet50 as teacher.
 - The student model achieved better performance than the teacher model. --> Dataset could be to simple and therefore we
   change it to a more complex one in future experiments.
-- Build Baseline for models on `RESISC45` Dataset (Experiment 5)
+- Build Baseline for models on `RESISC45` Dataset (Experiment 3a)
 
-### Runs
+**Results**
+- [Results](results/Experiment_3/experiment_summary.md)
 
-| Run  | Config                                                 | Model    | Model Teacher | Dataset                | KD-Type             | Metrics                                                   | Plots                                      | Bands                                                                                | Best Accuracy | Baseline Accuracy | Improvement to Baseline |
-|------|--------------------------------------------------------|----------|---------------|------------------------|---------------------|-----------------------------------------------------------|--------------------------------------------|--------------------------------------------------------------------------------------|---------------|-------------------|-------------------------|
-| [1]  | [Config.toml](results/Experiment_4/Run_1/config.toml)  | ResNet18 | ResNet50      | `blanchon/EuroSAT_MSI` | CosineEmbeddingLoss | [metrics.json](results/Experiment_4/Run_1/metrics.jsonl)  | [plots](results/Experiment_4/Run_1/plots)  | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 98.46% @ 48   | 98.28%            | 0.19%                   |
-| [2]  | [Config.toml](results/Experiment_4/Run_2/config.toml)  | ResNet18 | ResNet50      | `blanchon/EuroSAT_MSI` | CosineEmbeddingLoss | [metrics.json](results/Experiment_4/Run_2/metrics.jsonl)  | [plots](results/Experiment_4/Run_2/plots)  | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 98.56% @ 38   | 98.28%            | 0.28%                   |
-| [3]  | [Config.toml](results/Experiment_4/Run_3/config.toml)  | ResNet18 | ResNet50      | `blanchon/EuroSAT_MSI` | CosineEmbeddingLoss | [metrics.json](results/Experiment_4/Run_3/metrics.jsonl)  | [plots](results/Experiment_4/Run_3/plots)  | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 98.74% @ 41   | 98.28%            | 0.46%                   |
-| [4]  | [Config.toml](results/Experiment_4/Run_4/config.toml)  | ResNet18 | ResNet50      | `blanchon/EuroSAT_MSI` | CosineEmbeddingLoss | [metrics.json](results/Experiment_4/Run_4/metrics.jsonl)  | [plots](results/Experiment_4/Run_4/plots)  | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 98.57% @ 43   | 98.28%            | 0.30%                   |
-| [5]  | [Config.toml](results/Experiment_4/Run_5/config.toml)  | ResNet18 | ResNet50      | `blanchon/EuroSAT_MSI` | CosineEmbeddingLoss | [metrics.json](results/Experiment_4/Run_5/metrics.jsonl)  | [plots](results/Experiment_4/Run_5/plots)  | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 98.67% @ 40   | 98.28%            | 0.39%                   |
-| [6]  | [Config.toml](results/Experiment_4/Run_6/config.toml)  | ResNet18 | ResNet50      | `blanchon/EuroSAT_MSI` | CosineEmbeddingLoss | [metrics.json](results/Experiment_4/Run_6/metrics.jsonl)  | [plots](results/Experiment_4/Run_6/plots)  | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 98.48% @ 47   | 98.28%            | 0.20%                   |
-| [7]  | [Config.toml](results/Experiment_4/Run_7/config.toml)  | ResNet18 | ResNet50      | `blanchon/EuroSAT_MSI` | CosineEmbeddingLoss | [metrics.json](results/Experiment_4/Run_7/metrics.jsonl)  | [plots](results/Experiment_4/Run_7/plots)  | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 98.63% @ 38   | 98.28%            | 0.35%                   |
-| [8]  | [Config.toml](results/Experiment_4/Run_8/config.toml)  | ResNet18 | ResNet50      | `blanchon/EuroSAT_MSI` | CosineEmbeddingLoss | [metrics.json](results/Experiment_4/Run_8/metrics.jsonl)  | [plots](results/Experiment_4/Run_8/plots)  | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 98.48% @ 35   | 98.28%            | 0.20%                   |
-| [9]  | [Config.toml](results/Experiment_4/Run_9/config.toml)  | ResNet18 | ResNet50      | `blanchon/EuroSAT_MSI` | CosineEmbeddingLoss | [metrics.json](results/Experiment_4/Run_9/metrics.jsonl)  | [plots](results/Experiment_4/Run_9/plots)  | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 98.52% @ 41   | 98.28%            | 0.24%                   |
-| [10] | [Config.toml](results/Experiment_4/Run_10/config.toml) | ResNet18 | ResNet50      | `blanchon/EuroSAT_MSI` | CosineEmbeddingLoss | [metrics.json](results/Experiment_4/Run_10/metrics.jsonl) | [plots](results/Experiment_4/Run_10/plots) | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 98.57% @ 40   | 98.28%            | 0.30%                   |
-| [11] | [Config.toml](results/Experiment_4/Run_11/config.toml) | ResNet18 | ResNet50      | `blanchon/EuroSAT_MSI` | CrossEntropyLoss    | [metrics.json](results/Experiment_4/Run_11/metrics.jsonl) | [plots](results/Experiment_4/Run_11/plots) | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 98.65% @ 48   | 98.28%            | 0.37%                   |
-| [12] | [Config.toml](results/Experiment_4/Run_12/config.toml) | ResNet18 | ResNet50      | `blanchon/EuroSAT_MSI` | CrossEntropyLoss    | [metrics.json](results/Experiment_4/Run_12/metrics.jsonl) | [plots](results/Experiment_4/Run_12/plots) | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 98.50% @ 35   | 98.28%            | 0.22%                   |
-| [13] | [Config.toml](results/Experiment_4/Run_13/config.toml) | ResNet18 | ResNet50      | `blanchon/EuroSAT_MSI` | CrossEntropyLoss    | [metrics.json](results/Experiment_4/Run_13/metrics.jsonl) | [plots](results/Experiment_4/Run_13/plots) | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 98.61% @ 45   | 98.28%            | 0.33%                   |
-| [14] | [Config.toml](results/Experiment_4/Run_14/config.toml) | ResNet18 | ResNet50      | `blanchon/EuroSAT_MSI` | CrossEntropyLoss    | [metrics.json](results/Experiment_4/Run_14/metrics.jsonl) | [plots](results/Experiment_4/Run_14/plots) | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 98.56% @ 43   | 98.28%            | 0.28%                   |
-| [15] | [Config.toml](results/Experiment_4/Run_15/config.toml) | ResNet18 | ResNet50      | `blanchon/EuroSAT_MSI` | CrossEntropyLoss    | [metrics.json](results/Experiment_4/Run_15/metrics.jsonl) | [plots](results/Experiment_4/Run_15/plots) | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 98.50% @ 47   | 98.28%            | 0.22%                   |
-| [16] | [Config.toml](results/Experiment_4/Run_16/config.toml) | ResNet18 | ResNet50      | `blanchon/EuroSAT_MSI` | CrossEntropyLoss    | [metrics.json](results/Experiment_4/Run_16/metrics.jsonl) | [plots](results/Experiment_4/Run_16/plots) | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 98.44% @ 35   | 98.28%            | 0.17%                   |
-| [17] | [Config.toml](results/Experiment_4/Run_17/config.toml) | ResNet18 | ResNet50      | `blanchon/EuroSAT_MSI` | CrossEntropyLoss    | [metrics.json](results/Experiment_4/Run_17/metrics.jsonl) | [plots](results/Experiment_4/Run_17/plots) | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 98.54% @ 40   | 98.28%            | 0.26%                   |
-| [18] | [Config.toml](results/Experiment_4/Run_18/config.toml) | ResNet18 | ResNet50      | `blanchon/EuroSAT_MSI` | CrossEntropyLoss    | [metrics.json](results/Experiment_4/Run_18/metrics.jsonl) | [plots](results/Experiment_4/Run_18/plots) | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 98.52% @ 43   | 98.28%            | 0.24%                   |
-| [19] | [Config.toml](results/Experiment_4/Run_19/config.toml) | ResNet18 | ResNet50      | `blanchon/EuroSAT_MSI` | CrossEntropyLoss    | [metrics.json](results/Experiment_4/Run_19/metrics.jsonl) | [plots](results/Experiment_4/Run_19/plots) | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 98.52% @ 48   | 98.28%            | 0.24%                   |
-| [20] | [Config.toml](results/Experiment_4/Run_20/config.toml) | ResNet18 | ResNet50      | `blanchon/EuroSAT_MSI` | CrossEntropyLoss    | [metrics.json](results/Experiment_4/Run_20/metrics.jsonl) | [plots](results/Experiment_4/Run_20/plots) | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 98.56% @ 48   | 98.28%            | 0.28%                   |
-| [21] | [Config.toml](results/Experiment_4/Run_21/config.toml) | ResNet18 | ResNet50      | `blanchon/EuroSAT_MSI` | CrossEntropyLoss    | [metrics.json](results/Experiment_4/Run_21/metrics.jsonl) | [plots](results/Experiment_4/Run_21/plots) | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 98.54% @ 35   | 98.28%            | 0.26%                   |
-| [22] | [Config.toml](results/Experiment_4/Run_22/config.toml) | ResNet18 | ResNet50      | `blanchon/EuroSAT_MSI` | CrossEntropyLoss    | [metrics.json](results/Experiment_4/Run_22/metrics.jsonl) | [plots](results/Experiment_4/Run_22/plots) | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 98.57% @ 35   | 98.28%            | 0.30%                   |
-| [23] | [Config.toml](results/Experiment_4/Run_23/config.toml) | ResNet18 | ResNet50      | `blanchon/EuroSAT_MSI` | CrossEntropyLoss    | [metrics.json](results/Experiment_4/Run_23/metrics.jsonl) | [plots](results/Experiment_4/Run_23/plots) | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 98.35% @ 36   | 98.28%            | 0.07%                   |
-| [24] | [Config.toml](results/Experiment_4/Run_24/config.toml) | ResNet18 | ResNet50      | `blanchon/EuroSAT_MSI` | RegressorMSE        | [metrics.json](results/Experiment_4/Run_24/metrics.jsonl) | [plots](results/Experiment_4/Run_24/plots) | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 98.44% @ 31   | 98.28%            | 0.17%                   |
-| [25] | [Config.toml](results/Experiment_4/Run_25/config.toml) | ResNet18 | ResNet50      | `blanchon/EuroSAT_MSI` | RegressorMSE        | [metrics.json](results/Experiment_4/Run_25/metrics.jsonl) | [plots](results/Experiment_4/Run_25/plots) | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 98.30% @ 42   | 98.28%            | 0.02%                   |
-| [26] | [Config.toml](results/Experiment_4/Run_26/config.toml) | ResNet18 | ResNet50      | `blanchon/EuroSAT_MSI` | RegressorMSE        | [metrics.json](results/Experiment_4/Run_26/metrics.jsonl) | [plots](results/Experiment_4/Run_26/plots) | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 98.39% @ 40   | 98.28%            | 0.11%                   |
-| [27] | [Config.toml](results/Experiment_4/Run_27/config.toml) | ResNet18 | ResNet50      | `blanchon/EuroSAT_MSI` | RegressorMSE        | [metrics.json](results/Experiment_4/Run_27/metrics.jsonl) | [plots](results/Experiment_4/Run_27/plots) | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 98.50% @ 41   | 98.28%            | 0.22%                   |
-| [28] | [Config.toml](results/Experiment_4/Run_28/config.toml) | ResNet18 | ResNet50      | `blanchon/EuroSAT_MSI` | RegressorMSE        | [metrics.json](results/Experiment_4/Run_28/metrics.jsonl) | [plots](results/Experiment_4/Run_28/plots) | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 98.59% @ 31   | 98.28%            | 0.31%                   |
-| [29] | [Config.toml](results/Experiment_4/Run_29/config.toml) | ResNet18 | ResNet50      | `blanchon/EuroSAT_MSI` | KLDivLoss           | [metrics.json](results/Experiment_4/Run_29/metrics.jsonl) | [plots](results/Experiment_4/Run_29/plots) | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 98.46% @ 34   | 98.28%            | 0.19%                   |
-| [30] | [Config.toml](results/Experiment_4/Run_30/config.toml) | ResNet18 | ResNet50      | `blanchon/EuroSAT_MSI` | KLDivLoss           | [metrics.json](results/Experiment_4/Run_30/metrics.jsonl) | [plots](results/Experiment_4/Run_30/plots) | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 98.52% @ 35   | 98.28%            | 0.24%                   |
-| [31] | [Config.toml](results/Experiment_4/Run_31/config.toml) | ResNet18 | ResNet50      | `blanchon/EuroSAT_MSI` | KLDivLoss           | [metrics.json](results/Experiment_4/Run_31/metrics.jsonl) | [plots](results/Experiment_4/Run_31/plots) | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 98.61% @ 41   | 98.28%            | 0.33%                   |
-| [32] | [Config.toml](results/Experiment_4/Run_32/config.toml) | ResNet18 | ResNet50      | `blanchon/EuroSAT_MSI` | KLDivLoss           | [metrics.json](results/Experiment_4/Run_32/metrics.jsonl) | [plots](results/Experiment_4/Run_32/plots) | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 98.26% @ 37   | 98.28%            | -0.02%                  |
-| [33] | [Config.toml](results/Experiment_4/Run_33/config.toml) | ResNet18 | ResNet50      | `blanchon/EuroSAT_MSI` | KLDivLoss           | [metrics.json](results/Experiment_4/Run_33/metrics.jsonl) | [plots](results/Experiment_4/Run_33/plots) | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 98.43% @ 31   | 98.28%            | 0.15%                   |
-| [34] | [Config.toml](results/Experiment_4/Run_34/config.toml) | ResNet18 | ResNet50      | `blanchon/EuroSAT_MSI` | KLDivLoss           | [metrics.json](results/Experiment_4/Run_34/metrics.jsonl) | [plots](results/Experiment_4/Run_34/plots) | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 98.48% @ 43   | 98.28%            | 0.20%                   |
-| [35] | [Config.toml](results/Experiment_4/Run_35/config.toml) | ResNet18 | ResNet50      | `blanchon/EuroSAT_MSI` | KLDivLoss           | [metrics.json](results/Experiment_4/Run_35/metrics.jsonl) | [plots](results/Experiment_4/Run_35/plots) | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 98.46% @ 32   | 98.28%            | 0.19%                   |
-| [36] | [Config.toml](results/Experiment_4/Run_36/config.toml) | ResNet18 | ResNet50      | `blanchon/EuroSAT_MSI` | KLDivLoss           | [metrics.json](results/Experiment_4/Run_36/metrics.jsonl) | [plots](results/Experiment_4/Run_36/plots) | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 98.48% @ 43   | 98.28%            | 0.20%                   |
-| [37] | [Config.toml](results/Experiment_4/Run_37/config.toml) | ResNet18 | ResNet50      | `blanchon/EuroSAT_MSI` | KLDivLoss           | [metrics.json](results/Experiment_4/Run_37/metrics.jsonl) | [plots](results/Experiment_4/Run_37/plots) | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 98.50% @ 45   | 98.28%            | 0.22%                   |
-| [38] | [Config.toml](results/Experiment_4/Run_38/config.toml) | ResNet18 | ResNet50      | `blanchon/EuroSAT_MSI` | KLDivLoss           | [metrics.json](results/Experiment_4/Run_38/metrics.jsonl) | [plots](results/Experiment_4/Run_38/plots) | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 98.56% @ 39   | 98.28%            | 0.28%                   |
-| [39] | [Config.toml](results/Experiment_4/Run_39/config.toml) | ResNet10 | ResNet50      | `blanchon/EuroSAT_MSI` | KLDivLoss           | [metrics.json](results/Experiment_4/Run_39/metrics.jsonl) | [plots](results/Experiment_4/Run_39/plots) | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 98.39% @ 40   | 98.28%            | 0.11%                   |
-| [40] | [Config.toml](results/Experiment_4/Run_40/config.toml) | ResNet18 | ResNet50      | `blanchon/EuroSAT_MSI` | KLDivLoss           | [metrics.json](results/Experiment_4/Run_40/metrics.jsonl) | [plots](results/Experiment_4/Run_40/plots) | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 98.26% @ 37   | 98.28%            | -0.02%                  |
+--
 
-## Experiment 4a: Hyperparameter-tuning - EuroSAT, ResNet10, ResNet50
+## Experiment 3a: KD Hyperparameter-tuning - RESISC45, ResNet18, ResNet50
 
-**Goal:** Train the smaller model (ResNet10) with teacher-student training. Use the best teacher model ( the best
+**Goal:** Train the smaller model (ResNet18) with teacher-student training. Use the best teacher model ( the best
 validation accuracy) ResNet50 as a guiding teacher.
 In this experiment we will do hyperparameter tuning for the student model training. Also, we use different knowledge
 distillation methods such as CosineEmbeddingLoss, CrossEntropyLoss and KLDivergenceLoss.
 
-[Results](results/Experiment_4a/experiment_summary.md)
 
 **Outcomes**
+- df
 
-- The baseline of the Student model (ResNet10) could be beaten with Teacher-Student learning using ResNet50 as teacher.
-- The student model achieved better performance than the teacher model. --> Dataset could be to simple and therefore we
-  change it to a more complex one in future experiments.
-- Build Baseline for models on `RESISC45` Dataset (Experiment 5)
+**Results**
+- [Results](results/Experiment_3a/experiment_summary.md)
 
-### Runs
+---
 
-| Run  | Config                                                  | Model    | Model Teacher | Dataset                | KD-Type             | Metrics                                                    | Plots                                       | Bands                                                                                | Best Accuracy | Baseline Accuracy | Improvement to Baseline |
-|------|---------------------------------------------------------|----------|---------------|------------------------|---------------------|------------------------------------------------------------|---------------------------------------------|--------------------------------------------------------------------------------------|---------------|-------------------|-------------------------|
-| [1]  | [Config.toml](results/Experiment_4a/Run_1/config.toml)  | ResNet10 | ResNet50      | `blanchon/EuroSAT_MSI` | CosineEmbeddingLoss | [metrics.json](results/Experiment_4a/Run_1/metrics.jsonl)  | [plots](results/Experiment_4a/Run_1/plots)  | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 98.30% @ 36   | 98.41%            | -0.11%                  |
-| [2]  | [Config.toml](results/Experiment_4a/Run_2/config.toml)  | ResNet10 | ResNet50      | `blanchon/EuroSAT_MSI` | CosineEmbeddingLoss | [metrics.json](results/Experiment_4a/Run_2/metrics.jsonl)  | [plots](results/Experiment_4a/Run_2/plots)  | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 98.46% @ 36   | 98.41%            | 0.06%                   |
-| [3]  | [Config.toml](results/Experiment_4a/Run_3/config.toml)  | ResNet10 | ResNet50      | `blanchon/EuroSAT_MSI` | CosineEmbeddingLoss | [metrics.json](results/Experiment_4a/Run_3/metrics.jsonl)  | [plots](results/Experiment_4a/Run_3/plots)  | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 98.39% @ 40   | 98.41%            | -0.02%                  |
-| [4]  | [Config.toml](results/Experiment_4a/Run_4/config.toml)  | ResNet10 | ResNet50      | `blanchon/EuroSAT_MSI` | CosineEmbeddingLoss | [metrics.json](results/Experiment_4a/Run_4/metrics.jsonl)  | [plots](results/Experiment_4a/Run_4/plots)  | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 98.39% @ 35   | 98.41%            | -0.02%                  |
-| [5]  | [Config.toml](results/Experiment_4a/Run_5/config.toml)  | ResNet10 | ResNet50      | `blanchon/EuroSAT_MSI` | CosineEmbeddingLoss | [metrics.json](results/Experiment_4a/Run_5/metrics.jsonl)  | [plots](results/Experiment_4a/Run_5/plots)  | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 98.39% @ 35   | 98.41%            | -0.02%                  |
-| [6]  | [Config.toml](results/Experiment_4a/Run_6/config.toml)  | ResNet10 | ResNet50      | `blanchon/EuroSAT_MSI` | CosineEmbeddingLoss | [metrics.json](results/Experiment_4a/Run_6/metrics.jsonl)  | [plots](results/Experiment_4a/Run_6/plots)  | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 98.52% @ 38   | 98.41%            | 0.11%                   |
-| [7]  | [Config.toml](results/Experiment_4a/Run_7/config.toml)  | ResNet10 | ResNet50      | `blanchon/EuroSAT_MSI` | CosineEmbeddingLoss | [metrics.json](results/Experiment_4a/Run_7/metrics.jsonl)  | [plots](results/Experiment_4a/Run_7/plots)  | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 98.41% @ 35   | 98.41%            | 0.00%                   |
-| [8]  | [Config.toml](results/Experiment_4a/Run_8/config.toml)  | ResNet10 | ResNet50      | `blanchon/EuroSAT_MSI` | CosineEmbeddingLoss | [metrics.json](results/Experiment_4a/Run_8/metrics.jsonl)  | [plots](results/Experiment_4a/Run_8/plots)  | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 98.41% @ 35   | 98.41%            | 0.00%                   |
-| [9]  | [Config.toml](results/Experiment_4a/Run_9/config.toml)  | ResNet10 | ResNet50      | `blanchon/EuroSAT_MSI` | CosineEmbeddingLoss | [metrics.json](results/Experiment_4a/Run_9/metrics.jsonl)  | [plots](results/Experiment_4a/Run_9/plots)  | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 98.48% @ 35   | 98.41%            | 0.07%                   |
-| [10] | [Config.toml](results/Experiment_4a/Run_10/config.toml) | ResNet10 | ResNet50      | `blanchon/EuroSAT_MSI` | CosineEmbeddingLoss | [metrics.json](results/Experiment_4a/Run_10/metrics.jsonl) | [plots](results/Experiment_4a/Run_10/plots) | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 98.48% @ 35   | 98.41%            | 0.07%                   |
-| [11] | [Config.toml](results/Experiment_4a/Run_11/config.toml) | ResNet10 | ResNet50      | `blanchon/EuroSAT_MSI` | CrossEntropyLoss    | [metrics.json](results/Experiment_4a/Run_11/metrics.jsonl) | [plots](results/Experiment_4a/Run_11/plots) | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 98.57% @ 49   | 98.41%            | 0.17%                   |
-| [12] | [Config.toml](results/Experiment_4a/Run_12/config.toml) | ResNet10 | ResNet50      | `blanchon/EuroSAT_MSI` | CrossEntropyLoss    | [metrics.json](results/Experiment_4a/Run_12/metrics.jsonl) | [plots](results/Experiment_4a/Run_12/plots) | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 98.33% @ 32   | 98.41%            | -0.07%                  |
-| [13] | [Config.toml](results/Experiment_4a/Run_13/config.toml) | ResNet10 | ResNet50      | `blanchon/EuroSAT_MSI` | CrossEntropyLoss    | [metrics.json](results/Experiment_4a/Run_13/metrics.jsonl) | [plots](results/Experiment_4a/Run_13/plots) | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 98.33% @ 31   | 98.41%            | -0.07%                  |
-| [14] | [Config.toml](results/Experiment_4a/Run_14/config.toml) | ResNet10 | ResNet50      | `blanchon/EuroSAT_MSI` | CrossEntropyLoss    | [metrics.json](results/Experiment_4a/Run_14/metrics.jsonl) | [plots](results/Experiment_4a/Run_14/plots) | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 98.30% @ 42   | 98.41%            | -0.11%                  |
-| [15] | [Config.toml](results/Experiment_4a/Run_15/config.toml) | ResNet10 | ResNet50      | `blanchon/EuroSAT_MSI` | CrossEntropyLoss    | [metrics.json](results/Experiment_4a/Run_15/metrics.jsonl) | [plots](results/Experiment_4a/Run_15/plots) | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 98.33% @ 32   | 98.41%            | -0.07%                  |
-| [16] | [Config.toml](results/Experiment_4a/Run_16/config.toml) | ResNet10 | ResNet50      | `blanchon/EuroSAT_MSI` | CrossEntropyLoss    | [metrics.json](results/Experiment_4a/Run_16/metrics.jsonl) | [plots](results/Experiment_4a/Run_16/plots) | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 98.35% @ 44   | 98.41%            | -0.06%                  |
-| [17] | [Config.toml](results/Experiment_4a/Run_17/config.toml) | ResNet10 | ResNet50      | `blanchon/EuroSAT_MSI` | CrossEntropyLoss    | [metrics.json](results/Experiment_4a/Run_17/metrics.jsonl) | [plots](results/Experiment_4a/Run_17/plots) | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 98.31% @ 35   | 98.41%            | -0.09%                  |
-| [18] | [Config.toml](results/Experiment_4a/Run_18/config.toml) | ResNet10 | ResNet50      | `blanchon/EuroSAT_MSI` | CrossEntropyLoss    | [metrics.json](results/Experiment_4a/Run_18/metrics.jsonl) | [plots](results/Experiment_4a/Run_18/plots) | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 98.31% @ 37   | 98.41%            | -0.09%                  |
-| [19] | [Config.toml](results/Experiment_4a/Run_19/config.toml) | ResNet10 | ResNet50      | `blanchon/EuroSAT_MSI` | CrossEntropyLoss    | [metrics.json](results/Experiment_4a/Run_19/metrics.jsonl) | [plots](results/Experiment_4a/Run_19/plots) | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 98.30% @ 32   | 98.41%            | -0.11%                  |
-| [20] | [Config.toml](results/Experiment_4a/Run_20/config.toml) | ResNet10 | ResNet50      | `blanchon/EuroSAT_MSI` | CrossEntropyLoss    | [metrics.json](results/Experiment_4a/Run_20/metrics.jsonl) | [plots](results/Experiment_4a/Run_20/plots) | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 98.35% @ 32   | 98.41%            | -0.06%                  |
-| [21] | [Config.toml](results/Experiment_4a/Run_21/config.toml) | ResNet10 | ResNet50      | `blanchon/EuroSAT_MSI` | CrossEntropyLoss    | [metrics.json](results/Experiment_4a/Run_21/metrics.jsonl) | [plots](results/Experiment_4a/Run_21/plots) | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 98.35% @ 32   | 98.41%            | -0.06%                  |
-| [22] | [Config.toml](results/Experiment_4a/Run_22/config.toml) | ResNet10 | ResNet50      | `blanchon/EuroSAT_MSI` | CrossEntropyLoss    | [metrics.json](results/Experiment_4a/Run_22/metrics.jsonl) | [plots](results/Experiment_4a/Run_22/plots) | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 98.31% @ 40   | 98.41%            | -0.09%                  |
-| [23] | [Config.toml](results/Experiment_4a/Run_23/config.toml) | ResNet10 | ResNet50      | `blanchon/EuroSAT_MSI` | CrossEntropyLoss    | [metrics.json](results/Experiment_4a/Run_23/metrics.jsonl) | [plots](results/Experiment_4a/Run_23/plots) | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 98.41% @ 40   | 98.41%            | 0.00%                   |
-| [24] | [Config.toml](results/Experiment_4a/Run_24/config.toml) | ResNet10 | ResNet50      | `blanchon/EuroSAT_MSI` | RegressorMSE        | [metrics.json](results/Experiment_4a/Run_24/metrics.jsonl) | [plots](results/Experiment_4a/Run_24/plots) | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 98.43% @ 40   | 98.41%            | 0.02%                   |
-| [25] | [Config.toml](results/Experiment_4a/Run_25/config.toml) | ResNet10 | ResNet50      | `blanchon/EuroSAT_MSI` | RegressorMSE        | [metrics.json](results/Experiment_4a/Run_25/metrics.jsonl) | [plots](results/Experiment_4a/Run_25/plots) | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 98.43% @ 42   | 98.41%            | 0.02%                   |
-| [26] | [Config.toml](results/Experiment_4a/Run_26/config.toml) | ResNet10 | ResNet50      | `blanchon/EuroSAT_MSI` | RegressorMSE        | [metrics.json](results/Experiment_4a/Run_26/metrics.jsonl) | [plots](results/Experiment_4a/Run_26/plots) | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 98.37% @ 48   | 98.41%            | -0.04%                  |
-| [27] | [Config.toml](results/Experiment_4a/Run_27/config.toml) | ResNet10 | ResNet50      | `blanchon/EuroSAT_MSI` | RegressorMSE        | [metrics.json](results/Experiment_4a/Run_27/metrics.jsonl) | [plots](results/Experiment_4a/Run_27/plots) | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 98.31% @ 37   | 98.41%            | -0.09%                  |
-| [28] | [Config.toml](results/Experiment_4a/Run_28/config.toml) | ResNet10 | ResNet50      | `blanchon/EuroSAT_MSI` | RegressorMSE        | [metrics.json](results/Experiment_4a/Run_28/metrics.jsonl) | [plots](results/Experiment_4a/Run_28/plots) | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 98.46% @ 35   | 98.41%            | 0.06%                   |
-| [29] | [Config.toml](results/Experiment_4a/Run_29/config.toml) | ResNet10 | ResNet50      | `blanchon/EuroSAT_MSI` | KLDivLoss           | [metrics.json](results/Experiment_4a/Run_29/metrics.jsonl) | [plots](results/Experiment_4a/Run_29/plots) | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 98.43% @ 39   | 98.41%            | 0.02%                   |
-| [30] | [Config.toml](results/Experiment_4a/Run_30/config.toml) | ResNet10 | ResNet50      | `blanchon/EuroSAT_MSI` | KLDivLoss           | [metrics.json](results/Experiment_4a/Run_30/metrics.jsonl) | [plots](results/Experiment_4a/Run_30/plots) | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 98.44% @ 39   | 98.41%            | 0.04%                   |
-| [31] | [Config.toml](results/Experiment_4a/Run_31/config.toml) | ResNet10 | ResNet50      | `blanchon/EuroSAT_MSI` | KLDivLoss           | [metrics.json](results/Experiment_4a/Run_31/metrics.jsonl) | [plots](results/Experiment_4a/Run_31/plots) | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 98.39% @ 32   | 98.41%            | -0.02%                  |
-| [32] | [Config.toml](results/Experiment_4a/Run_32/config.toml) | ResNet10 | ResNet50      | `blanchon/EuroSAT_MSI` | KLDivLoss           | [metrics.json](results/Experiment_4a/Run_32/metrics.jsonl) | [plots](results/Experiment_4a/Run_32/plots) | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 98.39% @ 40   | 98.41%            | -0.02%                  |
-| [33] | [Config.toml](results/Experiment_4a/Run_33/config.toml) | ResNet10 | ResNet50      | `blanchon/EuroSAT_MSI` | KLDivLoss           | [metrics.json](results/Experiment_4a/Run_33/metrics.jsonl) | [plots](results/Experiment_4a/Run_33/plots) | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 98.39% @ 39   | 98.41%            | -0.02%                  |
-| [34] | [Config.toml](results/Experiment_4a/Run_34/config.toml) | ResNet10 | ResNet50      | `blanchon/EuroSAT_MSI` | KLDivLoss           | [metrics.json](results/Experiment_4a/Run_34/metrics.jsonl) | [plots](results/Experiment_4a/Run_34/plots) | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 98.44% @ 39   | 98.41%            | 0.04%                   |
-| [35] | [Config.toml](results/Experiment_4a/Run_35/config.toml) | ResNet10 | ResNet50      | `blanchon/EuroSAT_MSI` | KLDivLoss           | [metrics.json](results/Experiment_4a/Run_35/metrics.jsonl) | [plots](results/Experiment_4a/Run_35/plots) | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 98.43% @ 39   | 98.41%            | 0.02%                   |
-| [36] | [Config.toml](results/Experiment_4a/Run_36/config.toml) | ResNet10 | ResNet50      | `blanchon/EuroSAT_MSI` | KLDivLoss           | [metrics.json](results/Experiment_4a/Run_36/metrics.jsonl) | [plots](results/Experiment_4a/Run_36/plots) | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 98.39% @ 39   | 98.41%            | -0.02%                  |
-| [37] | [Config.toml](results/Experiment_4a/Run_37/config.toml) | ResNet10 | ResNet50      | `blanchon/EuroSAT_MSI` | KLDivLoss           | [metrics.json](results/Experiment_4a/Run_37/metrics.jsonl) | [plots](results/Experiment_4a/Run_37/plots) | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 98.41% @ 39   | 98.41%            | 0.00%                   |
-| [38] | [Config.toml](results/Experiment_4a/Run_38/config.toml) | ResNet10 | ResNet50      | `blanchon/EuroSAT_MSI` | KLDivLoss           | [metrics.json](results/Experiment_4a/Run_38/metrics.jsonl) | [plots](results/Experiment_4a/Run_38/plots) | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 98.41% @ 27   | 98.41%            | 0.00%                   |
-| [39] | [Config.toml](results/Experiment_4a/Run_39/config.toml) | ResNet10 | ResNet50      | `blanchon/EuroSAT_MSI` | KLDivLoss           | [metrics.json](results/Experiment_4a/Run_39/metrics.jsonl) | [plots](results/Experiment_4a/Run_39/plots) | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 98.39% @ 40   | 98.41%            | -0.02%                  |
-| [40] | [Config.toml](results/Experiment_4a/Run_40/config.toml) | ResNet10 | ResNet50      | `blanchon/EuroSAT_MSI` | KLDivLoss           | [metrics.json](results/Experiment_4a/Run_40/metrics.jsonl) | [plots](results/Experiment_4a/Run_40/plots) | ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12'] | 98.39% @ 40   | 98.41%            | -0.02%                  |
-
-## Experiment 5: Baseline Teacher & Student on RESISC45
-
-**Goal:** In this experiment we will establish a baseline using the `RESISC45` dataset. We will train different models (
-ResNet18, ResNet18, ResNet50, TinyCNN) on the RESISC45 dataset and evaluate their performance.
-
-[Results](results/Experiment_5/experiment_summary.md)
-
-### Runs
-
-| Run | Config                                                | Model        | Dataset         | Metrics                                                  | Plots                                     | Bands                 | Best Accuracy |
-|-----|-------------------------------------------------------|--------------|-----------------|----------------------------------------------------------|-------------------------------------------|-----------------------|---------------|
-| [1] | [Config.toml](results/Experiment_5/Run_1/config.toml) | ResNet18     | `timm/resisc45` | [metrics.json](results/Experiment_5/Run_1/metrics.jsonl) | [plots](results/Experiment_5/Run_1/plots) | ['B01', 'B02', 'B03'] | 91.33% @ 47   |
-| [2] | [Config.toml](results/Experiment_5/Run_2/config.toml) | ResNet10     | `timm/resisc45` | [metrics.json](results/Experiment_5/Run_2/metrics.jsonl) | [plots](results/Experiment_5/Run_2/plots) | ['B01', 'B02', 'B03'] | 88.32% @ 49   |
-| [3] | [Config.toml](results/Experiment_5/Run_3/config.toml) | TinyCNN      | `timm/resisc45` | [metrics.json](results/Experiment_5/Run_3/metrics.jsonl) | [plots](results/Experiment_5/Run_3/plots) | ['B01', 'B02', 'B03'] | 29.92% @ 48   |
-| [4] | [Config.toml](results/Experiment_5/Run_4/config.toml) | ResNet50     | `timm/resisc45` | [metrics.json](results/Experiment_5/Run_4/metrics.jsonl) | [plots](results/Experiment_5/Run_4/plots) | ['B01', 'B02', 'B03'] | 90.89% @ 50   |
-| [5] | [Config.toml](results/Experiment_5/Run_5/config.toml) | ResNet50     | `timm/resisc45` | [metrics.json](results/Experiment_5/Run_5/metrics.jsonl) | [plots](results/Experiment_5/Run_5/plots) | ['B01', 'B02', 'B03'] | 89.30% @ 83   |
-| [6] | [Config.toml](results/Experiment_5/Run_6/config.toml) | ResNet50     | `timm/resisc45` | [metrics.json](results/Experiment_5/Run_6/metrics.jsonl) | [plots](results/Experiment_5/Run_6/plots) | ['B01', 'B02', 'B03'] | 81.62% @ 49   |
-| [7] | [Config.toml](results/Experiment_5/Run_7/config.toml) | ResNet50     | `timm/resisc45` | [metrics.json](results/Experiment_5/Run_7/metrics.jsonl) | [plots](results/Experiment_5/Run_7/plots) | ['B01', 'B02', 'B03'] | 92.68% @ 93   |
-| [8] | [Config.toml](results/Experiment_5/Run_1/config.toml) | ResNet18     | `timm/resisc45` | [metrics.json](results/Experiment_5/Run_1/metrics.jsonl) | [plots](results/Experiment_5/Run_1/plots) | ['B01', 'B02', 'B03'] | 89.97% @ 49   |
-| [9] | [Config.toml](results/Experiment_5/Run_1/config.toml) | ResNet10mini | `timm/resisc45` | [metrics.json](results/Experiment_5/Run_1/metrics.jsonl) | [plots](results/Experiment_5/Run_1/plots) | ['B01', 'B02', 'B03'] | 83.30% @ 41   |
-
-## Experiment 6: Hyperparameter-tuning - RESISC45, ResNet18, ResNet50
+## Experiment 4: KD Hyperparameter-tuning - EuroSAT, ResNet10, ResNet50
 
 **Goal:** Train the smaller model (ResNet18) with teacher-student training. Use the best teacher model ( the best
 validation accuracy) ResNet50 as a guiding teacher.
-In this experiment we will do hyperparameter tuning for the student model training. Also we use different knowledge
+In this experiment we will do hyperparameter tuning for the student model training. Also, we use different knowledge
 distillation methods such as CosineEmbeddingLoss, CrossEntropyLoss and KLDivergenceLoss.
-Dataset is the `RESISC45` dataset.
 
-[Results](results/Experiment_6/experiment_summary.md)
 
-### Runs
+**Outcomes**
+- df
 
-| Run  | Config                                                 | Model    | Model Teacher | Dataset         | KD-Type             | Metrics                                                   | Plots                                      | Bands                 | Best Accuracy | Baseline Accuracy | Improvement to Baseline |
-|------|--------------------------------------------------------|----------|---------------|-----------------|---------------------|-----------------------------------------------------------|--------------------------------------------|-----------------------|---------------|-------------------|-------------------------|
-| [1]  | [Config.toml](results/Experiment_6/Run_1/config.toml)  | ResNet18 | ResNet50      | `timm/resisc45` | CosineEmbeddingLoss | [metrics.json](results/Experiment_6/Run_1/metrics.jsonl)  | [plots](results/Experiment_6/Run_1/plots)  | ['B01', 'B02', 'B03'] | 90.54% @ 42   | 89.97%            | 0.57%                   |
-| [2]  | [Config.toml](results/Experiment_6/Run_2/config.toml)  | ResNet18 | ResNet50      | `timm/resisc45` | CosineEmbeddingLoss | [metrics.json](results/Experiment_6/Run_2/metrics.jsonl)  | [plots](results/Experiment_6/Run_2/plots)  | ['B01', 'B02', 'B03'] | 91.03% @ 42   | 89.97%            | 1.06%                   |
-| [3]  | [Config.toml](results/Experiment_6/Run_3/config.toml)  | ResNet18 | ResNet50      | `timm/resisc45` | CosineEmbeddingLoss | [metrics.json](results/Experiment_6/Run_3/metrics.jsonl)  | [plots](results/Experiment_6/Run_3/plots)  | ['B01', 'B02', 'B03'] | 91.03% @ 39   | 89.97%            | 1.06%                   |
-| [4]  | [Config.toml](results/Experiment_6/Run_4/config.toml)  | ResNet18 | ResNet50      | `timm/resisc45` | CosineEmbeddingLoss | [metrics.json](results/Experiment_6/Run_4/metrics.jsonl)  | [plots](results/Experiment_6/Run_4/plots)  | ['B01', 'B02', 'B03'] | 91.10% @ 43   | 89.97%            | 1.13%                   |
-| [5]  | [Config.toml](results/Experiment_6/Run_5/config.toml)  | ResNet18 | ResNet50      | `timm/resisc45` | CosineEmbeddingLoss | [metrics.json](results/Experiment_6/Run_5/metrics.jsonl)  | [plots](results/Experiment_6/Run_5/plots)  | ['B01', 'B02', 'B03'] | 90.95% @ 50   | 89.97%            | 0.98%                   |
-| [6]  | [Config.toml](results/Experiment_6/Run_6/config.toml)  | ResNet18 | ResNet50      | `timm/resisc45` | CosineEmbeddingLoss | [metrics.json](results/Experiment_6/Run_6/metrics.jsonl)  | [plots](results/Experiment_6/Run_6/plots)  | ['B01', 'B02', 'B03'] | 91.79% @ 42   | 89.97%            | 1.83%                   |
-| [7]  | [Config.toml](results/Experiment_6/Run_7/config.toml)  | ResNet18 | ResNet50      | `timm/resisc45` | CosineEmbeddingLoss | [metrics.json](results/Experiment_6/Run_7/metrics.jsonl)  | [plots](results/Experiment_6/Run_7/plots)  | ['B01', 'B02', 'B03'] | 91.03% @ 42   | 89.97%            | 1.06%                   |
-| [8]  | [Config.toml](results/Experiment_6/Run_8/config.toml)  | ResNet18 | ResNet50      | `timm/resisc45` | CosineEmbeddingLoss | [metrics.json](results/Experiment_6/Run_8/metrics.jsonl)  | [plots](results/Experiment_6/Run_8/plots)  | ['B01', 'B02', 'B03'] | 91.30% @ 50   | 89.97%            | 1.33%                   |
-| [9]  | [Config.toml](results/Experiment_6/Run_9/config.toml)  | ResNet18 | ResNet50      | `timm/resisc45` | CosineEmbeddingLoss | [metrics.json](results/Experiment_6/Run_9/metrics.jsonl)  | [plots](results/Experiment_6/Run_9/plots)  | ['B01', 'B02', 'B03'] | 90.89% @ 46   | 89.97%            | 0.92%                   |
-| [10] | [Config.toml](results/Experiment_6/Run_10/config.toml) | ResNet18 | ResNet50      | `timm/resisc45` | CosineEmbeddingLoss | [metrics.json](results/Experiment_6/Run_10/metrics.jsonl) | [plots](results/Experiment_6/Run_10/plots) | ['B01', 'B02', 'B03'] | 90.65% @ 42   | 89.97%            | 0.68%                   |
-| [11] | [Config.toml](results/Experiment_6/Run_11/config.toml) | ResNet18 | ResNet50      | `timm/resisc45` | CrossEntropyLoss    | [metrics.json](results/Experiment_6/Run_11/metrics.jsonl) | [plots](results/Experiment_6/Run_11/plots) | ['B01', 'B02', 'B03'] | 91.17% @ 47   | 89.97%            | 1.21%                   |
-| [12] | [Config.toml](results/Experiment_6/Run_12/config.toml) | ResNet18 | ResNet50      | `timm/resisc45` | CrossEntropyLoss    | [metrics.json](results/Experiment_6/Run_12/metrics.jsonl) | [plots](results/Experiment_6/Run_12/plots) | ['B01', 'B02', 'B03'] | 91.06% @ 50   | 89.97%            | 1.10%                   |
-| [13] | [Config.toml](results/Experiment_6/Run_13/config.toml) | ResNet18 | ResNet50      | `timm/resisc45` | CrossEntropyLoss    | [metrics.json](results/Experiment_6/Run_13/metrics.jsonl) | [plots](results/Experiment_6/Run_13/plots) | ['B01', 'B02', 'B03'] | 91.05% @ 44   | 89.97%            | 1.08%                   |
-| [14] | [Config.toml](results/Experiment_6/Run_14/config.toml) | ResNet18 | ResNet50      | `timm/resisc45` | CrossEntropyLoss    | [metrics.json](results/Experiment_6/Run_14/metrics.jsonl) | [plots](results/Experiment_6/Run_14/plots) | ['B01', 'B02', 'B03'] | 90.92% @ 48   | 89.97%            | 0.95%                   |
-| [15] | [Config.toml](results/Experiment_6/Run_15/config.toml) | ResNet18 | ResNet50      | `timm/resisc45` | CrossEntropyLoss    | [metrics.json](results/Experiment_6/Run_15/metrics.jsonl) | [plots](results/Experiment_6/Run_15/plots) | ['B01', 'B02', 'B03'] | 91.03% @ 46   | 89.97%            | 1.06%                   |
-| [16] | [Config.toml](results/Experiment_6/Run_16/config.toml) | ResNet18 | ResNet50      | `timm/resisc45` | CrossEntropyLoss    | [metrics.json](results/Experiment_6/Run_16/metrics.jsonl) | [plots](results/Experiment_6/Run_16/plots) | ['B01', 'B02', 'B03'] | 72.24% @ 10   | 89.97%            | -17.73%                 |
-| [17] | [Config.toml](results/Experiment_6/Run_17/config.toml) | ResNet18 | ResNet50      | `timm/resisc45` | CrossEntropyLoss    | [metrics.json](results/Experiment_6/Run_17/metrics.jsonl) | [plots](results/Experiment_6/Run_17/plots) | ['B01', 'B02', 'B03'] | 91.08% @ 46   | 89.97%            | 1.11%                   |
-| [18] | [Config.toml](results/Experiment_6/Run_18/config.toml) | ResNet18 | ResNet50      | `timm/resisc45` | CrossEntropyLoss    | [metrics.json](results/Experiment_6/Run_18/metrics.jsonl) | [plots](results/Experiment_6/Run_18/plots) | ['B01', 'B02', 'B03'] | 91.19% @ 46   | 89.97%            | 1.22%                   |
-| [19] | [Config.toml](results/Experiment_6/Run_19/config.toml) | ResNet18 | ResNet50      | `timm/resisc45` | CrossEntropyLoss    | [metrics.json](results/Experiment_6/Run_19/metrics.jsonl) | [plots](results/Experiment_6/Run_19/plots) | ['B01', 'B02', 'B03'] | 91.14% @ 47   | 89.97%            | 1.17%                   |
-| [20] | [Config.toml](results/Experiment_6/Run_20/config.toml) | ResNet18 | ResNet50      | `timm/resisc45` | CrossEntropyLoss    | [metrics.json](results/Experiment_6/Run_20/metrics.jsonl) | [plots](results/Experiment_6/Run_20/plots) | ['B01', 'B02', 'B03'] | 90.97% @ 50   | 89.97%            | 1.00%                   |
-| [21] | [Config.toml](results/Experiment_6/Run_21/config.toml) | ResNet18 | ResNet50      | `timm/resisc45` | CrossEntropyLoss    | [metrics.json](results/Experiment_6/Run_21/metrics.jsonl) | [plots](results/Experiment_6/Run_21/plots) | ['B01', 'B02', 'B03'] | 91.56% @ 46   | 89.97%            | 1.59%                   |
-| [22] | [Config.toml](results/Experiment_6/Run_22/config.toml) | ResNet18 | ResNet50      | `timm/resisc45` | CrossEntropyLoss    | [metrics.json](results/Experiment_6/Run_22/metrics.jsonl) | [plots](results/Experiment_6/Run_22/plots) | ['B01', 'B02', 'B03'] | 92.22% @ 40   | 89.97%            | 2.25%                   |
-| [23] | [Config.toml](results/Experiment_6/Run_23/config.toml) | ResNet18 | ResNet50      | `timm/resisc45` | CrossEntropyLoss    | [metrics.json](results/Experiment_6/Run_23/metrics.jsonl) | [plots](results/Experiment_6/Run_23/plots) | ['B01', 'B02', 'B03'] | 92.98% @ 47   | 89.97%            | 3.02%                   |
-| [24] | [Config.toml](results/Experiment_6/Run_24/config.toml) | ResNet18 | ResNet50      | `timm/resisc45` | RegressorMSE        | [metrics.json](results/Experiment_6/Run_24/metrics.jsonl) | [plots](results/Experiment_6/Run_24/plots) | ['B01', 'B02', 'B03'] | 91.63% @ 50   | 89.97%            | 1.67%                   |
-| [25] | [Config.toml](results/Experiment_6/Run_25/config.toml) | ResNet18 | ResNet50      | `timm/resisc45` | RegressorMSE        | [metrics.json](results/Experiment_6/Run_25/metrics.jsonl) | [plots](results/Experiment_6/Run_25/plots) | ['B01', 'B02', 'B03'] | 92.03% @ 47   | 89.97%            | 2.06%                   |
-| [26] | [Config.toml](results/Experiment_6/Run_26/config.toml) | ResNet18 | ResNet50      | `timm/resisc45` | RegressorMSE        | [metrics.json](results/Experiment_6/Run_26/metrics.jsonl) | [plots](results/Experiment_6/Run_26/plots) | ['B01', 'B02', 'B03'] | 91.94% @ 46   | 89.97%            | 1.97%                   |
-| [27] | [Config.toml](results/Experiment_6/Run_27/config.toml) | ResNet18 | ResNet50      | `timm/resisc45` | RegressorMSE        | [metrics.json](results/Experiment_6/Run_27/metrics.jsonl) | [plots](results/Experiment_6/Run_27/plots) | ['B01', 'B02', 'B03'] | 91.21% @ 47   | 89.97%            | 1.24%                   |
-| [28] | [Config.toml](results/Experiment_6/Run_28/config.toml) | ResNet18 | ResNet50      | `timm/resisc45` | RegressorMSE        | [metrics.json](results/Experiment_6/Run_28/metrics.jsonl) | [plots](results/Experiment_6/Run_28/plots) | ['B01', 'B02', 'B03'] | 91.37% @ 44   | 89.97%            | 1.40%                   |
-| [29] | [Config.toml](results/Experiment_6/Run_29/config.toml) | ResNet18 | ResNet50      | `timm/resisc45` | KLDivLoss           | [metrics.json](results/Experiment_6/Run_29/metrics.jsonl) | [plots](results/Experiment_6/Run_29/plots) | ['B01', 'B02', 'B03'] | 92.02% @ 49   | 89.97%            | 2.05%                   |
-| [30] | [Config.toml](results/Experiment_6/Run_30/config.toml) | ResNet18 | ResNet50      | `timm/resisc45` | KLDivLoss           | [metrics.json](results/Experiment_6/Run_30/metrics.jsonl) | [plots](results/Experiment_6/Run_30/plots) | ['B01', 'B02', 'B03'] | 92.11% @ 50   | 89.97%            | 2.14%                   |
-| [31] | [Config.toml](results/Experiment_6/Run_31/config.toml) | ResNet18 | ResNet50      | `timm/resisc45` | KLDivLoss           | [metrics.json](results/Experiment_6/Run_31/metrics.jsonl) | [plots](results/Experiment_6/Run_31/plots) | ['B01', 'B02', 'B03'] | 91.38% @ 46   | 89.97%            | 1.41%                   |
-| [32] | [Config.toml](results/Experiment_6/Run_32/config.toml) | ResNet18 | ResNet50      | `timm/resisc45` | KLDivLoss           | [metrics.json](results/Experiment_6/Run_32/metrics.jsonl) | [plots](results/Experiment_6/Run_32/plots) | ['B01', 'B02', 'B03'] | 92.21% @ 47   | 91.33%            | 0.87%                   |
-| [33] | [Config.toml](results/Experiment_6/Run_33/config.toml) | ResNet18 | ResNet50      | `timm/resisc45` | KLDivLoss           | [metrics.json](results/Experiment_6/Run_33/metrics.jsonl) | [plots](results/Experiment_6/Run_33/plots) | ['B01', 'B02', 'B03'] | 92.13% @ 50   | 89.97%            | 2.16%                   |
-| [34] | [Config.toml](results/Experiment_6/Run_34/config.toml) | ResNet18 | ResNet50      | `timm/resisc45` | KLDivLoss           | [metrics.json](results/Experiment_6/Run_34/metrics.jsonl) | [plots](results/Experiment_6/Run_34/plots) | ['B01', 'B02', 'B03'] | 91.94% @ 43   | 89.97%            | 1.97%                   |
-| [35] | [Config.toml](results/Experiment_6/Run_35/config.toml) | ResNet18 | ResNet50      | `timm/resisc45` | KLDivLoss           | [metrics.json](results/Experiment_6/Run_35/metrics.jsonl) | [plots](results/Experiment_6/Run_35/plots) | ['B01', 'B02', 'B03'] | 92.16% @ 45   | 89.97%            | 2.19%                   |
-| [36] | [Config.toml](results/Experiment_6/Run_36/config.toml) | ResNet18 | ResNet50      | `timm/resisc45` | KLDivLoss           | [metrics.json](results/Experiment_6/Run_36/metrics.jsonl) | [plots](results/Experiment_6/Run_36/plots) | ['B01', 'B02', 'B03'] | 92.40% @ 46   | 89.97%            | 2.43%                   |
-| [37] | [Config.toml](results/Experiment_6/Run_37/config.toml) | ResNet18 | ResNet50      | `timm/resisc45` | KLDivLoss           | [metrics.json](results/Experiment_6/Run_37/metrics.jsonl) | [plots](results/Experiment_6/Run_37/plots) | ['B01', 'B02', 'B03'] | 92.13% @ 49   | 89.97%            | 2.16%                   |
-| [38] | [Config.toml](results/Experiment_6/Run_38/config.toml) | ResNet18 | ResNet50      | `timm/resisc45` | KLDivLoss           | [metrics.json](results/Experiment_6/Run_38/metrics.jsonl) | [plots](results/Experiment_6/Run_38/plots) | ['B01', 'B02', 'B03'] | 92.21% @ 48   | 89.97%            | 2.24%                   |
-| [39] | [Config.toml](results/Experiment_6/Run_39/config.toml) | ResNet10 | ResNet50      | `timm/resisc45` | KLDivLoss           | [metrics.json](results/Experiment_6/Run_39/metrics.jsonl) | [plots](results/Experiment_6/Run_39/plots) | ['B01', 'B02', 'B03'] | 89.10% @ 49   | 88.32%            | 0.78%                   |
-| [40] | [Config.toml](results/Experiment_6/Run_40/config.toml) | ResNet18 | ResNet50      | `timm/resisc45` | KLDivLoss           | [metrics.json](results/Experiment_6/Run_40/metrics.jsonl) | [plots](results/Experiment_6/Run_40/plots) | ['B01', 'B02', 'B03'] | 92.75% @ 50   | 89.97%            | 2.78%                   |
+**Results**
+- [Results](results/Experiment_4/experiment_summary.md)
 
-## Experiment 6a: Hyperparameter-tuning - RESISC45, ResNet10, ResNet50
+---
 
-**Goal:** Train the smaller model (ResNet10) with teacher-student training. Use the best teacher model ( the best
+## Experiment 4a: KD Hyperparameter-tuning - RESISC45, ResNet10, ResNet50
+
+**Goal:** Train the smaller model (ResNet18) with teacher-student training. Use the best teacher model ( the best
 validation accuracy) ResNet50 as a guiding teacher.
-In this experiment we will do hyperparameter tuning for the student model training. Also we use different knowledge
+In this experiment we will do hyperparameter tuning for the student model training. Also, we use different knowledge
 distillation methods such as CosineEmbeddingLoss, CrossEntropyLoss and KLDivergenceLoss.
-Dataset is the `RESISC45` dataset.
-
-[Results](results/Experiment_6a/experiment_summary.md)
 
 
-### Runs
+**Outcomes**
+- df
 
-| Run  | Config                                                  | Model    | Model Teacher | Dataset         | KD-Type             | Metrics                                                    | Plots                                       | Bands                 | Best Accuracy | Baseline Accuracy | Improvement to Baseline |
-|------|---------------------------------------------------------|----------|---------------|-----------------|---------------------|------------------------------------------------------------|---------------------------------------------|-----------------------|---------------|-------------------|-------------------------|
-| [1]  | [Config.toml](results/Experiment_6a/Run_1/config.toml)  | ResNet10 | ResNet50      | `timm/resisc45` | CosineEmbeddingLoss | [metrics.json](results/Experiment_6a/Run_1/metrics.jsonl)  | [plots](results/Experiment_6a/Run_1/plots)  | ['B01', 'B02', 'B03'] | 89.51% @ 50   | 88.32%            | 1.19%                   |
-| [2]  | [Config.toml](results/Experiment_6a/Run_2/config.toml)  | ResNet10 | ResNet50      | `timm/resisc45` | CosineEmbeddingLoss | [metrics.json](results/Experiment_6a/Run_2/metrics.jsonl)  | [plots](results/Experiment_6a/Run_2/plots)  | ['B01', 'B02', 'B03'] | 89.65% @ 50   | 88.32%            | 1.33%                   |
-| [3]  | [Config.toml](results/Experiment_6a/Run_3/config.toml)  | ResNet10 | ResNet50      | `timm/resisc45` | CosineEmbeddingLoss | [metrics.json](results/Experiment_6a/Run_3/metrics.jsonl)  | [plots](results/Experiment_6a/Run_3/plots)  | ['B01', 'B02', 'B03'] | 89.84% @ 50   | 88.32%            | 1.52%                   |
-| [4]  | [Config.toml](results/Experiment_6a/Run_4/config.toml)  | ResNet10 | ResNet50      | `timm/resisc45` | CosineEmbeddingLoss | [metrics.json](results/Experiment_6a/Run_4/metrics.jsonl)  | [plots](results/Experiment_6a/Run_4/plots)  | ['B01', 'B02', 'B03'] | 89.97% @ 50   | 88.32%            | 1.65%                   |
-| [5]  | [Config.toml](results/Experiment_6a/Run_5/config.toml)  | ResNet10 | ResNet50      | `timm/resisc45` | CosineEmbeddingLoss | [metrics.json](results/Experiment_6a/Run_5/metrics.jsonl)  | [plots](results/Experiment_6a/Run_5/plots)  | ['B01', 'B02', 'B03'] | 90.05% @ 50   | 88.32%            | 1.73%                   |
-| [6]  | [Config.toml](results/Experiment_6a/Run_6/config.toml)  | ResNet10 | ResNet50      | `timm/resisc45` | CosineEmbeddingLoss | [metrics.json](results/Experiment_6a/Run_6/metrics.jsonl)  | [plots](results/Experiment_6a/Run_6/plots)  | ['B01', 'B02', 'B03'] | 90.52% @ 50   | 88.32%            | 2.21%                   |
-| [7]  | [Config.toml](results/Experiment_6a/Run_7/config.toml)  | ResNet10 | ResNet50      | `timm/resisc45` | CosineEmbeddingLoss | [metrics.json](results/Experiment_6a/Run_7/metrics.jsonl)  | [plots](results/Experiment_6a/Run_7/plots)  | ['B01', 'B02', 'B03'] | 89.98% @ 49   | 88.32%            | 1.67%                   |
-| [8]  | [Config.toml](results/Experiment_6a/Run_8/config.toml)  | ResNet10 | ResNet50      | `timm/resisc45` | CosineEmbeddingLoss | [metrics.json](results/Experiment_6a/Run_8/metrics.jsonl)  | [plots](results/Experiment_6a/Run_8/plots)  | ['B01', 'B02', 'B03'] | 89.57% @ 50   | 88.32%            | 1.25%                   |
-| [9]  | [Config.toml](results/Experiment_6a/Run_9/config.toml)  | ResNet10 | ResNet50      | `timm/resisc45` | CosineEmbeddingLoss | [metrics.json](results/Experiment_6a/Run_9/metrics.jsonl)  | [plots](results/Experiment_6a/Run_9/plots)  | ['B01', 'B02', 'B03'] | 89.46% @ 49   | 88.32%            | 1.14%                   |
-| [10] | [Config.toml](results/Experiment_6a/Run_10/config.toml) | ResNet10 | ResNet50      | `timm/resisc45` | CosineEmbeddingLoss | [metrics.json](results/Experiment_6a/Run_10/metrics.jsonl) | [plots](results/Experiment_6a/Run_10/plots) | ['B01', 'B02', 'B03'] | 89.40% @ 50   | 88.32%            | 1.08%                   |
-| [11] | [Config.toml](results/Experiment_6a/Run_11/config.toml) | ResNet10 | ResNet50      | `timm/resisc45` | CrossEntropyLoss    | [metrics.json](results/Experiment_6a/Run_11/metrics.jsonl) | [plots](results/Experiment_6a/Run_11/plots) | ['B01', 'B02', 'B03'] | 89.67% @ 49   | 88.32%            | 1.35%                   |
-| [12] | [Config.toml](results/Experiment_6a/Run_12/config.toml) | ResNet10 | ResNet50      | `timm/resisc45` | CrossEntropyLoss    | [metrics.json](results/Experiment_6a/Run_12/metrics.jsonl) | [plots](results/Experiment_6a/Run_12/plots) | ['B01', 'B02', 'B03'] | 89.71% @ 50   | 88.32%            | 1.40%                   |
-| [13] | [Config.toml](results/Experiment_6a/Run_13/config.toml) | ResNet10 | ResNet50      | `timm/resisc45` | CrossEntropyLoss    | [metrics.json](results/Experiment_6a/Run_13/metrics.jsonl) | [plots](results/Experiment_6a/Run_13/plots) | ['B01', 'B02', 'B03'] | 89.54% @ 45   | 88.32%            | 1.22%                   |
-| [14] | [Config.toml](results/Experiment_6a/Run_14/config.toml) | ResNet10 | ResNet50      | `timm/resisc45` | CrossEntropyLoss    | [metrics.json](results/Experiment_6a/Run_14/metrics.jsonl) | [plots](results/Experiment_6a/Run_14/plots) | ['B01', 'B02', 'B03'] | 89.57% @ 50   | 88.32%            | 1.25%                   |
-| [15] | [Config.toml](results/Experiment_6a/Run_15/config.toml) | ResNet10 | ResNet50      | `timm/resisc45` | CrossEntropyLoss    | [metrics.json](results/Experiment_6a/Run_15/metrics.jsonl) | [plots](results/Experiment_6a/Run_15/plots) | ['B01', 'B02', 'B03'] | 89.68% @ 48   | 88.32%            | 1.37%                   |
-| [16] | [Config.toml](results/Experiment_6a/Run_16/config.toml) | ResNet10 | ResNet50      | `timm/resisc45` | CrossEntropyLoss    | [metrics.json](results/Experiment_6a/Run_16/metrics.jsonl) | [plots](results/Experiment_6a/Run_16/plots) | ['B01', 'B02', 'B03'] | 68.63% @ 9    | 88.32%            | -19.68%                 |
-| [17] | [Config.toml](results/Experiment_6a/Run_17/config.toml) | ResNet10 | ResNet50      | `timm/resisc45` | CrossEntropyLoss    | [metrics.json](results/Experiment_6a/Run_17/metrics.jsonl) | [plots](results/Experiment_6a/Run_17/plots) | ['B01', 'B02', 'B03'] | 89.48% @ 50   | 88.32%            | 1.16%                   |
-| [18] | [Config.toml](results/Experiment_6a/Run_18/config.toml) | ResNet10 | ResNet50      | `timm/resisc45` | CrossEntropyLoss    | [metrics.json](results/Experiment_6a/Run_18/metrics.jsonl) | [plots](results/Experiment_6a/Run_18/plots) | ['B01', 'B02', 'B03'] | 89.57% @ 48   | 88.32%            | 1.25%                   |
-| [19] | [Config.toml](results/Experiment_6a/Run_19/config.toml) | ResNet10 | ResNet50      | `timm/resisc45` | CrossEntropyLoss    | [metrics.json](results/Experiment_6a/Run_19/metrics.jsonl) | [plots](results/Experiment_6a/Run_19/plots) | ['B01', 'B02', 'B03'] | 89.76% @ 48   | 88.32%            | 1.44%                   |
-| [20] | [Config.toml](results/Experiment_6a/Run_20/config.toml) | ResNet10 | ResNet50      | `timm/resisc45` | CrossEntropyLoss    | [metrics.json](results/Experiment_6a/Run_20/metrics.jsonl) | [plots](results/Experiment_6a/Run_20/plots) | ['B01', 'B02', 'B03'] | 89.78% @ 48   | 88.32%            | 1.46%                   |
-| [21] | [Config.toml](results/Experiment_6a/Run_21/config.toml) | ResNet10 | ResNet50      | `timm/resisc45` | CrossEntropyLoss    | [metrics.json](results/Experiment_6a/Run_21/metrics.jsonl) | [plots](results/Experiment_6a/Run_21/plots) | ['B01', 'B02', 'B03'] | 90.05% @ 50   | 88.32%            | 1.73%                   |
-| [22] | [Config.toml](results/Experiment_6a/Run_22/config.toml) | ResNet10 | ResNet50      | `timm/resisc45` | CrossEntropyLoss    | [metrics.json](results/Experiment_6a/Run_22/metrics.jsonl) | [plots](results/Experiment_6a/Run_22/plots) | ['B01', 'B02', 'B03'] | 90.48% @ 50   | 88.32%            | 2.16%                   |
-| [23] | [Config.toml](results/Experiment_6a/Run_23/config.toml) | ResNet10 | ResNet50      | `timm/resisc45` | CrossEntropyLoss    | [metrics.json](results/Experiment_6a/Run_23/metrics.jsonl) | [plots](results/Experiment_6a/Run_23/plots) | ['B01', 'B02', 'B03'] | 90.95% @ 50   | 88.32%            | 2.63%                   |
-| [24] | [Config.toml](results/Experiment_6a/Run_24/config.toml) | ResNet10 | ResNet50      | `timm/resisc45` | RegressorMSE        | [metrics.json](results/Experiment_6a/Run_24/metrics.jsonl) | [plots](results/Experiment_6a/Run_24/plots) | ['B01', 'B02', 'B03'] | 90.44% @ 45   | 88.32%            | 2.13%                   |
-| [25] | [Config.toml](results/Experiment_6a/Run_25/config.toml) | ResNet10 | ResNet50      | `timm/resisc45` | RegressorMSE        | [metrics.json](results/Experiment_6a/Run_25/metrics.jsonl) | [plots](results/Experiment_6a/Run_25/plots) | ['B01', 'B02', 'B03'] | 90.60% @ 47   | 88.32%            | 2.29%                   |
-| [26] | [Config.toml](results/Experiment_6a/Run_26/config.toml) | ResNet10 | ResNet50      | `timm/resisc45` | RegressorMSE        | [metrics.json](results/Experiment_6a/Run_26/metrics.jsonl) | [plots](results/Experiment_6a/Run_26/plots) | ['B01', 'B02', 'B03'] | 90.46% @ 47   | 88.32%            | 2.14%                   |
-| [27] | [Config.toml](results/Experiment_6a/Run_27/config.toml) | ResNet10 | ResNet50      | `timm/resisc45` | RegressorMSE        | [metrics.json](results/Experiment_6a/Run_27/metrics.jsonl) | [plots](results/Experiment_6a/Run_27/plots) | ['B01', 'B02', 'B03'] | 89.75% @ 48   | 88.32%            | 1.43%                   |
-| [28] | [Config.toml](results/Experiment_6a/Run_28/config.toml) | ResNet10 | ResNet50      | `timm/resisc45` | RegressorMSE        | [metrics.json](results/Experiment_6a/Run_28/metrics.jsonl) | [plots](results/Experiment_6a/Run_28/plots) | ['B01', 'B02', 'B03'] | 90.37% @ 45   | 88.32%            | 2.05%                   |
-| [29] | [Config.toml](results/Experiment_6a/Run_29/config.toml) | ResNet10 | ResNet50      | `timm/resisc45` | KLDivLoss           | [metrics.json](results/Experiment_6a/Run_29/metrics.jsonl) | [plots](results/Experiment_6a/Run_29/plots) | ['B01', 'B02', 'B03'] | 90.71% @ 48   | 88.32%            | 2.40%                   |
-| [30] | [Config.toml](results/Experiment_6a/Run_30/config.toml) | ResNet10 | ResNet50      | `timm/resisc45` | KLDivLoss           | [metrics.json](results/Experiment_6a/Run_30/metrics.jsonl) | [plots](results/Experiment_6a/Run_30/plots) | ['B01', 'B02', 'B03'] | 90.84% @ 50   | 88.32%            | 2.52%                   |
-| [31] | [Config.toml](results/Experiment_6a/Run_31/config.toml) | ResNet10 | ResNet50      | `timm/resisc45` | KLDivLoss           | [metrics.json](results/Experiment_6a/Run_31/metrics.jsonl) | [plots](results/Experiment_6a/Run_31/plots) | ['B01', 'B02', 'B03'] | 89.63% @ 50   | 88.32%            | 1.32%                   |
-| [32] | [Config.toml](results/Experiment_6a/Run_32/config.toml) | ResNet10 | ResNet50      | `timm/resisc45` | KLDivLoss           | [metrics.json](results/Experiment_6a/Run_32/metrics.jsonl) | [plots](results/Experiment_6a/Run_32/plots) | ['B01', 'B02', 'B03'] | 89.21% @ 48   | 88.32%            | 0.89%                   |
-| [33] | [Config.toml](results/Experiment_6a/Run_33/config.toml) | ResNet10 | ResNet50      | `timm/resisc45` | KLDivLoss           | [metrics.json](results/Experiment_6a/Run_33/metrics.jsonl) | [plots](results/Experiment_6a/Run_33/plots) | ['B01', 'B02', 'B03'] | 90.81% @ 46   | 88.32%            | 2.49%                   |
-| [34] | [Config.toml](results/Experiment_6a/Run_34/config.toml) | ResNet10 | ResNet50      | `timm/resisc45` | KLDivLoss           | [metrics.json](results/Experiment_6a/Run_34/metrics.jsonl) | [plots](results/Experiment_6a/Run_34/plots) | ['B01', 'B02', 'B03'] | 90.87% @ 46   | 88.32%            | 2.56%                   |
-| [35] | [Config.toml](results/Experiment_6a/Run_35/config.toml) | ResNet10 | ResNet50      | `timm/resisc45` | KLDivLoss           | [metrics.json](results/Experiment_6a/Run_35/metrics.jsonl) | [plots](results/Experiment_6a/Run_35/plots) | ['B01', 'B02', 'B03'] | 90.97% @ 50   | 88.32%            | 2.65%                   |
-| [36] | [Config.toml](results/Experiment_6a/Run_36/config.toml) | ResNet10 | ResNet50      | `timm/resisc45` | KLDivLoss           | [metrics.json](results/Experiment_6a/Run_36/metrics.jsonl) | [plots](results/Experiment_6a/Run_36/plots) | ['B01', 'B02', 'B03'] | 90.94% @ 50   | 88.32%            | 2.62%                   |
-| [37] | [Config.toml](results/Experiment_6a/Run_37/config.toml) | ResNet10 | ResNet50      | `timm/resisc45` | KLDivLoss           | [metrics.json](results/Experiment_6a/Run_37/metrics.jsonl) | [plots](results/Experiment_6a/Run_37/plots) | ['B01', 'B02', 'B03'] | 90.67% @ 49   | 88.32%            | 2.35%                   |
-| [38] | [Config.toml](results/Experiment_6a/Run_38/config.toml) | ResNet10 | ResNet50      | `timm/resisc45` | KLDivLoss           | [metrics.json](results/Experiment_6a/Run_38/metrics.jsonl) | [plots](results/Experiment_6a/Run_38/plots) | ['B01', 'B02', 'B03'] | 90.71% @ 49   | 88.32%            | 2.40%                   |
-| [39] | [Config.toml](results/Experiment_6a/Run_39/config.toml) | ResNet10 | ResNet50      | `timm/resisc45` | KLDivLoss           | [metrics.json](results/Experiment_6a/Run_39/metrics.jsonl) | [plots](results/Experiment_6a/Run_39/plots) | ['B01', 'B02', 'B03'] | 89.21% @ 48   | 88.32%            | 0.89%                   |
-| [40] | [Config.toml](results/Experiment_6a/Run_40/config.toml) | ResNet10 | ResNet50      | `timm/resisc45` | KLDivLoss           | [metrics.json](results/Experiment_6a/Run_40/metrics.jsonl) | [plots](results/Experiment_6a/Run_40/plots) | ['B01', 'B02', 'B03'] | 90.98% @ 47   | 88.32%            | 2.67%                   |
+**Results**
+- [Results](results/Experiment_4a/experiment_summary.md)
 
-## Experiment 6b: Hyperparameter-tuning - RESISC45, ResNet10small, ResNet50
+---
 
-**Goal:** Train the smaller model (ResNet10small) with teacher-student training. Use the best teacher model ( the best
+## Experiment 5: KD Hyperparameter-tuning - EuroSAT, ResNet10mini, ResNet50
+
+**Goal:** Train the smaller model (ResNet10mini) with teacher-student training. Use the best teacher model ( the best
 validation accuracy) ResNet50 as a guiding teacher.
-In this experiment we will do hyperparameter tuning for the student model training. Also we use different knowledge
+In this experiment we will do hyperparameter tuning for the student model training. Also, we use different knowledge
 distillation methods such as CosineEmbeddingLoss, CrossEntropyLoss and KLDivergenceLoss.
-Dataset is the `RESISC45` dataset.
 
-[Results](results/Experiment_6b/experiment_summary.md)
 
-### Runs
+**Outcomes**
+- df
 
-| Run  | Config                                                  | Model        | Model Teacher | Dataset         | KD-Type             | Metrics                                                    | Plots                                       | Bands                 | Best Accuracy | Baseline Accuracy | Improvement to Baseline |
-|------|---------------------------------------------------------|--------------|---------------|-----------------|---------------------|------------------------------------------------------------|---------------------------------------------|-----------------------|---------------|-------------------|-------------------------|
-| [1]  | [Config.toml](results/Experiment_6b/Run_1/config.toml)  | ResNet10mini | ResNet50      | `timm/resisc45` | CosineEmbeddingLoss | [metrics.json](results/Experiment_6b/Run_1/metrics.jsonl)  | [plots](results/Experiment_6b/Run_1/plots)  | ['B01', 'B02', 'B03'] | 83.05% @ 47   | 83.30%            | -0.25%                  |
-| [2]  | [Config.toml](results/Experiment_6b/Run_2/config.toml)  | ResNet10mini | ResNet50      | `timm/resisc45` | CosineEmbeddingLoss | [metrics.json](results/Experiment_6b/Run_2/metrics.jsonl)  | [plots](results/Experiment_6b/Run_2/plots)  | ['B01', 'B02', 'B03'] | 83.49% @ 48   | 83.30%            | 0.19%                   |
-| [3]  | [Config.toml](results/Experiment_6b/Run_3/config.toml)  | ResNet10mini | ResNet50      | `timm/resisc45` | CosineEmbeddingLoss | [metrics.json](results/Experiment_6b/Run_3/metrics.jsonl)  | [plots](results/Experiment_6b/Run_3/plots)  | ['B01', 'B02', 'B03'] | 83.94% @ 49   | 83.30%            | 0.63%                   |
-| [4]  | [Config.toml](results/Experiment_6b/Run_4/config.toml)  | ResNet10mini | ResNet50      | `timm/resisc45` | CosineEmbeddingLoss | [metrics.json](results/Experiment_6b/Run_4/metrics.jsonl)  | [plots](results/Experiment_6b/Run_4/plots)  | ['B01', 'B02', 'B03'] | 83.67% @ 41   | 83.30%            | 0.37%                   |
-| [5]  | [Config.toml](results/Experiment_6b/Run_5/config.toml)  | ResNet10mini | ResNet50      | `timm/resisc45` | CosineEmbeddingLoss | [metrics.json](results/Experiment_6b/Run_5/metrics.jsonl)  | [plots](results/Experiment_6b/Run_5/plots)  | ['B01', 'B02', 'B03'] | 84.25% @ 49   | 83.30%            | 0.95%                   |
-| [6]  | [Config.toml](results/Experiment_6b/Run_6/config.toml)  | ResNet10mini | ResNet50      | `timm/resisc45` | CosineEmbeddingLoss | [metrics.json](results/Experiment_6b/Run_6/metrics.jsonl)  | [plots](results/Experiment_6b/Run_6/plots)  | ['B01', 'B02', 'B03'] | 84.54% @ 50   | 83.30%            | 1.24%                   |
-| [7]  | [Config.toml](results/Experiment_6b/Run_7/config.toml)  | ResNet10mini | ResNet50      | `timm/resisc45` | CosineEmbeddingLoss | [metrics.json](results/Experiment_6b/Run_7/metrics.jsonl)  | [plots](results/Experiment_6b/Run_7/plots)  | ['B01', 'B02', 'B03'] | 83.59% @ 50   | 83.30%            | 0.29%                   |
-| [8]  | [Config.toml](results/Experiment_6b/Run_8/config.toml)  | ResNet10mini | ResNet50      | `timm/resisc45` | CosineEmbeddingLoss | [metrics.json](results/Experiment_6b/Run_8/metrics.jsonl)  | [plots](results/Experiment_6b/Run_8/plots)  | ['B01', 'B02', 'B03'] | 83.54% @ 47   | 83.30%            | 0.24%                   |
-| [9]  | [Config.toml](results/Experiment_6b/Run_9/config.toml)  | ResNet10mini | ResNet50      | `timm/resisc45` | CosineEmbeddingLoss | [metrics.json](results/Experiment_6b/Run_9/metrics.jsonl)  | [plots](results/Experiment_6b/Run_9/plots)  | ['B01', 'B02', 'B03'] | 83.25% @ 42   | 83.30%            | -0.05%                  |
-| [10] | [Config.toml](results/Experiment_6b/Run_10/config.toml) | ResNet10mini | ResNet50      | `timm/resisc45` | CosineEmbeddingLoss | [metrics.json](results/Experiment_6b/Run_10/metrics.jsonl) | [plots](results/Experiment_6b/Run_10/plots) | ['B01', 'B02', 'B03'] | 83.14% @ 40   | 83.30%            | -0.16%                  |
-| [11] | [Config.toml](results/Experiment_6b/Run_11/config.toml) | ResNet10mini | ResNet50      | `timm/resisc45` | CrossEntropyLoss    | [metrics.json](results/Experiment_6b/Run_11/metrics.jsonl) | [plots](results/Experiment_6b/Run_11/plots) | ['B01', 'B02', 'B03'] | 84.65% @ 42   | 83.30%            | 1.35%                   |
-| [12] | [Config.toml](results/Experiment_6b/Run_12/config.toml) | ResNet10mini | ResNet50      | `timm/resisc45` | CrossEntropyLoss    | [metrics.json](results/Experiment_6b/Run_12/metrics.jsonl) | [plots](results/Experiment_6b/Run_12/plots) | ['B01', 'B02', 'B03'] | 84.16% @ 41   | 83.30%            | 0.86%                   |
-| [13] | [Config.toml](results/Experiment_6b/Run_13/config.toml) | ResNet10mini | ResNet50      | `timm/resisc45` | CrossEntropyLoss    | [metrics.json](results/Experiment_6b/Run_13/metrics.jsonl) | [plots](results/Experiment_6b/Run_13/plots) | ['B01', 'B02', 'B03'] | 84.29% @ 40   | 83.30%            | 0.98%                   |
-| [14] | [Config.toml](results/Experiment_6b/Run_14/config.toml) | ResNet10mini | ResNet50      | `timm/resisc45` | CrossEntropyLoss    | [metrics.json](results/Experiment_6b/Run_14/metrics.jsonl) | [plots](results/Experiment_6b/Run_14/plots) | ['B01', 'B02', 'B03'] | 84.29% @ 40   | 83.30%            | 0.98%                   |
-| [15] | [Config.toml](results/Experiment_6b/Run_15/config.toml) | ResNet10mini | ResNet50      | `timm/resisc45` | CrossEntropyLoss    | [metrics.json](results/Experiment_6b/Run_15/metrics.jsonl) | [plots](results/Experiment_6b/Run_15/plots) | ['B01', 'B02', 'B03'] | 83.98% @ 40   | 83.30%            | 0.68%                   |
-| [16] | [Config.toml](results/Experiment_6b/Run_16/config.toml) | ResNet10mini | ResNet50      | `timm/resisc45` | CrossEntropyLoss    | [metrics.json](results/Experiment_6b/Run_16/metrics.jsonl) | [plots](results/Experiment_6b/Run_16/plots) | ['B01', 'B02', 'B03'] | 52.51% @ 6    | 83.30%            | -30.79%                 |
-| [17] | [Config.toml](results/Experiment_6b/Run_17/config.toml) | ResNet10mini | ResNet50      | `timm/resisc45` | CrossEntropyLoss    | [metrics.json](results/Experiment_6b/Run_17/metrics.jsonl) | [plots](results/Experiment_6b/Run_17/plots) | ['B01', 'B02', 'B03'] | 84.14% @ 40   | 88.32%            | -4.17%                  |
-| [18] | [Config.toml](results/Experiment_6b/Run_18/config.toml) | ResNet10mini | ResNet50      | `timm/resisc45` | CrossEntropyLoss    | [metrics.json](results/Experiment_6b/Run_18/metrics.jsonl) | [plots](results/Experiment_6b/Run_18/plots) | ['B01', 'B02', 'B03'] | 84.30% @ 40   | 83.30%            | 1.00%                   |
-| [19] | [Config.toml](results/Experiment_6b/Run_19/config.toml) | ResNet10mini | ResNet50      | `timm/resisc45` | CrossEntropyLoss    | [metrics.json](results/Experiment_6b/Run_19/metrics.jsonl) | [plots](results/Experiment_6b/Run_19/plots) | ['B01', 'B02', 'B03'] | 84.32% @ 47   | 83.30%            | 1.02%                   |
-| [20] | [Config.toml](results/Experiment_6b/Run_20/config.toml) | ResNet10mini | ResNet50      | `timm/resisc45` | CrossEntropyLoss    | [metrics.json](results/Experiment_6b/Run_20/metrics.jsonl) | [plots](results/Experiment_6b/Run_20/plots) | ['B01', 'B02', 'B03'] | 84.49% @ 46   | 83.30%            | 1.19%                   |
-| [21] | [Config.toml](results/Experiment_6b/Run_21/config.toml) | ResNet10mini | ResNet50      | `timm/resisc45` | CrossEntropyLoss    | [metrics.json](results/Experiment_6b/Run_21/metrics.jsonl) | [plots](results/Experiment_6b/Run_21/plots) | ['B01', 'B02', 'B03'] | 85.35% @ 47   | 83.30%            | 2.05%                   |
-| [22] | [Config.toml](results/Experiment_6b/Run_22/config.toml) | ResNet10mini | ResNet50      | `timm/resisc45` | CrossEntropyLoss    | [metrics.json](results/Experiment_6b/Run_22/metrics.jsonl) | [plots](results/Experiment_6b/Run_22/plots) | ['B01', 'B02', 'B03'] | 85.78% @ 46   | 83.30%            | 2.48%                   |
-| [23] | [Config.toml](results/Experiment_6b/Run_23/config.toml) | ResNet10mini | ResNet50      | `timm/resisc45` | CrossEntropyLoss    | [metrics.json](results/Experiment_6b/Run_23/metrics.jsonl) | [plots](results/Experiment_6b/Run_23/plots) | ['B01', 'B02', 'B03'] | 86.08% @ 49   | 83.30%            | 2.78%                   |
-| [24] | [Config.toml](results/Experiment_6b/Run_24/config.toml) | ResNet10mini | ResNet50      | `timm/resisc45` | RegressorMSE        | [metrics.json](results/Experiment_6b/Run_24/metrics.jsonl) | [plots](results/Experiment_6b/Run_24/plots) | ['B01', 'B02', 'B03'] | 85.78% @ 44   | 83.30%            | 2.48%                   |
-| [25] | [Config.toml](results/Experiment_6b/Run_25/config.toml) | ResNet10mini | ResNet50      | `timm/resisc45` | RegressorMSE        | [metrics.json](results/Experiment_6b/Run_25/metrics.jsonl) | [plots](results/Experiment_6b/Run_25/plots) | ['B01', 'B02', 'B03'] | 86.00% @ 50   | 83.30%            | 2.70%                   |
-| [26] | [Config.toml](results/Experiment_6b/Run_26/config.toml) | ResNet10mini | ResNet50      | `timm/resisc45` | RegressorMSE        | [metrics.json](results/Experiment_6b/Run_26/metrics.jsonl) | [plots](results/Experiment_6b/Run_26/plots) | ['B01', 'B02', 'B03'] | 85.71% @ 45   | 83.30%            | 2.41%                   |
-| [27] | [Config.toml](results/Experiment_6b/Run_27/config.toml) | ResNet10mini | ResNet50      | `timm/resisc45` | RegressorMSE        | [metrics.json](results/Experiment_6b/Run_27/metrics.jsonl) | [plots](results/Experiment_6b/Run_27/plots) | ['B01', 'B02', 'B03'] | 84.56% @ 45   | 83.30%            | 1.25%                   |
-| [28] | [Config.toml](results/Experiment_6b/Run_28/config.toml) | ResNet10mini | ResNet50      | `timm/resisc45` | RegressorMSE        | [metrics.json](results/Experiment_6b/Run_28/metrics.jsonl) | [plots](results/Experiment_6b/Run_28/plots) | ['B01', 'B02', 'B03'] | 85.90% @ 46   | 83.30%            | 2.60%                   |
-| [29] | [Config.toml](results/Experiment_6b/Run_29/config.toml) | ResNet10mini | ResNet50      | `timm/resisc45` | KLDivLoss           | [metrics.json](results/Experiment_6b/Run_29/metrics.jsonl) | [plots](results/Experiment_6b/Run_29/plots) | ['B01', 'B02', 'B03'] | 85.87% @ 46   | 83.30%            | 2.57%                   |
-| [30] | [Config.toml](results/Experiment_6b/Run_30/config.toml) | ResNet10mini | ResNet50      | `timm/resisc45` | KLDivLoss           | [metrics.json](results/Experiment_6b/Run_30/metrics.jsonl) | [plots](results/Experiment_6b/Run_30/plots) | ['B01', 'B02', 'B03'] | 85.65% @ 47   | 83.30%            | 2.35%                   |
-| [31] | [Config.toml](results/Experiment_6b/Run_31/config.toml) | ResNet10mini | ResNet50      | `timm/resisc45` | KLDivLoss           | [metrics.json](results/Experiment_6b/Run_31/metrics.jsonl) | [plots](results/Experiment_6b/Run_31/plots) | ['B01', 'B02', 'B03'] | 84.67% @ 47   | 83.30%            | 1.37%                   |
-| [32] | [Config.toml](results/Experiment_6b/Run_32/config.toml) | ResNet10mini | ResNet50      | `timm/resisc45` | KLDivLoss           | [metrics.json](results/Experiment_6b/Run_32/metrics.jsonl) | [plots](results/Experiment_6b/Run_32/plots) | ['B01', 'B02', 'B03'] | 83.43% @ 44   | 83.30%            | 0.13%                   |
-| [33] | [Config.toml](results/Experiment_6b/Run_33/config.toml) | ResNet10mini | ResNet50      | `timm/resisc45` | KLDivLoss           | [metrics.json](results/Experiment_6b/Run_33/metrics.jsonl) | [plots](results/Experiment_6b/Run_33/plots) | ['B01', 'B02', 'B03'] | 85.73% @ 48   | 83.30%            | 2.43%                   |
-| [34] | [Config.toml](results/Experiment_6b/Run_34/config.toml) | ResNet10mini | ResNet50      | `timm/resisc45` | KLDivLoss           | [metrics.json](results/Experiment_6b/Run_34/metrics.jsonl) | [plots](results/Experiment_6b/Run_34/plots) | ['B01', 'B02', 'B03'] | 85.84% @ 46   | 83.30%            | 2.54%                   |
-| [35] | [Config.toml](results/Experiment_6b/Run_35/config.toml) | ResNet10mini | ResNet50      | `timm/resisc45` | KLDivLoss           | [metrics.json](results/Experiment_6b/Run_35/metrics.jsonl) | [plots](results/Experiment_6b/Run_35/plots) | ['B01', 'B02', 'B03'] | 85.95% @ 50   | 83.30%            | 2.65%                   |
-| [36] | [Config.toml](results/Experiment_6b/Run_36/config.toml) | ResNet10mini | ResNet50      | `timm/resisc45` | KLDivLoss           | [metrics.json](results/Experiment_6b/Run_36/metrics.jsonl) | [plots](results/Experiment_6b/Run_36/plots) | ['B01', 'B02', 'B03'] | 85.67% @ 46   | 83.30%            | 2.37%                   |
-| [37] | [Config.toml](results/Experiment_6b/Run_37/config.toml) | ResNet10mini | ResNet50      | `timm/resisc45` | KLDivLoss           | [metrics.json](results/Experiment_6b/Run_37/metrics.jsonl) | [plots](results/Experiment_6b/Run_37/plots) | ['B01', 'B02', 'B03'] | 85.57% @ 47   | 83.30%            | 2.27%                   |
-| [38] | [Config.toml](results/Experiment_6b/Run_38/config.toml) | ResNet10mini | ResNet50      | `timm/resisc45` | KLDivLoss           | [metrics.json](results/Experiment_6b/Run_38/metrics.jsonl) | [plots](results/Experiment_6b/Run_38/plots) | ['B01', 'B02', 'B03'] | 85.48% @ 48   | 83.30%            | 2.17%                   |
-| [39] | [Config.toml](results/Experiment_6b/Run_39/config.toml) | ResNet10mini | ResNet50      | `timm/resisc45` | KLDivLoss           | [metrics.json](results/Experiment_6b/Run_39/metrics.jsonl) | [plots](results/Experiment_6b/Run_39/plots) | ['B01', 'B02', 'B03'] | 83.43% @ 44   | 83.30%            | 0.13%                   |
-| [40] | [Config.toml](results/Experiment_6b/Run_40/config.toml) | ResNet10mini | ResNet50      | `timm/resisc45` | KLDivLoss           | [metrics.json](results/Experiment_6b/Run_40/metrics.jsonl) | [plots](results/Experiment_6b/Run_40/plots) | ['B01', 'B02', 'B03'] | 85.97% @ 48   | 83.30%            | 2.67%                   |
+**Results**
+- [Results](results/Experiment_5/experiment_summary.md)
 
-## Experiment 7: Compression - RESISC45, ResNet18, ResNet50
+---
+
+## Experiment 5a: KD Hyperparameter-tuning - RESISC45, ResNet10mini, ResNet50
+
+**Goal:** Train the smaller model (ResNet10mini) with teacher-student training. Use the best teacher model ( the best
+validation accuracy) ResNet50 as a guiding teacher.
+In this experiment we will do hyperparameter tuning for the student model training. Also, we use different knowledge
+distillation methods such as CosineEmbeddingLoss, CrossEntropyLoss and KLDivergenceLoss.
+
+
+**Outcomes**
+- df
+
+**Results**
+- [Results](results/Experiment_5a/experiment_summary.md)
+
+---
+
+## Experiment 6: Pruning Hyperparameter-Tuning  - EuroSAT, ResNet18, ResNet50
 
 **Goal:** In this Experiment we will compress the ResNet18 model using pruning techniques. The compressed models will be
-fine-tuned with knowledge distillation using the ResNet50 as teacher model. This experiment was done using the best
-hyperparameters found in Experiment 5 and 6. Only Resic45 dataset is used.
+fine-tuned with knowledge distillation using the ResNet50 as teacher model. This experiment was done using the best KD-hyperparameters 
+found in Experiment 3. Only `EuroSAT` dataset is used.
 All experiment use a ResNet18 student model trained with a ResNet50 teacher model. The model resulting form the
-following was used: [Experiment 6, Run 23](results/Experiment_6/Run_23/config.toml)
+following was used: [Experiment 3, Run 3](results/Experiment_3/Run_3/config.toml) as starting point.
 
-[Results](results/Experiment_7/experiment_summary.md)
+**Results**
+- [Results](results/Experiment_6/experiment_summary.md)
 
-### Runs
+---
 
-| Run  | Config                                                 | Model    | Model Teacher | Dataset         | KD-Type          | Compression | Plots                                      | Bands                 | Metrics Iter 1                                                                     | Best Acc Iter 1 | Baseline Accuracy | Improvement to Baseline |
-|------|--------------------------------------------------------|----------|---------------|-----------------|------------------|-------------|--------------------------------------------|-----------------------|------------------------------------------------------------------------------------|-----------------|-------------------|-------------------------|
-| [1]  | [Config.toml](results/Experiment_7/Run_1/config.toml)  | ResNet18 | ResNet50      | `timm/resisc45` | CrossEntropyLoss | l1          | [plots](results/Experiment_7/Run_1/plots)  | ['B01', 'B02', 'B03'] | [metrics_iteration_1.jsonl](results/Experiment_7/Run_1/metrics_iteration_1.jsonl)  | 92.11% @ 49     | 89.97%            | 2.14%                   |
-| [2]  | [Config.toml](results/Experiment_7/Run_2/config.toml)  | ResNet18 | ResNet50      | `timm/resisc45` | CrossEntropyLoss | l1          | [plots](results/Experiment_7/Run_2/plots)  | ['B01', 'B02', 'B03'] | [metrics_iteration_1.jsonl](results/Experiment_7/Run_2/metrics_iteration_1.jsonl)  | 92.87% @ 44     | 89.97%            | 2.90%                   |
-| [3]  | [Config.toml](results/Experiment_7/Run_3/config.toml)  | ResNet18 | ResNet50      | `timm/resisc45` | CrossEntropyLoss | l1          | [plots](results/Experiment_7/Run_3/plots)  | ['B01', 'B02', 'B03'] | [metrics_iteration_1.jsonl](results/Experiment_7/Run_3/metrics_iteration_1.jsonl)  | 92.44% @ 43     | 89.97%            | 2.48%                   |
-| [4]  | [Config.toml](results/Experiment_7/Run_4/config.toml)  | ResNet18 | ResNet50      | `timm/resisc45` | CrossEntropyLoss | l1          | [plots](results/Experiment_7/Run_4/plots)  | ['B01', 'B02', 'B03'] | [metrics_iteration_1.jsonl](results/Experiment_7/Run_4/metrics_iteration_1.jsonl)  | 89.59% @ 46     | 89.97%            | -0.38%                  |
-| [5]  | [Config.toml](results/Experiment_7/Run_5/config.toml)  | ResNet18 | ResNet50      | `timm/resisc45` | CrossEntropyLoss | l1          | [plots](results/Experiment_7/Run_5/plots)  | ['B01', 'B02', 'B03'] | [metrics_iteration_1.jsonl](results/Experiment_7/Run_5/metrics_iteration_1.jsonl)  | 86.44% @ 50     | 89.97%            | -3.52%                  |
-| [6]  | [Config.toml](results/Experiment_7/Run_6/config.toml)  | ResNet18 | ResNet50      | `timm/resisc45` | CrossEntropyLoss | random      | [plots](results/Experiment_7/Run_6/plots)  | ['B01', 'B02', 'B03'] | [metrics_iteration_1.jsonl](results/Experiment_7/Run_6/metrics_iteration_1.jsonl)  | 91.89% @ 46     | 89.97%            | 1.92%                   |
-| [7]  | [Config.toml](results/Experiment_7/Run_7/config.toml)  | ResNet18 | ResNet50      | `timm/resisc45` | CrossEntropyLoss | random      | [plots](results/Experiment_7/Run_7/plots)  | ['B01', 'B02', 'B03'] | [metrics_iteration_1.jsonl](results/Experiment_7/Run_7/metrics_iteration_1.jsonl)  | 89.59% @ 46     | 89.97%            | -0.38%                  |
-| [8]  | [Config.toml](results/Experiment_7/Run_8/config.toml)  | ResNet18 | ResNet50      | `timm/resisc45` | CrossEntropyLoss | l1          | [plots](results/Experiment_7/Run_8/plots)  | ['B01', 'B02', 'B03'] | [metrics_iteration_1.jsonl](results/Experiment_7/Run_8/metrics_iteration_1.jsonl)  | 93.19% @ 43     | 89.97%            | 3.22%                   |
-| [9]  | [Config.toml](results/Experiment_7/Run_9/config.toml)  | ResNet18 | ResNet50      | `timm/resisc45` | CrossEntropyLoss | l1          | [plots](results/Experiment_7/Run_9/plots)  | ['B01', 'B02', 'B03'] | [metrics_iteration_1.jsonl](results/Experiment_7/Run_9/metrics_iteration_1.jsonl)  | 93.08% @ 39     | 89.97%            | 3.11%                   |
-| [10] | [Config.toml](results/Experiment_7/Run_10/config.toml) | ResNet18 | ResNet50      | `timm/resisc45` | CrossEntropyLoss | l1          | [plots](results/Experiment_7/Run_10/plots) | ['B01', 'B02', 'B03'] | [metrics_iteration_1.jsonl](results/Experiment_7/Run_10/metrics_iteration_1.jsonl) | 92.35% @ 45     | 89.97%            | 2.38%                   |
-| [11] | [Config.toml](results/Experiment_7/Run_11/config.toml) | ResNet18 | ResNet50      | `timm/resisc45` | CrossEntropyLoss | l1          | [plots](results/Experiment_7/Run_11/plots) | ['B01', 'B02', 'B03'] | [metrics_iteration_1.jsonl](results/Experiment_7/Run_11/metrics_iteration_1.jsonl) | 91.37% @ 40     | 89.97%            | 1.40%                   |
-| [12] | [Config.toml](results/Experiment_7/Run_12/config.toml) | ResNet18 | ResNet50      | `timm/resisc45` | CrossEntropyLoss | l1          | [plots](results/Experiment_7/Run_12/plots) | ['B01', 'B02', 'B03'] | [metrics_iteration_1.jsonl](results/Experiment_7/Run_12/metrics_iteration_1.jsonl) | 90.32% @ 41     | 89.97%            | 0.35%                   |
-| [13] | [Config.toml](results/Experiment_7/Run_13/config.toml) | ResNet18 | ResNet50      | `timm/resisc45` | CrossEntropyLoss | l1          | [plots](results/Experiment_7/Run_13/plots) | ['B01', 'B02', 'B03'] | [metrics_iteration_1.jsonl](results/Experiment_7/Run_13/metrics_iteration_1.jsonl) | 91.89% @ 46     | 89.97%            | 1.92%                   |
-| [14] | [Config.toml](results/Experiment_7/Run_14/config.toml) | ResNet18 | ResNet50      | `timm/resisc45` | CrossEntropyLoss | l1          | [plots](results/Experiment_7/Run_14/plots) | ['B01', 'B02', 'B03'] | [metrics_iteration_1.jsonl](results/Experiment_7/Run_14/metrics_iteration_1.jsonl) | 91.89% @ 46     | 89.97%            | 1.92%                   |
-| [15] | [Config.toml](results/Experiment_7/Run_15/config.toml) | ResNet18 | ResNet50      | `timm/resisc45` | CrossEntropyLoss | l1          | [plots](results/Experiment_7/Run_15/plots) | ['B01', 'B02', 'B03'] | [metrics_iteration_1.jsonl](results/Experiment_7/Run_15/metrics_iteration_1.jsonl) | 92.33% @ 50     | 89.97%            | 2.37%                   |
-| [16] | [Config.toml](results/Experiment_7/Run_16/config.toml) | ResNet18 | ResNet50      | `timm/resisc45` | CrossEntropyLoss | l1          | [plots](results/Experiment_7/Run_16/plots) | ['B01', 'B02', 'B03'] | [metrics_iteration_1.jsonl](results/Experiment_7/Run_16/metrics_iteration_1.jsonl) | 71.59% @ 46     | 89.97%            | -18.38%                 |
-| [17] | [Config.toml](results/Experiment_7/Run_17/config.toml) | ResNet18 | ResNet50      | `timm/resisc45` | CrossEntropyLoss | l1          | [plots](results/Experiment_7/Run_17/plots) | ['B01', 'B02', 'B03'] | [metrics_iteration_1.jsonl](results/Experiment_7/Run_17/metrics_iteration_1.jsonl) | 69.73% @ 44     | 89.97%            | -20.24%                 |
-| [18] | [Config.toml](results/Experiment_7/Run_18/config.toml) | ResNet18 | ResNet50      | `timm/resisc45` | CrossEntropyLoss | random      | [plots](results/Experiment_7/Run_18/plots) | ['B01', 'B02', 'B03'] | [metrics_iteration_1.jsonl](results/Experiment_7/Run_18/metrics_iteration_1.jsonl) | 93.14% @ 46     | 89.97%            | 3.17%                   |
-| [19] | [Config.toml](results/Experiment_7/Run_19/config.toml) | ResNet18 | ResNet50      | `timm/resisc45` | CrossEntropyLoss | l1          | [plots](results/Experiment_7/Run_19/plots) | ['B01', 'B02', 'B03'] | [metrics_iteration_1.jsonl](results/Experiment_7/Run_19/metrics_iteration_1.jsonl) | 93.21% @ 46     | 89.97%            | 3.24%                   |
-| [20] | [Config.toml](results/Experiment_7/Run_20/config.toml) | ResNet18 | ResNet50      | `timm/resisc45` | CrossEntropyLoss | random      | [plots](results/Experiment_7/Run_20/plots) | ['B01', 'B02', 'B03'] | [metrics_iteration_1.jsonl](results/Experiment_7/Run_20/metrics_iteration_1.jsonl) | 90.32% @ 41     | 89.97%            | 0.35%                   |
-| [21] | [Config.toml](results/Experiment_7/Run_21/config.toml) | ResNet18 | ResNet50      | `timm/resisc45` | CrossEntropyLoss | l1          | [plots](results/Experiment_7/Run_21/plots) | ['B01', 'B02', 'B03'] | [metrics_iteration_1.jsonl](results/Experiment_7/Run_21/metrics_iteration_1.jsonl) | 92.24% @ 45     | 89.97%            | 2.27%                   |
-
-## Experiment 7a: Compression - RESISC45, ResNet18, ResNet50
+## Experiment 6a: Pruning Hyperparameter-Tuning  - RESISC45, ResNet18, ResNet50
 
 **Goal:** In this Experiment we will compress the ResNet18 model using pruning techniques. The compressed models will be
-fine-tuned with knowledge distillation using the ResNet50 as teacher model. This experiment was done using the best
-hyperparameters found in Experiment 5 and 6. Only Resisc45 dataset is used.
-All experiment use a ResNet10 student model trained with a ResNet50 teacher model. The model resulting form the
-following was used: [Experiment 6a, Run 40](results/Experiment_6a/Run_40/config.toml)
-
-[Results](results/Experiment_7a/experiment_summary.md)
-
-### Runs
-
-| Run  | Config                                                  | Model    | Model Teacher | Dataset         | KD-Type   | Compression | Plots                                       | Bands                 | Metrics Iter 1                                                                      | Best Acc Iter 1 | Baseline Accuracy | Improvement to Baseline |
-|------|---------------------------------------------------------|----------|---------------|-----------------|-----------|-------------|---------------------------------------------|-----------------------|-------------------------------------------------------------------------------------|-----------------|-------------------|-------------------------|
-| [1]  | [Config.toml](results/Experiment_7a/Run_1/config.toml)  | ResNet10 | ResNet50      | `timm/resisc45` | KLDivLoss | l1          | [plots](results/Experiment_7a/Run_1/plots)  | ['B01', 'B02', 'B03'] | [metrics_iteration_1.jsonl](results/Experiment_7a/Run_1/metrics_iteration_1.jsonl)  | 89.65% @ 49     | 88.32%            | 1.33%                   |
-| [2]  | [Config.toml](results/Experiment_7a/Run_2/config.toml)  | ResNet10 | ResNet50      | `timm/resisc45` | KLDivLoss | l1          | [plots](results/Experiment_7a/Run_2/plots)  | ['B01', 'B02', 'B03'] | [metrics_iteration_1.jsonl](results/Experiment_7a/Run_2/metrics_iteration_1.jsonl)  | 91.51% @ 45     | 88.32%            | 3.19%                   |
-| [3]  | [Config.toml](results/Experiment_7a/Run_3/config.toml)  | ResNet10 | ResNet50      | `timm/resisc45` | KLDivLoss | l1          | [plots](results/Experiment_7a/Run_3/plots)  | ['B01', 'B02', 'B03'] | [metrics_iteration_1.jsonl](results/Experiment_7a/Run_3/metrics_iteration_1.jsonl)  | 90.94% @ 45     | 88.32%            | 2.62%                   |
-| [4]  | [Config.toml](results/Experiment_7a/Run_4/config.toml)  | ResNet10 | ResNet50      | `timm/resisc45` | KLDivLoss | l1          | [plots](results/Experiment_7a/Run_4/plots)  | ['B01', 'B02', 'B03'] | [metrics_iteration_1.jsonl](results/Experiment_7a/Run_4/metrics_iteration_1.jsonl)  | 85.56% @ 49     | 88.32%            | -2.76%                  |
-| [5]  | [Config.toml](results/Experiment_7a/Run_5/config.toml)  | ResNet10 | ResNet50      | `timm/resisc45` | KLDivLoss | l1          | [plots](results/Experiment_7a/Run_5/plots)  | ['B01', 'B02', 'B03'] | [metrics_iteration_1.jsonl](results/Experiment_7a/Run_5/metrics_iteration_1.jsonl)  | 81.43% @ 45     | 88.32%            | -6.89%                  |
-| [6]  | [Config.toml](results/Experiment_7a/Run_6/config.toml)  | ResNet10 | ResNet50      | `timm/resisc45` | KLDivLoss | random      | [plots](results/Experiment_7a/Run_6/plots)  | ['B01', 'B02', 'B03'] | [metrics_iteration_1.jsonl](results/Experiment_7a/Run_6/metrics_iteration_1.jsonl)  | 89.65% @ 49     | 88.32%            | 1.33%                   |
-| [7]  | [Config.toml](results/Experiment_7a/Run_7/config.toml)  | ResNet10 | ResNet50      | `timm/resisc45` | KLDivLoss | random      | [plots](results/Experiment_7a/Run_7/plots)  | ['B01', 'B02', 'B03'] | [metrics_iteration_1.jsonl](results/Experiment_7a/Run_7/metrics_iteration_1.jsonl)  | 85.56% @ 49     | 88.32%            | -2.76%                  |
-| [8]  | [Config.toml](results/Experiment_7a/Run_8/config.toml)  | ResNet10 | ResNet50      | `timm/resisc45` | KLDivLoss | l1          | [plots](results/Experiment_7a/Run_8/plots)  | ['B01', 'B02', 'B03'] | [metrics_iteration_1.jsonl](results/Experiment_7a/Run_8/metrics_iteration_1.jsonl)  | 91.33% @ 41     | 88.32%            | 3.02%                   |
-| [9]  | [Config.toml](results/Experiment_7a/Run_9/config.toml)  | ResNet10 | ResNet50      | `timm/resisc45` | KLDivLoss | l1          | [plots](results/Experiment_7a/Run_9/plots)  | ['B01', 'B02', 'B03'] | [metrics_iteration_1.jsonl](results/Experiment_7a/Run_9/metrics_iteration_1.jsonl)  | 90.92% @ 50     | 88.32%            | 2.60%                   |
-| [10] | [Config.toml](results/Experiment_7a/Run_10/config.toml) | ResNet10 | ResNet50      | `timm/resisc45` | KLDivLoss | l1          | [plots](results/Experiment_7a/Run_10/plots) | ['B01', 'B02', 'B03'] | [metrics_iteration_1.jsonl](results/Experiment_7a/Run_10/metrics_iteration_1.jsonl) | 91.00% @ 45     | 88.32%            | 2.68%                   |
-| [11] | [Config.toml](results/Experiment_7a/Run_11/config.toml) | ResNet10 | ResNet50      | `timm/resisc45` | KLDivLoss | l1          | [plots](results/Experiment_7a/Run_11/plots) | ['B01', 'B02', 'B03'] | [metrics_iteration_1.jsonl](results/Experiment_7a/Run_11/metrics_iteration_1.jsonl) | 89.97% @ 49     | 88.32%            | 1.65%                   |
-| [12] | [Config.toml](results/Experiment_7a/Run_12/config.toml) | ResNet10 | ResNet50      | `timm/resisc45` | KLDivLoss | l1          | [plots](results/Experiment_7a/Run_12/plots) | ['B01', 'B02', 'B03'] | [metrics_iteration_1.jsonl](results/Experiment_7a/Run_12/metrics_iteration_1.jsonl) | 88.67% @ 48     | 88.32%            | 0.35%                   |
-| [13] | [Config.toml](results/Experiment_7a/Run_13/config.toml) | ResNet10 | ResNet50      | `timm/resisc45` | KLDivLoss | l1          | [plots](results/Experiment_7a/Run_13/plots) | ['B01', 'B02', 'B03'] | [metrics_iteration_1.jsonl](results/Experiment_7a/Run_13/metrics_iteration_1.jsonl) | 89.65% @ 49     | 88.32%            | 1.33%                   |
-| [14] | [Config.toml](results/Experiment_7a/Run_14/config.toml) | ResNet10 | ResNet50      | `timm/resisc45` | KLDivLoss | l1          | [plots](results/Experiment_7a/Run_14/plots) | ['B01', 'B02', 'B03'] | [metrics_iteration_1.jsonl](results/Experiment_7a/Run_14/metrics_iteration_1.jsonl) | 89.65% @ 49     | 88.32%            | 1.33%                   |
-| [15] | [Config.toml](results/Experiment_7a/Run_15/config.toml) | ResNet10 | ResNet50      | `timm/resisc45` | KLDivLoss | l1          | [plots](results/Experiment_7a/Run_15/plots) | ['B01', 'B02', 'B03'] | [metrics_iteration_1.jsonl](results/Experiment_7a/Run_15/metrics_iteration_1.jsonl) | 90.17% @ 45     | 88.32%            | 1.86%                   |
-| [16] | [Config.toml](results/Experiment_7a/Run_16/config.toml) | ResNet10 | ResNet50      | `timm/resisc45` | KLDivLoss | l1          | [plots](results/Experiment_7a/Run_16/plots) | ['B01', 'B02', 'B03'] | [metrics_iteration_1.jsonl](results/Experiment_7a/Run_16/metrics_iteration_1.jsonl) | 76.63% @ 49     | 88.32%            | -11.68%                 |
-| [17] | [Config.toml](results/Experiment_7a/Run_17/config.toml) | ResNet10 | ResNet50      | `timm/resisc45` | KLDivLoss | l1          | [plots](results/Experiment_7a/Run_17/plots) | ['B01', 'B02', 'B03'] | [metrics_iteration_1.jsonl](results/Experiment_7a/Run_17/metrics_iteration_1.jsonl) | 74.41% @ 49     | 88.32%            | -13.90%                 |
-| [18] | [Config.toml](results/Experiment_7a/Run_18/config.toml) | ResNet10 | ResNet50      | `timm/resisc45` | KLDivLoss | random      | [plots](results/Experiment_7a/Run_18/plots) | ['B01', 'B02', 'B03'] | [metrics_iteration_1.jsonl](results/Experiment_7a/Run_18/metrics_iteration_1.jsonl) | 91.48% @ 46     | 88.32%            | 3.16%                   |
-| [19] | [Config.toml](results/Experiment_7a/Run_19/config.toml) | ResNet10 | ResNet50      | `timm/resisc45` | KLDivLoss | l1          | [plots](results/Experiment_7a/Run_19/plots) | ['B01', 'B02', 'B03'] | [metrics_iteration_1.jsonl](results/Experiment_7a/Run_19/metrics_iteration_1.jsonl) | 91.38% @ 41     | 88.32%            | 3.06%                   |
-| [20] | [Config.toml](results/Experiment_7a/Run_20/config.toml) | ResNet10 | ResNet50      | `timm/resisc45` | KLDivLoss | random      | [plots](results/Experiment_7a/Run_20/plots) | ['B01', 'B02', 'B03'] | [metrics_iteration_1.jsonl](results/Experiment_7a/Run_20/metrics_iteration_1.jsonl) | 88.67% @ 48     | 88.32%            | 0.35%                   |
-| [21] | [Config.toml](results/Experiment_7a/Run_21/config.toml) | ResNet10 | ResNet50      | `timm/resisc45` | KLDivLoss | l1          | [plots](results/Experiment_7a/Run_21/plots) | ['B01', 'B02', 'B03'] | [metrics_iteration_1.jsonl](results/Experiment_7a/Run_21/metrics_iteration_1.jsonl) | 90.14% @ 46     | 88.32%            | 1.83%                   |
-
-## Experiment 8: Ablation Experiments - RESISC45, ResNet10, ResNet18
-
-**Goal:** The goal of this experiment is to perform ablation studies to better understand the impact of the proposed
-distillation aware pruning loop.
-All ablation studies were done on the Resisc45 dataset using ResNet10 and ResNet18 as student models and ResNet50 as a
-teacher.
-
-| Run  | Description                                                                                                                                                                                                                                                                                                                                                                       |
-|------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| [1]  | Train without any teacher KD in the complete loop to get a baseline - ResNet10<br>- Resisc45<br>**- Stage 1:** No teacher<br>**- Stage 2:** Compression with hyperparameter from [Experiment 7a, Run 10](results/Experiment_7a/Run_10/config.toml)<br>**- Stage 3:** No Teacher                                                                                                   |
-| [2]  | Train without any teacher KD in the complete loop to get a baseline - ResNet10<br>- Resisc45<br>**- Stage 1:** No teacher<br>**- Stage 2:** Compression with hyperparameter from [Experiment 7a, Run 11](results/Experiment_7a/Run_11/config.toml)<br>**- Stage 3:** No Teacher                                                                                                   |
-| [3]  | Train without any teacher KD in the complete loop to get a baseline - ResNet18<br>- Resisc45<br>**- Stage 1:** No teacher<br>**- Stage 2:** Compression with hyperparameter from [Experiment 7, Run 10](results/Experiment_7/Run_10/config.toml)<br>**- Stage 3:** No Teacher                                                                                                     |
-| [4]  | Train without any teacher KD in the complete loop to get a baseline - ResNet18<br>- Resisc45<br>**- Stage 1:** No teacher<br>**- Stage 2:** Compression with hyperparameter from [Experiment 7, Run 11](results/Experiment_7/Run_11/config.toml)<br>**- Stage 3:** No Teacher                                                                                                     |
-| [5]  | Train with teacher KD only in the first stage to see if kd in second stage is necessary - ResNet10<br>- Resisc45<br>**- Stage 1:** Train with teacher --> [Experiment 6a, Run 40](results/Experiment_6a/Run_40/config.toml)<br>**- Stage 2:** Compression with hyperparameter from [Experiment 7a, Run 10](results/Experiment_7a/Run_10/config.toml)<br>**- Stage 3:** No Teacher |
-| [6]  | Train with teacher KD only in the first stage to see if kd in second stage is necessary - ResNet10<br>- Resisc45<br>**- Stage 1:** Train with teacher --> [Experiment 6a, Run 40](results/Experiment_6a/Run_40/config.toml)<br>**- Stage 2:** Compression with hyperparameter from [Experiment 7a, Run 11](results/Experiment_7a/Run_11/config.toml)<br>**- Stage 3:** No Teacher |
-| [7]  | Train with teacher KD only in the first stage to see if kd in second stage is necessary - ResNet18<br>- Resisc45<br>**- Stage 1:** Train with teacher --> [Experiment 6, Run 23](results/Experiment_6/Run_23/config.toml)<br>**- Stage 2:** Compression with hyperparameter from [Experiment 7, Run 10](results/Experiment_7/Run_10/config.toml)<br>**- Stage 3:** No Teacher     |
-| [8]  | Train with teacher KD only in the first stage to see if kd in second stage is necessary - ResNet18<br>- Resisc45<br>**- Stage 1:** Train with teacher --> [Experiment 6, Run 23](results/Experiment_6/Run_23/config.toml)<br>**- Stage 2:** Compression with hyperparameter from [Experiment 7, Run 11](results/Experiment_7/Run_11/config.toml)<br>**- Stage 3:** No Teacher     |
-| [9]  | Train with teacher KD only in the second stage to see if kd in first stage is necessary - ResNet10<br>- Resisc45<br>**- Stage 1:** No teacher<br>**- Stage 2:** Compression with hyperparameter from [Experiment 7a, Run 10](results/Experiment_7a/Run_10/config.toml)<br>**- Stage 3:** Train with teacher --> use model after pruning                                           |
-| [10] | Train with teacher KD only in the second stage to see if kd in first stage is necessary - ResNet10<br>- Resisc45<br>**- Stage 1:** No teacher<br>**- Stage 2:** Compression with hyperparameter from [Experiment 7a, Run 11](results/Experiment_7a/Run_11/config.toml)<br>**- Stage 3:** Train with teacher --> use model after pruning                                           |
-| [11] | Train with teacher KD only in the second stage to see if kd in first stage is necessary - ResNet18<br>- Resisc45<br>**- Stage 1:** No teacher<br>**- Stage 2:** Compression with hyperparameter from [Experiment 7, Run 10](results/Experiment_7/Run_10/config.toml)<br>**- Stage 3:** Train with teacher --> use model after pruning                                             |
-| [12] | Train with teacher KD only in the second stage to see if kd in first stage is necessary - ResNet18<br>- Resisc45<br>**- Stage 1:** No teacher<br>**- Stage 2:** Compression with hyperparameter from [Experiment 7, Run 11](results/Experiment_7/Run_11/config.toml)<br>**- Stage 3:** Train with teacher --> use model after pruning                                             |
-
-### ResNet10 on RESISC45
-| Model                                                | Parameter | Validation Accuracy (%) | Run ID                                                                          | Notes                                                       |
-|------------------------------------------------------|-----------|-------------------------|---------------------------------------------------------------------------------|-------------------------------------------------------------|
-| ResNet10 - Our Baseline                              | 4,921,197 | 88.31                   | [Experiment 5, Run_2](../experiments/results/Experiment_5/Run_2)                | Train from scratch without a teacher for 50 epochs          |
-| ResNet10 + KD                                        | 4,921,197 | 90.98                   | [Experiment 6a, Run_40](../experiments/results/Experiment_6a/Run_40)            | Train from scratch with a teacher for 50 epochs             |
-| ResNet10 - No KD + Pruning (38.43%) - No KD          | 3,030,044 | 90.22                   | [Experiment 8, Run_1](../experiments/results/Experiment_8/Run_1)                | Compress model ResNet10 - Baseline and fine-tune without KD |
-| ResNet10 - No KD + Pruning (38.43%) + KD             | 3,030,044 | 91.16                   | [Experiment 8, Run_9](../experiments/results/Experiment_8/Run_9)                | Compress model ResNet10 - No KD and fine-tune with KD       |
-| ResNet10 + KD + Pruning (38.43%) - No KD             | 3,030,044 | 89.02                   | [Experiment 8, Run_5](../experiments/results/Experiment_8/Run_5)                | Compress model ResNet10 - KD and fine-tune without KD       |
-| ResNet10 + KD + Pruning (38.43%) + KD                | 3,030,044 | 91.00                   | [Experiment 7a, Run_10](../experiments/results/Experiment_7a/Run_10)            | Compress model ResNet10 - KD and fine-tune with KD          |
-| ResNet10 - No KD + Pruning (65.71%) - No KD          | 1,687,563 | 89.52                   | [Experiment 8, Run_2](../experiments/results/Experiment_8/Run_2)                | Compress model ResNet10 - Baseline and fine-tune without KD |
-| ResNet10 - No KD + Pruning (65.71%) + KD             | 1,687,563 | 89.62                   | [Experiment 8, Run_10](../experiments/results/Experiment_8/Run_10)              | Compress model ResNet10 - No KD and fine-tune with KD       |
-| ResNet10 + KD + Pruning (65.71%) - No KD             | 1,687,563 | 89.02                   | [Experiment 8, Run_6](../experiments/results/Experiment_8/Run_6)                | Compress model ResNet10 - KD and fine-tune without KD       |
-| ResNet10 + KD + Pruning (65.71%) + KD                | 1,687,563 | 89.97                   | [Experiment 7a, Run_11](../experiments/results/Experiment_7a/Run_11)            | Compress model ResNet10 - KD and fine-tune with KD          |
-| ResNet10 + 2 iterations of KD aware compression loop | 3,030,044 | **91.33**               | [Experiment 9a, Run_3, Iteration 4](../experiments/results/Experiment_9a/Run_3) | Distillation-Aware compression loop with 2 iterations       |
-| ResNet10 + 4 iterations of KD aware compression loop | 1,872,563 | **90.89**               | [Experiment 9a, Run_3, Iteration 4](../experiments/results/Experiment_9a/Run_3) | Distillation-Aware compression loop with 4 iterations       |
-
-### ResNet18 on RESISC45
-| Model                                                | Parameter  | Validation Accuracy (%) | Run ID                                                                        | Notes                                                       |
-|------------------------------------------------------|------------|-------------------------|-------------------------------------------------------------------------------|-------------------------------------------------------------|
-| ResNet18 - Our Baseline                              | 11,191,917 | 89.96                   | [Experiment 5, Run_8](../experiments/results/Experiment_5/Run_1)              | Train from scratch without a teacher for 50 epochs          |
-| ResNet18 + KD                                        | 11,191,917 | 92.98                   | [Experiment 6, Run_23](../experiments/results/Experiment_6/Run_23)            | Train from scratch with a teacher for 50 epochs             |
-| ResNet18 - No KD + Pruning (38.43%) - No KD          | 5,878,933  | 90.14                   | [Experiment 8, Run_3](../experiments/results/Experiment_8/Run_3)              | Compress model ResNet18 - Baseline and fine-tune without KD |
-| ResNet18 - No KD + Pruning (38.43%) + KD             | 5,878,933  | 91.90                   | [Experiment 8, Run_11](../experiments/results/Experiment_8/Run_11)            | Compress model ResNet18 - No KD and fine-tune with KD       |
-| ResNet18 + KD + Pruning (38.43%) - No KD             | 5,878,933  | 91.37                   | [Experiment 8, Run_7](../experiments/results/Experiment_8/Run_7)              | Compress model ResNet18 - KD and fine-tune without KD       |
-| ResNet18 + KD + Pruning (38.43%) + KD                | 5,878,933  | 92.35                   | [Experiment 7, Run_10](../experiments/results/Experiment_7/Run_10)            | Compress model ResNet18 - KD and fine-tune with KD          |
-| ResNet18 - No KD + Pruning (65.71%) - No KD          | 2,708,024  | 88.84                   | [Experiment 8, Run_4](../experiments/results/Experiment_8/Run_4)              | Compress model ResNet18 - Baseline and fine-tune without KD |
-| ResNet18 - No KD + Pruning (65.71%) + KD             | 2,708,024  | 90.48                   | [Experiment 8, Run_12](../experiments/results/Experiment_8/Run_12)            | Compress model ResNet18 - No KD and fine-tune with KD       |
-| ResNet18 + KD + Pruning (65.71%) - No KD             | 2,708,024  | 89.63                   | [Experiment 8, Run_8](../experiments/results/Experiment_8/Run_8)              | Compress model ResNet18 - KD and fine-tune without KD       |
-| ResNet18 + KD + Pruning (65.71%) + KD                | 2,708,024  | 91.37                   | [Experiment 7, Run_11](../experiments/results/Experiment_7/Run_11)            | Compress model ResNet18 - KD and fine-tune with KD          |
-| ResNet18 + 6 iterations of KD aware compression loop | 1'653'545  | **92.44**               | [Experiment 9, Run_5, Iteration 6](../experiments/results/Experiment_9/Run_5) | Distillation-Aware compression loop with 6 iterations       |
-| ResNet18 + 9 iterations of KD aware compression loop | 885,489    | **91.10**               | [Experiment 9, Run_7, Iteration 9](../experiments/results/Experiment_9/Run_7) | Distillation-Aware compression loop with 9 iterations       |
-
-[Results](results/Experiment_8/experiment_summary.md)
-
-### Runs
-
-| Run  | Config                                                 | Model    | Model Teacher | Dataset         | KD-Type   | Compression | Plots                                      | Bands                 | Metrics Iter 1                                                                     | Best Acc Iter 1 | Baseline Accuracy | Improvement to Baseline |
-|------|--------------------------------------------------------|----------|---------------|-----------------|-----------|-------------|--------------------------------------------|-----------------------|------------------------------------------------------------------------------------|-----------------|-------------------|-------------------------|
-| [1]  | [Config.toml](results/Experiment_8/Run_1/config.toml)  | ResNet10 |               | `timm/resisc45` | N/A       | l1          | [plots](results/Experiment_8/Run_1/plots)  | ['B01', 'B02', 'B03'] | [metrics_iteration_1.jsonl](results/Experiment_8/Run_1/metrics_iteration_1.jsonl)  | 90.22% @ 46     | 88.32%            | 1.90%                   |
-| [2]  | [Config.toml](results/Experiment_8/Run_2/config.toml)  | ResNet10 |               | `timm/resisc45` | N/A       | l1          | [plots](results/Experiment_8/Run_2/plots)  | ['B01', 'B02', 'B03'] | [metrics_iteration_1.jsonl](results/Experiment_8/Run_2/metrics_iteration_1.jsonl)  | 89.52% @ 49     | 88.32%            | 1.21%                   |
-| [3]  | [Config.toml](results/Experiment_8/Run_3/config.toml)  | ResNet18 |               | `timm/resisc45` | N/A       | l1          | [plots](results/Experiment_8/Run_3/plots)  | ['B01', 'B02', 'B03'] | [metrics_iteration_1.jsonl](results/Experiment_8/Run_3/metrics_iteration_1.jsonl)  | 90.14% @ 46     | 89.97%            | 0.17%                   |
-| [4]  | [Config.toml](results/Experiment_8/Run_4/config.toml)  | ResNet18 |               | `timm/resisc45` | N/A       | l1          | [plots](results/Experiment_8/Run_4/plots)  | ['B01', 'B02', 'B03'] | [metrics_iteration_1.jsonl](results/Experiment_8/Run_4/metrics_iteration_1.jsonl)  | 88.84% @ 36     | 89.97%            | -1.13%                  |
-| [5]  | [Config.toml](results/Experiment_8/Run_5/config.toml)  | ResNet10 | ResNet50      | `timm/resisc45` | N/A       | l1          | [plots](results/Experiment_8/Run_5/plots)  | ['B01', 'B02', 'B03'] | [metrics_iteration_1.jsonl](results/Experiment_8/Run_5/metrics_iteration_1.jsonl)  | 89.02% @ 48     | 89.97%            | -0.95%                  |
-| [6]  | [Config.toml](results/Experiment_8/Run_6/config.toml)  | ResNet10 | ResNet50      | `timm/resisc45` | N/A       | l1          | [plots](results/Experiment_8/Run_6/plots)  | ['B01', 'B02', 'B03'] | [metrics_iteration_1.jsonl](results/Experiment_8/Run_6/metrics_iteration_1.jsonl)  | 88.38% @ 49     | 89.97%            | -1.59%                  |
-| [7]  | [Config.toml](results/Experiment_8/Run_7/config.toml)  | ResNet18 | ResNet50      | `timm/resisc45` | N/A       | l1          | [plots](results/Experiment_8/Run_7/plots)  | ['B01', 'B02', 'B03'] | [metrics_iteration_1.jsonl](results/Experiment_8/Run_7/metrics_iteration_1.jsonl)  | 91.37% @ 39     | 89.97%            | 1.40%                   |
-| [8]  | [Config.toml](results/Experiment_8/Run_8/config.toml)  | ResNet18 | ResNet50      | `timm/resisc45` | N/A       | l1          | [plots](results/Experiment_8/Run_8/plots)  | ['B01', 'B02', 'B03'] | [metrics_iteration_1.jsonl](results/Experiment_8/Run_8/metrics_iteration_1.jsonl)  | 89.63% @ 50     | 89.97%            | -0.33%                  |
-| [9]  | [Config.toml](results/Experiment_8/Run_9/config.toml)  | ResNet10 | ResNet50      | `timm/resisc45` | KLDivLoss | l1          | [plots](results/Experiment_8/Run_9/plots)  | ['B01', 'B02', 'B03'] | [metrics_iteration_1.jsonl](results/Experiment_8/Run_9/metrics_iteration_1.jsonl)  | 91.16% @ 46     | 88.32%            | 2.84%                   |
-| [10] | [Config.toml](results/Experiment_8/Run_10/config.toml) | ResNet10 | ResNet50      | `timm/resisc45` | KLDivLoss | l1          | [plots](results/Experiment_8/Run_10/plots) | ['B01', 'B02', 'B03'] | [metrics_iteration_1.jsonl](results/Experiment_8/Run_10/metrics_iteration_1.jsonl) | 89.62% @ 43     | 88.32%            | 1.30%                   |
-| [11] | [Config.toml](results/Experiment_8/Run_11/config.toml) | ResNet18 | ResNet50      | `timm/resisc45` | KLDivLoss | l1          | [plots](results/Experiment_8/Run_11/plots) | ['B01', 'B02', 'B03'] | [metrics_iteration_1.jsonl](results/Experiment_8/Run_11/metrics_iteration_1.jsonl) | 91.90% @ 50     | 89.97%            | 1.94%                   |
-| [12] | [Config.toml](results/Experiment_8/Run_12/config.toml) | ResNet18 | ResNet50      | `timm/resisc45` | KLDivLoss | l1          | [plots](results/Experiment_8/Run_12/plots) | ['B01', 'B02', 'B03'] | [metrics_iteration_1.jsonl](results/Experiment_8/Run_12/metrics_iteration_1.jsonl) | 90.48% @ 50     | 89.97%            | 0.51%                   |
-
-
-## Experiment 9: Loop Experiments - RESISC45, ResNet18
-
-**Goal:** The goal of this experiment is to perform knowledge aware compression in multiple loops to see if further improvements can be achieved.
-All experiments were done on the Resisc45 dataset using ResNet18 as student model and ResNet50 as a teacher.
-Startingpoint for all experiments is the model from [Experiment 6, Run 23](results/Experiment_6/Run_23/config.toml).
-Teacher: [Experiment 5, Run 7](results/Experiment_5/Run_7/config.toml)
-
-[Results](results/Experiment_9/experiment_summary.md)
-
-### Runs
-| Run | Config | Model | Model Teacher | Dataset | KD-Type | Compression | Plots | Bands | Metrics Iter 1 | Best Acc Iter 1 | Metrics Iter 2 | Best Acc Iter 2 | Metrics Iter 3 | Best Acc Iter 3 | Metrics Iter 4 | Best Acc Iter 4 | Metrics Iter 5 | Best Acc Iter 5 | Metrics Iter 6 | Best Acc Iter 6 | Metrics Iter 7 | Best Acc Iter 7 | Metrics Iter 8 | Best Acc Iter 8 | Metrics Iter 9 | Best Acc Iter 9 | Metrics Iter 10 | Best Acc Iter 10 | Metrics Iter 11 | Best Acc Iter 11 | Baseline Accuracy | Improvement to Baseline |
-|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|
-| [1] | [Config.toml](results/Experiment_9/Run_1/config.toml) | ResNet18 | ResNet50 | `timm/resisc45` | CrossEntropyLoss | l1 | [plots](results/Experiment_9/Run_1/plots) | ['B01', 'B02', 'B03'] | [metrics_iteration_1.jsonl](results/Experiment_9/Run_1/metrics_iteration_1.jsonl) | 93.24% @ 43 | [metrics_iteration_2.jsonl](results/Experiment_9/Run_1/metrics_iteration_2.jsonl) | 91.98% @ 43 | - | - | - | - | - | - | - | - | - | - | - | - | - | - | - | - | - | - | 89.97% | 3.27% |
-| [2] | [Config.toml](results/Experiment_9/Run_2/config.toml) | ResNet18 | ResNet50 | `timm/resisc45` | CrossEntropyLoss | l1 | [plots](results/Experiment_9/Run_2/plots) | ['B01', 'B02', 'B03'] | [metrics_iteration_1.jsonl](results/Experiment_9/Run_2/metrics_iteration_1.jsonl) | 93.24% @ 43 | [metrics_iteration_2.jsonl](results/Experiment_9/Run_2/metrics_iteration_2.jsonl) | 91.98% @ 43 | [metrics_iteration_3.jsonl](results/Experiment_9/Run_2/metrics_iteration_3.jsonl) | 92.10% @ 46 | - | - | - | - | - | - | - | - | - | - | - | - | - | - | - | - | 89.97% | 3.27% |
-| [3] | [Config.toml](results/Experiment_9/Run_3/config.toml) | ResNet18 | ResNet50 | `timm/resisc45` | CrossEntropyLoss | l1 | [plots](results/Experiment_9/Run_3/plots) | ['B01', 'B02', 'B03'] | [metrics_iteration_1.jsonl](results/Experiment_9/Run_3/metrics_iteration_1.jsonl) | 93.21% @ 43 | [metrics_iteration_2.jsonl](results/Experiment_9/Run_3/metrics_iteration_2.jsonl) | 92.62% @ 38 | [metrics_iteration_3.jsonl](results/Experiment_9/Run_3/metrics_iteration_3.jsonl) | 92.75% @ 46 | [metrics_iteration_4.jsonl](results/Experiment_9/Run_3/metrics_iteration_4.jsonl) | 92.43% @ 42 | - | - | - | - | - | - | - | - | - | - | - | - | - | - | 89.97% | 3.24% |
-| [4] | [Config.toml](results/Experiment_9/Run_4/config.toml) | ResNet18 | ResNet50 | `timm/resisc45` | CrossEntropyLoss | l1 | [plots](results/Experiment_9/Run_4/plots) | ['B01', 'B02', 'B03'] | [metrics_iteration_1.jsonl](results/Experiment_9/Run_4/metrics_iteration_1.jsonl) | 93.21% @ 43 | [metrics_iteration_2.jsonl](results/Experiment_9/Run_4/metrics_iteration_2.jsonl) | 92.62% @ 38 | [metrics_iteration_3.jsonl](results/Experiment_9/Run_4/metrics_iteration_3.jsonl) | 92.70% @ 46 | [metrics_iteration_4.jsonl](results/Experiment_9/Run_4/metrics_iteration_4.jsonl) | 92.44% @ 38 | [metrics_iteration_5.jsonl](results/Experiment_9/Run_4/metrics_iteration_5.jsonl) | 92.38% @ 44 | - | - | - | - | - | - | - | - | - | - | - | - | 89.97% | 3.24% |
-| [5] | [Config.toml](results/Experiment_9/Run_5/config.toml) | ResNet18 | ResNet50 | `timm/resisc45` | CrossEntropyLoss | l1 | [plots](results/Experiment_9/Run_5/plots) | ['B01', 'B02', 'B03'] | [metrics_iteration_1.jsonl](results/Experiment_9/Run_5/metrics_iteration_1.jsonl) | 93.24% @ 43 | [metrics_iteration_2.jsonl](results/Experiment_9/Run_5/metrics_iteration_2.jsonl) | 92.56% @ 46 | [metrics_iteration_3.jsonl](results/Experiment_9/Run_5/metrics_iteration_3.jsonl) | 92.71% @ 43 | [metrics_iteration_4.jsonl](results/Experiment_9/Run_5/metrics_iteration_4.jsonl) | 92.57% @ 43 | [metrics_iteration_5.jsonl](results/Experiment_9/Run_5/metrics_iteration_5.jsonl) | 92.68% @ 36 | [metrics_iteration_6.jsonl](results/Experiment_9/Run_5/metrics_iteration_6.jsonl) | 92.44% @ 44 | [metrics_iteration_7.jsonl](results/Experiment_9/Run_5/metrics_iteration_7.jsonl) | 92.41% @ 40 | - | - | - | - | - | - | - | - | 89.97% | 3.27% |
-| [6] | [Config.toml](results/Experiment_9/Run_6/config.toml) | ResNet18 | ResNet50 | `timm/resisc45` | CrossEntropyLoss | l1 | [plots](results/Experiment_9/Run_6/plots) | ['B01', 'B02', 'B03'] | [metrics_iteration_1.jsonl](results/Experiment_9/Run_6/metrics_iteration_1.jsonl) | 93.24% @ 43 | [metrics_iteration_2.jsonl](results/Experiment_9/Run_6/metrics_iteration_2.jsonl) | 92.62% @ 49 | [metrics_iteration_3.jsonl](results/Experiment_9/Run_6/metrics_iteration_3.jsonl) | 92.86% @ 38 | [metrics_iteration_4.jsonl](results/Experiment_9/Run_6/metrics_iteration_4.jsonl) | 92.06% @ 48 | [metrics_iteration_5.jsonl](results/Experiment_9/Run_6/metrics_iteration_5.jsonl) | 92.40% @ 48 | [metrics_iteration_6.jsonl](results/Experiment_9/Run_6/metrics_iteration_6.jsonl) | 91.81% @ 46 | [metrics_iteration_7.jsonl](results/Experiment_9/Run_6/metrics_iteration_7.jsonl) | 91.94% @ 43 | - | - | - | - | - | - | - | - | 89.97% | 3.27% |
-| [7] | [Config.toml](results/Experiment_9/Run_7/config.toml) | ResNet18 | ResNet50 | `timm/resisc45` | CrossEntropyLoss | l1 | [plots](results/Experiment_9/Run_7/plots) | ['B01', 'B02', 'B03'] | [metrics_iteration_1.jsonl](results/Experiment_9/Run_7/metrics_iteration_1.jsonl) | 93.24% @ 43 | [metrics_iteration_2.jsonl](results/Experiment_9/Run_7/metrics_iteration_2.jsonl) | 92.62% @ 49 | [metrics_iteration_3.jsonl](results/Experiment_9/Run_7/metrics_iteration_3.jsonl) | 92.86% @ 38 | [metrics_iteration_4.jsonl](results/Experiment_9/Run_7/metrics_iteration_4.jsonl) | 92.06% @ 48 | [metrics_iteration_5.jsonl](results/Experiment_9/Run_7/metrics_iteration_5.jsonl) | 92.40% @ 48 | [metrics_iteration_6.jsonl](results/Experiment_9/Run_7/metrics_iteration_6.jsonl) | 91.81% @ 46 | [metrics_iteration_7.jsonl](results/Experiment_9/Run_7/metrics_iteration_7.jsonl) | 91.94% @ 43 | [metrics_iteration_8.jsonl](results/Experiment_9/Run_7/metrics_iteration_8.jsonl) | 90.54% @ 41 | [metrics_iteration_9.jsonl](results/Experiment_9/Run_7/metrics_iteration_9.jsonl) | 91.10% @ 38 | [metrics_iteration_10.jsonl](results/Experiment_9/Run_7/metrics_iteration_10.jsonl) | 87.25% @ 49 | [metrics_iteration_11.jsonl](results/Experiment_9/Run_7/metrics_iteration_11.jsonl) | 88.05% @ 44 | 89.97% | 3.27% |
-| [8] | [Config.toml](results/Experiment_9/Run_8/config.toml) | ResNet18 | ResNet50 | `timm/resisc45` | CrossEntropyLoss | l1 | [plots](results/Experiment_9/Run_8/plots) | ['B01', 'B02', 'B03'] | [metrics_iteration_1.jsonl](results/Experiment_9/Run_8/metrics_iteration_1.jsonl) | 93.24% @ 43 | [metrics_iteration_2.jsonl](results/Experiment_9/Run_8/metrics_iteration_2.jsonl) | 90.95% @ 49 | [metrics_iteration_3.jsonl](results/Experiment_9/Run_8/metrics_iteration_3.jsonl) | 91.25% @ 47 | [metrics_iteration_4.jsonl](results/Experiment_9/Run_8/metrics_iteration_4.jsonl) | 87.37% @ 44 | [metrics_iteration_5.jsonl](results/Experiment_9/Run_8/metrics_iteration_5.jsonl) | 88.63% @ 48 | [metrics_iteration_6.jsonl](results/Experiment_9/Run_8/metrics_iteration_6.jsonl) | 78.10% @ 47 | [metrics_iteration_7.jsonl](results/Experiment_9/Run_8/metrics_iteration_7.jsonl) | 80.79% @ 44 | [metrics_iteration_8.jsonl](results/Experiment_9/Run_8/metrics_iteration_8.jsonl) | 68.90% @ 45 | [metrics_iteration_9.jsonl](results/Experiment_9/Run_8/metrics_iteration_9.jsonl) | 71.44% @ 41 | [metrics_iteration_10.jsonl](results/Experiment_9/Run_8/metrics_iteration_10.jsonl) | 66.03% @ 50 | [metrics_iteration_11.jsonl](results/Experiment_9/Run_8/metrics_iteration_11.jsonl) | 68.78% @ 45 | 89.97% | 3.27% |
-
-## Experiment 9a: Loop Experiments - RESISC45, ResNet10
-
-**Goal:** The goal of this experiment is to perform knowledge aware compression in multiple loops to see if further improvements can be achieved.
-All experiments were done on the Resisc45 dataset using ResNet10 as student model and ResNet50 as a teacher.
-Startingpoint for all experiments is the model from [Experiment 6a, Run 40](results/Experiment_6a/Run_40/config.toml).
-Teacher: [Experiment 5, Run 7](results/Experiment_5/Run_7/config.toml)
-
-[Results](results/Experiment_9a/experiment_summary.md)
-
-### Runs
-| Run | Config | Model | Model Teacher | Dataset | KD-Type | Compression | Plots | Bands | Metrics Iter 1 | Best Acc Iter 1 | Metrics Iter 2 | Best Acc Iter 2 | Metrics Iter 3 | Best Acc Iter 3 | Metrics Iter 4 | Best Acc Iter 4 | Metrics Iter 5 | Best Acc Iter 5 | Metrics Iter 6 | Best Acc Iter 6 | Metrics Iter 7 | Best Acc Iter 7 | Metrics Iter 8 | Best Acc Iter 8 | Metrics Iter 9 | Best Acc Iter 9 | Metrics Iter 10 | Best Acc Iter 10 | Metrics Iter 11 | Best Acc Iter 11 | Baseline Accuracy | Improvement to Baseline |
-|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|
-| [1] | [Config.toml](results/Experiment_9a/Run_1/config.toml) | ResNet10 | ResNet50 | `timm/resisc45` | KLDivLoss | l1 | [plots](results/Experiment_9a/Run_1/plots) | ['B01', 'B02', 'B03'] | [metrics_iteration_1.jsonl](results/Experiment_9a/Run_1/metrics_iteration_1.jsonl) | 91.33% @ 41 | [metrics_iteration_2.jsonl](results/Experiment_9a/Run_1/metrics_iteration_2.jsonl) | 89.75% @ 47 | - | - | - | - | - | - | - | - | - | - | - | - | - | - | - | - | - | - | 89.97% | 1.37% |
-| [2] | [Config.toml](results/Experiment_9a/Run_2/config.toml) | ResNet10 | ResNet50 | `timm/resisc45` | KLDivLoss | l1 | [plots](results/Experiment_9a/Run_2/plots) | ['B01', 'B02', 'B03'] | [metrics_iteration_1.jsonl](results/Experiment_9a/Run_2/metrics_iteration_1.jsonl) | 91.33% @ 41 | [metrics_iteration_2.jsonl](results/Experiment_9a/Run_2/metrics_iteration_2.jsonl) | 89.75% @ 47 | [metrics_iteration_3.jsonl](results/Experiment_9a/Run_2/metrics_iteration_3.jsonl) | 90.24% @ 49 | - | - | - | - | - | - | - | - | - | - | - | - | - | - | - | - | 89.97% | 1.37% |
-| [3] | [Config.toml](results/Experiment_9a/Run_3/config.toml) | ResNet10 | ResNet50 | `timm/resisc45` | KLDivLoss | l1 | [plots](results/Experiment_9a/Run_3/plots) | ['B01', 'B02', 'B03'] | [metrics_iteration_1.jsonl](results/Experiment_9a/Run_3/metrics_iteration_1.jsonl) | 91.33% @ 41 | [metrics_iteration_2.jsonl](results/Experiment_9a/Run_3/metrics_iteration_2.jsonl) | 91.30% @ 48 | [metrics_iteration_3.jsonl](results/Experiment_9a/Run_3/metrics_iteration_3.jsonl) | 91.25% @ 39 | [metrics_iteration_4.jsonl](results/Experiment_9a/Run_3/metrics_iteration_4.jsonl) | 90.89% @ 50 | - | - | - | - | - | - | - | - | - | - | - | - | - | - | 89.97% | 1.37% |
-| [4] | [Config.toml](results/Experiment_9a/Run_4/config.toml) | ResNet10 | ResNet50 | `timm/resisc45` | KLDivLoss | l1 | [plots](results/Experiment_9a/Run_4/plots) | ['B01', 'B02', 'B03'] | [metrics_iteration_1.jsonl](results/Experiment_9a/Run_4/metrics_iteration_1.jsonl) | 91.33% @ 41 | [metrics_iteration_2.jsonl](results/Experiment_9a/Run_4/metrics_iteration_2.jsonl) | 91.30% @ 48 | [metrics_iteration_3.jsonl](results/Experiment_9a/Run_4/metrics_iteration_3.jsonl) | 91.25% @ 39 | [metrics_iteration_4.jsonl](results/Experiment_9a/Run_4/metrics_iteration_4.jsonl) | 90.89% @ 50 | [metrics_iteration_5.jsonl](results/Experiment_9a/Run_4/metrics_iteration_5.jsonl) | 90.78% @ 43 | - | - | - | - | - | - | - | - | - | - | - | - | 89.97% | 1.37% |
-| [5] | [Config.toml](results/Experiment_9a/Run_5/config.toml) | ResNet10 | ResNet50 | `timm/resisc45` | KLDivLoss | l1 | [plots](results/Experiment_9a/Run_5/plots) | ['B01', 'B02', 'B03'] | [metrics_iteration_1.jsonl](results/Experiment_9a/Run_5/metrics_iteration_1.jsonl) | 91.33% @ 41 | [metrics_iteration_2.jsonl](results/Experiment_9a/Run_5/metrics_iteration_2.jsonl) | 91.30% @ 48 | [metrics_iteration_3.jsonl](results/Experiment_9a/Run_5/metrics_iteration_3.jsonl) | 91.25% @ 39 | [metrics_iteration_4.jsonl](results/Experiment_9a/Run_5/metrics_iteration_4.jsonl) | 90.89% @ 50 | [metrics_iteration_5.jsonl](results/Experiment_9a/Run_5/metrics_iteration_5.jsonl) | 90.78% @ 43 | [metrics_iteration_6.jsonl](results/Experiment_9a/Run_5/metrics_iteration_6.jsonl) | 89.98% @ 42 | [metrics_iteration_7.jsonl](results/Experiment_9a/Run_5/metrics_iteration_7.jsonl) | 89.78% @ 44 | - | - | - | - | - | - | - | - | 89.97% | 1.37% |
-| [6] | [Config.toml](results/Experiment_9a/Run_6/config.toml) | ResNet10 | ResNet50 | `timm/resisc45` | KLDivLoss | l1 | [plots](results/Experiment_9a/Run_6/plots) | ['B01', 'B02', 'B03'] | [metrics_iteration_1.jsonl](results/Experiment_9a/Run_6/metrics_iteration_1.jsonl) | 91.33% @ 41 | [metrics_iteration_2.jsonl](results/Experiment_9a/Run_6/metrics_iteration_2.jsonl) | 90.63% @ 44 | [metrics_iteration_3.jsonl](results/Experiment_9a/Run_6/metrics_iteration_3.jsonl) | 90.87% @ 44 | [metrics_iteration_4.jsonl](results/Experiment_9a/Run_6/metrics_iteration_4.jsonl) | 89.83% @ 44 | [metrics_iteration_5.jsonl](results/Experiment_9a/Run_6/metrics_iteration_5.jsonl) | 89.90% @ 36 | [metrics_iteration_6.jsonl](results/Experiment_9a/Run_6/metrics_iteration_6.jsonl) | 89.78% @ 42 | [metrics_iteration_7.jsonl](results/Experiment_9a/Run_6/metrics_iteration_7.jsonl) | 89.63% @ 42 | - | - | - | - | - | - | - | - | 89.97% | 1.37% |
-| [7] | [Config.toml](results/Experiment_9a/Run_7/config.toml) | ResNet10 | ResNet50 | `timm/resisc45` | KLDivLoss | l1 | [plots](results/Experiment_9a/Run_7/plots) | ['B01', 'B02', 'B03'] | [metrics_iteration_1.jsonl](results/Experiment_9a/Run_7/metrics_iteration_1.jsonl) | 91.33% @ 41 | [metrics_iteration_2.jsonl](results/Experiment_9a/Run_7/metrics_iteration_2.jsonl) | 90.63% @ 44 | [metrics_iteration_3.jsonl](results/Experiment_9a/Run_7/metrics_iteration_3.jsonl) | 90.87% @ 44 | [metrics_iteration_4.jsonl](results/Experiment_9a/Run_7/metrics_iteration_4.jsonl) | 89.83% @ 44 | [metrics_iteration_5.jsonl](results/Experiment_9a/Run_7/metrics_iteration_5.jsonl) | 89.90% @ 36 | [metrics_iteration_6.jsonl](results/Experiment_9a/Run_7/metrics_iteration_6.jsonl) | 89.78% @ 42 | [metrics_iteration_7.jsonl](results/Experiment_9a/Run_7/metrics_iteration_7.jsonl) | 89.63% @ 42 | [metrics_iteration_8.jsonl](results/Experiment_9a/Run_7/metrics_iteration_8.jsonl) | 88.92% @ 42 | [metrics_iteration_9.jsonl](results/Experiment_9a/Run_7/metrics_iteration_9.jsonl) | 89.13% @ 42 | [metrics_iteration_10.jsonl](results/Experiment_9a/Run_7/metrics_iteration_10.jsonl) | 87.89% @ 44 | [metrics_iteration_11.jsonl](results/Experiment_9a/Run_7/metrics_iteration_11.jsonl) | 87.95% @ 46 | 89.97% | 1.37% |
-| [8] | [Config.toml](results/Experiment_9a/Run_8/config.toml) | ResNet10 | ResNet50 | `timm/resisc45` | KLDivLoss | l1 | [plots](results/Experiment_9a/Run_8/plots) | ['B01', 'B02', 'B03'] | [metrics_iteration_1.jsonl](results/Experiment_9a/Run_8/metrics_iteration_1.jsonl) | 91.33% @ 41 | [metrics_iteration_2.jsonl](results/Experiment_9a/Run_8/metrics_iteration_2.jsonl) | 89.02% @ 43 | [metrics_iteration_3.jsonl](results/Experiment_9a/Run_8/metrics_iteration_3.jsonl) | 89.67% @ 41 | [metrics_iteration_4.jsonl](results/Experiment_9a/Run_8/metrics_iteration_4.jsonl) | 87.37% @ 46 | [metrics_iteration_5.jsonl](results/Experiment_9a/Run_8/metrics_iteration_5.jsonl) | 88.33% @ 43 | [metrics_iteration_6.jsonl](results/Experiment_9a/Run_8/metrics_iteration_6.jsonl) | 81.33% @ 44 | [metrics_iteration_7.jsonl](results/Experiment_9a/Run_8/metrics_iteration_7.jsonl) | 84.16% @ 41 | [metrics_iteration_8.jsonl](results/Experiment_9a/Run_8/metrics_iteration_8.jsonl) | 76.29% @ 41 | [metrics_iteration_9.jsonl](results/Experiment_9a/Run_8/metrics_iteration_9.jsonl) | 78.97% @ 45 | [metrics_iteration_10.jsonl](results/Experiment_9a/Run_8/metrics_iteration_10.jsonl) | 78.79% @ 44 | [metrics_iteration_11.jsonl](results/Experiment_9a/Run_8/metrics_iteration_11.jsonl) | 80.11% @ 49 | 89.97% | 1.37% |
-
-
-## Experiment 10: Seed Experiments for Experiment 1 Baselines EuroSAT
-
-**Goal:** The goal of this experiment is to evaluate the stability of the baseline experiments from Experiment 1 on EuroSAT with different random seeds.
-
-[Results](results/Experiment_10/experiment_summary.md)
-
-### Runs
-
-
-## Experiment 10a: Seed Experiments for Experiment 5 Baselines Resisc45
-
-**Goal:** The goal of this experiment is to evaluate the stability of the baseline experiments from Experiment 5 on Resisc45 with different random seeds.
-
-[Results](results/Experiment_10a/experiment_summary.md)
-
-### Runs
-
-
-## Experiment 10b: Seed Runs for Resisc45 and Resnet18
-
-**Goal:** The goal of this experiment is to evaluate the stability of the baseline experiments from Experiment 8 on Resisc45 with different random seeds.
-ResNet18.
- Seed ResNet18 RESISC:
-- 1-3 KD --> [Exp 6, Run 23](results/Experiment_6/Run_23)
-- 4-6 ResNet18 - No KD + Pruning (38.43%) - No KD --> [Exp 8, Run 3](results/Experiment_8/Run_3)
-- 7-9 ResNet18 - No KD + Pruning (38.43%) + KD --> [Exp 8, Run 11](results/Experiment_8/Run_11)
-- 10-12 ResNet18 + KD + Pruning (38.43%) - No KD --> [Exp 8, Run 7](results/Experiment_8/Run_7)
-- 13-15 ResNet18 + KD + Pruning (38.43%) + KD --> [Exp 7, Run 10](results/Experiment_7/Run_10)
-- 16-18 ResNet18 - No KD + Pruning (65.71%) - No KD --> [Exp 8, Run 4](results/Experiment_8/Run_4)
-- 19-21 ResNet18 - No KD + Pruning (65.71%) + KD --> [Exp 8, Run 12](results/Experiment_8/Run_12)
-- 22-24 ResNet18 + KD + Pruning (65.71%) - No KD --> [Exp 8, Run 8](results/Experiment_8/Run_8)
-- 25-27 ResNet18 + KD + Pruning (65.71%) + KD --> [Exp 7, Run 11](results/Experiment_7/Run_11)
-- 28-30 KD loop 6 iters --> [Exp 9, Run 5](results/Experiment_9/Run_5)
-- 31-33 KD loop 9 iters --> [Exp 9, Run 7](results/Experiment_9/Run_7)
-- 34-35 unstructured pruning -> [Exp 7, Run 19](results/Experiment_7/Run_19)
-
-### Results
-
-[Results](results/Experiment_10b/experiment_summary.md)
-
-
-
-## Experiment 10c: Seed Experiments for Experiment 8 Ablation Study Resisc45 and Resnet10
-
-**Goal:** The goal of this experiment is to evaluate the stability of the baseline experiments from Experiment 8 on Resisc45 with different random seeds.
-ResNet10.
-[Results](results/Experiment_10c/experiment_summary.md)
-
-### Runs
-
-
-## Experiment 11: Compression - EuroSAT, ResNet18, ResNet50
-
-**Goal:** In this Experiment we will compress the ResNet18 model using pruning techniques. The compressed models will be
-fine-tuned with knowledge distillation using the ResNet50 as teacher model. This experiment was done using the best
-hyperparameters found in Experiment 5 and 6. Only EuroSAT dataset is used.
+fine-tuned with knowledge distillation using the ResNet50 as teacher model. This experiment was done using the best KD-hyperparameters 
+found in Experiment 3a. Only `RESISC45` dataset is used.
 All experiment use a ResNet18 student model trained with a ResNet50 teacher model. The model resulting form the
-following was used: [Experiment 4, Run 3](results/Experiment_4/Run_3/config.toml)
-Teacher model ResNet50: [Experiment 1, Run 10](results/Experiment_1/Run_10/config.toml)
+following was used: [Experiment 3a, Run 23](results/Experiment_3a/Run_23/config.toml) as starting point.
 
-[Results](results/Experiment_11/experiment_summary.md)
+**Results**
+- [Results](results/Experiment_6a/experiment_summary.md)
 
-### Runs
+---
 
 
-## Experiment 11a: Compression - EuroSAT, ResNet10, ResNet50
+## Experiment 7: Pruning Hyperparameter-Tuning  - EuroSAT, ResNet10, ResNet50
 
 **Goal:** In this Experiment we will compress the ResNet18 model using pruning techniques. The compressed models will be
-fine-tuned with knowledge distillation using the ResNet50 as teacher model. This experiment was done using the best
-hyperparameters found in Experiment 5 and 6. Only EuroSAT dataset is used.
+fine-tuned with knowledge distillation using the ResNet50 as teacher model. This experiment was done using the best KD-hyperparameters 
+found in Experiment 4. Only `EuroSAT` dataset is used.
 All experiment use a ResNet18 student model trained with a ResNet50 teacher model. The model resulting form the
-following was used: [Experiment 4a, Run 11](results/Experiment_4a/Run_11/config.toml)
-Teacher model ResNet50: [Experiment 1, Run 10](results/Experiment_1/Run_10/config.toml)
+following was used: [Experiment 4, Run 11](results/Experiment_11/Run_11/config.toml) as starting point.
 
-[Results](results/Experiment_11a/experiment_summary.md)
+**Results**
+- [Results](results/Experiment_7/experiment_summary.md)
 
-### Runs
+---
 
-## Experiment 12: Ablation Experiments - EuroSAT, ResNet10, ResNet18
+## Experiment 7a: Pruning Hyperparameter-Tuning  - RESISC45, ResNet10, ResNet50
+
+**Goal:** In this Experiment we will compress the ResNet18 model using pruning techniques. The compressed models will be
+fine-tuned with knowledge distillation using the ResNet50 as teacher model. This experiment was done using the best KD-hyperparameters 
+found in Experiment 4a. Only `RESISC45` dataset is used.
+All experiment use a ResNet18 student model trained with a ResNet50 teacher model. The model resulting form the
+following was used: [Experiment 4a, Run 35](results/Experiment_3a/Run_35/config.toml) as starting point.
+
+**Results**
+- [Results](results/Experiment_7a/experiment_summary.md)
+
+---
+
+
+
+## Experiment 8: Ablation Experiments - EuroSAT, ResNet10, ResNet18
 
 **Goal:** The goal of this experiment is to perform ablation studies to better understand the impact of the proposed
 distillation aware pruning loop.
@@ -725,49 +287,291 @@ teacher.
 
 Teacher model ResNet50: [Experiment 1, Run 10](results/Experiment_1/Run_10/config.toml)
 
-| Run  | Description                                                                                                                                                                                                                                                                                                                                                                                                |
-|------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| [1]  | Train without any teacher KD in the complete loop to get a baseline - ResNet10<br>- EuroSAT<br>**- Stage 1:** No teacher --> [Experiment 1, Run 4](results/Experiment_1/Run_4/config.toml)<br>**- Stage 2:** Compression with hyperparameter from [Experiment 11a, Run 2](results/Experiment_11a/Run_2/config.toml)<br>**- Stage 3:** No Teacher                                                           |
-| [2]  | Train without any teacher KD in the complete loop to get a baseline - ResNet10<br>- EuroSAT<br>**- Stage 1:** No teacher --> [Experiment 1, Run 4](results/Experiment_1/Run_4/config.toml)<br>**- Stage 2:** Compression with hyperparameter from [Experiment 11a, Run 20](results/Experiment_11a/Run_20/config.toml)<br>**- Stage 3:** No Teacher                                                         |
-| [3]  | Train without any teacher KD in the complete loop to get a baseline - ResNet18<br>- EuroSAT<br>**- Stage 1:** No teacher --> [Experiment 1, Run 1](results/Experiment_1/Run_1/config.toml)<br>**- Stage 2:** Compression with hyperparameter from [Experiment 11, Run 2](results/Experiment_11/Run_2/config.toml)<br>**- Stage 3:** No Teacher                                                             |
-| [4]  | Train without any teacher KD in the complete loop to get a baseline - ResNet18<br>- EuroSAT<br>**- Stage 1:** No teacher --> [Experiment 1, Run 1](results/Experiment_1/Run_1/config.toml)<br>**- Stage 2:** Compression with hyperparameter from [Experiment 11, Run 20](results/Experiment_11/Run_20/config.toml)<br>**- Stage 3:** No Teacher                                                           |
-| [5]  | Train with teacher KD only in the first stage to see if kd in second stage is necessary - ResNet10<br>- EuroSAT<br>**- Stage 1:** Train with teacher --> [Experiment 4a, Run 11](results/Experiment_4a/Run_11/config.toml)<br>**- Stage 2:** Compression with hyperparameter from [Experiment 11a, Run 2](results/Experiment_11a/Run_2/config.toml)<br>**- Stage 3:** No Teacher                           |
-| [6]  | Train with teacher KD only in the first stage to see if kd in second stage is necessary - ResNet10<br>- EuroSAT<br>**- Stage 1:** Train with teacher --> [Experiment 4a, Run 11](results/Experiment_4a/Run_11/config.toml)<br>**- Stage 2:** Compression with hyperparameter from [Experiment 11a, Run 20](results/Experiment_11a/Run_20/config.toml)<br>**- Stage 3:** No Teacher                         |
-| [7]  | Train with teacher KD only in the first stage to see if kd in second stage is necessary - ResNet18<br>- EuroSAT<br>**- Stage 1:** Train with teacher --> [Experiment 4, Run 3](results/Experiment_4/Run_3/config.toml)<br>**- Stage 2:** Compression with hyperparameter from [Experiment 11, Run 2](results/Experiment_11/Run_2/config.toml)<br>**- Stage 3:** No Teacher                                 |
-| [8]  | Train with teacher KD only in the first stage to see if kd in second stage is necessary - ResNet18<br>- EuroSAT<br>**- Stage 1:** Train with teacher --> [Experiment 4, Run 3](results/Experiment_4/Run_3/config.toml)<br>**- Stage 2:** Compression with hyperparameter from [Experiment 11, Run 20](results/Experiment_11/Run_20/config.toml)<br>**- Stage 3:** No Teacher                               |
-| [9]  | Train with teacher KD only in the second stage to see if kd in first stage is necessary - ResNet10<br>- EuroSAT<br>**- Stage 1:** No teacher --> [Experiment 1, Run 4](results/Experiment_1/Run_4/config.toml)<br>**- Stage 2:** Compression with hyperparameter from [Experiment 11a, Run 2](results/Experiment_11a/Run_2/config.toml)<br>**- Stage 3:** Train with teacher --> use model after pruning   |
-| [10] | Train with teacher KD only in the second stage to see if kd in first stage is necessary - ResNet10<br>- EuroSAT<br>**- Stage 1:** No teacher --> [Experiment 1, Run 4](results/Experiment_1/Run_4/config.toml)<br>**- Stage 2:** Compression with hyperparameter from [Experiment 11a, Run 20](results/Experiment_11a/Run_20/config.toml)<br>**- Stage 3:** Train with teacher --> use model after pruning |
-| [11] | Train with teacher KD only in the second stage to see if kd in first stage is necessary - ResNet18<br>- EuroSAT<br>**- Stage 1:** No teacher --> [Experiment 1, Run 1](results/Experiment_1/Run_1/config.toml)<br>**- Stage 2:** Compression with hyperparameter from [Experiment 11, Run 2](results/Experiment_11/Run_2/config.toml)<br>**- Stage 3:** Train with teacher --> use model after pruning     |
-| [12] | Train with teacher KD only in the second stage to see if kd in first stage is necessary - ResNet18<br>- EuroSAT<br>**- Stage 1:** No teacher --> [Experiment 1, Run 1](results/Experiment_1/Run_1/config.toml)<br>**- Stage 2:** Compression with hyperparameter from [Experiment 11, Run 20](results/Experiment_11/Run_20/config.toml)<br>**- Stage 3:** Train with teacher --> use model after pruning   |
+| Run  | Description                                                                                                                                                                                                                                                                                                                                                                                            |
+|------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [1]  | Train without any teacher KD in the complete loop to get a baseline - ResNet10<br>- EuroSAT<br>**- Stage 1:** No teacher --> [Experiment 1, Run 4](results/Experiment_1/Run_4/config.toml)<br>**- Stage 2:** Compression with hyperparameter from [Experiment 7, Run 2](results/Experiment_7/Run_2/config.toml)<br>**- Stage 3:** No Teacher                                                           |
+| [2]  | Train without any teacher KD in the complete loop to get a baseline - ResNet10<br>- EuroSAT<br>**- Stage 1:** No teacher --> [Experiment 1, Run 4](results/Experiment_1/Run_4/config.toml)<br>**- Stage 2:** Compression with hyperparameter from [Experiment 7, Run 11](results/Experiment_7/Run_11/config.toml)<br>**- Stage 3:** No Teacher                                                         |
+| [3]  | Train without any teacher KD in the complete loop to get a baseline - ResNet18<br>- EuroSAT<br>**- Stage 1:** No teacher --> [Experiment 1, Run 1](results/Experiment_1/Run_1/config.toml)<br>**- Stage 2:** Compression with hyperparameter from [Experiment 6, Run 2](results/Experiment_6/Run_2/config.toml)<br>**- Stage 3:** No Teacher                                                           |
+| [4]  | Train without any teacher KD in the complete loop to get a baseline - ResNet18<br>- EuroSAT<br>**- Stage 1:** No teacher --> [Experiment 1, Run 1](results/Experiment_1/Run_1/config.toml)<br>**- Stage 2:** Compression with hyperparameter from [Experiment 6, Run 11](results/Experiment_6/Run_11/config.toml)<br>**- Stage 3:** No Teacher                                                         |
+| [5]  | Train with teacher KD only in the first stage to see if kd in second stage is necessary - ResNet10<br>- EuroSAT<br>**- Stage 1:** Train with teacher --> [Experiment 4, Run 6](results/Experiment_4/Run_6/config.toml)<br>**- Stage 2:** Compression with hyperparameter from [Experiment 7, Run 2](results/Experiment_7/Run_2/config.toml)<br>**- Stage 3:** No Teacher                               |
+| [6]  | Train with teacher KD only in the first stage to see if kd in second stage is necessary - ResNet10<br>- EuroSAT<br>**- Stage 1:** Train with teacher --> [Experiment 4, Run 6](results/Experiment_4/Run_6/config.toml)<br>**- Stage 2:** Compression with hyperparameter from [Experiment 7, Run 11](results/Experiment_7/Run_11/config.toml)<br>**- Stage 3:** No Teacher                             |
+| [7]  | Train with teacher KD only in the first stage to see if kd in second stage is necessary - ResNet18<br>- EuroSAT<br>**- Stage 1:** Train with teacher --> [Experiment 3, Run 3](results/Experiment_3/Run_3/config.toml)<br>**- Stage 2:** Compression with hyperparameter from [Experiment 6, Run 2](results/Experiment_6/Run_2/config.toml)<br>**- Stage 3:** No Teacher                               |
+| [8]  | Train with teacher KD only in the first stage to see if kd in second stage is necessary - ResNet18<br>- EuroSAT<br>**- Stage 1:** Train with teacher --> [Experiment 3, Run 3](results/Experiment_3/Run_3/config.toml)<br>**- Stage 2:** Compression with hyperparameter from [Experiment 6, Run 11](results/Experiment_6/Run_11/config.toml)<br>**- Stage 3:** No Teacher                             |
+| [9]  | Train with teacher KD only in the second stage to see if kd in first stage is necessary - ResNet10<br>- EuroSAT<br>**- Stage 1:** No teacher --> [Experiment 1, Run 4](results/Experiment_1/Run_4/config.toml)<br>**- Stage 2:** Compression with hyperparameter from [Experiment 7, Run 2](results/Experiment_7/Run_2/config.toml)<br>**- Stage 3:** Train with teacher --> use model after pruning   |
+| [10] | Train with teacher KD only in the second stage to see if kd in first stage is necessary - ResNet10<br>- EuroSAT<br>**- Stage 1:** No teacher --> [Experiment 1, Run 4](results/Experiment_1/Run_4/config.toml)<br>**- Stage 2:** Compression with hyperparameter from [Experiment 7, Run 11](results/Experiment_7/Run_11/config.toml)<br>**- Stage 3:** Train with teacher --> use model after pruning |
+| [11] | Train with teacher KD only in the second stage to see if kd in first stage is necessary - ResNet18<br>- EuroSAT<br>**- Stage 1:** No teacher --> [Experiment 1, Run 1](results/Experiment_1/Run_1/config.toml)<br>**- Stage 2:** Compression with hyperparameter from [Experiment 6, Run 2](results/Experiment_6/Run_2/config.toml)<br>**- Stage 3:** Train with teacher --> use model after pruning   |
+| [12] | Train with teacher KD only in the second stage to see if kd in first stage is necessary - ResNet18<br>- EuroSAT<br>**- Stage 1:** No teacher --> [Experiment 1, Run 1](results/Experiment_1/Run_1/config.toml)<br>**- Stage 2:** Compression with hyperparameter from [Experiment 6, Run 11](results/Experiment_6/Run_11/config.toml)<br>**- Stage 3:** Train with teacher --> use model after pruning |
 
 
 ### ResNet10 on EuroSAT
-| Model                                       | Parameter | Validation Accuracy (%) | Run ID                                                                 | Notes                                                       |
-|---------------------------------------------|-----------|-------------------------|------------------------------------------------------------------------|-------------------------------------------------------------|
-| ResNet10 - Our Baseline                     | 4,921,197 | 98.40                   | [Experiment 1, Run_4](../experiments/results/Experiment_1/Run_4)       | Train from scratch without a teacher for 50 epochs          |
-| ResNet10 + KD                               | 4,921,197 | 98.57                   | [Experiment 4a, Run_11](../experiments/results/Experiment_4a/Run_11)   | Train from scratch with a teacher for 50 epochs             |
-| ResNet10 - No KD + Pruning (38.46%) - No KD | 3,020,831 | 98.04                   | [Experiment 12, Run_1](../experiments/results/Experiment_12/Run_1)     | Compress model ResNet10 - Baseline and fine-tune without KD |
-| ResNet10 - No KD + Pruning (38.46%) + KD    | 3,020,831 | 98.19                   | [Experiment 12, Run_9](../experiments/results/Experiment_12/Run_9)     | Compress model ResNet10 - No KD and fine-tune with KD       |
-| ResNet10 + KD + Pruning (38.46%) - No KD    | 3,020,831 | 98.20                   | [Experiment 12, Run_5](../experiments/results/Experiment_12/Run_5)     | Compress model ResNet10 - KD and fine-tune without KD       |
-| ResNet10 + KD + Pruning (38.46%) + KD       | 3,020,831 | 98.31                   | [Experiment 11a, Run_2](../experiments/results/Experiment_11a/Run_2)   | Compress model ResNet10 - KD and fine-tune with KD          |
-| ResNet10 - No KD + Pruning (65.75%) - No KD | 1'681'300 | 97.83                   | [Experiment 12, Run_2](../experiments/results/Experiment_12/Run_2)     | Compress model ResNet10 - Baseline and fine-tune without KD |
-| ResNet10 - No KD + Pruning (65.75%) + KD    | 1'681'300 | 98.15                   | [Experiment 12, Run_10](../experiments/results/Experiment_12/Run_10)   | Compress model ResNet10 - No KD and fine-tune with KD       |
-| ResNet10 + KD + Pruning (65.75%) - No KD    | 1'681'300 | 97.89                   | [Experiment 12, Run_6](../experiments/results/Experiment_12/Run_6)     | Compress model ResNet10 - KD and fine-tune without KD       |
-| ResNet10 + KD + Pruning (65.75%) + KD       | 1,810,324 | 98.15                   | [Experiment 11a, Run_20](../experiments/results/Experiment_11a/Run_20) | Compress model ResNet10 - KD and fine-tune with KD          |
+| Model                                                | Parameter | Validation Accuracy (%) std | Run ID                                                                          | Notes                                                       |
+|------------------------------------------------------|-----------|-----------------------------|---------------------------------------------------------------------------------|-------------------------------------------------------------|
+| ResNet10 - Our Baseline                              | 4,921,197 | 98.37 +/- 0.05              | [Experiment 1, Run_4](results/Experiment_1/Run_4)                               | Train from scratch without a teacher for 50 epochs          |
+| ResNet10 + KD                                        | 4,921,197 | 98.37 +/- 0.03              | [Experiment 4, Run_6](results/Experiment_4/Run_6)                               | Train from scratch with a teacher for 50 epochs             |
+| ResNet10 - No KD + Pruning (34.59%) - No KD          | 3,210,783 | 98.33 +/- 0.05              | [Experiment 8, Run_1](results/Experiment_8/Run_1)                               | Compress model ResNet10 - Baseline and fine-tune without KD |
+| ResNet10 - No KD + Pruning (34.59%) + KD             | 3,210,783 | 98.33 +/- 0.05              | [Experiment 8, Run_9](results/Experiment_8/Run_9)                               | Compress model ResNet10 - No KD and fine-tune with KD       |
+| ResNet10 + KD + Pruning (34.59%) - No KD             | 3,210,783 | 98.10 +/- 0.10              | [Experiment 8, Run_5](results/Experiment_8/Run_5)                               | Compress model ResNet10 - KD and fine-tune without KD       |
+| ResNet10 + KD + Pruning (34.59%) + KD                | 3,210,783 | 98.22 +/- 0.07              | [Experiment 7, Run_2](results/Experiment_7/Run_2)                               | Compress model ResNet10 - KD and fine-tune with KD          |
+| ResNet10 - No KD + Pruning (63.12%) - No KD          | 1,810,324 | 98.15 +/- 0.07              | [Experiment 8, Run_2](results/Experiment_8/Run_2)                               | Compress model ResNet10 - Baseline and fine-tune without KD |
+| ResNet10 - No KD + Pruning (63.12%) + KD             | 1,810,324 | 98.15 +/- 0.07              | [Experiment 8, Run_10](results/Experiment_8/Run_10)                             | Compress model ResNet10 - No KD and fine-tune with KD       |
+| ResNet10 + KD + Pruning (63.12%) - No KD             | 1,810,324 | 98.25 +/- 0.13              | [Experiment 8, Run_6](results/Experiment_8/Run_6)                               | Compress model ResNet10 - KD and fine-tune without KD       |
+| ResNet10 + KD + Pruning (63.12%) + KD                | 1,810,324 | 98.34 +/- 0.09              | [Experiment 7, Run_11](results/Experiment_7/Run_11)                             | Compress model ResNet10 - KD and fine-tune with KD          |
+| ResNet10 + 7 iterations of KD aware compression loop | 1,254,026 | 97.91 +/- 0.08              | [Experiment 10, Run_7, Iteration 7](../experiments/results/Experiment_10/Run_7) | Distillation-Aware compression loop with 7 iterations       |
+| ResNet10 + 9 iterations of KD aware compression loop | 793,109   | 97.89 +/- 0.11              | [Experiment 10, Run_7, Iteration 9](../experiments/results/Experiment_10/Run_7) | Distillation-Aware compression loop with 9 iterations       |
+
+
 
 ### ResNet18 on EuroSAT
-| Model                                       | Parameter | Validation Accuracy (%) | Run ID                                                               | Notes                                                       |
-|---------------------------------------------|-----------|-------------------------|----------------------------------------------------------------------|-------------------------------------------------------------|
-| ResNet18 - Our Baseline                     | 4,921,197 | 98.27                   | [Experiment 1, Run_1](../experiments/results/Experiment_1/Run_1)     | Train from scratch without a teacher for 50 epochs          |
-| ResNet18 + KD                               | 4,921,197 | 98.74                   | [Experiment 4, Run_3](../experiments/results/Experiment_4/Run_3)     | Train from scratch with a teacher for 50 epochs             |
-| ResNet18 - No KD + Pruning (47.48%) - No KD | 5,871,078 | 98.06                   | [Experiment 12, Run_3](../experiments/results/Experiment_12/Run_3)   | Compress model ResNet18 - Baseline and fine-tune without KD |
-| ResNet18 - No KD + Pruning 47.48%) + KD     | 5,871,078 | 98.30                   | [Experiment 12, Run_11](../experiments/results/Experiment_12/Run_11) | Compress model ResNet18 - No KD and fine-tune with KD       |
-| ResNet18 + KD + Pruning (47.48%) - No KD    | 5,871,078 | 98.35                   | [Experiment 12, Run_7](../experiments/results/Experiment_12/Run_7)   | Compress model ResNet18 - KD and fine-tune without KD       |
-| ResNet18 + KD + Pruning (46.03%) + KD       | 6,032,870 | 98.56                   | [Experiment 11, Run_2](../experiments/results/Experiment_11/Run_2)   | Compress model ResNet18 - KD and fine-tune with KD          |
-| ResNet18 - No KD + Pruning (75.82%) - No KD | 2,703,657 | 98.07                   | [Experiment 12, Run_4](../experiments/results/Experiment_12/Run_4)   | Compress model ResNet18 - Baseline and fine-tune without KD |
-| ResNet18 - No KD + Pruning (75.82%) + KD    | 2,703,657 | 98.04                   | [Experiment 12, Run_12](../experiments/results/Experiment_12/Run_12) | Compress model ResNet18 - No KD and fine-tune with KD       |
-| ResNet18 + KD + Pruning (75.82%) - No KD    | 2,703,657 | 97.80                   | [Experiment 12, Run_8](../experiments/results/Experiment_12/Run_8)   | Compress model ResNet18 - KD and fine-tune without KD       |
-| ResNet18 + KD + Pruning (75.0%) + KD        | 2,794,281 | 98.33                   | [Experiment 11, Run_20](../experiments/results/Experiment_11/Run_20) | Compress model ResNet18 - KD and fine-tune with KD          |
+| Model                                                | Parameter | Validation Accuracy (%) std | Run ID                                                                        | Notes                                                       |
+|------------------------------------------------------|-----------|-----------------------------|-------------------------------------------------------------------------------|-------------------------------------------------------------|
+| ResNet18 - Our Baseline                              | 4,921,197 | 98.34 +/- 0.05              | [Experiment 1, Run_1](results/Experiment_1/Run_1)                             | Train from scratch without a teacher for 50 epochs          |
+| ResNet18 + KD                                        | 4,921,197 | 98.61 +/- 0.08              | [Experiment 3, Run_3](results/Experiment_3/Run_3)                             | Train from scratch with a teacher for 50 epochs             |
+| ResNet18 - No KD + Pruning (46.03%) - No KD          | 6,032,870 | 98.24 +/- 0.02              | [Experiment 8, Run_3](results/Experiment_8/Run_3)                             | Compress model ResNet18 - Baseline and fine-tune without KD |
+| ResNet18 - No KD + Pruning (46.03%) + KD             | 6,032,870 | 98.46 +/- 0.04              | [Experiment 8, Run_11](results/Experiment_8/Run_11)                           | Compress model ResNet18 - No KD and fine-tune with KD       |
+| ResNet18 + KD + Pruning (46.03%) - No KD             | 6,032,870 | 98.37 +/- 0.06              | [Experiment 8, Run_7](results/Experiment_8/Run_7)                             | Compress model ResNet18 - KD and fine-tune without KD       |
+| ResNet18 + KD + Pruning (46.03%) + KD                | 6,032,870 | 98.48 +/- 0.06              | [Experiment 6, Run_2](results/Experiment_6/Run_2)                             | Compress model ResNet18 - KD and fine-tune with KD          |
+| ResNet18 - No KD + Pruning (75.00%) - No KD          | 2,794,281 | 97.82 +/- 0.10              | [Experiment 8, Run_4](results/Experiment_8/Run_4)                             | Compress model ResNet18 - Baseline and fine-tune without KD |
+| ResNet18 - No KD + Pruning (75.00%) + KD             | 2,794,281 | 98.09 +/- 0.06              | [Experiment 8, Run_12](results/Experiment_8/Run_12)                           | Compress model ResNet18 - No KD and fine-tune with KD       |
+| ResNet18 + KD + Pruning (75.00%) - No KD             | 2,794,281 | 98.20 +/- 0.04              | [Experiment 8, Run_8](results/Experiment_8/Run_8)                             | Compress model ResNet18 - KD and fine-tune without KD       |
+| ResNet18 + KD + Pruning (75.00%) + KD                | 2,794,281 | 98.41 +/- 0.16              | [Experiment 6, Run_11](results/Experiment_6/Run_11)                           | Compress model ResNet18 - KD and fine-tune with KD          |
+| ResNet18 + 7 iterations of KD aware compression loop | 1,712,604 | 97.63 +/- 0.11              | [Experiment 9, Run_5, Iteration 7](../experiments/results/Experiment_9/Run_5) | Distillation-Aware compression loop with 7 iterations       |
+| ResNet18 + 9 iterations of KD aware compression loop | 922,201   | 96.97 +/- 0.46              | [Experiment 9, Run_7, Iteration 9](../experiments/results/Experiment_9/Run_7) | Distillation-Aware compression loop with 9 iterations       |
+
+---
+
+## Experiment 8a: Ablation Experiments - RESISC45, ResNet10, ResNet18
+
+**Goal:** The goal of this experiment is to perform ablation studies to better understand the impact of the proposed
+distillation aware pruning loop.
+All ablation studies were done on the Resisc45 dataset using ResNet10 and ResNet18 as student models and ResNet50 as a
+teacher.
 
 
-### Runs
+| Run  | Description                                                                                                                                                                                                                                                                                                                                                                     |
+|------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [1]  | Train without any teacher KD in the complete loop to get a baseline - ResNet10<br>- Resisc45<br>**- Stage 1:** No teacher --> [Experiment 1a, Run 2](results/Experiment_1a/Run_2/config.toml)<br>**- Stage 2:** Compression with hyperparameter from [Experiment 7a, Run 5](results/Experiment_7a/Run_5/config.toml)<br>**- Stage 3:** No Teacher                               |
+| [2]  | Train without any teacher KD in the complete loop to get a baseline - ResNet10<br>- Resisc45<br>**- Stage 1:** No teacher --> [Experiment 1a, Run 2](results/Experiment_1a/Run_2/config.toml)<br>**- Stage 2:** Compression with hyperparameter from [Experiment 7a, Run 6](results/Experiment_7a/Run_6/config.toml)<br>**- Stage 3:** No Teacher                               |
+| [3]  | Train without any teacher KD in the complete loop to get a baseline - ResNet18<br>- Resisc45<br>**- Stage 1:** No teacher --> [Experiment 1a, Run 1](results/Experiment_1a/Run_1/config.toml)<br>**- Stage 2:** Compression with hyperparameter from [Experiment 6a, Run 1](results/Experiment_6a/Run_1/config.toml)<br>**- Stage 3:** No Teacher                               |
+| [4]  | Train without any teacher KD in the complete loop to get a baseline - ResNet18<br>- Resisc45<br>**- Stage 1:** No teacher --> [Experiment 1a, Run 1](results/Experiment_1a/Run_1/config.toml)<br>**- Stage 2:** Compression with hyperparameter from [Experiment 6a, Run 3](results/Experiment_6a/Run_3/config.toml)<br>**- Stage 3:** No Teacher                               |
+| [5]  | Train with teacher KD only in the first stage to see if kd in second stage is necessary - ResNet10<br>- Resisc45<br>**- Stage 1:** Train with teacher --> [Experiment 4a, Run 35](results/Experiment_4a/Run_35/config.toml)<br>**- Stage 2:** Compression with hyperparameter from [Experiment 7a, Run 5](results/Experiment_7a/Run_5/config.toml)<br>**- Stage 3:** No Teacher |
+| [6]  | Train with teacher KD only in the first stage to see if kd in second stage is necessary - ResNet10<br>- Resisc45<br>**- Stage 1:** Train with teacher --> [Experiment 4a, Run 35](results/Experiment_4a/Run_35/config.toml)<br>**- Stage 2:** Compression with hyperparameter from [Experiment 7a, Run 6](results/Experiment_7a/Run_6/config.toml)<br>**- Stage 3:** No Teacher |
+| [7]  | Train with teacher KD only in the first stage to see if kd in second stage is necessary - ResNet18<br>- Resisc45<br>**- Stage 1:** Train with teacher --> [Experiment 3a, Run 23](results/Experiment_3a/Run_23/config.toml)<br>**- Stage 2:** Compression with hyperparameter from [Experiment 6a, Run 1](results/Experiment_6a/Run_1/config.toml)<br>**- Stage 3:** No Teacher |
+| [8]  | Train with teacher KD only in the first stage to see if kd in second stage is necessary - ResNet18<br>- Resisc45<br>**- Stage 1:** Train with teacher --> [Experiment 3a, Run 23](results/Experiment_3a/Run_23/config.toml)<br>**- Stage 2:** Compression with hyperparameter from [Experiment 6a, Run 3](results/Experiment_6a/Run_3/config.toml)<br>**- Stage 3:** No Teacher |
+| [9]  | Train with teacher KD only in the second stage to see if kd in first stage is necessary - ResNet10<br>- Resisc45<br>**- Stage 1:** No teacher<br>**- Stage 2:** Compression with hyperparameter from [Experiment 7a, Run 5](results/Experiment_7a/Run_5/config.toml)<br>**- Stage 3:** Train with teacher --> use model after pruning                                           |
+| [10] | Train with teacher KD only in the second stage to see if kd in first stage is necessary - ResNet10<br>- Resisc45<br>**- Stage 1:** No teacher<br>**- Stage 2:** Compression with hyperparameter from [Experiment 7a, Run 6](results/Experiment_7a/Run_6/config.toml)<br>**- Stage 3:** Train with teacher --> use model after pruning                                           |
+| [11] | Train with teacher KD only in the second stage to see if kd in first stage is necessary - ResNet18<br>- Resisc45<br>**- Stage 1:** No teacher<br>**- Stage 2:** Compression with hyperparameter from [Experiment 6a, Run 1](results/Experiment_6a/Run_1/config.toml)<br>**- Stage 3:** Train with teacher --> use model after pruning                                           |
+| [12] | Train with teacher KD only in the second stage to see if kd in first stage is necessary - ResNet18<br>- Resisc45<br>**- Stage 1:** No teacher<br>**- Stage 2:** Compression with hyperparameter from [Experiment 6a, Run 3](results/Experiment_6a/Run_3/config.toml)<br>**- Stage 3:** Train with teacher --> use model after pruning                                           |
+
+### ResNet10 on RESISC45
+| Model                                                | Parameter  | Validation Accuracy (%) std | Run ID                                                                            | Notes                                                       |
+|------------------------------------------------------|------------|-----------------------------|-----------------------------------------------------------------------------------|-------------------------------------------------------------|
+| ResNet10 - Our Baseline                              | 11,191,917 | 88.33 +/- 0.19              | [Experiment 1a, Run_2](../experiments/results/Experiment_1a/Run_2)                | Train from scratch without a teacher for 50 epochs          |
+| ResNet10 + KD                                        | 11,191,917 | 89.36 +/- 0.16              | [Experiment 4a, Run_35](../experiments/results/Experiment_4a/Run_35)              | Train from scratch with a teacher for 50 epochs             |
+| ResNet10 - No KD + Pruning (34.57%) - No KD          | 3,219,996  | 88.36 +/- 0.04              | [Experiment 8a, Run_1](../experiments/results/Experiment_8a/Run_1)                | Compress model ResNet10 - Baseline and fine-tune without KD |
+| ResNet10 - No KD + Pruning (34.57%) + KD             | 3,219,996  | 89.62 +/- 0.16              | [Experiment 8a, Run_9](../experiments/results/Experiment_8a/Run_9)                | Compress model ResNet10 - No KD and fine-tune with KD       |
+| ResNet10 + KD + Pruning (34.57%) - No KD             | 3,219,996  | 88.66 +/- 0.32              | [Experiment 8a, Run_5](../experiments/results/Experiment_8a/Run_5)                | Compress model ResNet10 - KD and fine-tune without KD       |
+| ResNet10 + KD + Pruning (34.57%) + KD                | 3,219,996  | 90.29 +/- 0.06              | [Experiment 7a, Run_5](../experiments/results/Experiment_7a/Run_5)                | Compress model ResNet10 - KD and fine-tune with KD          |
+| ResNet10 - No KD + Pruning (63.09%) - No KD          | 1,816,587  | 87.36 +/- 0.25              | [Experiment 8a, Run_2](../experiments/results/Experiment_8a/Run_2)                | Compress model ResNet10 - Baseline and fine-tune without KD |
+| ResNet10 - No KD + Pruning (63.09%) + KD             | 1,816,587  | 88.43 +/- 0.21              | [Experiment 8a, Run_10](../experiments/results/Experiment_8a/Run_10)              | Compress model ResNet10 - No KD and fine-tune with KD       |
+| ResNet10 + KD + Pruning (63.09%) - No KD             | 1,816,587  | 87.34 +/- 0.18              | [Experiment 8a, Run_6](../experiments/results/Experiment_8a/Run_6)                | Compress model ResNet10 - KD and fine-tune without KD       |
+| ResNet10 + KD + Pruning (63.09%) + KD                | 1,816,587  | 88.80 +/- 0.24              | [Experiment 7a, Run_6](../experiments/results/Experiment_7a/Run_6)                | Compress model ResNet10 - KD and fine-tune with KD          |
+| ResNet10 + 7 iterations of KD aware compression loop | 1,258,861  | 89.16 +/- 0.08              | [Experiment 10a, Run_1, Iteration 4](../experiments/results/Experiment_10a/Run_1) | Distillation-Aware compression loop with 7 iterations       |
+| ResNet10 + 9 iterations of KD aware compression loop | 796,575    | 88.23 +/- 0.22              | [Experiment 10a, Run_1, Iteration 4](../experiments/results/Experiment_10a/Run_1) | Distillation-Aware compression loop with 9 iterations       |
+
+### ResNet18 on RESISC45
+| Model                                                | Parameter  | Validation Accuracy (%) std | Run ID                                                                          | Notes                                                       |
+|------------------------------------------------------|------------|-----------------------------|---------------------------------------------------------------------------------|-------------------------------------------------------------|
+| ResNet18 - Our Baseline                              | 11,191,917 | 89.76 +/- 0.14              | [Experiment 1a, Run_1](../experiments/results/Experiment_1a/Run_1)              | Train from scratch without a teacher for 50 epochs          |
+| ResNet18 + KD                                        | 11,191,917 | 91.95 +/- 0.17              | [Experiment 3a, Run_23](../experiments/results/Experiment_3a/Run_23)            | Train from scratch with a teacher for 50 epochs             |
+| ResNet18 - No KD + Pruning (46.03%) - No KD          | 6,040,725  | 90.78 +/- 0.11              | [Experiment 8a, Run_3](../experiments/results/Experiment_8a/Run_3)              | Compress model ResNet18 - Baseline and fine-tune without KD |
+| ResNet18 - No KD + Pruning (46.03%) + KD             | 6,040,725  | 92.10 +/- 0.04              | [Experiment 8a, Run_11](../experiments/results/Experiment_8a/Run_11)            | Compress model ResNet18 - No KD and fine-tune with KD       |
+| ResNet18 + KD + Pruning (46.03%) - No KD             | 6,040,725  | 82.02 +/- 0.15              | [Experiment 8a, Run_7](../experiments/results/Experiment_8a/Run_7)              | Compress model ResNet18 - KD and fine-tune without KD       |
+| ResNet18 + KD + Pruning (46.03%) + KD                | 6,040,725  | 92.22 +/- 0.03              | [Experiment 6a, Run_1](../experiments/results/Experiment_6a/Run_1)              | Compress model ResNet18 - KD and fine-tune with KD          |
+| ResNet18 - No KD + Pruning (74.99%) - No KD          | 2,798,648  | 87.86 +/- 0.17              | [Experiment 8a, Run_4](../experiments/results/Experiment_8a/Run_4)              | Compress model ResNet18 - Baseline and fine-tune without KD |
+| ResNet18 - No KD + Pruning (74.99%) + KD             | 2,798,648  | 90.13 +/- 0.20              | [Experiment 8a, Run_12](../experiments/results/Experiment_8a/Run_12)            | Compress model ResNet18 - No KD and fine-tune with KD       |
+| ResNet18 + KD + Pruning (74.99%) - No KD             | 2,798,648  | 89.98 +/- 0.29              | [Experiment 8a, Run_8](../experiments/results/Experiment_8a/Run_8)              | Compress model ResNet18 - KD and fine-tune without KD       |
+| ResNet18 + KD + Pruning (74.99%) + KD                | 2,798,648  | 91.11 +/- 0.08              | [Experiment 6a, Run_3](../experiments/results/Experiment_6a/Run_3)              | Compress model ResNet18 - KD and fine-tune with KD          |
+| ResNet18 + 7 iterations of KD aware compression loop | 1,715,497  | 91.61 +/- 0.24              | [Experiment 9a, Run_1, Iteration 7](../experiments/results/Experiment_9a/Run_1) | Distillation-Aware compression loop with 7 iterations       |
+| ResNet18 + 9 iterations of KD aware compression loop | 923,889    | 90.64 +/- 0.15              | [Experiment 9a, Run_1, Iteration 9](../experiments/results/Experiment_9a/Run_1) | Distillation-Aware compression loop with 9 iterations       |
+
+
+### Unstructured ResNet18
+
+| Dataset  | Accuracy + Std. | Run ID                                                             |
+|----------|-----------------|--------------------------------------------------------------------|
+| RESISC45 | 92.22 +/- 0.03  | [Experiment 6a, Run_6](../experiments/results/Experiment_6a/Run_6) |
+
+### Small Models with KD
+| Dataset  | Model        | Parameter | Validation Accuracy (%) std | Run ID                                                            |
+|----------|--------------|-----------|-----------------------------|-------------------------------------------------------------------|
+| EuroSAT  | ResNetTiny   | 997,694   | 96.49 +/- 0.17              | [Experiment 2, Run 18](results/Experiment_2/Run_18/config.toml)   |
+| RESISC45 | ResNetTiny   | 997,694   | 82.63 +/- 0.32              | [Experiment 2a, Run 15](results/Experiment_2a/Run_15/config.toml) |
+| EuroSAT  | ResNet10mini | 2,105,082 | 97.11 +/- 0.15              | [Experiment 5, Run 33](results/Experiment_5/Run_33/config.toml)   |
+| RESISC45 | ResNet10mini | 2,105,082 | 86.36 +/- 0.37              | [Experiment 5a, Run 15](results/Experiment_5a/Run_15/config.toml) |
+---
+
+## Experiment 9: Loop Experiments - EuroSAT, ResNet18
+
+**Goal:** The goal of this experiment is to perform knowledge aware compression in multiple loops to see if further improvements can be achieved.
+All experiments were done on the `EuroSAT` dataset using ResNet18 as student model and ResNet50 as a teacher.
+Starting point for all experiments is the model from [Experiment 3, Run 3](results/Experiment_3/Run_3/config.toml).
+Teacher: [Experiment 1, Run 10](results/Experiment_1/Run_10/config.toml)
+
+**Results**
+- [Results](results/Experiment_9/experiment_summary.md)
+---
+
+
+## Experiment 9a: Loop Experiments - RESISC45, ResNet18
+
+**Goal:** The goal of this experiment is to perform knowledge aware compression in multiple loops to see if further improvements can be achieved.
+All experiments were done on the `RESISC45` dataset using ResNet18 as student model and ResNet50 as a teacher.
+Starting point for all experiments is the model from [Experiment 3a, Run 23](results/Experiment_3a/Run_23/config.toml).
+Teacher: [Experiment 1a, Run 7](results/Experiment_1a/Run_7/config.toml)
+
+**Results**
+- [Results](results/Experiment_9a/experiment_summary.md)
+---
+
+## Experiment 10: Loop Experiments - EuroSAT, ResNet10
+
+**Goal:** The goal of this experiment is to perform knowledge aware compression in multiple loops to see if further improvements can be achieved.
+All experiments were done on the `EuroSAT` dataset using ResNet10 as student model and ResNet50 as a teacher.
+Starting point for all experiments is the model from [Experiment 4, Run 11](results/Experiment_4/Run_11/config.toml).
+Teacher: [Experiment 1, Run 10](results/Experiment_1/Run_10/config.toml)
+
+**Results**
+- [Results](results/Experiment_10/experiment_summary.md)
+---
+
+## Experiment 10a: Loop Experiments - RESISC45, ResNet10
+
+**Goal:** The goal of this experiment is to perform knowledge aware compression in multiple loops to see if further improvements can be achieved.
+All experiments were done on the `RESISC45` dataset using ResNet10 as student model and ResNet50 as a teacher.
+Starting point for all experiments is the model from [Experiment 4a, Run 35](results/Experiment_4a/Run_35/config.toml).
+Teacher: [Experiment 1a, Run 7](results/Experiment_1a/Run_7/config.toml)
+
+**Results**
+- [Results](results/Experiment_10a/experiment_summary.md)
+---
+
+
+## Experiment 11: Seed Baseline EuroSAT
+**Goal:** Different seeds for all baseline runs for Experiment 1.
+
+**Results**
+- [Results](results/Experiment_11/experiment_summary.md)
+---
+
+## Experiment 11a: Seed Baseline RESISC45
+**Goal:** Different seeds for all baseline runs for Experiment 1a.
+
+**Results**
+- [Results](results/Experiment_11a/experiment_summary.md)
+---
+
+## Experiment 12: Seed Runs for EuroSAT and ResNet18
+**Goal:** The goal of this experiment is to evaluate the stability of the baseline experiments from Experiment 8 on EuroSAT with different random seeds.
+ResNet18.
+
+**Descriptions**
+- 1-3 KD --> [Exp 3, Run 3](results/Experiment_3/Run_3)
+- 4-6 ResNet18 - No KD + Pruning (+) - No KD --> [Exp 8, Run 3](results/Experiment_8/Run_3)
+- 7-9 ResNet18 - No KD + Pruning (+) + KD --> [Exp 8, Run 11](results/Experiment_8/Run_11)
+- 10-12 ResNet18 + KD + Pruning (+) - No KD --> [Exp 8, Run 7](results/Experiment_8/Run_7)
+- 13-15 ResNet18 + KD + Pruning (+) + KD --> [Exp 6, Run 2](results/Experiment_6/Run_2)
+- 16-18 ResNet18 - No KD + Pruning (++) - No KD --> [Exp 8, Run 4](results/Experiment_8/Run_4)
+- 19-21 ResNet18 - No KD + Pruning (++) + KD --> [Exp 8, Run 12](results/Experiment_8/Run_12)
+- 22-24 ResNet18 + KD + Pruning (++) - No KD --> [Exp 8, Run 8](results/Experiment_8/Run_8)
+- 25-27 ResNet18 + KD + Pruning (++) + KD --> [Exp 6, Run 11](results/Experiment_6/Run_11)
+- 28-30 ResNet18 + 7 iterations of KD aware compression loop --> [Exp 9, Run 5](results/Experiment_9/Run_5)
+- 31-33 ResNet18 + 9 iterations of KD aware compression loop --> [Exp 9, Run 7](results/Experiment_9/Run_7)
+
+**Results**
+- [KD Experiments](results/Experiment_12/experiment_summary_kd.md)
+- [Pruning Experiments](results/Experiment_12/experiment_summary_pruning.md)
+- [Loop Experiments](results/Experiment_12/experiment_summary_loop.md)
+---
+
+## Experiment 12a: Seed Runs for RESISC45 and ResNet18
+**Goal:** The goal of this experiment is to evaluate the stability of the baseline experiments from Experiment 8a on `RESISC45`' with different random seeds.
+ResNet18.
+
+**Descriptions**
+- 1-3 KD --> [Exp 3a, Run 23](results/Experiment_3a/Run_23)
+- 4-6 ResNet18 - No KD + Pruning (+) - No KD --> [Exp 8a, Run 3](results/Experiment_8a/Run_3)
+- 7-9 ResNet18 - No KD + Pruning (+) + KD --> [Exp 8a, Run 11](results/Experiment_8a/Run_11)
+- 10-12 ResNet18 + KD + Pruning (+) - No KD --> [Exp 8a, Run 7](results/Experiment_8a/Run_7)
+- 13-15 ResNet18 + KD + Pruning (+) + KD --> [Exp 6a, Run 1](results/Experiment_6a/Run_1)
+- 16-18 ResNet18 - No KD + Pruning (++) - No KD --> [Exp 8a, Run 4](results/Experiment_8a/Run_4)
+- 19-21 ResNet18 - No KD + Pruning (++) + KD --> [Exp 8a, Run 12](results/Experiment_8a/Run_12)
+- 22-24 ResNet18 + KD + Pruning (++) - No KD --> [Exp 8a, Run 8](results/Experiment_8a/Run_8)
+- 25-27 ResNet18 + KD + Pruning (++) + KD --> [Exp 6a, Run 3](results/Experiment_6a/Run_3)
+- 28-30 ResNet18 + compression loop --> [Exp 9a, Run 1](results/Experiment_9a/Run_1)
+- 31-33 ResNet18 + unstructured pruning --> [Exp 6a, Run 6](results/Experiment_6a/Run_6)
+
+**Results**
+- [KD Experiments](results/Experiment_12a/experiment_summary_kd.md)
+- [Pruning Experiments](results/Experiment_12a/experiment_summary_pruning.md)
+- [Loop Experiments](results/Experiment_12a/experiment_summary_loop.md)
+---
+
+
+## Experiment 13: Seed Runs for EuroSAT and ResNet10
+**Goal:** The goal of this experiment is to evaluate the stability of the baseline experiments from Experiment 8 on `EuroSAT` with different random seeds.
+ResNet10.
+
+**Descriptions**
+- 1-3 KD --> [Exp 4, Run 11](results/Experiment_4/Run_11)
+- 4-6 ResNet10 - No KD + Pruning (+) - No KD --> [Exp 8, Run 1](results/Experiment_8/Run_1)
+- 7-9 ResNet10 - No KD + Pruning (+) + KD --> [Exp 8, Run 9](results/Experiment_8/Run_9)
+- 10-12 ResNet10 + KD + Pruning (+) - No KD --> [Exp 8, Run 5](results/Experiment_8/Run_5)
+- 13-15 ResNet10 + KD + Pruning (+) + KD --> [Exp 7, Run 2](results/Experiment_7/Run_2)
+- 16-18 ResNet10 - No KD + Pruning (++) - No KD --> [Exp 8, Run 2](results/Experiment_8/Run_2)
+- 19-21 ResNet10 - No KD + Pruning (++) + KD --> [Exp 8, Run 10](results/Experiment_8/Run_10)
+- 22-24 ResNet10 + KD + Pruning (++) - No KD --> [Exp 8, Run 6](results/Experiment_8/Run_6)
+- 25-27 ResNet10 + KD + Pruning (++) + KD --> [Exp 7, Run 11](results/Experiment_7/Run_11)
+- 28-30 ResNet10 + compression loop --> [Exp 10, Run 7](results/Experiment_10/Run_7)
+
+**Results**
+- [KD Experiments](results/Experiment_13/experiment_summary_kd.md)
+- [Pruning Experiments](results/Experiment_13/experiment_summary_pruning.md)
+- [Loop Experiments](results/Experiment_13/experiment_summary_loop.md)
+---
+
+
+## Experiment 13a: Seed Runs for RESISC45 and ResNet10
+**Goal:** The goal of this experiment is to evaluate the stability of the baseline experiments from Experiment 8a on `RESISC45`' with different random seeds.
+ResNet10.
+
+**Descriptions**
+- 1-3 KD --> [Exp 4a, Run 35](results/Experiment_4a/Run_35)
+- 4-6 ResNet10 - No KD + Pruning (+) - No KD --> [Exp 8a, Run 1](results/Experiment_8a/Run_1)
+- 7-9 ResNet10 - No KD + Pruning (+) + KD --> [Exp 8a, Run 9](results/Experiment_8a/Run_9)
+- 10-12 ResNet10 + KD + Pruning (+) - No KD --> [Exp 8a, Run 5](results/Experiment_8a/Run_5)
+- 13-15 ResNet10 + KD + Pruning (+) + KD --> [Exp 7a, Run 5](results/Experiment_7a/Run_5)
+- 16-18 ResNet10 - No KD + Pruning (++) - No KD --> [Exp 8a, Run 2](results/Experiment_8a/Run_2)
+- 19-21 ResNet10 - No KD + Pruning (++) + KD --> [Exp 8a, Run 10](results/Experiment_8a/Run_10)
+- 22-24 ResNet10 + KD + Pruning (++) - No KD --> [Exp 8a, Run 6](results/Experiment_8a/Run_6)
+- 25-27 ResNet10 + KD + Pruning (++) + KD --> [Exp 7a, Run 6](results/Experiment_7a/Run_6)
+- 28-30 ResNet10 + 6 iterations of KD aware compression loop --> [Exp 10a, Run 1](results/Experiment_10a/Run_1)
+
+**Results**
+- [KD Experiments](results/Experiment_13a/experiment_summary_kd.md)
+- [Pruning Experiments](results/Experiment_13a/experiment_summary_pruning.md)
+- [Loop Experiments](results/Experiment_13a/experiment_summary_loop.md)
+---
+
+## Experiment 14: Comparison with and without DAC, EuroSAT and ResNet18
+**Goal:** Run many iteration to compare compression with and without DAC-Loop.
+
+**Results**
+- [Results](results/Experiment_14/experiment_summary.md)
+
+## Experiment 14a: Comparison with and without DAC, RESISC45 and ResNet18
+**Goal:** Run many iteration to compare compression with and without DAC-Loop.
+
+**Results**
+- [Results](results/Experiment_14/experiment_summary.md)
+
+![DAC-comparison](../docs/plots/10_dac_compression_curves.png)

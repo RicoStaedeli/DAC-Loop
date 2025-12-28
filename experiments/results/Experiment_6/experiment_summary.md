@@ -1,42 +1,23 @@
-| run_name | teacher_model | student_model | dataset | kd_type | hidden_rep_loss_weight | ce_loss_weight | soft_target_loss_weight | alpha_kd | beta_feat | T_param | teacher_best_val_accuracy (%) | student_best_val_accuracy (%) | baseline_student_best_val_accuracy (%) | improvement_over_baseline (%) |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Run_1 | ResNet50 | ResNet18 | timm/resisc45 | CosineEmbeddingLoss | 0.1 | 0.75 | 0.25 | 0 | 0 | 2 | 92.6825 | 90.5397 | 91.3333 | -0.7937 |
-| Run_2 | ResNet50 | ResNet18 | timm/resisc45 | CosineEmbeddingLoss | 0.3 | 0.75 | 0.25 | 0 | 0 | 2 | 92.6825 | 91.0317 | 91.3333 | -0.3016 |
-| Run_3 | ResNet50 | ResNet18 | timm/resisc45 | CosineEmbeddingLoss | 0.5 | 0.75 | 0.25 | 0 | 0 | 2 | 92.6825 | 91.0317 | 91.3333 | -0.3016 |
-| Run_4 | ResNet50 | ResNet18 | timm/resisc45 | CosineEmbeddingLoss | 0.7 | 0.75 | 0.25 | 0 | 0 | 2 | 92.6825 | 91.0952 | 91.3333 | -0.2381 |
-| Run_5 | ResNet50 | ResNet18 | timm/resisc45 | CosineEmbeddingLoss | 0.9 | 0.75 | 0.25 | 0 | 0 | 2 | 92.6825 | 90.9524 | 91.3333 | -0.3810 |
-| Run_6 | ResNet50 | ResNet18 | timm/resisc45 | CosineEmbeddingLoss | 0.25 | 0.1 | 0.25 | 0 | 0 | 2 | 92.6825 | 91.7937 | 91.3333 | 0.4603 |
-| Run_7 | ResNet50 | ResNet18 | timm/resisc45 | CosineEmbeddingLoss | 0.25 | 0.3 | 0.25 | 0 | 0 | 2 | 92.6825 | 91.0317 | 91.3333 | -0.3016 |
-| Run_8 | ResNet50 | ResNet18 | timm/resisc45 | CosineEmbeddingLoss | 0.25 | 0.5 | 0.25 | 0 | 0 | 2 | 92.6825 | 91.3016 | 91.3333 | -0.0317 |
-| Run_9 | ResNet50 | ResNet18 | timm/resisc45 | CosineEmbeddingLoss | 0.25 | 0.7 | 0.25 | 0 | 0 | 2 | 92.6825 | 90.8889 | 91.3333 | -0.4444 |
-| Run_10 | ResNet50 | ResNet18 | timm/resisc45 | CosineEmbeddingLoss | 0.25 | 0.9 | 0.25 | 0 | 0 | 2 | 92.6825 | 90.6508 | 91.3333 | -0.6825 |
-| Run_11 | ResNet50 | ResNet18 | timm/resisc45 | CrossEntropyLoss | 0.25 | 0.1 | 0.25 | 0 | 0 | 2 | 92.6825 | 91.1746 | 91.3333 | -0.1587 |
-| Run_12 | ResNet50 | ResNet18 | timm/resisc45 | CrossEntropyLoss | 0.25 | 0.3 | 0.25 | 0 | 0 | 2 | 92.6825 | 91.0635 | 91.3333 | -0.2698 |
-| Run_13 | ResNet50 | ResNet18 | timm/resisc45 | CrossEntropyLoss | 0.25 | 0.5 | 0.25 | 0 | 0 | 2 | 92.6825 | 91.0476 | 91.3333 | -0.2857 |
-| Run_14 | ResNet50 | ResNet18 | timm/resisc45 | CrossEntropyLoss | 0.25 | 0.7 | 0.25 | 0 | 0 | 2 | 92.6825 | 90.9206 | 91.3333 | -0.4127 |
-| Run_15 | ResNet50 | ResNet18 | timm/resisc45 | CrossEntropyLoss | 0.25 | 0.9 | 0.25 | 0 | 0 | 2 | 92.6825 | 91.0317 | 91.3333 | -0.3016 |
-| Run_16 | ResNet50 | ResNet18 | timm/resisc45 | CrossEntropyLoss | 0.25 | 0.75 | 0.1 | 0 | 0 | 2 | 92.6825 | 72.2381 | 91.3333 | -19.0952 |
-| Run_17 | ResNet50 | ResNet18 | timm/resisc45 | CrossEntropyLoss | 0.25 | 0.75 | 0.3 | 0 | 0 | 2 | 92.6825 | 91.0794 | 91.3333 | -0.2540 |
-| Run_18 | ResNet50 | ResNet18 | timm/resisc45 | CrossEntropyLoss | 0.25 | 0.75 | 0.5 | 0 | 0 | 2 | 92.6825 | 91.1905 | 91.3333 | -0.1429 |
-| Run_19 | ResNet50 | ResNet18 | timm/resisc45 | CrossEntropyLoss | 0.25 | 0.75 | 0.7 | 0 | 0 | 2 | 92.6825 | 91.1429 | 91.3333 | -0.1905 |
-| Run_20 | ResNet50 | ResNet18 | timm/resisc45 | CrossEntropyLoss | 0.25 | 0.75 | 0.9 | 0 | 0 | 2 | 92.6825 | 90.9683 | 91.3333 | -0.3651 |
-| Run_21 | ResNet50 | ResNet18 | timm/resisc45 | CrossEntropyLoss | 0.25 | 0.75 | 0.25 | 0 | 0 | 3 | 92.6825 | 91.5556 | 91.3333 | 0.2222 |
-| Run_22 | ResNet50 | ResNet18 | timm/resisc45 | CrossEntropyLoss | 0.25 | 0.75 | 0.25 | 0 | 0 | 5 | 92.6825 | 92.2222 | 91.3333 | 0.8889 |
-| Run_23 | ResNet50 | ResNet18 | timm/resisc45 | CrossEntropyLoss | 0.25 | 0.75 | 0.25 | 0 | 0 | 10 | 92.6825 | 92.9841 | 91.3333 | 1.6508 |
-| Run_24 | ResNet50 | ResNet18 | timm/resisc45 | RegressorMSE | 0.25 | 0.75 | 0.25 | 0 | 0 | 4 | 92.6825 | 91.6349 | 91.3333 | 0.3016 |
-| Run_25 | ResNet50 | ResNet18 | timm/resisc45 | RegressorMSE | 0.1 | 0.6 | 0.4 | 0 | 0 | 4 | 92.6825 | 92.0317 | 91.3333 | 0.6984 |
-| Run_26 | ResNet50 | ResNet18 | timm/resisc45 | RegressorMSE | 0.4 | 0.6 | 0.2 | 0 | 0 | 4 | 92.6825 | 91.9365 | 91.3333 | 0.6032 |
-| Run_27 | ResNet50 | ResNet18 | timm/resisc45 | RegressorMSE | 0.1 | 0.5 | 0.5 | 0 | 0 | 2 | 92.6825 | 91.2063 | 91.3333 | -0.1270 |
-| Run_28 | ResNet50 | ResNet18 | timm/resisc45 | RegressorMSE | 0.4 | 0.5 | 0.1 | 0 | 0 | 4 | 92.6825 | 91.3651 | 91.3333 | 0.0317 |
-| Run_29 | ResNet50 | ResNet18 | timm/resisc45 | KLDivLoss | 0.25 | 0.3 | 0.25 | 0.7 | 0.25 | 4 | 92.6825 | 92.0159 | 91.3333 | 0.6825 |
-| Run_30 | ResNet50 | ResNet18 | timm/resisc45 | KLDivLoss | 0.25 | 0.3 | 0.25 | 0.7 | 0 | 4 | 92.6825 | 92.1111 | 91.3333 | 0.7778 |
-| Run_31 | ResNet50 | ResNet18 | timm/resisc45 | KLDivLoss | 0.25 | 0.3 | 0.25 | 0.7 | 0 | 2 | 92.6825 | 91.3810 | 91.3333 | 0.0476 |
-| Run_32 | ResNet50 | ResNet18 | timm/resisc45 | KLDivLoss | 0.25 | 0.3 | 0.25 | 0.7 | 0 | 8 | 92.6825 | 92.2063 | 91.3333 | 0.8730 |
-| Run_33 | ResNet50 | ResNet18 | timm/resisc45 | KLDivLoss | 0.25 | 0.1 | 0.25 | 0.9 | 0 | 4 | 92.6825 | 92.1270 | 91.3333 | 0.7937 |
-| Run_34 | ResNet50 | ResNet18 | timm/resisc45 | KLDivLoss | 0.25 | 0.5 | 0.25 | 0.5 | 0 | 4 | 92.6825 | 91.9365 | 91.3333 | 0.6032 |
-| Run_35 | ResNet50 | ResNet18 | timm/resisc45 | KLDivLoss | 0.25 | 0.4 | 0.25 | 0.5 | 0.1 | 4 | 92.6825 | 92.1587 | 91.3333 | 0.8254 |
-| Run_36 | ResNet50 | ResNet18 | timm/resisc45 | KLDivLoss | 0.25 | 0.2 | 0.25 | 0.7 | 0.1 | 4 | 92.6825 | 92.3968 | 91.3333 | 1.0635 |
-| Run_37 | ResNet50 | ResNet18 | timm/resisc45 | KLDivLoss | 0.25 | 0.05 | 0.25 | 0.7 | 0.25 | 4 | 92.6825 | 92.1270 | 91.3333 | 0.7937 |
-| Run_38 | ResNet50 | ResNet18 | timm/resisc45 | KLDivLoss | 0.25 | 0.01 | 0.25 | 0.9 | 0.1 | 4 | 92.6825 | 92.2063 | 91.3333 | 0.8730 |
-| Run_39 | ResNet50 | ResNet10 | timm/resisc45 | KLDivLoss | 0.25 | 0.3 | 0.25 | 0.7 | 0 | 8 | 92.6825 | 89.0952 | 88.3175 | 0.7778 |
-| Run_40 | ResNet50 | ResNet18 | timm/resisc45 | KLDivLoss | 0.25 | 0.3 | 0.25 | 0.7 | 0 | 8 | 92.6825 | 92.7460 | 91.3333 | 1.4127 |
+| Run ID | Iteration | Acc. before Pruning | Acc. after Pruning | Acc. after fine tuning | Parameter Before pruning | Parameter after pruning | Param Reduction (%) |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| 1 | 1 | 98.74 | 11.65 | 98.28 | 11179146 | 6032870 | 46.03 |
+| 2 | 1 | 98.74 | 17.65 | 98.56 | 11179146 | 6032870 | 46.03 |
+| 3 | 1 | 98.74 | 8.94 | 98.37 | 11179146 | 6032870 | 46.03 |
+| 4 | 1 | 98.74 | 8.91 | 98.09 | 11179146 | 6032870 | 46.03 |
+| 5 | 1 | 98.74 | 9.24 | 97.87 | 11179146 | 6032870 | 46.03 |
+| 6 | 1 | 98.74 | 11.65 | 98.28 | 11179146 | 6032870 | 46.03 |
+| 7 | 1 | 98.74 | 8.91 | 98.09 | 11179146 | 6032870 | 46.03 |
+| 8 | 1 | 98.74 | 98.54 | 98.61 | 11179146 | 11179146 | 0.0 |
+| 9 | 1 | 98.74 | 94.41 | 98.59 | 11179146 | 11179146 | 0.0 |
+| 10 | 1 | 98.74 | 9.46 | 98.54 | 11179146 | 6032870 | 46.03 |
+| 11 | 1 | 98.74 | 5.41 | 98.67 | 11179146 | 2794281 | 75.0 |
+| 12 | 1 | 98.74 | 9.24 | 98.33 | 11179146 | 2794281 | 75.0 |
+| 13 | 1 | 98.74 | 11.65 | 98.28 | 11179146 | 6032870 | 46.03 |
+| 14 | 1 | 98.74 | 11.65 | 98.28 | 11179146 | 6032870 | 46.03 |
+| 15 | 1 | 98.74 | 8.91 | 98.39 | 11179146 | 9376354 | 16.13 |
+| 16 | 1 | 98.74 | 11.35 | 96.72 | 11179146 | 314340 | 97.19 |
+| 17 | 1 | 98.74 | 7.57 | 95.19 | 11179146 | 309759 | 97.23 |
+| 18 | 1 | 98.74 | 28.83 | 98.65 | 11179146 | 11179146 | 0.0 |
+| 19 | 1 | 98.74 | 98.65 | 98.67 | 11179146 | 11179146 | 0.0 |
+| 20 | 1 | 98.74 | 9.24 | 98.33 | 11179146 | 2794281 | 75.0 |
+| 21 | 1 | 98.74 | 9.46 | 98.54 | 11179146 | 6032870 | 46.03 |

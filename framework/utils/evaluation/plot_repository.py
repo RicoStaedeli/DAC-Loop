@@ -384,13 +384,13 @@ def _plot_train_vs_val_loss(series, cfg, path_base: Path, figsize=DEFAULT_FIGSIZ
 
 
 def make_overview_per_experiment(
-        base_dir="experiments/results/Experiment_3",
+        base_dir="experiments/results/Experiment_2",
         run_indices=range(1, 25),
         hpad=40,  # padding between Loss and ValAcc columns
         vpad=60,  # padding between rows
         margin=60,  # outer border
         caption_width=400,  # left gutter for "Run i"
-        out_path="experiments/results/Experiment_3/overview_all_plots.pdf",
+        out_path="experiments/results/Experiment_2/overview_all_plots.pdf",
         add_captions=False,
         final_scale=0.6,  # 1.0 = no final resize; <1.0 downscales once at the end
         set_dpi=400,  # logical DPI / resolution hint
@@ -773,7 +773,9 @@ def plot_dac_compression_curves(
         export_pdf: bool = True,
         export_png: bool = True,
         png_dpi: int = 600,
-        show_step_markers: bool = False,  # <-- NEW
+        show_step_markers: bool = False,
+        min_y: int=87,
+        max_y: int=94
 ) -> dict:
     """
     Plot validation accuracy with/without DAC as a function of compression.
@@ -921,7 +923,7 @@ def plot_dac_compression_curves(
         x_label_pts_no = np.append(x_label_pts_no, x_no[-1])
         y_label_pts_no = np.append(y_label_pts_no, y_no[-1])
 
-        # --- Static markers/labels for WITHOUT DAC (similar offsets to GIF) ---
+        # --- Static markers/labels for WITHOUT DAC---
         for j, (xi, yi) in enumerate(zip(x_label_pts_no, y_label_pts_no)):
             # marker
             ax.plot(
@@ -933,15 +935,26 @@ def plot_dac_compression_curves(
             )
 
             # label offsets
-            txt_x = xi + 0.8
-            txt_y = yi + 0.2
+            txt_x = xi - 2.5
+            txt_y = yi - 0.5
             ha = "left"
             va = "bottom"
 
             if j == 0:
-                txt_x = xi + 1.0
-                txt_y = yi - 0.15
+                txt_x = xi + 0.7
+                txt_y = yi + 0.2
 
+            # second las point
+            if j == len(x_label_pts_no) - 3:
+                txt_x = xi + 0.4
+                txt_y = yi + 0.1
+
+            # second las point
+            if j == len(x_label_pts_no) - 2:
+                txt_x = xi + 0.9
+                txt_y = yi + 0.1
+
+            # last point
             if j == len(x_label_pts_no) - 1:
                 txt_x = xi + 0.9
                 txt_y = yi - 0.5
@@ -956,7 +969,7 @@ def plot_dac_compression_curves(
                 color=line_no.get_color(),
             )
 
-        # --- Static markers/labels for WITH DAC (matching GIF style) ---
+        # --- Static markers/labels for WITH DAC---
         index_last_point_yes = len(x_label_pts_yes) - 1
         for j, (xi, yi) in enumerate(zip(x_label_pts_yes, y_label_pts_yes)):
             ax.plot(
@@ -967,16 +980,19 @@ def plot_dac_compression_curves(
                 label="_nolegend_",
             )
 
+            txt_x = xi + 1.0
+            txt_y = yi + 0.2
+            ha = "left"
+            va = "bottom"
+
+            if j == 0:
+                txt_x = xi + 1.2
+                txt_y = yi - 0.3
+
             if j == index_last_point_yes:
                 txt_x = xi + 1.0
                 txt_y = yi - 0.5
-                ha = "left"
-                va = "bottom"
-            else:
-                txt_x = xi + 1.0
-                txt_y = yi + 0.2
-                ha = "left"
-                va = "bottom"
+
 
             ax.text(
                 txt_x,
@@ -991,7 +1007,7 @@ def plot_dac_compression_curves(
     # Show every 10% step on the x-axis
     ax.set_xticks(list(range(0, 101, 10)))
     ax.set_xlim(0, 100)
-    ax.set_ylim(87, 94)
+    ax.set_ylim(min_y, max_y)
 
     ax.set_title(rf"\textbf{{{title}}}")
     ax.legend(frameon=False, handlelength=1.2, borderaxespad=0.2, loc="best")
