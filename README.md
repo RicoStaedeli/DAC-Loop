@@ -1,20 +1,20 @@
 ![KD aware compression loop](docs/plots/0_KD%20Aware%20Compression%20Loop.png)
 
-# DAC-LOOP: DISTILLATION-AWARE COMPRESSION LOOP WITH TEACHER-STUDENT LEARNING FOR REMOTE SENSING CNN
+# DAC-LOOP: DISTILLATION-AWARE COMPRESSION FOR REMOTE SENSING
 
 ## Project Overview
 
-This is the official implementation of the paper: DAC-Lop: Distillation-Aware Compression Loop with Teacher-Student
-Learning for Remote Sensing CNN.
+This is the official implementation of the paper: DAC-Lop: Distillation-Aware Compression for Remote Sensing.
 The goal of this paper is to explore how much a knowledge-distilled student model can be further compressed
-while preserving teacher-level accuracy on RS scene classification. In particular, our main contributions are:
+while preserving high level of accuracy on RS scene classification. In particular, our main contributions are:
 
-- We introduce a Distillation-Aware Compression Loop tailored to CNN backbones and evaluated on EuroSAT and
-  NWPU-RESISC45.
-- Ablation studies demonstrate that iterative DAC-Loop cycles outperform standard pruning on every level of compressio.
+- We introduce a Distillation-Aware Compression Loop tailored to CNN backbones and evaluated on `EuroSAT` and
+  `NWPU-RESISC45`.
+- Ablation studies demonstrate that iterative DAC-Loop cycles outperform standard pruning on every level of compression.
 
-Our proposed DAC-Loop approach achieves state-of-the-art results on the NWPU-RESISC45 dataset with a ResNet18 backbone,
-compressing the model by 85.2% while still achieving 92.00% accuracy.
+Our proposed DAC-Loop approach achieves state-of-the-art results on the `NWPU-RESISC45` dataset with a ResNet18
+backbone,
+compressing the model by 84.7% (1.7 M Parameters) while still achieving 91.61% accuracy.
 We implemented a dynamic framework allowing to create scheduled compression loops. The loop follows these steps:
 
 1. A teacher model is trained on the dataset.
@@ -77,44 +77,36 @@ uv run runner.py --gpu 0 --experiment Experiment_XY
 
 ## Evaluation
 
-The following table summarizes the evaluation results of our DAC-Loop approach on the NWPU-RESISC45 dataset using a
+The following table summarizes the evaluation results of our DAC-Loop approach on the `NWPU-RESISC45 dataset using a
 ResNet18 backbone.
 The table compares the base model, compressed models without knowledge distillation (KD), and models trained with KD.
 Also included are the results of our DAC-Loop approach with multiple iterations (N) of compression and KD.
 
 **ResNet-18 Ablation Study Results on RESISC45**
 
-|             | KD-1 | KD-2 | N | Comp. | Params |        Val. Acc. |
-|-------------|:----:|:----:|--:|------:|-------:|-----------------:|
-| **Base**    |  –   |  –   | 1 |    0% | 11.2 M |     90.29 ± 0.28 |
-|             |  –   |  –   | 1 |    0% | 2.0 M* |     83.50 ± 0.38 |
-|             |  ✓   |  –   | 1 |    0% | 11.2 M |     92.85 ± 0.15 |
-| **Comp.+**  |  –   |  –   | 1 | 47.5% |  5.8 M |     90.32 ± 0.14 |
-|             |  ✓   |  –   | 1 | 47.5% |  5.8 M |     91.26 ± 0.07 |
-|             |  –   |  ✓   | 1 | 47.5% |  5.8 M |     92.06 ± 0.11 |
-|             |  ✓   |  ✓   | 1 | 47.5% |  5.8 M |     92.68 ± 0.24 |
-| **Comp.++** |  –   |  –   | 1 | 75.8% |  2.7 M |     88.60 ± 0.15 |
-|             |  ✓   |  –   | 1 | 75.8% |  2.7 M |     89.52 ± 0.33 |
-|             |  –   |  ✓   | 1 | 75.8% |  2.7 M |     90.39 ± 0.12 |
-|             |  ✓   |  ✓   | 1 | 75.8% |  2.7 M |     91.23 ± 0.16 |
-| **Loop**    |  –   |  –   | 6 | 85.2% |  1.6 M | **92.00 ± 0.35** |
-|             |  –   |  ✓   | 9 | 92.1% |  0.8 M |     90.71 ± 0.25 |
+|             | KD-1 | KD-2 | N | Comp. |  Params |        Val. Acc. |
+|-------------|-----:|:----:|--:|------:|--------:|-----------------:|
+| **Base**    |    ✓ |  –   | 1 |    0% |  1.0 M* |     82.63 ± 0.32 |
+|             |    ✓ |  –   | 1 |    0% | 2.0 M** |     86.36 ± 0.37 |
+|             |    ✓ |  –   | 1 |    0% |  11.2 M |     91.95 ± 0.17 |
+| **Comp.+**  |    – |  –   | 1 | 46.0% |   6.0 M |     90.78 ± 0.11 |
+|             |    ✓ |  –   | 1 | 46.0% |   6.0 M |     82.02 ± 0.15 |
+|             |    – |  ✓   | 1 | 46.0% |   6.0 M |     92.10 ± 0.04 |
+|             |    ✓ |  ✓   | 1 | 46.0% |   6.0 M |     92.22 ± 0.03 |
+| **Comp.++** |    – |  –   | 1 | 75.0% |   2.8 M |     87.86 ± 0.17 |
+|             |    ✓ |  –   | 1 | 75.0% |   2.8 M |     89.98 ± 0.29 |
+|             |    – |  ✓   | 1 | 75.0% |   2.8 M |     90.13 ± 0.20 |
+|             |    ✓ |  ✓   | 1 | 75.0% |   2.8 M |     91.11 ± 0.08 |
+| **Loop**    |    ✓ |  ✓   | 7 | 84.7% |   1.7 M | **91.61 ± 0.24** |
+|             |    ✓ |  ✓   | 9 | 91.7% |   0.9 M |     90.64 ± 0.15 |
 
-\* 2.0M model: ResNet10mini, our own small-model baseline.
+\* 1.0M model: [ResNetTiny](framework/models/ResNetTiny.py)<br>
+\** 2.0M model: [ResNet10mini](framework/models/ResNet10mini.py)
 
+### Effect of DAC with ResNet18 on NWPU-RESISC45
 ![Final Plot](docs/plots/10_dac_compression_curves.png)
 
 ## Contact
-Feel free to get in touch with us with any questions on the project. Reach out to [rico.staedeli@student.unisg.ch](mailto:rico.staedeli@student.unisg.ch).
 
-## Citation
-If you find this work useful for your research, please consider citing the following paper:
-
-```bibtex
-@article{staedeli2024dacloop,
-  title={DAC-Loop: Distillation-Aware Compression Loop with Teacher-Student Learning for Remote Sensing CNN},
-  author={Staedeli, Rico and Raichle, Lorena},
-  journal={DeepLearning 2025},
-  year={2025}
-}
-```
+Feel free to get in touch with us with any questions on the project. Reach out
+to [rico.staedeli@student.unisg.ch](mailto:rico.staedeli@student.unisg.ch).
