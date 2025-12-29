@@ -1,10 +1,10 @@
 ![KD aware compression loop](docs/plots/0_KD%20Aware%20Compression%20Loop.png)
 
-# DAC-LOOP: DISTILLATION-AWARE COMPRESSION FOR REMOTE SENSING
+# DAC-LOOP: DISTILLATION-AWARE COMPRESSION FOR REMOTE SENSING CNN
 
 ## Project Overview
 
-This is the official implementation of the paper: DAC-Lop: Distillation-Aware Compression for Remote Sensing.
+This is the official implementation of the paper: DAC-Lop: Distillation-Aware Compression for Remote Sensing CNN.
 The goal of this paper is to explore how much a knowledge-distilled student model can be further compressed
 while preserving high level of accuracy on RS scene classification. In particular, our main contributions are:
 
