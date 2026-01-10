@@ -7,6 +7,7 @@ import time
 from typing import Dict, Any, Tuple
 import torch.nn as nn
 import json
+from thop import profile
 
 from framework.models.ResNet18 import ResNet18
 from framework.utils.logger import setup_logging
@@ -208,6 +209,37 @@ def _measure_inference_time(model: torch.nn.Module,
 
     return avg_batch_time, avg_sample_time
 
+def _compute_macs_flops_params(
+    model: torch.nn.Module,
+    device: torch.device,
+    input_channels: int,
+    img_size: int,
+    batch_size: int = 1,
+) -> Dict[str, float]:
+    """
+    Compute MACs, FLOPs (2*MACs), and parameter count using thop.
+
+    Notes:
+      - thop counts compute based on tensor shapes (dense ops).
+      - Unstructured sparsity does NOT reduce MACs/FLOPs here.
+      - Structured pruning DOES reduce MACs/FLOPs because shapes change.
+    """
+    model = model.to(device)
+    model.eval()
+
+    x = torch.randn(batch_size, input_channels, img_size, img_size, device=device)
+
+    with torch.no_grad():
+        macs, params = profile(model, inputs=(x,), verbose=False)
+
+    flops = 2.0 * macs  # common convention: FLOPs = 2 * MACs (mul + add)
+    return {
+        "macs": float(macs),
+        "flops": float(flops),
+        "params": float(params),
+        "img_size": float(img_size),
+        "batch_size": float(batch_size),
+    }
 
 def _inference_time_comparison_resisc(device: torch.device) -> None:
     # Data
@@ -234,7 +266,7 @@ def _inference_time_comparison_resisc(device: torch.device) -> None:
     path_full = Path("experiments/results/Experiment_1a/Run_1/best.pt")
 
     # Compressed ResNet18
-    path_compressed = Path("experiments/results/Experiment_9a/Run_9/compressed_model_iteration_9.pt")
+    path_compressed = Path("experiments/results/Experiment_9a/Run_1/compressed_model_iteration_9.pt")
 
     # -------------------------
     # Full model timing
@@ -242,6 +274,22 @@ def _inference_time_comparison_resisc(device: torch.device) -> None:
     ckpt = torch.load(str(path_full), map_location=device)
     model_full.load_state_dict(ckpt["model_state"])
     print_model_summary(model_full, input_channels=3, bs=256, img_size=256, description="Baseline ResNet18")
+
+    # FLOPs / MACs / Params (thop) - use batch_size=1 for per-image reporting
+    full_cost = _compute_macs_flops_params(
+        model_full,
+        device=device,
+        input_channels=3,
+        img_size=256,
+        batch_size=1,
+    )
+    log.info(
+        "Full model compute @%dx%d: MACs=%.3f G | FLOPs=%.3f G | Params=%.3f M",
+        int(full_cost["img_size"]), int(full_cost["img_size"]),
+        full_cost["macs"] / 1e9,
+        full_cost["flops"] / 1e9,
+        full_cost["params"] / 1e6,
+    )
 
     full_batch_time, full_sample_time = _measure_inference_time(
         model_full, val_loader, device
@@ -268,6 +316,21 @@ def _inference_time_comparison_resisc(device: torch.device) -> None:
 
     model_compressed.load_state_dict(ckpt["model_state"], strict=True)
     print_model_summary(model_compressed, input_channels=3, bs=256, img_size=256, description="Compressed ResNet18")
+
+    comp_cost = _compute_macs_flops_params(
+        model_compressed,
+        device=device,
+        input_channels=3,
+        img_size=256,
+        batch_size=1,
+    )
+    log.info(
+        "Compressed model compute @%dx%d: MACs=%.3f G | FLOPs=%.3f G | Params=%.3f M",
+        int(comp_cost["img_size"]), int(comp_cost["img_size"]),
+        comp_cost["macs"] / 1e9,
+        comp_cost["flops"] / 1e9,
+        comp_cost["params"] / 1e6,
+    )
 
     comp_batch_time, comp_sample_time = _measure_inference_time(
         model_compressed, val_loader, device
@@ -318,6 +381,12 @@ def _inference_time_comparison_resisc(device: torch.device) -> None:
     comp_size_mb = comp_size_bytes / (1024 * 1024)
     size_reduction = full_size_mb / comp_size_mb if comp_size_mb > 0 else float("inf")
 
+    # Compute reduction (MACs/FLOPs)
+    macs_reduction = (full_cost["macs"] / comp_cost["macs"]) if comp_cost["macs"] > 0 else float("inf")
+    flops_reduction = (full_cost["flops"] / comp_cost["flops"]) if comp_cost["flops"] > 0 else float("inf")
+
+
+
     log.info("=== FINAL INFERENCE SUMMARY ===")
     log.info("Model full checkpoint:       %s", path_full)
     log.info("Model compressed checkpoint: %s", path_compressed)
@@ -333,6 +402,12 @@ def _inference_time_comparison_resisc(device: torch.device) -> None:
     log.info("Compressed sample time [s]:  %.6f", comp_sample_time)
     log.info("Speedup batch:               x%.6f", speedup_batch)
     log.info("Speedup sample:              x%.6f", speedup_sample)
+    log.info("Full MACs [G]:               %.6f", full_cost["macs"] / 1e9)
+    log.info("Compressed MACs [G]:         %.6f", comp_cost["macs"] / 1e9)
+    log.info("MACs reduction:              x%.6f", macs_reduction)
+    log.info("Full FLOPs [G]:              %.6f", full_cost["flops"] / 1e9)
+    log.info("Compressed FLOPs [G]:        %.6f", comp_cost["flops"] / 1e9)
+    log.info("FLOPs reduction:             x%.6f", flops_reduction)
     log.info("Logfile written to:          %s", LOGFILE_PATH)
 
 
