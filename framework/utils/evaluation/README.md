@@ -49,7 +49,7 @@ Create the Experiment Description Table with:
 ```bash
 uv run python -m framework.utils.evaluation.generate_exp_description_md
 ```
-$
+
 ## Inference Evaluation
 
 Make Inference comparison
