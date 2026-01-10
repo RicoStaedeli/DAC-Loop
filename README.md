@@ -49,7 +49,7 @@ The project uses UV as the main dependency manager. To set up the environment, f
 1. **Clone the Repository**:
 
 ```bash
-git https://github.com/RicoStaedeli/DAC-Loop.git
+git clone anonym.git
 cd DAC-Loop
 ```
 
@@ -109,4 +109,4 @@ Also included are the results of our DAC-Loop approach with multiple iterations 
 ## Contact
 
 Feel free to get in touch with us with any questions on the project. Reach out
-to [rico.staedeli@student.unisg.ch](mailto:rico.staedeli@student.unisg.ch).
+to anonym.
