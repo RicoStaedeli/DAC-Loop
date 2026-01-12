@@ -1009,7 +1009,7 @@ def plot_dac_compression_curves(
     ax.set_xlim(0, 100)
     ax.set_ylim(min_y, max_y)
 
-    ax.set_title(rf"\textbf{{{title}}}")
+    # ax.set_title(rf"\textbf{{{title}}}")
     ax.legend(frameon=False, handlelength=1.2, borderaxespad=0.2, loc="best")
 
     out_base = Path(out_path_base)
