@@ -397,9 +397,15 @@ teacher.
 
 ### Unstructured ResNet18
 
-| Dataset  | Accuracy + Std. | Run ID                                                             |
-|----------|-----------------|--------------------------------------------------------------------|
-| RESISC45 | 92.22 +/- 0.03  | [Experiment 6a, Run_6](../experiments/results/Experiment_6a/Run_6) |
+| Dataset  | KD          | Accuracy + Std. | Run ID                                                                    |
+|----------|-------------|-----------------|---------------------------------------------------------------------------|
+| RESISC45 | KD-1        | 92.59 +/- 0.02  | [Experiment 12a, Run_34-37](../experiments/results/Experiment_12a/Run_34) |
+| RESISC45 | KD-2        | 92.27 +/- 0.20  | [Experiment 12a, Run_38-41](../experiments/results/Experiment_12a/Run_38) |
+| RESISC45 | KD-1 + KD-2 | 92.22 +/- 0.03  | [Experiment 6a, Run_6](../experiments/results/Experiment_6a/Run_6)        |
+| EuroSAT  | KD-1        | 98.58 +/- 0.06  | [Experiment 12, Run_34-37](../experiments/results/Experiment_12/Run_34)   |
+| EuroSAT  | KD-2        | 98.41 +/- 0.02  | [Experiment 12, Run_38-41](../experiments/results/Experiment_12/Run_38)   |
+| EuroSAT  | KD-1 + KD-2 | 98.67 +/- 0.05  | [Experiment 12, Run_42-45](../experiments/results/Experiment_12/Run_42)   |
+
 
 ### Small Models with KD
 | Dataset  | Model        | Parameter | Validation Accuracy (%) std | Run ID                                                            |

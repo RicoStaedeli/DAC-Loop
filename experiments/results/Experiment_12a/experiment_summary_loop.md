@@ -208,3 +208,51 @@
 | --- | --- | --- | --- | --- | --- | --- |
 | 1 | 91.76 | 90.03 | 92.21 | 11191917 | 11191917 | 0.0 |
 
+### 🟡 Run 34
+
+| Iteration | Acc. before Pruning | Acc. after Pruning | Acc. after fine tuning | Parameter Before pruning | Parameter after pruning | Param Reduction (%) |
+| --- | --- | --- | --- | --- | --- | --- |
+| 1 | 91.76 | 90.03 | 92.57 | 11191917 | 11191917 | 0.0 |
+
+### 🟣 Run 35
+
+| Iteration | Acc. before Pruning | Acc. after Pruning | Acc. after fine tuning | Parameter Before pruning | Parameter after pruning | Param Reduction (%) |
+| --- | --- | --- | --- | --- | --- | --- |
+| 1 | 91.76 | 90.03 | 92.6 | 11191917 | 11191917 | 0.0 |
+
+### 🟠 Run 36
+
+| Iteration | Acc. before Pruning | Acc. after Pruning | Acc. after fine tuning | Parameter Before pruning | Parameter after pruning | Param Reduction (%) |
+| --- | --- | --- | --- | --- | --- | --- |
+| 1 | 91.76 | 90.03 | 92.62 | 11191917 | 11191917 | 0.0 |
+
+### 🔴 Run 37
+
+| Iteration | Acc. before Pruning | Acc. after Pruning | Acc. after fine tuning | Parameter Before pruning | Parameter after pruning | Param Reduction (%) |
+| --- | --- | --- | --- | --- | --- | --- |
+| 1 | 91.76 | 90.03 | 92.6 | 11191917 | 11191917 | 0.0 |
+
+### 🟢 Run 38
+
+| Iteration | Acc. before Pruning | Acc. after Pruning | Acc. after fine tuning | Parameter Before pruning | Parameter after pruning | Param Reduction (%) |
+| --- | --- | --- | --- | --- | --- | --- |
+| 1 | 89.89 | 87.94 | 92.3 | 11191917 | 11191917 | 0.0 |
+
+### 🔵 Run 39
+
+| Iteration | Acc. before Pruning | Acc. after Pruning | Acc. after fine tuning | Parameter Before pruning | Parameter after pruning | Param Reduction (%) |
+| --- | --- | --- | --- | --- | --- | --- |
+| 1 | 89.89 | 87.94 | 92.03 | 11191917 | 11191917 | 0.0 |
+
+### 🟡 Run 40
+
+| Iteration | Acc. before Pruning | Acc. after Pruning | Acc. after fine tuning | Parameter Before pruning | Parameter after pruning | Param Reduction (%) |
+| --- | --- | --- | --- | --- | --- | --- |
+| 1 | 89.89 | 87.94 | 92.25 | 11191917 | 11191917 | 0.0 |
+
+### 🟣 Run 41
+
+| Iteration | Acc. before Pruning | Acc. after Pruning | Acc. after fine tuning | Parameter Before pruning | Parameter after pruning | Param Reduction (%) |
+| --- | --- | --- | --- | --- | --- | --- |
+| 1 | 89.89 | 87.94 | 92.27 | 11191917 | 11191917 | 0.0 |
+
