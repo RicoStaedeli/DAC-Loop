@@ -177,7 +177,7 @@ def _inference_time_comparison_resisc(device: torch.device) -> None:
     ckpt = torch.load(path_compressed, map_location=device)
     pruning_cfg = ckpt["pruning_cfg"]
 
-    model_compressed = _build_compressed_resnet18(
+    model_compressed = modelBuilder.build_compressed_resnet18(
         pruning_cfg=pruning_cfg,
         input_channels=3,
         num_classes=45,
