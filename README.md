@@ -86,7 +86,7 @@ Also included are the results of our DAC-Loop approach with multiple iterations 
 
 |                   | KD-1 | KD-2 | Iterations (N) | Compression |  Params |        Val. Acc. |
 |-------------------|-----:|:----:|---------------:|------------:|--------:|-----------------:|
-| **Base**          |    ✓ |  –   |              1 |          0% |  1.0 M* |     82.63 ± 0.32 |
+| **KD**            |    ✓ |  –   |              1 |          0% |  1.0 M* |     82.63 ± 0.32 |
 |                   |    ✓ |  –   |              1 |          0% | 2.0 M** |     86.36 ± 0.37 |
 |                   |    ✓ |  –   |              1 |          0% |  11.2 M |     91.95 ± 0.17 |
 | **Compression+**  |    – |  –   |              1 |       46.0% |   6.0 M |     90.78 ± 0.11 |
