@@ -1,87 +1,71 @@
-from __future__ import annotations
-
-from pathlib import Path
-from typing import Optional, Dict, Any, Tuple
-
+from typing import Optional
 import logging
-
 import torch
+from typing import Dict, Any, Tuple
 import torch.nn as nn
-from torchinfo import summary
 
+from framework.models.ResNet18 import ResNet18
 from framework.models import MODEL_REGISTRY
 
 log = logging.getLogger(__name__)
 
-
 class ModelBuilder:
-    """Responsible for building models and loading checkpoints."""
 
-    def __init__(self, device: torch.device):
-        self.device = device
-
-    @staticmethod
-    def _get_parent_module(root: nn.Module, name: str) -> Tuple[nn.Module, str]:
-        """Given dotted module name like 'layer1.0.conv1', return (parent_module, 'conv1')."""
+    def _get_parent_module(self, root: nn.Module, name: str) -> Tuple[nn.Module, str]:
+        """
+        Given a dotted module name like 'layer1.0.conv1', return (parent_module, 'conv1').
+        """
         parts = name.split(".")
-        parent: nn.Module = root
+        parent = root
         for p in parts[:-1]:
             parent = getattr(parent, p)
         return parent, parts[-1]
 
-    def build_from_registry(self, name: Optional[str], **kwargs) -> Optional[nn.Module]:
+    # -------------------- Models -------------------- #
+    def build_model(self, name: Optional[str], **kwargs) -> Optional[torch.nn.Module]:
         """Build model by name from MODEL_REGISTRY with given kwargs."""
         if not name:
             return None
         try:
             model_cls = MODEL_REGISTRY[name]
         except KeyError as exc:
-            raise ValueError(
-                f"Unknown model '{name}'. Available: {list(MODEL_REGISTRY.keys())}"
-            ) from exc
+            raise ValueError(f"Unknown model '{name}'. Available: {list(MODEL_REGISTRY.keys())}") from exc
         return model_cls(**kwargs)
 
-    def load_checkpoint(
-        self,
-        model: nn.Module,
-        ckpt_path: Path,
-        state_key: str = "model_state",
-        strict: bool = True,
-    ) -> Dict[str, Any]:
-        """Load checkpoint from disk into a model and return the checkpoint dict."""
-        ckpt = torch.load(str(ckpt_path), map_location=self.device)
-        if state_key not in ckpt:
-            raise KeyError(f"Checkpoint at {ckpt_path} does not contain key '{state_key}'.")
-        model.load_state_dict(ckpt[state_key], strict=strict)
-        return ckpt
-
     def build_compressed_resnet18(
-        self,
-        pruning_cfg: Dict[str, Dict[str, Any]],
-        input_channels: int,
-        num_classes: int,
-        feature_dim: int = 512,
-    ) -> nn.Module:
-        """Build a pruned ResNet18 by rewriting layer modules described in pruning_cfg."""
-        # Start from a vanilla architecture and then replace layers.
-        model = self.build_from_registry(
-            "ResNet18",
+            self,
+            pruning_cfg: Dict[str, Dict[str, Any]],
+            input_channels: int,
+            num_classes: int,
+            feature_dim: int = 512,
+    ) -> ResNet18:
+        """
+        Rebuild a structurally-pruned ResNet18 using a pruning_cfg describing each Conv2d/Linear.
+
+        Args:
+            pruning_cfg: dict mapping module name -> config
+            input_channels: input channels for the first conv (typically 3)
+            num_classes: number of output classes
+            feature_dim: KD feature dim; mostly irrelevant because kd_proj is overridden if present in cfg
+
+        Returns:
+            ResNet18 instance whose module shapes match the pruned checkpoint.
+        """
+        # 1) Start from vanilla architecture
+        model = ResNet18(
             input_channels=input_channels,
             num_classes=num_classes,
             feature_dim=feature_dim,
         )
-        if model is None:
-            raise RuntimeError("Failed to build base ResNet18 from registry.")
 
-        # 1) Replace Conv / Linear layers based on pruning_cfg entries
+        # 2) Resize Conv2d and Linear modules according to pruning_cfg
         for name, layer_cfg in pruning_cfg.items():
             layer_type = layer_cfg.get("type")
-            if layer_type not in {"conv2d", "linear"}:
-                continue
-
             parent, attr_name = self._get_parent_module(model, name)
 
             if layer_type == "conv2d":
+                # Existing module (we only use it to check type / reuse some hyperparams if needed)
+                old: nn.Conv2d = getattr(parent, attr_name)
                 new = nn.Conv2d(
                     in_channels=layer_cfg["in_channels"],
                     out_channels=layer_cfg["out_channels"],
@@ -102,80 +86,57 @@ class ModelBuilder:
                 )
                 parent.__setattr__(attr_name, new)
 
-        # 2) Rebuild BatchNorm layers to follow Conv out_channels (BN config not stored in pruning_cfg)
+            else:
+                # Ignore anything else just in case
+                continue
+
+        # 3) Rebuild BatchNorm layers to follow Conv out_channels
+        #
+        # We infer BN shapes purely from conv out_channels because BN is not stored in pruning_cfg.
         # Naming rules for your ResNet18:
         #   - top conv:    conv1 -> bn1
         #   - block convs: layerX.Y.conv1 -> layerX.Y.bn1
-        #                 layerX.Y.conv2 -> layerX.Y.bn2
+        #                  layerX.Y.conv2 -> layerX.Y.bn2
         #   - shortcuts:   layerX.Y.shortcut.0 -> layerX.Y.shortcut.1
         bn_targets: Dict[str, int] = {}
+
         for name, layer_cfg in pruning_cfg.items():
             if layer_cfg.get("type") != "conv2d":
                 continue
             out_c = layer_cfg["out_channels"]
 
+            # top-level stem
             if name == "conv1":
                 bn_targets["bn1"] = out_c
-            else:
-                parts = name.split(".")
-                # expected formats:
-                # layer{n}.{b}.conv{m}  OR  layer{n}.{b}.shortcut.0
-                if len(parts) >= 4 and parts[0].startswith("layer"):
-                    layer_prefix = ".".join(parts[:-1])  # everything before 'conv1'/'conv2'/'0'
-                    last = parts[-1]
-                    # conv1/conv2
-                    if last.startswith("conv"):
-                        bn_name = layer_prefix + ".bn" + last.replace("conv", "")
-                        bn_targets[bn_name] = out_c
-                    # shortcut.0 -> shortcut.1
-                    elif last == "0" and parts[-2] == "shortcut":
-                        bn_name = ".".join(parts[:-1]) + ".1"
-                        bn_targets[bn_name] = out_c
+
+            # block conv1/conv2
+            if name.endswith("conv1"):
+                bn_targets[name.replace("conv1", "bn1")] = out_c
+            if name.endswith("conv2"):
+                bn_targets[name.replace("conv2", "bn2")] = out_c
+
+            # shortcut conv -> shortcut bn
+            if name.endswith("shortcut.0"):
+                bn_targets[name.replace("shortcut.0", "shortcut.1")] = out_c
 
         for bn_name, num_features in bn_targets.items():
             try:
-                parent, attr = self._get_parent_module(model, bn_name)
-                old_bn = getattr(parent, attr)
-                # Preserve eps/momentum/affine/track_running_stats where possible
-                eps = getattr(old_bn, "eps", 1e-5)
-                momentum = getattr(old_bn, "momentum", 0.1)
-                affine = getattr(old_bn, "affine", True)
-                track = getattr(old_bn, "track_running_stats", True)
-                new_bn = nn.BatchNorm2d(
-                    num_features=num_features,
-                    eps=eps,
-                    momentum=momentum,
-                    affine=affine,
-                    track_running_stats=track,
-                )
-                parent.__setattr__(attr, new_bn)
-            except Exception as e:
-                log.warning("Failed to rebuild BN layer '%s': %s", bn_name, e)
+                parent, attr_name = self._get_parent_module(model, bn_name)
+            except AttributeError:
+                # if the name doesn't exist in this model, just skip
+                continue
+
+            old_module = getattr(parent, attr_name, None)
+            if not isinstance(old_module, nn.BatchNorm2d):
+                continue
+
+            new_bn = nn.BatchNorm2d(
+                num_features=num_features,
+                eps=old_module.eps,
+                momentum=old_module.momentum,
+                affine=old_module.affine,
+                track_running_stats=old_module.track_running_stats,
+            )
+            parent.__setattr__(attr_name, new_bn)
 
         return model
-
-    @staticmethod
-    def print_model_summary(
-        model: Optional[nn.Module],
-        input_channels: int,
-        bs: int,
-        img_size: int,
-        description: str,
-    ) -> None:
-        """Print and persist a torchinfo summary for a model."""
-        if model is None:
-            return
-
-        model_info = summary(
-            model,
-            input_size=(bs, input_channels, img_size, img_size),
-            col_names=("input_size", "output_size", "num_params", "trainable"),
-            depth=7,
-            verbose=0,
-        )
-        header = f"{description}:\n" + "-" * 27 + "\n"
-        log.info("\n%s%s", header, model_info)
-
-    @staticmethod
-    def file_size_mb(path: Path) -> float:
-        return path.stat().st_size / (1024 * 1024)
