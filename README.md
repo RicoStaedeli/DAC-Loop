@@ -5,12 +5,12 @@
 ## Project Overview
 
 This is the official implementation of the paper: DAC-Lop: Distillation-Aware Compression for Remote Sensing CNN.
-The goal of this paper is to explore how much a knowledge-distilled student model can be further compressed
+The goal of this work is to explore how much a knowledge-distilled student model can be further compressed
 while preserving high level of accuracy on RS scene classification. In particular, our main contributions are:
 
 - We introduce a Distillation-Aware Compression Loop tailored to CNN backbones and evaluated on `EuroSAT` and
   `NWPU-RESISC45`.
-- Ablation studies demonstrate that iterative DAC-Loop cycles outperform standard pruning on every level of compression.
+- Ablation studies demonstrate that iterative DAC-Loop cycles outperform standard one-shot pruning on every level of compression.
 
 Our proposed DAC-Loop approach achieves state-of-the-art results on the `NWPU-RESISC45` dataset with a ResNet18
 backbone,
@@ -19,7 +19,7 @@ We implemented a dynamic framework allowing to create scheduled compression loop
 
 1. A teacher model is trained on the dataset.
 2. A student model (smaller than teacher) is trained using knowledge distillation from the teacher.
-3. The KD-trained student model is compressed via structured pruning.
+3. The KD-trained student model is compressed via structured or unstructured pruning.
 4. The compressed model becomes the new student, and steps 2-4 are repeated for N iterations.
 
 The framework allows to flexibly define different compression rates, methods and parameters during each iteration. This
@@ -49,7 +49,7 @@ The project uses UV as the main dependency manager. To set up the environment, f
 1. **Clone the Repository**:
 
 ```bash
-git clone anonym.git
+git clone https://github.com/RicoStaedeli/DAC-Loop.git
 cd DAC-Loop
 ```
 
@@ -84,21 +84,21 @@ Also included are the results of our DAC-Loop approach with multiple iterations 
 
 **ResNet18 Ablation Study Results on NWPU-RESISC45**
 
-|             | KD-1 | KD-2 | N | Comp. |  Params |        Val. Acc. |
-|-------------|-----:|:----:|--:|------:|--------:|-----------------:|
-| **Base**    |    ✓ |  –   | 1 |    0% |  1.0 M* |     82.63 ± 0.32 |
-|             |    ✓ |  –   | 1 |    0% | 2.0 M** |     86.36 ± 0.37 |
-|             |    ✓ |  –   | 1 |    0% |  11.2 M |     91.95 ± 0.17 |
-| **Comp.+**  |    – |  –   | 1 | 46.0% |   6.0 M |     90.78 ± 0.11 |
-|             |    ✓ |  –   | 1 | 46.0% |   6.0 M |     82.02 ± 0.15 |
-|             |    – |  ✓   | 1 | 46.0% |   6.0 M |     92.10 ± 0.04 |
-|             |    ✓ |  ✓   | 1 | 46.0% |   6.0 M |     92.22 ± 0.03 |
-| **Comp.++** |    – |  –   | 1 | 75.0% |   2.8 M |     87.86 ± 0.17 |
-|             |    ✓ |  –   | 1 | 75.0% |   2.8 M |     89.98 ± 0.29 |
-|             |    – |  ✓   | 1 | 75.0% |   2.8 M |     90.13 ± 0.20 |
-|             |    ✓ |  ✓   | 1 | 75.0% |   2.8 M |     91.11 ± 0.08 |
-| **Loop**    |    ✓ |  ✓   | 7 | 84.7% |   1.7 M | **91.61 ± 0.24** |
-|             |    ✓ |  ✓   | 9 | 91.7% |   0.9 M |     90.64 ± 0.15 |
+|                   | KD-1 | KD-2 | Iterations (N) | Compression |  Params |        Val. Acc. |
+|-------------------|-----:|:----:|---------------:|------------:|--------:|-----------------:|
+| **Base**          |    ✓ |  –   |              1 |          0% |  1.0 M* |     82.63 ± 0.32 |
+|                   |    ✓ |  –   |              1 |          0% | 2.0 M** |     86.36 ± 0.37 |
+|                   |    ✓ |  –   |              1 |          0% |  11.2 M |     91.95 ± 0.17 |
+| **Compression+**  |    – |  –   |              1 |       46.0% |   6.0 M |     90.78 ± 0.11 |
+|                   |    ✓ |  –   |              1 |       46.0% |   6.0 M |     82.02 ± 0.15 |
+|                   |    – |  ✓   |              1 |       46.0% |   6.0 M |     92.10 ± 0.04 |
+|                   |    ✓ |  ✓   |              1 |       46.0% |   6.0 M |     92.22 ± 0.03 |
+| **Compression++** |    – |  –   |              1 |       75.0% |   2.8 M |     87.86 ± 0.17 |
+|                   |    ✓ |  –   |              1 |       75.0% |   2.8 M |     89.98 ± 0.29 |
+|                   |    – |  ✓   |              1 |       75.0% |   2.8 M |     90.13 ± 0.20 |
+|                   |    ✓ |  ✓   |              1 |       75.0% |   2.8 M |     91.11 ± 0.08 |
+| **Loop**          |    ✓ |  ✓   |              7 |       84.7% |   1.7 M | **91.61 ± 0.24** |
+|                   |    ✓ |  ✓   |              9 |       91.7% |   0.9 M |     90.64 ± 0.15 |
 
 \* 1.0M model: [ResNetTiny](framework/models/ResNetTiny.py)<br>
 \** 2.0M model: [ResNet10mini](framework/models/ResNet10mini.py)

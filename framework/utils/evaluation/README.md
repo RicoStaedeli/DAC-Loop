@@ -55,5 +55,5 @@ uv run python -m framework.utils.evaluation.generate_exp_description_md
 Make Inference comparison
 
 ```bash
-uv run python -m framework.utils.evaluation.inference
+uv run python -m framework.utils.evaluation.inference_time_evaluation
 ```

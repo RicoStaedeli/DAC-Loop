@@ -10,6 +10,10 @@ from framework.models import MODEL_REGISTRY
 log = logging.getLogger(__name__)
 
 class ModelBuilder:
+    """
+    This class creates a usable ResNet Model from a given checkpoint.
+    The checkpoint needs to contain the model layer information.
+    """
 
     def _get_parent_module(self, root: nn.Module, name: str) -> Tuple[nn.Module, str]:
         """
