@@ -109,4 +109,4 @@ Also included are the results of our DAC-Loop approach with multiple iterations 
 ## Contact
 
 Feel free to get in touch with us with any questions on the project. Reach out
-to anonym.
+to [rico.staedeli@student.unisg.com](mailto:rico.staedeli@student.unisg.com).
