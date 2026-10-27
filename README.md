@@ -4,7 +4,7 @@
 
 <!-- TODO arXiv: replace both "coming_soon" in the badge URL and "XXXX.XXXXX" in the link with the arXiv ID (e.g. 2607.03551) -->
 <p align="center">
-  <a href="https://arxiv.org/abs/2510.06738"><img src="https://img.shields.io/badge/arXiv-2510.06738-b31b1b?logo=arxiv&logoColor=white" alt="arXiv"></a>
+  <a href="https://arxiv.org/abs/2610.35175"><img src="https://img.shields.io/badge/arXiv-2610.35175-b31b1b?logo=arxiv&logoColor=white" alt="arXiv"></a>
   <a href="https://doi.org/10.1109/IGARSS60577.2026.11730294"><img src="https://img.shields.io/badge/IEEE_Xplore-10.1109%2FIGARSS60577.2026.11730294-00629B?logo=ieee&logoColor=white" alt="IEEE Xplore"></a>
   <a href="docs/poster_IGARSS-2026/IGARSS2026%20Poster.pdf"><img src="https://img.shields.io/badge/Poster-IGARSS_2026-1f6feb" alt="Poster IGARSS 2026"></a>
 </p>
